@@ -1,7 +1,7 @@
 # Review Recording Workflow
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [record-review.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts)
 - [sm2.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts)
 - [mastery.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts)
@@ -9,7 +9,8 @@
 - [types.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts)
 - [application-record-review.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/application-record-review.test.ts)
 - [engine-sm2.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

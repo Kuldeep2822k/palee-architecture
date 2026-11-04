@@ -1,7 +1,7 @@
 # Adopting Topics
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [adopt.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts)
 - [adopt-undo.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts)
 - [topic-id.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts)
@@ -12,7 +12,8 @@
 - [cli-adopt-batch.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-batch.test.ts)
 - [cli-adopt-single-file-filters.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-single-file-filters.test.ts)
 - [cli-adopt-prereq-text.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-prereq-text.test.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

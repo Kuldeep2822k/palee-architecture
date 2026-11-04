@@ -1,14 +1,15 @@
 # Maintenance and System Commands
 
-<cite>
-**Referenced Files in This Document **
+::: details Referenced Files in This Document
+
 - [bin/palee.ts](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts)
 - [src/cli/validate.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts)
 - [src/cli/migrate.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/migrate.ts)
 - [src/cli/session.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts)
 - [src/cli/update.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update.ts)
 - [src/cli/vault-echo.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/vault-echo.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

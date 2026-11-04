@@ -1,7 +1,7 @@
 # Getting Started
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [README.md](https://github.com/Kuldeep2822k/cli/blob/main/README.md)
 - [package.json](https://github.com/Kuldeep2822k/cli/blob/main/package.json)
 - [bin/palee.ts](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts)
@@ -14,7 +14,8 @@
 - [examples/Docker Networking.md](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Networking.md)
 - [examples/Docker Volumes.md](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Volumes.md)
 - [examples/.palee/index.md](https://github.com/Kuldeep2822k/cli/blob/main/examples/.palee/index.md)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

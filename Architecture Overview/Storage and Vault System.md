@@ -1,7 +1,7 @@
 # Storage and Vault System
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [storage index](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts)
 - [vault walker](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/vault-walker.ts)
 - [note scanner](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts)
@@ -11,7 +11,8 @@
 - [file cache](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/cache.ts)
 - [topic loader](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts)
 - [containment guard](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

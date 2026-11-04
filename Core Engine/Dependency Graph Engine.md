@@ -1,7 +1,7 @@
 # Dependency Graph Engine
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [dependency.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts)
 - [mastery.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts)
 - [types.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts)
@@ -10,7 +10,8 @@
 - [due-topics.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts)
 - [no-dependency-cycle.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-dependency-cycle.ts)
 - [engine-dependency.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-dependency.test.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

@@ -1,14 +1,15 @@
 # Session Memory and Storage
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [ADR-0019: Session-Memory Lifecycle and Staleness Clamps](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0019-session-memory-lifecycle.md)
 - [ADR-0007: Hot-Memory Read-State Contract](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0007-hot-memory-read-state-contract.md)
 - [Session Memory Design](https://github.com/Kuldeep2822k/cli/blob/main/planning/memory_design.md)
 - [Session Memory Storage Documentation](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-4-session-memory-storage.md)
 - [Memory Manager Implementation](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts)
 - [Session CLI Command Handler](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

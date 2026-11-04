@@ -1,7 +1,7 @@
 # Core Concepts
 
-<cite>
-**Referenced Files in This Document**   
+::: details Referenced Files in This Document
+
 - [README.md](https://github.com/Kuldeep2822k/cli/blob/main/README.md)
 - [bin/palee.ts](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts)
 - [examples/Docker Fundamentals.md](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Fundamentals.md)
@@ -17,7 +17,8 @@
 - [src/engine/sm2.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts)
 - [src/cli/adopt.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts)
 - [src/cli/review.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

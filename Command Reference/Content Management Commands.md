@@ -1,7 +1,7 @@
 # Content Management Commands
 
-<cite>
-**Referenced Files in This Document**   
+::: details Referenced Files in This Document
+
 - [adopt.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts)
 - [assess.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts)
 - [config.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts)
@@ -9,7 +9,8 @@
 - [record-assessment.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts)
 - [pattern-matcher.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/pattern-matcher.ts)
 - [types.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

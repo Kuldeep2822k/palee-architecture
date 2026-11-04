@@ -1,7 +1,7 @@
 # Architecture Overview
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [README.md](https://github.com/Kuldeep2822k/cli/blob/main/README.md)
 - [package.json](https://github.com/Kuldeep2822k/cli/blob/main/package.json)
 - [bin/palee.ts](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts)
@@ -21,7 +21,8 @@
 - [docs/04-0-storage-layer.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-0-storage-layer.md)
 - [docs/05-0-data-model-and-types.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-0-data-model-and-types.md)
 - [docs/adr/0002-atomic-file-locking-and-occ.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0002-atomic-file-locking-and-occ.md)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

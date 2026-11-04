@@ -1,7 +1,7 @@
 # Planning and Design Documents
 
-<cite>
-**Referenced Files in This Document**   
+::: details Referenced Files in This Document
+
 - [invariants.md](https://github.com/Kuldeep2822k/cli/blob/main/planning/invariants.md)
 - [memory_design.md](https://github.com/Kuldeep2822k/cli/blob/main/planning/memory_design.md)
 - [storage_design.md](https://github.com/Kuldeep2822k/cli/blob/main/planning/storage_design.md)
@@ -50,7 +50,8 @@
 - [src/storage/roadmap-parser.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/roadmap-parser.ts)
 - [src/ai/provider.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts)
 - [test/planning-invariant-ids.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/planning-invariant-ids.test.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

@@ -1,12 +1,13 @@
 # Output Formatting System
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [format.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/format.ts)
 - [types.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts)
 - [validate.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts)
 - [validation-format.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/validation-format.test.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

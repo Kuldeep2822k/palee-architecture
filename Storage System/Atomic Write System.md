@@ -1,7 +1,7 @@
 # Atomic Write System
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [atomic-write.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts)
 - [containment.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts)
 - [lock.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts)
@@ -12,7 +12,8 @@
 - [storage-atomic-write.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-atomic-write.test.ts)
 - [storage-atomic-write-containment-window.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-atomic-write-containment-window.test.ts)
 - [storage-atomic-write-stale-temp-reap.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-atomic-write-stale-temp-reap.test.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

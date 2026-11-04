@@ -1,7 +1,7 @@
 # Undo and Recovery Operations
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [adopt-undo.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts)
 - [adopt.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts)
 - [atomic-write.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts)
@@ -12,7 +12,8 @@
 - [0019-session-memory-lifecycle.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0019-session-memory-lifecycle.md)
 - [cli-adopt-undo.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-undo.test.ts)
 - [cli-adopt-undo-disclosure.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-undo-disclosure.test.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

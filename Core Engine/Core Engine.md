@@ -1,7 +1,7 @@
 # Core Engine
 
-<cite>
-**Referenced Files in This Document**   
+::: details Referenced Files in This Document
+
 - [engine index.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts)
 - [sm2 spaced repetition engine](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts)
 - [dependency graph engine](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts)
@@ -11,7 +11,8 @@
 - [topic ID policy](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts)
 - [tier-0 hygiene predicates](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts)
 - [declared prerequisite text parser](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

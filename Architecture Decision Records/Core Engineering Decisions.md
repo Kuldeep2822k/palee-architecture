@@ -1,7 +1,7 @@
 # Core Engineering Decisions
 
-<cite>
-**Referenced Files in This Document**   
+::: details Referenced Files in This Document
+
 - [README.md](https://github.com/Kuldeep2822k/cli/blob/main/README.md)
 - [0001-supermemo-sm2-algorithm.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md)
 - [0002-atomic-file-locking-and-occ.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0002-atomic-file-locking-and-occ.md)
@@ -20,7 +20,8 @@
 - [memory.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts)
 - [cache.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/cache.ts)
 - [index.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

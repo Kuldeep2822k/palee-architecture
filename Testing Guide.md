@@ -1,7 +1,7 @@
 # Testing Guide
 
-<cite>
-**Referenced Files in This Document**   
+::: details Referenced Files in This Document
+
 - [package.json](https://github.com/Kuldeep2822k/cli/blob/main/package.json)
 - [.c8rc.json](https://github.com/Kuldeep2822k/cli/blob/main/.c8rc.json)
 - [.github/workflows/ci.yml](https://github.com/Kuldeep2822k/cli/blob/main/.github/workflows/ci.yml)
@@ -12,7 +12,8 @@
 - [test/property-fuzz.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/property-fuzz.test.ts)
 - [test/stress-concurrency.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/stress-concurrency.test.ts)
 - [test/fault-injection.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/fault-injection.test.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

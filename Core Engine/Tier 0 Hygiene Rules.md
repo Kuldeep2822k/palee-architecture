@@ -1,7 +1,7 @@
 # Tier 0 Hygiene Rules
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [tier0-hygiene.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts)
 - [0010-tier0-hygiene-classification.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0010-tier0-hygiene-classification.md)
 - [0011-tiered-auto-chain.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0011-tiered-auto-chain.md)
@@ -11,7 +11,8 @@
 - [run-rules.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts)
 - [types.ts (validation types)](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts)
 - [validate.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

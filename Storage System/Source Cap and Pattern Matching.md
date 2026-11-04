@@ -1,7 +1,7 @@
 # Source Cap and Pattern Matching
 
-<cite>
-**Referenced Files in This Document**   
+::: details Referenced Files in This Document
+
 - [source-cap.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/source-cap.ts)
 - [pattern-matcher.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/pattern-matcher.ts)
 - [note-title.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/note-title.ts)
@@ -12,7 +12,8 @@
 - [storage-source-cap.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-source-cap.test.ts)
 - [storage-pattern-matcher.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-pattern-matcher.test.ts)
 - [storage-note-title.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-note-title.test.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

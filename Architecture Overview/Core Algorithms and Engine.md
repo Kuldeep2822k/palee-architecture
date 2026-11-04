@@ -1,7 +1,7 @@
 # Core Algorithms and Engine
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [src/engine/sm2.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts)
 - [src/engine/mastery.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts)
 - [src/engine/dependency.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts)
@@ -15,7 +15,8 @@
 - [docs/adr/0012-declared-prerequisites.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0012-declared-prerequisites.md)
 - [docs/03-1-sm2-spaced-repetition-algorithm.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md)
 - [docs/03-2-dependency-graph-engine.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-2-dependency-graph-engine.md)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

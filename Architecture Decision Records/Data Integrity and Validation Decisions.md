@@ -1,7 +1,7 @@
 # Data Integrity and Validation Decisions
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [0008-validation-framework-decisions.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0008-validation-framework-decisions.md)
 - [0015-identity-preservation.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0015-identity-preservation.md)
 - [0016-frontmatter-fidelity-and-unicode-fold.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0016-frontmatter-fidelity-and-unicode-fold.md)
@@ -15,7 +15,8 @@
 - [run-rules.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts)
 - [validate.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts)
 - [migrate.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/migrate.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

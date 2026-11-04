@@ -1,7 +1,7 @@
 # Application Layer and CLI Decisions
 
-<cite>
-**Referenced Files in This Document**   
+::: details Referenced Files in This Document
+
 - [bin/palee.ts](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts)
 - [src/cli/exit-codes.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts)
 - [src/cli/update.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update.ts)
@@ -13,7 +13,8 @@
 - [docs/adr/0029-test-cli-launch-policy.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0029-test-cli-launch-policy.md)
 - [docs/adr/0032-direct-spawn-bounding.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0032-direct-spawn-bounding.md)
 - [docs/adr/0033-update-command-and-npm-child-process-boundary.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0033-update-command-and-npm-child-process-boundary.md)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

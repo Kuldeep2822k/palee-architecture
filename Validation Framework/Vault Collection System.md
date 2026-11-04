@@ -1,7 +1,7 @@
 # Vault Collection System
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [collect-vault.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts)
 - [types.ts (validation)](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts)
 - [managed-note.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/managed-note.ts)
@@ -11,7 +11,8 @@
 - [memory.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts)
 - [loader.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts)
 - [index.ts (storage)](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

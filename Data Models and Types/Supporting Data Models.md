@@ -1,7 +1,7 @@
 # Supporting Data Models
 
-<cite>
-**Referenced Files in This Document**   
+::: details Referenced Files in This Document
+
 - [types.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts)
 - [progress.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts)
 - [scanner.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts)
@@ -10,7 +10,8 @@
 - [vault-walker.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/vault-walker.ts)
 - [dependency.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts)
 - [roadmap-parser.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/roadmap-parser.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

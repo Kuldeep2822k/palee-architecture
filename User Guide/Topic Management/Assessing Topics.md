@@ -1,7 +1,7 @@
 # Assessing Topics
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [assess.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts)
 - [record-assessment.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts)
 - [mastery.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts)
@@ -14,7 +14,8 @@
 - [05-1-topic-and-assessment-schema.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md)
 - [cli-assess.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-assess.test.ts)
 - [application-record-assessment.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/application-record-assessment.test.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

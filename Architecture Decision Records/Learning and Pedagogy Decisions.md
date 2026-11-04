@@ -1,7 +1,7 @@
 # Learning and Pedagogy Decisions
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [ADR-0004: Four-Pillar Pedagogical Assessment Model](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md)
 - [ADR-0009: The Gating Model — What May Lock a Note](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0009-gating-model-depends-on-source.md)
 - [ADR-0010: Tier-0 Hygiene Classification for Batch Adoption](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0010-tier0-hygiene-classification.md)
@@ -16,7 +16,8 @@
 - [Declared Prerequisites Scanner](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts)
 - [Next Topics Use Case](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts)
 - [Record Assessment Use Case](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

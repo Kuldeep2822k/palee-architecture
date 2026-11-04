@@ -1,7 +1,7 @@
 # Layered Architecture Design
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [package.json](https://github.com/Kuldeep2822k/cli/blob/main/package.json)
 - [src/index.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/index.ts)
 - [src/types.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts)
@@ -21,7 +21,8 @@
 - [src/storage/loader.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts)
 - [src/validation/index.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts)
 - [src/validation/run-rules.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

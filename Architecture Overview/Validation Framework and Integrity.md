@@ -1,7 +1,7 @@
 # Validation Framework and Integrity
 
-<cite>
-**Referenced Files in This Document**   
+::: details Referenced Files in This Document
+
 - [src/validation/index.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts)
 - [src/validation/types.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts)
 - [src/validation/collect-vault.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts)
@@ -29,7 +29,8 @@
 - [src/validation/rules/safe-vault-paths.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/safe-vault-paths.ts)
 - [docs/adr/0008-validation-framework-decisions.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0008-validation-framework-decisions.md)
 - [docs/adr/0035-validate-fix-partial-pillar-eligibility.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0035-validate-fix-partial-pillar-eligibility.md)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

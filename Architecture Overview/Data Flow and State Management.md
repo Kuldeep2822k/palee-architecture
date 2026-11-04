@@ -1,7 +1,7 @@
 # Data Flow and State Management
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [src/index.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/index.ts)
 - [bin/bin/palee.ts](https://github.com/Kuldeep2822k/cli/blob/main/bin/bin/palee.ts)
 - [src/cli/session.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts)
@@ -17,7 +17,8 @@
 - [src/storage/memory.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts)
 - [src/storage/sessions.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts)
 - [src/storage/atomic-write.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

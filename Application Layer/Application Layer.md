@@ -1,7 +1,7 @@
 # Application Layer
 
-<cite>
-**Referenced Files in This Document**   
+::: details Referenced Files in This Document
+
 - [0025-application-layer.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0025-application-layer.md)
 - [due-topics.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts)
 - [get-next-topics.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts)
@@ -15,7 +15,8 @@
 - [mastery.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts)
 - [sm2.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts)
 - [types.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

@@ -1,7 +1,7 @@
 # General CLI Concepts and Conventions
 
-<cite>
-**Referenced Files in This Document**   
+::: details Referenced Files in This Document
+
 - [bin/palee.ts](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts)
 - [src/cli/exit-codes.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts)
 - [src/cli/program-name.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/program-name.ts)
@@ -10,7 +10,8 @@
 - [src/cli/update-check.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update-check.ts)
 - [src/storage/index.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts)
 - [docs/adr/0024-exit-codes-and-error-contract.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0024-exit-codes-and-error-contract.md)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

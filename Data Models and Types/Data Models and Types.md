@@ -1,7 +1,7 @@
 # Data Models and Types
 
-<cite>
-**Referenced Files in This Document**   
+::: details Referenced Files in This Document
+
 - [src/types.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts)
 - [src/engine/mastery.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts)
 - [src/engine/sm2.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts)
@@ -13,7 +13,8 @@
 - [src/validation/rules/valid-assessment-fields.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts)
 - [src/validation/rules/valid-review-fields.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-fields.ts)
 - [src/validation/rules/valid-session-schema.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-session-schema.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

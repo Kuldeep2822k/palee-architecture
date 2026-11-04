@@ -1,7 +1,7 @@
 # AI Integration (Phase 2)
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [index.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/index.ts)
 - [provider.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts)
 - [ai_module_design.md](https://github.com/Kuldeep2822k/cli/blob/main/planning/ai_module_design.md)
@@ -10,7 +10,8 @@
 - [ai-provider.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-provider.test.ts)
 - [cli-config-provider-credentials.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-config-provider-credentials.test.ts)
 - [cli-config-test-connection.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-config-test-connection.test.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

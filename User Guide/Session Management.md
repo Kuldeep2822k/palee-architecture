@@ -1,7 +1,7 @@
 # Session Management
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [session.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts)
 - [memory.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts)
 - [sessions.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts)
@@ -10,7 +10,8 @@
 - [session-hot-reads.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/session-hot-reads.test.ts)
 - [session-topic-resolution.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/session-topic-resolution.test.ts)
 - [cli-session-containment.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-session-containment.test.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

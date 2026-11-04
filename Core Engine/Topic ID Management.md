@@ -1,7 +1,7 @@
 # Topic ID Management
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [topic-id.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts)
 - [engine/index.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts)
 - [valid-topic-id-format.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-id-format.ts)
@@ -13,7 +13,8 @@
 - [engine-topic-id.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-topic-id.test.ts)
 - [0015-identity-preservation.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0015-identity-preservation.md)
 - [0016-frontmatter-fidelity-and-unicode-fold.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0016-frontmatter-fidelity-and-unicode-fold.md)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

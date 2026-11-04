@@ -1,7 +1,7 @@
 # Scheduling Algorithms and Discovery
 
-<cite>
-**Referenced Files in This Document**   
+::: details Referenced Files in This Document
+
 - [sm2.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts)
 - [get-next-topics.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts)
 - [due-topics.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts)
@@ -11,7 +11,8 @@
 - [engine-sm2.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts)
 - [application-get-next-topics.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/application-get-next-topics.test.ts)
 - [cli-next-plan-prerequisite-gating.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-next-plan-prerequisite-gating.test.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

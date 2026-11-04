@@ -1,7 +1,7 @@
 # Interactive Review Workflow
 
-<cite>
-**Referenced Files in This Document**   
+::: details Referenced Files in This Document
+
 - [src/cli/review.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts)
 - [src/application/record-review.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts)
 - [src/engine/sm2.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts)
@@ -14,7 +14,8 @@
 - [docs/adr/0021-assessment-surface.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0021-assessment-surface.md)
 - [test/cli-review-early.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-review-early.test.ts)
 - [test/application-record-review.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/application-record-review.test.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

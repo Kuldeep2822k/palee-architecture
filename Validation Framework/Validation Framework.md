@@ -1,7 +1,7 @@
 # Validation Framework
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [index.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts)
 - [types.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts)
 - [collect-vault.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts)
@@ -28,7 +28,8 @@
 - [valid-session-index.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-session-index.ts)
 - [valid-hot-memory.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-hot-memory.ts)
 - [safe-vault-paths.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/safe-vault-paths.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

@@ -1,7 +1,7 @@
 # Review Model (SM-2 Scheduling)
 
-<cite>
-**Referenced Files in This Document**   
+::: details Referenced Files in This Document
+
 - [types.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts)
 - [sm2.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts)
 - [record-review.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts)
@@ -10,7 +10,8 @@
 - [valid-review-fields.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-fields.ts)
 - [loader.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts)
 - [engine-sm2.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

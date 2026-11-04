@@ -1,7 +1,7 @@
 # Reporting and Analytics
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [dashboard.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts)
 - [progress.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts)
 - [mastery-summary.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts)
@@ -12,7 +12,8 @@
 - [02-3-reporting-commands.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/02-3-reporting-commands.md)
 - [cli-json-output.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-json-output.test.ts)
 - [application-mastery-summary.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/application-mastery-summary.test.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

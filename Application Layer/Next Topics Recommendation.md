@@ -1,7 +1,7 @@
 # Next Topics Recommendation
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [get-next-topics.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts)
 - [due-topics.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts)
 - [dependency.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts)
@@ -11,7 +11,8 @@
 - [types.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts)
 - [application-get-next-topics.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/application-get-next-topics.test.ts)
 - [application-next-prerequisite-gate.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/application-next-prerequisite-gate.test.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

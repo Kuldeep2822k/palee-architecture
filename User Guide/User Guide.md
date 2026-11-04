@@ -1,7 +1,7 @@
 # User Guide
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [README.md](https://github.com/Kuldeep2822k/cli/blob/main/README.md)
 - [program-name.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/program-name.ts)
 - [types.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts)
@@ -23,7 +23,8 @@
 - [Docker Fundamentals.md](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Fundamentals.md)
 - [Docker Volumes.md](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Volumes.md)
 - [Docker Networking.md](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Networking.md)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

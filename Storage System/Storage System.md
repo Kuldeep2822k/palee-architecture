@@ -1,7 +1,7 @@
 # Storage System
 
-<cite>
-**Referenced Files in This Document**   
+::: details Referenced Files in This Document
+
 - [frontmatter.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/src/storage/frontmatter.ts)
 - [atomic-write.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/src/storage/atomic-write.ts)
 - [lock.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/src/storage/lock.ts)
@@ -25,7 +25,8 @@
 - [04-2-file-locking.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/docs/04-2-file-locking.md)
 - [04-3-vault-walker-and-file-cache.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/docs/04-3-vault-walker-and-file-cache.md)
 - [04-4-session-memory-storage.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/docs/04-4-session-memory-storage.md)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

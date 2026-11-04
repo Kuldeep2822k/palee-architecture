@@ -1,7 +1,7 @@
 # Security and Concurrency Model
 
-<cite>
-**Referenced Files in This Document**   
+::: details Referenced Files in This Document
+
 - [containment.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts)
 - [atomic-write.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts)
 - [lock.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts)
@@ -13,7 +13,8 @@
 - [0027-ai-provider-boundary.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0027-ai-provider-boundary.md)
 - [0032-direct-spawn-bounding.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0032-direct-spawn-bounding.md)
 - [0036-bounded-lock-acquisition.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0036-bounded-lock-acquisition.md)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

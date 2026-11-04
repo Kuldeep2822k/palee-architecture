@@ -1,7 +1,7 @@
 # Auto-Chaining and Prerequisite Discovery
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [auto-chain.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts)
 - [prereq-text.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts)
 - [wikilink.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts)
@@ -11,7 +11,8 @@
 - [engine-auto-chain.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-auto-chain.test.ts)
 - [engine-prereq-text.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-prereq-text.test.ts)
 - [cli-adopt-autochain.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-autochain.test.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

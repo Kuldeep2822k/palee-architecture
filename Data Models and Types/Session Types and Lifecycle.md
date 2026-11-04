@@ -1,7 +1,7 @@
 # Session Types and Lifecycle
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [types.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts)
 - [memory.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts)
 - [sessions.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts)
@@ -11,7 +11,8 @@
 - [0019-session-memory-lifecycle.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0019-session-memory-lifecycle.md)
 - [04-4-session-memory-storage.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-4-session-memory-storage.md)
 - [draft-recovery-transaction.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/draft-recovery-transaction.test.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

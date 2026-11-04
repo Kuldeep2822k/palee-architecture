@@ -1,7 +1,7 @@
 # Configuration and CLI Option Types
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [src/types.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts)
 - [bin/palee.ts](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts)
 - [src/cli/config.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts)
@@ -17,7 +17,8 @@
 - [src/cli/assess.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts)
 - [src/cli/update.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update.ts)
 - [src/cli/migrate.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/migrate.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

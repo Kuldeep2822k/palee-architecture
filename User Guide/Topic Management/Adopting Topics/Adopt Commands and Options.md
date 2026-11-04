@@ -1,7 +1,7 @@
 # Adopt Commands and Options
 
-<cite>
-**Referenced Files in This Document**   
+::: details Referenced Files in This Document
+
 - [adopt.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/src/cli/adopt.ts)
 - [adopt-undo.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/src/cli/adopt-undo.ts)
 - [prereq-text.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/src/engine/prereq-text.ts)
@@ -14,7 +14,8 @@
 - [atomic-write.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/atomic-write.ts)
 - [exit-codes.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/src/cli/exit-codes.ts)
 - [02-1-topic-management-commands.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/docs/02-1-topic-management-commands.md)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

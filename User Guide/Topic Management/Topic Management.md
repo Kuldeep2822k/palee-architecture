@@ -1,7 +1,7 @@
 # Topic Management
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [adopt.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts)
 - [assess.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts)
 - [topic-query.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/topic-query.ts)
@@ -10,7 +10,8 @@
 - [scanner.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts)
 - [cli-adopt-batch.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-batch.test.ts)
 - [cli-adopt-prereq-text.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-prereq-text.test.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

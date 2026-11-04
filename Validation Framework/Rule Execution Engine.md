@@ -1,7 +1,7 @@
 # Rule Execution Engine
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [run-rules.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts)
 - [types.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts)
 - [collect-vault.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts)
@@ -12,7 +12,8 @@
 - [no-duplicate-topic-id.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-duplicate-topic-id.ts)
 - [valid-hot-memory.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-hot-memory.ts)
 - [validation-framework.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/validation-framework.test.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

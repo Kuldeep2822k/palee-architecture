@@ -1,7 +1,7 @@
 # Frontmatter Parser and Updater
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [frontmatter.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts)
 - [types.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts)
 - [loader.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts)
@@ -12,7 +12,8 @@
 - [valid-assessment-fields.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts)
 - [valid-review-fields.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-fields.ts)
 - [storage-frontmatter.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-frontmatter.test.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

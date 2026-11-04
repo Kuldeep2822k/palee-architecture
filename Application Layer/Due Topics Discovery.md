@@ -1,7 +1,7 @@
 # Due Topics Discovery
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [due-topics.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts)
 - [get-next-topics.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts)
 - [next.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts)
@@ -11,7 +11,8 @@
 - [mastery.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts)
 - [storage/index.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts)
 - [loader.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

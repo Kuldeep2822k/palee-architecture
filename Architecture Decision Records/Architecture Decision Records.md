@@ -1,7 +1,7 @@
 # Architecture Decision Records
 
-<cite>
-**Referenced Files in This Document**   
+::: details Referenced Files in This Document
+
 - [agent.md](https://github.com/Kuldeep2822k/cli/blob/main/agent.md)
 - [planning/invariants.md](https://github.com/Kuldeep2822k/cli/blob/main/planning/invariants.md)
 - [planning/memory_design.md](https://github.com/Kuldeep2822k/cli/blob/main/planning/memory_design.md)
@@ -18,7 +18,8 @@
 - [src/storage/lock.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts)
 - [src/validation/index.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts)
 - [src/validation/run-rules.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

@@ -1,7 +1,7 @@
 # Topic Discovery and Querying
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [topic-query.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/topic-query.ts)
 - [due-topics.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts)
 - [get-next-topics.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts)
@@ -9,7 +9,8 @@
 - [index.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts)
 - [mastery.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts)
 - [types.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

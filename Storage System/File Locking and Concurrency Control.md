@@ -1,12 +1,13 @@
 # File Locking and Concurrency Control
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [src/storage/lock.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts)
 - [test/storage-lock.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-lock.test.ts)
 - [test/storage-lock-heartbeat-loss.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-lock-heartbeat-loss.test.ts)
 - [docs/04-2-file-locking.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-2-file-locking.md)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

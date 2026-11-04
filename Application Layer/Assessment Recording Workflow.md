@@ -1,7 +1,7 @@
 # Assessment Recording Workflow
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [record-assessment.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts)
 - [assess.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts)
 - [mastery.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts)
@@ -12,7 +12,8 @@
 - [0004-four-pillar-pedagogical-mastery.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md)
 - [0005-concurrency-storage-and-schema-migration.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0005-concurrency-storage-and-schema-migration.md)
 - [0014-atomic-write-durability-and-containment.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0014-atomic-write-durability-and-containment.md)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

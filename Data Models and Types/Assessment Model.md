@@ -1,7 +1,7 @@
 # Assessment Model
 
-<cite>
-**Referenced Files in This Document **
+::: details Referenced Files in This Document
+
 - [types.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts)
 - [mastery.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts)
 - [frontmatter.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts)
@@ -13,7 +13,8 @@
 - [0021-assessment-surface.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0021-assessment-surface.md)
 - [05-1-topic-and-assessment-schema.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md)
 - [Docker Fundamentals.md](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Fundamentals.md)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

@@ -46,11 +46,8 @@ export default defineConfig({
     {
         "text": "Architecture Overview",
         "collapsed": false,
+        "link": "/Architecture Overview/Architecture Overview",
         "items": [
-            {
-                "text": "Architecture Overview",
-                "link": "/Architecture Overview/Architecture Overview"
-            },
             {
                 "text": "Core Algorithms and Engine",
                 "link": "/Architecture Overview/Core Algorithms and Engine"
@@ -80,14 +77,11 @@ export default defineConfig({
     {
         "text": "Core Engine",
         "collapsed": false,
+        "link": "/Core Engine/Core Engine",
         "items": [
             {
                 "text": "Auto-Chaining and Prerequisite Discovery",
                 "link": "/Core Engine/Auto-Chaining and Prerequisite Discovery"
-            },
-            {
-                "text": "Core Engine",
-                "link": "/Core Engine/Core Engine"
             },
             {
                 "text": "Dependency Graph Engine",
@@ -118,6 +112,7 @@ export default defineConfig({
     {
         "text": "Storage System",
         "collapsed": false,
+        "link": "/Storage System/Storage System",
         "items": [
             {
                 "text": "Atomic Write System",
@@ -144,10 +139,6 @@ export default defineConfig({
                 "link": "/Storage System/Source Cap and Pattern Matching"
             },
             {
-                "text": "Storage System",
-                "link": "/Storage System/Storage System"
-            },
-            {
                 "text": "Vault Walker and Scanner",
                 "link": "/Storage System/Vault Walker and Scanner"
             }
@@ -156,11 +147,8 @@ export default defineConfig({
     {
         "text": "Application Layer",
         "collapsed": false,
+        "link": "/Application Layer/Application Layer",
         "items": [
-            {
-                "text": "Application Layer",
-                "link": "/Application Layer/Application Layer"
-            },
             {
                 "text": "Assessment Recording Workflow",
                 "link": "/Application Layer/Assessment Recording Workflow"
@@ -186,6 +174,7 @@ export default defineConfig({
     {
         "text": "Validation Framework",
         "collapsed": false,
+        "link": "/Validation Framework/Validation Framework",
         "items": [
             {
                 "text": "Output Formatting System",
@@ -194,10 +183,6 @@ export default defineConfig({
             {
                 "text": "Rule Execution Engine",
                 "link": "/Validation Framework/Rule Execution Engine"
-            },
-            {
-                "text": "Validation Framework",
-                "link": "/Validation Framework/Validation Framework"
             },
             {
                 "text": "Validation Rule Catalog",
@@ -212,11 +197,8 @@ export default defineConfig({
     {
         "text": "Command Reference",
         "collapsed": false,
+        "link": "/Command Reference/Command Reference",
         "items": [
-            {
-                "text": "Command Reference",
-                "link": "/Command Reference/Command Reference"
-            },
             {
                 "text": "Content Management Commands",
                 "link": "/Command Reference/Content Management Commands"
@@ -242,6 +224,7 @@ export default defineConfig({
     {
         "text": "Data Models and Types",
         "collapsed": false,
+        "link": "/Data Models and Types/Data Models and Types",
         "items": [
             {
                 "text": "Assessment Model",
@@ -250,10 +233,6 @@ export default defineConfig({
             {
                 "text": "Configuration and CLI Option Types",
                 "link": "/Data Models and Types/Configuration and CLI Option Types"
-            },
-            {
-                "text": "Data Models and Types",
-                "link": "/Data Models and Types/Data Models and Types"
             },
             {
                 "text": "Review Model (SM-2 Scheduling)",
@@ -276,6 +255,7 @@ export default defineConfig({
     {
         "text": "Architecture Decision Records",
         "collapsed": false,
+        "link": "/Architecture Decision Records/Architecture Decision Records",
         "items": [
             {
                 "text": "ADR Lifecycle and Conventions",
@@ -288,10 +268,6 @@ export default defineConfig({
             {
                 "text": "Application Layer and CLI Decisions",
                 "link": "/Architecture Decision Records/Application Layer and CLI Decisions"
-            },
-            {
-                "text": "Architecture Decision Records",
-                "link": "/Architecture Decision Records/Architecture Decision Records"
             },
             {
                 "text": "Core Engineering Decisions",
@@ -318,6 +294,7 @@ export default defineConfig({
     {
         "text": "User Guide",
         "collapsed": false,
+        "link": "/User Guide/User Guide",
         "items": [
             {
                 "text": "Core Concepts",
@@ -329,15 +306,12 @@ export default defineConfig({
             },
             {
                 "text": "Review and Scheduling",
-                "collapsed": true,
+                "collapsed": false,
+                "link": "/User Guide/Review and Scheduling/Review and Scheduling",
                 "items": [
                     {
                         "text": "Interactive Review Workflow",
                         "link": "/User Guide/Review and Scheduling/Interactive Review Workflow"
-                    },
-                    {
-                        "text": "Review and Scheduling",
-                        "link": "/User Guide/Review and Scheduling/Review and Scheduling"
                     },
                     {
                         "text": "Scheduling Algorithms and Discovery",
@@ -351,19 +325,17 @@ export default defineConfig({
             },
             {
                 "text": "Topic Management",
-                "collapsed": true,
+                "collapsed": false,
+                "link": "/User Guide/Topic Management/Topic Management",
                 "items": [
                     {
                         "text": "Adopting Topics",
-                        "collapsed": true,
+                        "collapsed": false,
+                        "link": "/User Guide/Topic Management/Adopting Topics/Adopting Topics",
                         "items": [
                             {
                                 "text": "Adopt Commands and Options",
                                 "link": "/User Guide/Topic Management/Adopting Topics/Adopt Commands and Options"
-                            },
-                            {
-                                "text": "Adopting Topics",
-                                "link": "/User Guide/Topic Management/Adopting Topics/Adopting Topics"
                             },
                             {
                                 "text": "Undo and Recovery Operations",
@@ -378,16 +350,8 @@ export default defineConfig({
                     {
                         "text": "Topic Discovery and Querying",
                         "link": "/User Guide/Topic Management/Topic Discovery and Querying"
-                    },
-                    {
-                        "text": "Topic Management",
-                        "link": "/User Guide/Topic Management/Topic Management"
                     }
                 ]
-            },
-            {
-                "text": "User Guide",
-                "link": "/User Guide/User Guide"
             }
         ]
     },

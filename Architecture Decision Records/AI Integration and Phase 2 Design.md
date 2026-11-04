@@ -1,7 +1,7 @@
 # AI Integration and Phase 2 Design
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [index.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/index.ts)
 - [provider.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts)
 - [types.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts)
@@ -14,7 +14,8 @@
 - [ai-provider-loopback.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-provider-loopback.test.ts)
 - [cli-config-provider-credentials.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-config-provider-credentials.test.ts)
 - [cli-config-test-connection.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-config-test-connection.test.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

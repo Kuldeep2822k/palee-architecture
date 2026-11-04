@@ -1,7 +1,7 @@
 # Dependency and TOC Management
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [dependency.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts)
 - [prereq-text.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts)
 - [toc-chain.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts)
@@ -10,7 +10,8 @@
 - [frontmatter.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts)
 - [no-dependency-cycle.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-dependency-cycle.ts)
 - [no-missing-dependency.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-missing-dependency.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

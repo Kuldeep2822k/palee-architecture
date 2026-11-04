@@ -1,7 +1,7 @@
 # Development Workflow
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [package.json](https://github.com/Kuldeep2822k/cli/blob/main/package.json)
 - [tsconfig.json](https://github.com/Kuldeep2822k/cli/blob/main/tsconfig.json)
 - [eslint.config.mjs](https://github.com/Kuldeep2822k/cli/blob/main/eslint.config.mjs)
@@ -17,7 +17,8 @@
 - [.github/workflows/deploy-docs.yml](https://github.com/Kuldeep2822k/cli/blob/main/.github/workflows/deploy-docs.yml)
 - [.github/workflows/skylos.yml](https://github.com/Kuldeep2822k/cli/blob/main/.github/workflows/skylos.yml)
 - [docs/adr/README.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/README.md)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

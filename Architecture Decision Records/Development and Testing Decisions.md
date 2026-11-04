@@ -1,7 +1,7 @@
 # Development and Testing Decisions
 
-<cite>
-**Referenced Files in This Document**   
+::: details Referenced Files in This Document
+
 - [ADR-0026: Test Discipline — Falsifiability Over Ceremony](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0026-test-discipline.md)
 - [ADR-0029: Test-Time CLI Launch Policy](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0029-test-cli-launch-policy.md)
 - [ADR-0030: Installed-Artifact CI Evidence](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0030-installed-artifact-ci-evidence.md)
@@ -13,7 +13,8 @@
 - [Planning and Design Documents](https://github.com/Kuldeep2822k/cli/blob/main/docs/08-0-planning-and-design-documents.md)
 - [Smoke Script for Installed Artifacts](https://github.com/Kuldeep2822k/cli/blob/main/scripts/smoke-installed.js)
 - [CI Workflow Matrix Parity Test](https://github.com/Kuldeep2822k/cli/blob/main/test/ci-workflow-matrix.test.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

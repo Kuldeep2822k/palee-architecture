@@ -1,14 +1,15 @@
 # ADR Lifecycle and Conventions
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [README.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/README.md)
 - [0001-supermemo-sm2-algorithm.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md)
 - [0004-four-pillar-pedagogical-mastery.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md)
 - [0005-concurrency-storage-and-schema-migration.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0005-concurrency-storage-and-schema-migration.md)
 - [0036-bounded-lock-acquisition.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0036-bounded-lock-acquisition.md)
 - [agent.md](https://github.com/Kuldeep2822k/cli/blob/main/agent.md)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

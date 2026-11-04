@@ -1,7 +1,7 @@
 # Command Reference
 
-<cite>
-**Referenced Files in This Document**   
+::: details Referenced Files in This Document
+
 - [bin/palee.ts](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts)
 - [src/cli/config.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts)
 - [src/cli/adopt.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts)
@@ -21,7 +21,8 @@
 - [src/cli/vault-echo.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/vault-echo.ts)
 - [src/cli/program-name.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/program-name.ts)
 - [package.json](https://github.com/Kuldeep2822k/cli/blob/main/package.json)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

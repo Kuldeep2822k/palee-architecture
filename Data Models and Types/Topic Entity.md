@@ -1,7 +1,7 @@
 # Topic Entity
 
-<cite>
-**Referenced Files in This Document**   
+::: details Referenced Files in This Document
+
 - [src/types.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts)
 - [src/engine/topic-id.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts)
 - [src/storage/loader.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts)
@@ -10,7 +10,8 @@
 - [src/validation/rules/valid-dependency-list.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-dependency-list.ts)
 - [docs/05-1-topic-and-assessment-schema.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md)
 - [docs/adr/0009-gating-model-depends-on-source.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0009-gating-model-depends-on-source.md)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

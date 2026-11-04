@@ -1,7 +1,7 @@
 # Review and Scheduling
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [next.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts)
 - [review.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts)
 - [get-next-topics.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts)
@@ -12,7 +12,8 @@
 - [mastery.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts)
 - [0020-readiness-and-scheduling-contracts.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0020-readiness-and-scheduling-contracts.md)
 - [0021-assessment-surface.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0021-assessment-surface.md)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

@@ -1,7 +1,7 @@
 # Table of Contents Chain Processing
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [toc-chain.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts)
 - [auto-chain.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts)
 - [tier0-hygiene.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts)
@@ -10,7 +10,8 @@
 - [vault-walker.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/vault-walker.ts)
 - [wikilink.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts)
 - [engine-toc-chain.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-toc-chain.test.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

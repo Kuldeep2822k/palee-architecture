@@ -1,7 +1,7 @@
 # Learning Workflow Commands
 
-<cite>
-**Referenced Files in This Document**
+::: details Referenced Files in This Document
+
 - [next.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts)
 - [review.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts)
 - [plan.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/plan.ts)
@@ -11,7 +11,8 @@
 - [record-review.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts)
 - [sm2.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts)
 - [palee_cli_spec.md](https://github.com/Kuldeep2822k/cli/blob/main/planning/palee_cli_spec.md)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)

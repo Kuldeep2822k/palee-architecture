@@ -1,7 +1,7 @@
 # Planning and Analysis Commands
 
-<cite>
-**Referenced Files in This Document**   
+::: details Referenced Files in This Document
+
 - [roadmap.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts)
 - [dashboard.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts)
 - [roadmap-parser.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/roadmap-parser.ts)
@@ -9,7 +9,8 @@
 - [wikilink.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts)
 - [mastery-summary.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts)
 - [types.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts)
-</cite>
+
+:::
 
 ## Table of Contents
 1. [Introduction](#introduction)
