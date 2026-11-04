@@ -1,0 +1,260 @@
+/* Enterprise dark theme styling and typography */
+:root {
+  /* The site is force-dark; these keep links at 5.38:1 on --vp-c-bg. */
+  --vp-c-brand-1: #3b82f6;
+  --vp-c-brand-2: #2563eb;
+  --vp-c-brand-3: #1d4ed8;
+  --vp-c-brand-soft: rgba(59, 130, 246, 0.14);
+}
+
+.dark {
+  --vp-c-bg: #090a0f;
+  --vp-c-bg-alt: #0e1117;
+  --vp-c-bg-elv: #131720;
+  --vp-c-border: #1e2430;
+  --vp-c-divider: #181d28;
+  --vp-c-gutter: #090a0f;
+}
+
+/* Brand-2 is tuned for button backgrounds; links need a lighter hover. */
+.vp-doc a:hover {
+  color: #60a5fa;
+}
+
+/* Mermaid diagrams — GitHub-style presentation.
+   Inline diagrams render as static images in the page flow; interaction
+   lives only in the full-screen viewer opened from the hover toolbar. */
+.mermaid-block {
+  position: relative;
+  margin: 24px 0;
+}
+
+.mermaid-block .mermaid {
+  display: flex;
+  justify-content: center;
+  margin: 0;
+}
+
+.mermaid-block .mermaid svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  shape-rendering: geometricPrecision;
+}
+
+/* Mermaid 12 emits HTML labels as <p> inside foreignObject; VitePress prose
+   margins would otherwise overflow the node boxes. */
+.mermaid-block svg foreignObject p,
+.mermaid-modal svg foreignObject p {
+  margin: 0;
+  padding: 0;
+  font-size: inherit;
+  line-height: 1.5;
+}
+
+/* Give diagram pages a wider column so diagrams stay readable inline. */
+@media (min-width: 1440px) {
+  .VPDoc.has-aside:has(.mermaid-block) .content-container {
+    max-width: 940px;
+  }
+}
+
+@media (min-width: 1600px) {
+  body:has(.mermaid-block) {
+    --vp-layout-max-width: 1600px;
+  }
+}
+
+.mermaid:empty::before {
+  content: 'Loading diagram…';
+  display: block;
+  padding: 24px 0;
+  color: var(--vp-c-text-3);
+  font-size: 14px;
+  text-align: center;
+}
+
+.mermaid-error .mermaid {
+  padding: 16px;
+  overflow-x: auto;
+  color: var(--vp-c-text-2);
+  font-family: var(--vp-font-family-mono);
+  font-size: 12px;
+  white-space: pre-wrap;
+  border: 1px solid var(--vp-c-border);
+  border-radius: 6px;
+}
+
+.mermaid-toolbar {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+.mermaid-tool {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  color: #8b949e;
+  background: rgba(33, 38, 45, 0.9);
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.mermaid-tool:hover {
+  color: #e6edf3;
+  background: #30363d;
+}
+
+.mermaid-tool:focus-visible,
+.mermaid-modal-btn:focus-visible {
+  outline: 2px solid var(--vp-c-brand-1);
+  outline-offset: 2px;
+}
+
+.mermaid-tool.is-copied {
+  color: #3fb950;
+}
+
+.mermaid-block:hover .mermaid-toolbar,
+.mermaid-block:focus-within .mermaid-toolbar {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (hover: none) {
+  .mermaid-toolbar {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+/* Full-screen diagram viewer */
+.mermaid-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: var(--vp-c-bg);
+}
+
+.mermaid-modal-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.mermaid-modal-stage.is-dragging {
+  cursor: grabbing;
+}
+
+.mermaid-modal-canvas {
+  width: max-content;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+.mermaid-modal-canvas svg {
+  display: block;
+}
+
+.mermaid-modal-toolbar {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 2;
+  display: flex;
+  gap: 6px;
+}
+
+.mermaid-modal .mermaid-tool {
+  width: 32px;
+  height: 32px;
+}
+
+.mermaid-modal-controls {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mermaid-modal-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  color: #8b949e;
+  background: rgba(33, 38, 45, 0.9);
+  border: 1px solid #30363d;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.mermaid-modal-btn:hover {
+  color: #e6edf3;
+  background: #30363d;
+}
+
+/* Feature cards base styling */
+.VPFeature {
+  border-radius: 12px !important;
+  transition: border-color 0.25s, transform 0.25s !important;
+}
+
+.VPFeature:hover {
+  border-color: var(--vp-c-brand-1) !important;
+  transform: translateY(-2px);
+}
+
+/* Dark mode specific feature cards */
+.dark .VPFeature {
+  border: 1px solid #1e2430 !important;
+  background-color: #0e1117 !important;
+}
+
+.dark .VPFeature:hover {
+  border-color: #3b82f6 !important;
+}
+
+/* Feature icon container styling (No emojis, sleek enterprise vector box) */
+.VPFeature .icon {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 8px !important;
+  margin-bottom: 16px !important;
+}
+
+.dark .VPFeature .icon {
+  background: rgba(59, 130, 246, 0.08) !important;
+  border: 1px solid rgba(59, 130, 246, 0.2) !important;
+  color: #60a5fa !important;
+}
+
+.VPFeature .icon img {
+  width: 24px !important;
+  height: 24px !important;
+}

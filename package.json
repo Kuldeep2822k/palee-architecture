@@ -1,0 +1,17 @@
+{
+  "name": "palee-architecture",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PALEE Deep System Architecture & Specifications",
+  "scripts": {
+    "dev": "vitepress dev .",
+    "build": "vitepress build .",
+    "preview": "vitepress preview ."
+  },
+  "devDependencies": {
+    "katex": "0.19.1",
+    "markdown-it-mathjax3": "^4.3.2",
+    "mermaid": "^12.2.0",
+    "vitepress": "^1.6.4"
+  }
+}
