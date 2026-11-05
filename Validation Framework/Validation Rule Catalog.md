@@ -373,7 +373,7 @@ flowchart LR
   - Checks `conceptual`, `practical`, `debug`, `feynman`.
   - Missing values pass under the documented default policy.
   - Present values must be finite numbers in `[0.0, 1.0]`.
-  - `assessed_at` must be null or a valid calendar date.
+  - `assessed_at` must be absent, null, or a real calendar date.
 - **Severity:** Error.
 - **Repair capability:** Manual.
 - **Issue payload:**
@@ -614,7 +614,7 @@ PALEE’s validation system separates concerns cleanly: one collector builds a s
 
 - Errors gate commands for structural, identity, schema, cycle, and path-boundary problems.
 - Warnings protect operational quality without punishing transient read failures or derived-view staleness.
-- Safe repairs are limited to clearly reversible operations such as rebuilding derived views or correcting mastered values.
+- Safe repairs are limited to clearly reversible operations such as rebuilding derived views or correcting mastery values.
 - Manual repairs are required when authorship, ownership, or migration decisions are necessary.
 - Deterministic ordering ensures that repeated runs produce predictable diagnostics, helping users prioritize the most foundational problems first.
 

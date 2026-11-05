@@ -60,7 +60,7 @@ graph TB
 ```
 
 ## Core Components
-The collector composes six core responsibilities:
+The collector composes seven core responsibilities:
 
 | Component | Responsibility | Failure Behavior |
 |---|---|---|
@@ -189,14 +189,14 @@ classDiagram
         +isTopicNote(fm) boolean
     }
 
-    class PaletteIdentityKeys {
+    class PaleeIdentityKeys {
         <<constant>>
         +PALEE_IDENTITY_KEYS : ["palee_id", "session_id", "memory_id"]
         +TOPIC_IDENTITY_KEY : "palee_id"
         +SESSION_INDEX_TYPE : "session_index"
     }
 
-    ManagedNoteClassification --> PaletteIdentityKeys : "uses"
+    ManagedNoteClassification --> PaleeIdentityKeys : "uses"
 ```
 
 ### Raw Notes Versus Normalized Topics

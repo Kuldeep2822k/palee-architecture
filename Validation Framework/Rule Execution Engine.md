@@ -54,9 +54,11 @@ graph TB
     ParseFrontmatter["parse-frontmatter.ts"]
     NoDuplicateTopicId["no-duplicate-topic-id.ts"]
     ValidHotMemory["valid-hot-memory.ts"]
+    ValidManagedNoteKind["valid-managed-note-kind.ts"]
+    ValidPaleeSchema["valid-palee-schema.ts"]
+    ValidTopicIdFormat["valid-topic-id-format.ts"]
   end
 
-  Collect --> Runner
   Types --> Runner
   Types --> Collect
   Types --> Format
@@ -66,9 +68,9 @@ graph TB
   Barrel --> ParseFrontmatter
   Barrel --> NoDuplicateTopicId
   Barrel --> ValidHotMemory
-  ManagedNote --> ParseFrontmatter
-  ManagedNote --> NoDuplicateTopicId
-  ManagedNote --> ValidHotMemory
+  ManagedNote --> ValidManagedNoteKind
+  ManagedNote --> ValidPaleeSchema
+  ManagedNote --> ValidTopicIdFormat
 ```
 
 ## Core Components
@@ -85,7 +87,7 @@ The runner executes every registered rule against the same context and concatena
 ## Architecture Overview
 The validation workflow is a pipeline:
 
-1. **Collect**: Build a single-snapshot `ValidationContext` by scanning notes, loading topics, reading sessions, reading the derived session index, and tolerantly reading hot memory.
+1. **Collect**: Build a single-snapshot `ValidationContext` by scanning notes, loading topics, reading the derived session index, reading sessions, and tolerantly reading hot memory. The session index is read before sessions to close a concurrent session-end interleaving window.
 2. **Run**: Execute every rule in registration order. Each rule receives the same context and returns its own list of findings.
 3. **Format**: Convert findings into human-readable output or machine-readable JSON. Callers decide exit codes and fix behavior.
 
@@ -307,7 +309,7 @@ graph LR
   Index["index.ts"] --> Collect
   Index --> Runner
   Index --> Format
-  Rules["built-in rules"] --> Index
+  Index --> Rules["built-in rules"]
 ```
 
 ### Coupling and Cohesion
@@ -337,7 +339,7 @@ When a rule throws, the runner converts it into one error finding:
 - `ruleId` is the throwing rule’s identifier.
 - `severity` is always `error`.
 - `message` names the rule and includes a safely extracted message.
-- `file`, `topicId`, and `sessionId` are left empty.
+- `file` and `topicId` are set to empty strings; `sessionId` is omitted.
 - `field` is set to `rule-execution`.
 
 This prevents a broken rule from hiding other findings.
