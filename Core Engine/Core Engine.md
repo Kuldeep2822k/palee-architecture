@@ -61,9 +61,11 @@ graph TB
 | Dependency graph engine | Builds DAG edges, detects cycles, quarantines cyclic components, checks readiness | `detectCycle`, `detectCycles`, `quarantineCyclicTopics`, `getReadyTopics`, `areDependenciesSatisfied` | Map of topic IDs to topic nodes | Cycle reports, clean subgraphs, ready topics |
 | Auto-chain planner | Derives ordered predecessors from numbered hierarchy and phase keywords | `planAutoChain`, `parseWikilink`, `extractWikilinks` | Vault-relative note paths | Ordered path list, predecessor map, unnumbered fallback flag |
 | TOC chain planner | Extracts and orders markdown links as a secondary chain source | `extractTocLinks`, `planTocChain`, `composeTieredChain` | TOC document text and scoped paths | TOC chain plan and composition with numbered plan |
-| Topic ID policy | Generates and validates canonical `palee_id` values | `generateTopicId`, `isValidTopicId` | Date/random bytes or candidate string | Unique `T-...` identifier or boolean validity |
+| Topic ID policy | Generates and validates canonical `palee_id` values | `generateTopicId` (via the barrel; see note below) | Date/random bytes or candidate string | Unique `T-...` identifier or boolean validity |
 | Tier-0 hygiene | Classifies notes as backbone, leaf, or excluded | `classifyNoteForChain`, `isContentDocName`, `stemOf` | Vault-relative path and optional `palee_id` | Classification and counted skip reason |
 | Declared prerequisite parser | Reads self-referential prerequisite sections from note text | `extractDeclaredPrerequisites`, `resolveDeclaredPrerequisites` | Note body and caller-owned lookup | Resolved references and skipped candidates |
+
+Note on Topic ID exports: `src/engine/index.ts` re-exports only `generateTopicId` from `topic-id.ts`. `isValidTopicId` is not a barrel export; it is consumed module-direct from `src/engine/topic-id.ts` by `adopt.ts`, `roadmap.ts`, and `valid-topic-id-format.ts`.
 
 ## Architecture Overview
 At runtime, higher layers ask the engine for schedules, readiness, and chains. The flow typically moves from user action through application commands into engine functions, then back into storage and output.
@@ -307,7 +309,7 @@ Rules summarized:
 - B3: Template names are excluded when they are whole tokens and unnumbered.
 - B4: Phase subtrees such as solutions or starter folders are leaves.
 - B5: README-class, numeric-prefixed, and phase-prefixed content names may join the backbone.
-- B6: The reporting rule — every batch adoption prints a per-rule hygiene report (skip counts by reason on the dry-run and confirmation screens; backbone and leaf counts as well under `--auto-chain`), so a note hygiene removes or demotes is always accounted for, never silently dropped. B6 is not a classification rule: B1–B5 and B7 classify, B6 reports.
+- B6: The reporting rule — the per-rule hygiene report (skip counts by reason on the dry-run and confirmation screens; backbone and leaf counts as well under `--auto-chain`) is printed only when there is something to report: when `skippedByHygiene.size > 0`, or `skippedInvalidId.length > 0`, or — under `--auto-chain` — a chain plan exists (`autoChain && chainPlan`). A clean batch prints no hygiene block. B6 is not a classification rule: B1–B5 and B7 classify, B6 reports.
 - B7: An invalid `palee_id` demotes a note to leaf but does not promote it.
 
 ```mermaid
@@ -364,9 +366,9 @@ Potential risks:
 | Mastery aggregation | O(1) | Fixed number of pillars; normalize once, compute once. |
 | Dependency edge map | O(V + E) | Deduplicates parallel edges and sorts adjacency for determinism. |
 | Tarjan SCC | O(V + E) | Iterative implementation avoids call-stack exhaustion. |
-| Cycle enumeration | O(cycles reported) | Johnson-style enumeration is proportional to reported cycles; dense SCCs can be exponential, so bounded variants exist. |
+| Cycle enumeration | O(V + E + C) per SCC | Johnson-style enumeration is proportional to reported cycles; dense SCCs can be exponential, so bounded variants exist. |
 | Dependency readiness check | O(prerequisites) | Linear in the number of prerequisites examined per topic. |
-| Auto-chain planning | O(n log n) | Sorting directories and lessons dominates; wikilink scanning is linear in link content. |
+| Auto-chain planning | O(n log n) | Sorting directories and lessons dominates; wikilink scanning is linear in the line/bullet content scanned. |
 | TOC link extraction | O(document length) | Linear scan with lazy balance tables for malformed inputs. |
 | Topic ID generation/validation | O(1) or O(k) | Very fast; intended for frequent use during adoption and validation. |
 | Tier-0 classification | O(segments) | Small constant-time list lookups over path segments. |

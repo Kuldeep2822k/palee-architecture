@@ -65,7 +65,7 @@ The SM-2 module exposes several focused pieces:
 | `roundHalfUp(value, decimals)` | Rounds floating-point values using positive decimal half-up rounding | Used to stabilize EF precision at four decimal places |
 | `processReview(current, quality)` | Main state transition function | Validates inputs, updates repetition, interval, lapses, ease factor, and last quality |
 | `formatLocalDateOnly(date)` | Formats a JavaScript `Date` as a local `YYYY-MM-DD` string | Zero-pads month and day |
-| `computeDueDate(fromDate, days)` | Advances a local calendar day baseline by an interval | Accepts a `Date` or a strict `YYYY-MM-DD` string; refuses out-of-range day counts |
+| `computeDueDate(fromDate, days)` | Advances a local calendar day baseline by an interval | Accepts a `Date` or a strict `YYYY-MM-DD` string; refuses out-of-range day counts. Any other string falls through to `new Date(string)`, so ISO datetime strings are also accepted; because such a string is parsed as an instant, west of UTC its local calendar day can be the one before the stamped date and the result can land a day early. |
 | `MAX_INTERVAL_DAYS` | Scheduling policy cap | Fixed at 36,500 days (100 years) |
 
 The public API surface exported by the module includes all of these functions plus the interval ceiling constant.
@@ -214,7 +214,7 @@ flowchart TD
 ### Date Scheduling and DST Safety
 Due dates are calculated by advancing calendar days locally:
 
-- Accepts a `Date` object or a strict `YYYY-MM-DD` string.
+- Accepts a `Date` object or a strict `YYYY-MM-DD` string. Any other string falls through to `new Date(string)`, so ISO datetime strings are also accepted; because such a string is parsed as an instant, west of UTC its local calendar day can be the one before the stamped date and the result can land a day early.
 - Uses local timezone arithmetic via `setDate`, avoiding UTC millisecond drift across Daylight Saving Time boundaries.
 - Serializes dates as `YYYY-MM-DD` strings.
 - Refuses day counts that would exceed the representable calendar range.
@@ -299,7 +299,8 @@ For large-scale scheduling operations across many topics:
 | `Invalid interval_days: must be a finite number >= 1` | Stored interval is non-numeric, negative, zero, `NaN`, or `Infinity` | Repair frontmatter or run validation repair |
 | `Invalid repetition: must be a non-negative integer` | Stored repetition is fractional, negative, or non-numeric | Repair frontmatter or run validation repair |
 | `Invalid lapses: must be a non-negative integer` | Stored lapses is fractional, negative, or non-numeric | Repair frontmatter or run validation repair |
-| `Invalid lapses: must be an integer >= 0 and <= ...` | Lapses is at or above the safe-integer limit and would overflow on increment | Reset or repair lapses in the affected topic |
+| `Invalid lapses: must be an integer >= 0 and <= Number.MAX_SAFE_INTEGER` | Stored lapses value is above the safe-integer ceiling; this is a validation failure on the stored value itself, before any increment | Reset or repair lapses in the affected topic |
+| `Invalid lapses: must be an integer >= 0 and <= Number.MAX_SAFE_INTEGER - 1` | Stored lapses is exactly at the safe-integer ceiling and a lapse increment (quality < 3 on a previously learned topic) would overflow; the at-ceiling value itself is valid on a successful review, which does not increment lapses | Reset or repair lapses in the affected topic |
 | `Invalid interval_days: computed non-finite value` | Interval multiplied by EF overflowed | Repair corrupt interval history |
 | `Invalid ease_factor: computed non-finite value` | EF rounding scaled an extremely large value to infinity | Repair corrupt EF history |
 | `Invalid days: advancing the due date... leaves the representable calendar range` | Caller passed an excessively large day count to `computeDueDate` | Use normal SM-2 output instead of arbitrary day counts |
