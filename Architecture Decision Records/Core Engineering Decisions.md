@@ -500,8 +500,6 @@ Recommended practices:
 - Treat `ECONFLICT` as retryable; treat containment errors as terminal configuration issues.
 - Do not assume hot memory is authoritative when its schema is invalid.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 Common failure modes and their meanings:
 
@@ -526,4 +524,3 @@ PALEE’s storage architecture chooses strong local consistency over maximum thr
 
 Together, these decisions enable concurrent access to Obsidian vaults while keeping the vault itself the single source of truth. The main ongoing trade-off is latency under contention: users editing or syncing the same notes concurrently may see retryable conflicts, but the system avoids silent corruption and indefinite hangs.
 
-[No sources needed since this section summarizes without analyzing specific files]

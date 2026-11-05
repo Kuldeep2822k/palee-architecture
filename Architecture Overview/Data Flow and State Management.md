@@ -503,8 +503,6 @@ There is no evidence of circular imports among the analyzed modules. The directi
 - SM-2 interval growth is capped at 36,500 days to prevent extremely far-future dates that could break date formatting.
 - Batch adoption stages writes and maintains a rollback journal to contain partial-batch costs.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 Common issues and their signals:
 
@@ -528,4 +526,3 @@ Common issues and their signals:
 ## Conclusion
 PALEE's data flow separates concerns cleanly: CLI handles interaction, application functions encode domain rules, engines implement mathematical and graph computations, and storage guarantees durable, contained, and concurrently safe vault mutations. The session lifecycle centers on a small hot-memory working state, a short-lived active-session marker, and durable session notes, with draft checkpoints providing crash recovery. Topic state evolves through adoption, assessment, review, and planning phases, with OCC preventing concurrent overwrites and rollback journals containing partial batch failures.
 
-[No sources needed since this section summarizes without analyzing specific files]

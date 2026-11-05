@@ -363,8 +363,6 @@ graph LR
 - The current adapter does not stream model output; it returns a complete reply.
 - Token accounting is optional and comes from the provider’s response when available.
 
-[No sources needed since this section provides general guidance]
-
 ## Security Considerations
 PALEE treats the first network-capable component as a high-risk boundary:
 

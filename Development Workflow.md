@@ -57,13 +57,6 @@ graph TB
   Docs[".github/workflows/deploy-docs.yml"] --> Pages["VitePress site"]
 ```
 
-**Diagram sources**
-- [package.json:15-61](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L15-L61)
-- [tsconfig.json:1-24](https://github.com/Kuldeep2822k/cli/blob/main/tsconfig.json#L1-L24)
-- [.github/workflows/ci.yml:1-120](https://github.com/Kuldeep2822k/cli/blob/main/.github/workflows/ci.yml#L1-L120)
-- [.github/workflows/release.yml:1-80](https://github.com/Kuldeep2822k/cli/blob/main/.github/workflows/release.yml#L1-L80)
-- [.github/workflows/deploy-docs.yml:1-71](https://github.com/Kuldeep2822k/cli/blob/main/.github/workflows/deploy-docs.yml#L1-L71)
-
 Key areas:
 - `src/` — application source code organized by layer: types, engine, storage, application, validation, AI, and CLI handlers.
 - `bin/palee.ts` — CLI entry point registered with Commander.
@@ -72,10 +65,6 @@ Key areas:
 - `docs/` — VitePress documentation workspace.
 - `.github/workflows/` — CI, release, documentation deployment, labeling, and static analysis pipelines.
 - `planning/` and `architecture/` — design artifacts; ADRs live under `docs/adr/`.
-
-**Section sources**
-- [package.json:1-85](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L1-L85)
-- [agent.md:1-75](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L1-L75)
 
 ## Development Environment Setup
 
@@ -116,11 +105,6 @@ The repository’s agent guide recommends a five-step verification loop:
 
 This loop ensures the change passes strict TypeScript, ESLint, the full test suite, and the expected published artifact contents.
 
-**Section sources**
-- [package.json:29-61](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L29-L61)
-- [package.json:63-85](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L63-L85)
-- [agent.md:76-92](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L76-L92)
-
 ## Build and Test Workflow
 
 ### Scripts Overview
@@ -158,10 +142,6 @@ Tests cover:
 - Application use cases such as due topics, next-topic selection, mastery summaries, assessment recording, and review recording.
 - Cross-platform and time-zone behavior.
 - CI configuration consistency and installed-artifact evidence.
-
-**Section sources**
-- [package.json:29-61](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L29-L61)
-- [agent.md:76-92](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L76-L92)
 
 ## Coding Standards and Quality Gates
 
@@ -222,11 +202,6 @@ The exit-code guard prevents numeric literals in `process.exitCode` assignments.
 - Code identifiers are camelCase.
 - Runtime dependencies are limited to `commander` and `yaml`.
 
-**Section sources**
-- [tsconfig.json:1-24](https://github.com/Kuldeep2822k/cli/blob/main/tsconfig.json#L1-L24)
-- [eslint.config.mjs:1-127](https://github.com/Kuldeep2822k/cli/blob/main/eslint.config.mjs#L1-L127)
-- [agent.md:1-75](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L1-L75)
-
 ## Commit, Branch, and Pull Request Workflow
 
 ### Commit Messages
@@ -257,9 +232,6 @@ A PR should:
 7. Keep console output out of library layers.
 8. Update documentation and ADRs if the change affects architecture, CLI contracts, or user-visible behavior.
 9. Be ready for CI checks covering lint, typecheck, build, cross-platform tests, coverage thresholds, and documentation builds.
-
-**Section sources**
-- [agent.md:76-92](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L76-L92)
 
 ## Continuous Integration Pipeline
 
@@ -310,15 +282,6 @@ sequenceDiagram
     Smoke-->>CI: Artifact and binary evidence
     CI-->>Dev: Status check
 ```
-
-**Diagram sources**
-- [.github/workflows/ci.yml:1-200](https://github.com/Kuldeep2822k/cli/blob/main/.github/workflows/ci.yml#L1-L200)
-- [.github/workflows/deploy-docs.yml:1-71](https://github.com/Kuldeep2822k/cli/blob/main/.github/workflows/deploy-docs.yml#L1-L71)
-
-**Section sources**
-- [.github/workflows/ci.yml:1-200](https://github.com/Kuldeep2822k/cli/blob/main/.github/workflows/ci.yml#L1-L200)
-- [.github/workflows/deploy-docs.yml:1-71](https://github.com/Kuldeep2822k/cli/blob/main/.github/workflows/deploy-docs.yml#L1-L71)
-- [.github/workflows/skylos.yml:1-42](https://github.com/Kuldeep2822k/cli/blob/main/.github/workflows/skylos.yml#L1-L42)
 
 ## Release Process
 
@@ -397,17 +360,6 @@ flowchart TD
   Smoke --> End(["Done"])
 ```
 
-**Diagram sources**
-- [.github/workflows/release.yml:1-251](https://github.com/Kuldeep2822k/cli/blob/main/.github/workflows/release.yml#L1-L251)
-- [scripts/pack-package.js](https://github.com/Kuldeep2822k/cli/blob/main/scripts/pack-package.js)
-- [scripts/verify-tarball.js](https://github.com/Kuldeep2822k/cli/blob/main/scripts/verify-tarball.js)
-
-**Section sources**
-- [package.json:1-28](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L1-L28)
-- [.github/workflows/release.yml:1-251](https://github.com/Kuldeep2822k/cli/blob/main/.github/workflows/release.yml#L1-L251)
-- [scripts/pack-package.js](https://github.com/Kuldeep2822k/cli/blob/main/scripts/pack-package.js)
-- [scripts/verify-tarball.js](https://github.com/Kuldeep2822k/cli/blob/main/scripts/verify-tarball.js)
-
 ## Debugging and Performance Analysis
 
 ### Debugging the CLI
@@ -477,11 +429,6 @@ flowchart TD
   Validate --> End(["Done"])
 ```
 
-**Section sources**
-- [agent.md:30-75](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L30-L75)
-- [.c8rc.json:1-12](https://github.com/Kuldeep2822k/cli/blob/main/.c8rc.json#L1-L12)
-- [package.json:45-61](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L45-L61)
-
 ## Documentation, ADRs, and Planning Documents
 
 ### Documentation Site
@@ -522,14 +469,6 @@ graph LR
   CI["CI"] --> Docs
   Release["Release"] --> Docs
 ```
-
-**Diagram sources**
-- [docs/adr/README.md:1-62](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/README.md#L1-L62)
-- [package.json:63-85](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L63-L85)
-
-**Section sources**
-- [package.json:63-85](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L63-L85)
-- [docs/adr/README.md:1-62](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/README.md#L1-L62)
 
 ## Troubleshooting Guide
 
@@ -607,12 +546,29 @@ Resolution:
 - Ensure the docs workspace dependencies are installed.
 - Check for markdown, Mermaid, or theme configuration issues.
 
-**Section sources**
-- [package.json:63-85](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L63-L85)
-- [tsconfig.json:1-24](https://github.com/Kuldeep2822k/cli/blob/main/tsconfig.json#L1-L24)
-- [eslint.config.mjs:1-127](https://github.com/Kuldeep2822k/cli/blob/main/eslint.config.mjs#L1-L127)
-- [.c8rc.json:1-12](https://github.com/Kuldeep2822k/cli/blob/main/.c8rc.json#L1-L12)
-- [.github/workflows/release.yml:1-80](https://github.com/Kuldeep2822k/cli/blob/main/.github/workflows/release.yml#L1-L80)
-
 ## Conclusion
 PALEE’s development workflow centers on strict TypeScript compilation, comprehensive ESLint rules, broad cross-platform testing, and deterministic release automation. Contributors should treat `npm run check`, the full test suite, and the packaged artifact verification as mandatory pre-commit gates. Changes that affect architecture, CLI contracts, or user-facing behavior should be accompanied by documentation updates and, where appropriate, ADRs. Releases are driven by versioned tags and validated by CI and release workflows before publication to npm and attachment to GitHub Releases.
+
+## References
+
+- [package.json:15-61](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L15-L61)
+- [tsconfig.json:1-24](https://github.com/Kuldeep2822k/cli/blob/main/tsconfig.json#L1-L24)
+- [.github/workflows/ci.yml:1-120](https://github.com/Kuldeep2822k/cli/blob/main/.github/workflows/ci.yml#L1-L120)
+- [.github/workflows/release.yml:1-80](https://github.com/Kuldeep2822k/cli/blob/main/.github/workflows/release.yml#L1-L80)
+- [.github/workflows/deploy-docs.yml:1-71](https://github.com/Kuldeep2822k/cli/blob/main/.github/workflows/deploy-docs.yml#L1-L71)
+- [package.json:1-85](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L1-L85)
+- [agent.md:1-75](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L1-L75)
+- [package.json:29-61](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L29-L61)
+- [package.json:63-85](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L63-L85)
+- [agent.md:76-92](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L76-L92)
+- [eslint.config.mjs:1-127](https://github.com/Kuldeep2822k/cli/blob/main/eslint.config.mjs#L1-L127)
+- [.github/workflows/ci.yml:1-200](https://github.com/Kuldeep2822k/cli/blob/main/.github/workflows/ci.yml#L1-L200)
+- [.github/workflows/skylos.yml:1-42](https://github.com/Kuldeep2822k/cli/blob/main/.github/workflows/skylos.yml#L1-L42)
+- [.github/workflows/release.yml:1-251](https://github.com/Kuldeep2822k/cli/blob/main/.github/workflows/release.yml#L1-L251)
+- [scripts/pack-package.js](https://github.com/Kuldeep2822k/cli/blob/main/scripts/pack-package.js)
+- [scripts/verify-tarball.js](https://github.com/Kuldeep2822k/cli/blob/main/scripts/verify-tarball.js)
+- [package.json:1-28](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L1-L28)
+- [agent.md:30-75](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L30-L75)
+- [.c8rc.json:1-12](https://github.com/Kuldeep2822k/cli/blob/main/.c8rc.json#L1-L12)
+- [package.json:45-61](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L45-L61)
+- [docs/adr/README.md:1-62](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/README.md#L1-L62)
