@@ -190,17 +190,15 @@ The next topics recommendation architecture follows a layered pipeline:
 graph LR
     Vault["Vault files"] --> Loader["Storage loader"]
     Loader --> Normalized["Loaded topics"]
-    Normalized --> Partitioner["Due partitioning"]
-    Partitioner --> Gater["Prerequisite gate"]
-    Gater --> Quarantine["Cycle quarantine"]
-    Quarantine --> Candidates["Actionable candidates"]
+    Normalized --> Gater["Prerequisite gate<br/>(includes cycle quarantine)"]
+    Gater --> Partitioner["Due partitioning"]
+    Partitioner --> Candidates["Actionable candidates"]
     Candidates --> Output["CLI output / JSON"]
 ```
 
 - **Vault and loader**: Provide topic metadata, mastery, repetition, due dates, status, and dependencies.
+- **Gater**: Enforces prerequisite mastery and existence; cycle quarantine runs inside the gate, before partitioning, removing undefined learning order caused by cycles.
 - **Partitioner**: Separates never-reviewed topics from elapsed reviews.
-- **Gater**: Enforces prerequisite mastery and existence.
-- **Quarantine**: Removes undefined learning order caused by cycles.
 - **Output**: Exposes actionable recommendations and blocked explanations.
 
 ## Detailed Component Analysis
@@ -219,8 +217,10 @@ Advisory edges are excluded from the gate because they represent listing order o
 ```mermaid
 flowchart TD
     Enter["Evaluate prerequisite gate for topic"] --> CheckArchived{"Status is archived?"}
-    CheckArchived -->|Yes| NotReady["Not ready"]
-    CheckArchived -->|No| CheckAdvisory{"Advisory edge?"}
+    CheckArchived -->|Yes| DueTopics["Flows to dueTopics<br/>(filtered only at CLI output in next.ts)"]
+    CheckArchived -->|No| CheckOwnMastery{"Own topic_mastery >= threshold?"}
+    CheckOwnMastery -->|Yes| Ready["Ready"]
+    CheckOwnMastery -->|No| CheckAdvisory{"Advisory edge?"}
     CheckAdvisory -->|Yes| Ready["Ready"]
     CheckAdvisory -->|No| CheckMissing{"All prerequisites present?"}
     CheckMissing -->|No| NotReady

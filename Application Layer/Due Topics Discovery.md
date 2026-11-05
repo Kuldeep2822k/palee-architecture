@@ -200,7 +200,7 @@ Key implementation details:
 - Missing references and low-mastery prerequisites produce distinct blocker messages.
 
 ### Mastery Threshold Integration
-The mastery threshold is a shared constant defining when a prerequisite is considered sufficiently learned. In the current codebase, the threshold is `0.7`.
+The mastery threshold is a shared constant defining when a prerequisite is considered sufficiently learned. In the current codebase, the threshold is `0.70`.
 
 | Scenario | Behavior |
 |---|---|
@@ -338,7 +338,7 @@ Symptoms:
 
 Likely causes:
 - Topic is not archived.
-- Topic mastery is below `0.7`.
+- Topic mastery is below `0.70`.
 - One or more prerequisites are missing or below the mastery threshold.
 
 Resolution:
