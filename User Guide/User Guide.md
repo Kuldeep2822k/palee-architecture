@@ -177,7 +177,7 @@ A topic moves through several states as you adopt it, study it, assess it, and r
 | Learning | Reviewed at least once; SM-2 scheduling begins. | `palee review <id> <quality>` | Future due dates are computed. |
 | Assessed | Four-pillar scores are recorded. | `palee assess <id> --conceptual ... --practical ... --debug ... --feynman ...` | `topic_mastery` recomputed; gates may open or close. |
 | Mastered | Composite mastery reaches or exceeds 0.70. | Assessment-driven. | Depends on this topic can become available. |
-| Archived | Topic removed from active study flow. | Status management in frontmatter. | Excluded from `next`, `plan`, and progress summaries. |
+| Archived | Topic removed from active study flow. | Status management in frontmatter. | Excluded from `next`, `plan`, and other actionable views, but still counted in progress totals. |
 | Paused | Intentionally suspended. | Status management in frontmatter. | Behavior depends on command-specific filtering. |
 
 ```mermaid
@@ -316,9 +316,8 @@ sequenceDiagram
     Mastery-->>Assess: New mastery and pillar values
     Assess->>Graph: Determine unlocked/blocked dependents
     Graph-->>Assess: Availability impact
-    Assess-->>User: Effect report
-    User->>Assess: Confirm or use --dry-run
     Assess->>Store: Write updated frontmatter
+    Assess-->>User: Effect report
 ```
 
 ### Track Progress
@@ -425,7 +424,7 @@ Important safety properties:
 - API keys are accepted from stdin, environment variables, or interactive prompts—not command arguments.
 - The key is stored securely on POSIX systems with restricted file permissions.
 - `palee config show` masks the key.
-- `test-connection` is the only command that directly contacts a network endpoint.
+- `test-connection` is the only command that contacts a configured provider endpoint. (The separate `palee update` command is the only other network-touching command; it contacts the package registry, not a configured provider endpoint.)
 - Non-interactive or JSON runs refuse risky key operations without explicit flags.
 
 ## Practical Examples

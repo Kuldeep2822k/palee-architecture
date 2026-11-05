@@ -214,8 +214,9 @@ When you record a review, you rate recall from 0 to 5:
 #### How Timing Is Calculated
 The algorithm maintains several state variables:
 
-- **Ease Factor**: A difficulty multiplier starting near 2.5, bounded below by 1.3.
+- **Ease Factor**: A difficulty multiplier starting at 2.5, bounded below by 1.3.
 - **Interval Days**: Calendar days until the next review.
+- **Interval Cap**: Intervals are capped at 36,500 days (`MAX_INTERVAL_DAYS`, INV-17), so a long review history cannot produce an unrepresentable due date.
 - **Repetition**: Count of consecutive successful reviews.
 - **Lapses**: Count of failed reviews after the topic was learned.
 - **Due Date**: The calendar date when the topic becomes due again.
@@ -358,7 +359,6 @@ graph LR
 Possible causes:
 - Feynman score is zero or too low. Because Feynman is double-weighted, missing or weak articulation can prevent reaching the mastery gate.
 - Other pillars are low. Even with a strong Feynman score, poor conceptual, practical, or debug scores reduce overall mastery.
-- Assessment timestamps are missing. Check `assessed_at` and pillar values.
 
 Remedies:
 - Record meaningful Feynman scores after explaining the topic clearly.
@@ -388,7 +388,7 @@ Remedies:
 - Remember that SM-2 adapts to performance over time.
 
 ## Conclusion
-PALEE’s core concepts rest on three ideas:
+PALEE’s core concepts rest on four ideas:
 
 1. **Topics are structured Markdown files with YAML frontmatter** that encode identity, prerequisites, mastery, and review state.
 2. **Mastery is multidimensional**, combining conceptual understanding, practical application, debugging ability, and Feynman-style explanation.

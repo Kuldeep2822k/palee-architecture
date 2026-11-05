@@ -28,7 +28,7 @@
 ## Introduction
 This document explains how PALEE schedules topic reviews and discovers topics ready for study. It covers two tightly coupled parts:
 
-- The **SM-2 spaced repetition engine**, which updates a topic’s review state after an assessment and computes the next due date.
+- The **SM-2 spaced repetition engine**, which updates a topic’s review state after a review and computes the next due date.
 - The **topic discovery system**, which finds actionable topics, applies prerequisite gating through the dependency graph, and orders them for the `palee next` command.
 
 The implementation is layered: CLI commands read vault data, application logic selects due or never-reviewed topics and filters them through readiness rules, and the engine performs pure scheduling math and graph analysis.
@@ -74,16 +74,16 @@ The SM-2 engine maintains per-topic review state:
 - `lapses`: count of failed reviews on previously learned topics.
 - `last_quality`: most recent quality rating.
 
-The core processing function validates stored values defensively because raw frontmatter can contain unexpected types. It then branches by the quality rating:
+The core processing function validates stored values defensively because raw frontmatter can contain unexpected types. For any quality >= 3 it then branches on the **resulting** repetition count, not on the quality value:
 
-| Quality Range | Review Outcome | Repetition | Interval Rule | Lapse Handling | Ease Factor |
-|---|---|---|---|---|---|
-| 0–2 | Failure | Reset to 0 | Set to 1 day | Increment only if `repetition > 0` | Decreased by canonical delta, clamped to 1.3 |
-| 3 | First success | Increments to 1 | Set to 1 day | No change | Increased by delta, clamped to 1.3 |
-| 4 | Second success | Increments to 2 | Set to 6 days | No change | Increased by delta, clamped to 1.3 |
-| 5+ | Subsequent success | Increments | `round(interval_days × ease_factor)` | No change | Increased by delta, clamped to 1.3 |
+| Case | Repetition | Interval Rule | Lapse Handling |
+|---|---|---|---|
+| Failure (quality 0–2) | Reset to 0 | Set to 1 day | Increment only if `repetition > 0` |
+| Success, resulting repetition = 1 | 1 | Set to 1 day | No change |
+| Success, resulting repetition = 2 | 2 | Set to 6 days | No change |
+| Success, resulting repetition > 2 | Increments | `round(interval_days × ease_factor)` | No change |
 
-The ease-factor delta follows the canonical SuperMemo formula. A perfect response increases it slightly, hesitation has no effect, and incorrect responses reduce it more aggressively.
+The ease-factor delta is per quality (clamped to a minimum ease factor of 1.3): quality 0: -0.80, 1: -0.54, 2: -0.32, 3: -0.14, 4: 0.00 (unchanged), 5: +0.10. A perfect response increases it slightly, hesitation (quality 4) has no effect, and incorrect responses reduce it more aggressively.
 
 Important safety properties include:
 
@@ -164,7 +164,7 @@ sequenceDiagram
 ## Detailed Component Analysis
 
 ### SM-2 Review Processing Flow
-After a learner completes an assessment, the review pipeline computes new review state and the next due date.
+After a learner completes a review, the review pipeline computes new review state and the next due date.
 
 ```mermaid
 flowchart TD
@@ -186,9 +186,9 @@ flowchart TD
 
 | Scenario | Inputs | Output Behavior |
 |---|---|---|
-| New topic, correct answer | `repetition = 0`, quality 4 | Repetition becomes 1, interval stays 1 day, ease factor increases slightly |
+| New topic, correct answer | `repetition = 0`, quality 4 | Repetition becomes 1, interval stays 1 day, ease factor unchanged (quality 4 delta is 0.00) |
 | New topic, incorrect answer | `repetition = 0`, quality 2 | Repetition resets to 0, interval becomes 1 day, lapse is not counted because there was no prior repetition |
-| Established topic, good answer | `repetition = 5`, interval 15, ease 2.5, quality 4 | Repetition becomes 6, interval becomes `round(15 × 2.5) = 37`, ease factor increases |
+| Established topic, good answer | `repetition = 5`, interval 15, ease 2.5, quality 4 | Repetition becomes 6, interval becomes `round(15 × 2.5) = 37`, ease factor unchanged (quality 4 delta is 0.00) |
 | Established topic, blackout | `repetition = 5`, interval 37, ease 2.5, quality 0 | Repetition resets to 0, interval becomes 1 day, lapse increments, ease factor drops toward 1.3 |
 | Near-cap interval | Interval already at 36,500 days | Interval remains capped at 36,500 days |
 | Corrupt stored value | String or boolean in `interval_days` | Throws with a field-specific diagnostic instead of writing NaN |
@@ -204,7 +204,7 @@ flowchart TD
   Normalize --> Partition["Partition into never-reviewed and elapsed due reviews"]
   Partition --> Order["Order: never-reviewed first, then oldest due date"]
   Order --> BuildGraph["Build full topic graph for gating"]
-  BuildGraph --> Quarantine["Quarantine cyclic topics"]
+  BuildGraph --> Quarantine["Exclude cyclic topics from the blocked set (they remain actionable)"]
   Quarantine --> Gate["Apply prerequisite gate"]
   Gate --> FilterArchived["Exclude archived topics"]
   FilterArchived --> Result["Return actionable and blocked topics"]
@@ -326,12 +326,12 @@ These choices make the system suitable for thousands of topics, provided the vau
 | Topic with no prior reviews | Treated as actionable immediately and prioritized over dated due topics |
 | Invalid or malformed `due_at` | Treated as never reviewed |
 | Future-due topic | Excluded from actionable list |
-| Early review | Allowed; SM-2 processes the assessment and computes a new interval |
+| Early review | Allowed; SM-2 processes the review and computes a new interval |
 | Missed deadline | Topic remains due until reviewed; discovery includes all elapsed due dates |
 | Circular dependency | Topics on or downstream of a cycle are not silently withheld by the readiness gate; they appear in quarantine reporting |
 | Self-dependency | Detected as a one-node cycle in the dependency graph |
 | Extremely high mastery score | Treated as mastered for prerequisite gating |
-| Negative or fractional mastery input | Normalized and clamped to `[0.0, 1.0]` before calculations |
+| Negative or fractional mastery input | Normalized and clamped to `[0.0, 1.0]` during mastery computation only; gating paths compare the raw stored `topic_mastery ?? 0` with no clamp |
 | Overflowing interval or ease factor | Computed non-finite values throw rather than persisting invalid state |
 | Safe-integer boundary repetition or lapse | Explicitly checked to prevent silent no-op increments |
 

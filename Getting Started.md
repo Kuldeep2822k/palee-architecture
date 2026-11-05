@@ -186,6 +186,8 @@ Adopt all markdown files in your vault:
 palee adopt --all
 ```
 
+Even a batch scan does not adopt literally every markdown file: every batch scan skips Tier-0 non-lessons (repo-meta, translations, and templates), and a plain scan also skips `README`/`SUMMARY` files. A file in one of those skipped classes can still be adopted individually by passing its path explicitly.
+
 ### Useful Options
 | Option | Purpose |
 |--------|---------|
@@ -201,6 +203,17 @@ palee adopt --all
 
 ### Auto-Chaining Prerequisites
 When using `--auto-chain`, PALEE looks for a recognized prerequisites heading and extracts references from list items. Supported trigger phrases include “Prerequisites”, “Prerequisite”, “Requires”, “Required knowledge”, and variants such as “Depends on” or “Dependency on”. Only explicit list items count; prose sentences are intentionally ignored.
+
+Two requirements decide whether anything is chained:
+
+- The heading must be **exactly** a trigger phrase, with nothing else on the line.
+- Each list item under it must carry a `[[wikilink]]` or a markdown `[link](target)`; a plain-text list item creates no edge.
+
+```markdown
+## Prerequisites
+- [[Docker Fundamentals]]
+- [Docker Networking](Docker Networking.md)
+```
 
 ### Undoing an Adoption
 To reverse an adoption without losing your original note text:
