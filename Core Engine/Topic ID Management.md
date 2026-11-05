@@ -66,24 +66,6 @@ graph TB
   Adopt --> Loader
 ```
 
-**Diagram sources**
-- [topic-id.ts:1-81](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L1-L81)
-- [engine/index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
-- [valid-topic-id-format.ts:1-75](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-id-format.ts#L1-L75)
-- [no-duplicate-topic-id.ts:1-48](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-duplicate-topic-id.ts#L1-L48)
-- [loader.ts:250-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L250-L417)
-- [tier0-hygiene.ts:274-377](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L274-L377)
-- [adopt.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L200)
-
-**Section sources**
-- [topic-id.ts:1-81](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L1-L81)
-- [engine/index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
-- [valid-topic-id-format.ts:1-75](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-id-format.ts#L1-L75)
-- [no-duplicate-topic-id.ts:1-48](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-duplicate-topic-id.ts#L1-L48)
-- [loader.ts:250-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L250-L417)
-- [tier0-hygiene.ts:274-377](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L274-L377)
-- [adopt.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L200)
-
 ## Core Components
 
 ### Topic ID Policy
@@ -101,10 +83,6 @@ Key properties:
 - Validator rejects non-string inputs, empty slugs, uppercase letters, underscores, trailing hyphens, missing prefixes, and uppercase hex.
 - Generator produces UTC-based `T-YYYYMMDD-HHMMSS-XXXXXXXX` identifiers using 32 bits of cryptographic randomness.
 
-**Section sources**
-- [topic-id.ts:1-81](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L1-L81)
-- [engine-topic-id.test.ts:1-73](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-topic-id.test.ts#L1-L73)
-
 ### Validation Rules
 Two validation rules inspect vault content but do not mutate it.
 
@@ -118,10 +96,6 @@ Important behavior:
 - Eligibility is determined by the shared managed-note predicate: a note declares the `palee_id` key and does not declare another managed kind such as session, hot memory, or session index.
 - Duplicate detection groups loaded topics by their normalized ID and reports every file involved.
 
-**Section sources**
-- [valid-topic-id-format.ts:1-75](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-id-format.ts#L1-L75)
-- [no-duplicate-topic-id.ts:1-48](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-duplicate-topic-id.ts#L1-L48)
-
 ### Identity Preservation and Tier-0 Hygiene
 Tier-0 hygiene defines what counts as a usable `palee_id` during batch adoption and chaining:
 - Only a non-empty string is usable.
@@ -132,11 +106,6 @@ This separation prevents two different failure modes:
 - A number-like `palee_id` appearing adopted to the scanner but invisible to the loader.
 - A command silently inventing an identity for a note that already declared one.
 
-**Section sources**
-- [tier0-hygiene.ts:274-377](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L274-L377)
-- [loader.ts:250-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L250-L417)
-- [0015-identity-preservation.md:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0015-identity-preservation.md#L1-L59)
-
 ### Adoption and Minting
 When adopting a note for the first time:
 1. The command reads frontmatter and preserves author-declared prerequisites where appropriate.
@@ -146,10 +115,6 @@ When adopting a note for the first time:
 5. It reports the adopted topic ID to the user.
 
 Adoption is intentionally non-destructive: it does not overwrite an existing usable `palee_id`.
-
-**Section sources**
-- [adopt.ts:400-728](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L400-L728)
-- [topic-id.ts:49-81](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L49-L81)
 
 ## Architecture Overview
 
@@ -174,11 +139,6 @@ sequenceDiagram
     end
     Adopt-->>User: "Adoption result and final ID"
 ```
-
-**Diagram sources**
-- [adopt.ts:400-728](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L400-L728)
-- [topic-id.ts:49-81](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L49-L81)
-- [loader.ts:250-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L250-L417)
 
 ## Detailed Component Analysis
 
@@ -214,10 +174,6 @@ Invalid examples from tests:
 - Empty string
 - Non-string primitives
 
-**Section sources**
-- [topic-id.ts:1-81](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L1-L81)
-- [engine-topic-id.test.ts:1-73](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-topic-id.test.ts#L1-L73)
-
 ### ID Generation Algorithm
 The generator creates stable-enough but unique-enough identifiers for newly adopted topics:
 - Uses current UTC time.
@@ -239,10 +195,6 @@ Security considerations:
 - Cryptographic randomness reduces predictability compared to purely deterministic counters.
 - IDs are identifiers, not secrets; they should not be used as access tokens or authentication material.
 - The 32-bit suffix is sufficient for uniqueness among generated IDs but should not be treated as collision-resistant beyond normal probabilistic guarantees.
-
-**Section sources**
-- [topic-id.ts:49-81](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L49-L81)
-- [engine-topic-id.test.ts:44-73](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-topic-id.test.ts#L44-L73)
 
 ### Normalization and Identity Handling
 There are two distinct normalization responsibilities:
@@ -274,14 +226,6 @@ flowchart TD
   Load --> End
 ```
 
-**Diagram sources**
-- [loader.ts:250-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L250-L417)
-- [tier0-hygiene.ts:274-377](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L274-L377)
-
-**Section sources**
-- [loader.ts:250-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L250-L417)
-- [tier0-hygiene.ts:274-377](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L274-L377)
-
 ### Collision Detection
 Collision detection is split between generation and validation:
 
@@ -298,9 +242,6 @@ The duplicate rule:
 
 This catches accidental reuse of legacy or manually written IDs even if each individual ID is well-formed.
 
-**Section sources**
-- [no-duplicate-topic-id.ts:1-48](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-duplicate-topic-id.ts#L1-L48)
-
 ### Backward Compatibility and Migration Strategy
 The system supports historical IDs produced by older adopt logic:
 - The legacy adopt pattern accepts an ISO-style timestamp containing an uppercase `T`, followed by exactly eight lowercase hexadecimal characters.
@@ -312,9 +253,6 @@ Migration strategy implications:
 - New mints use the canonical kebab-segment timestamp format.
 - Existing legacy IDs stay readable until explicitly migrated.
 - Validators report malformed user data rather than rewriting it.
-
-**Section sources**
-- [topic-id.ts:1-48](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L1-L48)
 
 ### Storage Layer Identity Preservation
 Identity preservation is a design boundary:
@@ -335,16 +273,6 @@ flowchart TD
   Fidelity --> End["End"]
   Report --> End
 ```
-
-**Diagram sources**
-- [0015-identity-preservation.md:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0015-identity-preservation.md#L1-L59)
-- [0016-frontmatter-fidelity-and-unicode-fold.md:1-60](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0016-frontmatter-fidelity-and-unicode-fold.md#L1-L60)
-- [adopt.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L200)
-
-**Section sources**
-- [0015-identity-preservation.md:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0015-identity-preservation.md#L1-L59)
-- [0016-frontmatter-fidelity-and-unicode-fold.md:1-60](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0016-frontmatter-fidelity-and-unicode-fold.md#L1-L60)
-- [adopt.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L200)
 
 ### Integration Points
 The topic ID system integrates with several subsystems:
@@ -400,19 +328,6 @@ classDiagram
   AdoptCommand --> Loader : "reads and writes topics"
 ```
 
-**Diagram sources**
-- [topic-id.ts:1-81](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L1-L81)
-- [engine/index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
-- [valid-topic-id-format.ts:1-75](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-id-format.ts#L1-L75)
-- [no-duplicate-topic-id.ts:1-48](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-duplicate-topic-id.ts#L1-L48)
-- [loader.ts:250-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L250-L417)
-- [tier0-hygiene.ts:274-377](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L274-L377)
-- [adopt.ts:400-728](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L400-L728)
-
-**Section sources**
-- [engine/index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
-- [types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)
-
 ## Dependency Analysis
 
 ```mermaid
@@ -443,13 +358,6 @@ Coupling observations:
 Potential risks:
 - If policy patterns change, both validation and generation must remain consistent.
 - Hygiene uses a weaker usability check (`non-empty string`) than the full policy, which is correct for adoption gating but should not be confused with format validity.
-
-**Section sources**
-- [topic-id.ts:1-81](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L1-L81)
-- [valid-topic-id-format.ts:1-75](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-id-format.ts#L1-L75)
-- [loader.ts:250-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L250-L417)
-- [tier0-hygiene.ts:274-377](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L274-L377)
-- [adopt.ts:400-728](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L400-L728)
 
 ## Performance Considerations
 - ID validation is a constant-time regular expression check per candidate.
@@ -483,12 +391,6 @@ Recommendations:
 - **Non-string YAML identity:** Loader ignores it; hygiene marks it unusable; adopt does not silently mint over it.
 - **Oversized notes:** Scans and adoption refuse to treat them as loadable topics, preventing hidden loss of state.
 
-**Section sources**
-- [engine-topic-id.test.ts:1-73](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-topic-id.test.ts#L1-L73)
-- [loader.ts:250-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L250-L417)
-- [tier0-hygiene.ts:274-377](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L274-L377)
-- [adopt.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L200)
-
 ## Conclusion
 PALEE’s topic ID system centers on a single policy module that defines format rules and minting behavior, while validation and storage layers enforce consistency without mutating user data unnecessarily. Legacy adopt-generated IDs remain readable, new IDs follow a canonical kebab-segment format, and identity preservation ensures commands do not silently rename or invent identities.
 
@@ -500,3 +402,21 @@ For safe operation:
 - Remember that ID stability belongs to the author and storage layer; minting is only for newly created topics.
 
 [No sources needed since this section summarizes without analyzing specific files]
+
+## References
+
+- [topic-id.ts:1-81](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L1-L81)
+- [engine/index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
+- [valid-topic-id-format.ts:1-75](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-id-format.ts#L1-L75)
+- [no-duplicate-topic-id.ts:1-48](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-duplicate-topic-id.ts#L1-L48)
+- [loader.ts:250-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L250-L417)
+- [tier0-hygiene.ts:274-377](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L274-L377)
+- [adopt.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L200)
+- [engine-topic-id.test.ts:1-73](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-topic-id.test.ts#L1-L73)
+- [0015-identity-preservation.md:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0015-identity-preservation.md#L1-L59)
+- [adopt.ts:400-728](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L400-L728)
+- [topic-id.ts:49-81](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L49-L81)
+- [engine-topic-id.test.ts:44-73](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-topic-id.test.ts#L44-L73)
+- [topic-id.ts:1-48](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L1-L48)
+- [0016-frontmatter-fidelity-and-unicode-fold.md:1-60](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0016-frontmatter-fidelity-and-unicode-fold.md#L1-L60)
+- [types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)

@@ -74,28 +74,6 @@ graph TB
     DocsSM2 --> SM2
 ```
 
-**Diagram sources**
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
-- [0004-four-pillar-pedagogical-mastery.md:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
-- [0021-assessment-surface.md:1-86](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0021-assessment-surface.md#L1-L86)
-- [03-1-sm2-spaced-repetition-algorithm.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L1-L200)
-
-**Section sources**
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
-- [0004-four-pillar-pedagogical-mastery.md:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
-- [0021-assessment-surface.md:1-86](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0021-assessment-surface.md#L1-L86)
-- [03-1-sm2-spaced-repetition-algorithm.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L1-L200)
-
 ## Core Components
 The mastery calculation system has five core responsibilities:
 
@@ -112,10 +90,6 @@ Key constants:
 - **Pillar keys**: conceptual, practical, debug, feynman.
 - **Feynman weight**: doubled, giving it 40% effective influence.
 - **Ordinary pillar ceiling**: Without Feynman, three ordinary pillars can reach at most `0.6`; they cannot alone satisfy the `0.7` prerequisite gate.
-
-**Section sources**
-- [mastery.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L199)
-- [0004-four-pillar-pedagogical-mastery.md:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
 
 ## Architecture Overview
 Mastery and scheduling are complementary but independent systems:
@@ -147,12 +121,6 @@ flowchart TD
     Gate --> Reporting
     DueDate --> Reporting
 ```
-
-**Diagram sources**
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
 
 ## Detailed Component Analysis
 
@@ -190,14 +158,6 @@ flowchart TD
     Round --> Mastery["topic_mastery ∈ [0,1]"]
 ```
 
-**Diagram sources**
-- [mastery.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L199)
-- [0004-four-pillar-pedagogical-mastery.md:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
-
-**Section sources**
-- [mastery.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L199)
-- [0004-four-pillar-pedagogical-mastery.md:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
-
 ### Score Normalization and Data Safety
 Normalization is the first safety boundary. It handles:
 
@@ -221,12 +181,6 @@ flowchart TD
     ClampNumber --> Output["Normalized score"]
     ClampString --> Output
 ```
-
-**Diagram sources**
-- [mastery.ts:39-93](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L39-L93)
-
-**Section sources**
-- [mastery.ts:39-93](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L39-L93)
 
 ### Existing vs New Pillar Scores
 There are two important helper functions:
@@ -254,12 +208,6 @@ flowchart TD
     ReturnExisting --> End
     ReturnZero --> End
 ```
-
-**Diagram sources**
-- [mastery.ts:156-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L156-L229)
-
-**Section sources**
-- [mastery.ts:95-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L95-L229)
 
 ### Assessment Recording and Availability Changes
 The assessment use case builds a write plan from either explicitly supplied pillars or stored pillar values:
@@ -292,14 +240,6 @@ sequenceDiagram
     CLI->>Storage: Atomic write pillars and mastery
 ```
 
-**Diagram sources**
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-
-**Section sources**
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [0021-assessment-surface.md:1-86](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0021-assessment-surface.md#L1-L86)
-
 ### Prerequisite Gating and Topic Recommendations
 Mastery directly controls what learners see:
 
@@ -321,15 +261,6 @@ flowchart TD
     Next --> Order["Order by never-reviewed first, then oldest due"]
 ```
 
-**Diagram sources**
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [mastery.ts:1-70](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L70)
-
-**Section sources**
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-
 ### Mastery Bucketing
 Mastery summaries classify every topic into exactly one of three buckets:
 
@@ -349,13 +280,6 @@ flowchart TD
     Positive -->|Yes| Learning["Learning"]
     Positive -->|No| New["New"]
 ```
-
-**Diagram sources**
-- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
-- [mastery.ts:1-70](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L70)
-
-**Section sources**
-- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
 
 ### Integration with SM-2 Scheduling
 SM-2 and mastery are separate axes of learning:
@@ -399,14 +323,6 @@ flowchart TD
     Cap --> Due["Compute due_at"]
 ```
 
-**Diagram sources**
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-- [03-1-sm2-spaced-repetition-algorithm.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L1-L200)
-
-**Section sources**
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-- [03-1-sm2-spaced-repetition-algorithm.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L1-L200)
-
 ## Dependency Analysis
 Mastery affects downstream components through shared constants and computed values:
 
@@ -426,24 +342,11 @@ graph LR
     MasterySummary["mastery-summary.ts"] --> Mastery
 ```
 
-**Diagram sources**
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
-
 Coupling characteristics:
 - Mastery is intentionally decoupled from I/O and CLI concerns.
 - Application layers import only pure functions and constants.
 - The dependency graph is consulted for readiness but does not compute mastery itself.
 - SM-2 is independent of mastery; scheduling does not raise `topic_mastery`.
-
-**Section sources**
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
 
 ## Performance Considerations
 For large topic sets, mastery-related operations have predictable complexity:
@@ -489,12 +392,6 @@ Edge-case performance risks:
 ### Why the Feynman Pillar Matters
 The design intentionally makes articulation a strong signal of understanding. If a learner achieves high Conceptual, Practical, and Debug scores but no Feynman score, the system will report that the threshold remains unreachable because the ordinary pillars cap at `0.6`. This is not a bug in the formula; it is a pedagogical constraint.
 
-**Section sources**
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [0004-four-pillar-pedagogical-mastery.md:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
-- [0021-assessment-surface.md:1-86](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0021-assessment-surface.md#L1-L86)
-
 ## Conclusion
 The mastery calculation system separates pedagogical competence from retention scheduling:
 
@@ -527,6 +424,19 @@ For users, this means:
 | Just below threshold | 0.6 | 0.5 | 0.7 | 0.4 | `(0.6 + 0.5 + 0.7 + 2 × 0.4) / 5` | `0.64` |
 | Exactly at threshold | 0.7 | 0.6 | 0.5 | 0.5 | `(0.7 + 0.6 + 0.5 + 2 × 0.5) / 5` | `0.70` |
 
-**Section sources**
-- [mastery.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L199)
+## References
+
+- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
+- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
+- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
+- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
+- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
+- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
 - [0004-four-pillar-pedagogical-mastery.md:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
+- [0021-assessment-surface.md:1-86](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0021-assessment-surface.md#L1-L86)
+- [03-1-sm2-spaced-repetition-algorithm.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L1-L200)
+- [mastery.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L199)
+- [mastery.ts:39-93](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L39-L93)
+- [mastery.ts:156-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L156-L229)
+- [mastery.ts:95-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L95-L229)
+- [mastery.ts:1-70](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L70)

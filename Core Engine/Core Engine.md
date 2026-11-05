@@ -53,12 +53,6 @@ graph TB
   Barrel --> PrereqText["Declared prerequisite parser<br/>src/engine/prereq-text.ts"]
 ```
 
-**Diagram sources**
-- [engine index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
-
-**Section sources**
-- [engine index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
-
 ## Core Components
 | Component | Responsibility | Key exports | Primary inputs | Primary outputs |
 |---|---|---|---|---|
@@ -70,17 +64,6 @@ graph TB
 | Topic ID policy | Generates and validates canonical `palee_id` values | `generateTopicId`, `isValidTopicId` | Date/random bytes or candidate string | Unique `T-...` identifier or boolean validity |
 | Tier-0 hygiene | Classifies notes as backbone, leaf, or excluded | `classifyNoteForChain`, `isContentDocName`, `stemOf` | Vault-relative path and optional `palee_id` | Classification and counted skip reason |
 | Declared prerequisite parser | Reads self-referential prerequisite sections from note text | `extractDeclaredPrerequisites`, `resolveDeclaredPrerequisites` | Note body and caller-owned lookup | Resolved references and skipped candidates |
-
-**Section sources**
-- [engine index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
-- [sm2 spaced repetition engine:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-- [dependency graph engine:1-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L1015)
-- [mastery calculation engine:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [auto-chain planner:1-1094](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L1094)
-- [toc-chain planner:1-1331](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L1-L1331)
-- [topic ID policy:1-81](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L1-L81)
-- [tier-0 hygiene predicates:1-405](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L405)
-- [declared prerequisite text parser:1-317](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L317)
 
 ## Architecture Overview
 At runtime, higher layers ask the engine for schedules, readiness, and chains. The flow typically moves from user action through application commands into engine functions, then back into storage and output.
@@ -108,23 +91,15 @@ sequenceDiagram
   Storage-->>CLI: "Result or error"
 ```
 
-**Diagram sources**
-- [engine index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
-- [sm2 spaced repetition engine:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-- [dependency graph engine:1-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L1015)
-- [mastery calculation engine:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [auto-chain planner:1-1094](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L1094)
-- [toc-chain planner:1-1331](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L1-L1331)
-
 ## Detailed Component Analysis
 
 ### SM-2 Spaced Repetition Algorithm
-The SM-2 implementation follows the SuperMemo specification:
-- Quality ratings from 0 to 5 change the ease factor by a quadratic delta.
-- A failed review resets repetition and interval, increments lapses only when prior repetitions exist, and preserves safety checks on integer bounds.
-- Successful reviews increment repetition, set fixed intervals for the first two repetitions, and multiply the current interval by the ease factor thereafter.
-- Ease factor is clamped to a minimum of 1.3 and rounded to four decimal places using positive decimal half-up rounding.
-- Computed intervals are capped at 36,500 days to prevent calendar overflow; due dates are computed in local timezone arithmetic.
+The SM-2 implementation follows the SuperMemo SM-2 specification. The formulas below are stated as implemented in `src/engine/sm2.ts`:
+- The ease factor starts at 2.5 and is updated after every review — pass or fail — by the canonical delta `ΔEF = 0.1 − (5 − q) × (0.08 + (5 − q) × 0.02)`, where `q` is the quality rating from 0 to 5. That gives +0.10 for `q = 5`, 0.00 for `q = 4`, −0.14 for `q = 3`, −0.32 for `q = 2`, −0.54 for `q = 1`, and −0.80 for `q = 0`. The updated ease factor is clamped to a minimum of 1.3 and rounded to four decimal places using positive decimal half-up rounding; canonical SM-2 sets no upper bound, and neither does the implementation.
+- A failed review (`q < 3`) resets repetition to 0 and the interval to 1 day, and increments lapses only when the topic had prior repetitions.
+- A successful review increments repetition and sets the interval by repetition count: `I(1) = 1` day, `I(2) = 6` days, and `I(n) = round(I(n − 1) × EF)` for `n ≥ 3`, using the ease factor from before this review's update, exactly as canonical SM-2 prescribes.
+- One deliberate deviation from the canonical algorithm: computed intervals are capped at 36,500 days (100 years, `MAX_INTERVAL_DAYS`). Canonical SM-2 has no ceiling; the cap exists so unbounded interval growth cannot overflow the calendar. The strict validation of stored state (refusing non-finite or out-of-range frontmatter values rather than clamping them) is likewise an implementation hardening layer around the algorithm, not part of SM-2 itself.
+- Due dates are computed in local timezone arithmetic.
 
 ```mermaid
 flowchart TD
@@ -148,16 +123,9 @@ flowchart TD
   DueDate --> End(["Return updated review state"])
 ```
 
-**Diagram sources**
-- [sm2 spaced repetition engine:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-
 Key properties:
 - Mathematical foundation: SM-2 ease-factor delta formula, exponential interval growth bounded by policy cap.
 - Error handling: Invalid quality, non-finite or out-of-range stored fields, integer-safe ceilings, and non-finite arithmetic results all throw descriptive errors rather than corrupting persisted state.
-- Complexity: O(1) per review. Memory usage is constant beyond input objects.
-
-**Section sources**
-- [sm2 spaced repetition engine:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
 
 ### Mastery Calculation System
 Mastery aggregates four pedagogical pillars:
@@ -180,20 +148,12 @@ flowchart TD
   ExistingWin --> Output
 ```
 
-**Diagram sources**
-- [mastery calculation engine:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-
 How mastery influences scheduling:
 - Mastery thresholds gate prerequisite satisfaction.
 - The default threshold is 0.70.
 - Readiness depends on both mastery and whether prerequisite topics satisfy their own dependencies.
 
-Complexity:
-- Mastery computation is O(1).
-- Normalization handles numeric strings and rejects invalid inputs safely.
-
-**Section sources**
-- [mastery calculation engine:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
+Normalization handles numeric strings and rejects invalid inputs safely.
 
 ### Dependency Graph Engine
 The dependency engine models topics as nodes and prerequisite relationships as directed edges. Its main responsibilities are:
@@ -222,23 +182,11 @@ classDiagram
   }
 ```
 
-**Diagram sources**
-- [dependency graph engine:1-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L1015)
-
 Important design points:
 - Self-edges are retained because a topic depending on itself is a one-node cycle.
 - Adjacency lists are sorted deterministically so cycle enumeration does not depend on map insertion order.
 - Bounded cycle enumeration returns a truncation flag when dense graphs contain exponentially many elementary cycles.
 - SCC membership is used for quarantine correctness even when the visible cycle sample is truncated.
-
-Complexity:
-- Edge construction: O(V + E).
-- Tarjan SCC: O(V + E).
-- Johnson-style enumeration: proportional to the number of reported elementary cycles within each SCC.
-- Readiness evaluation: linear in the number of prerequisites examined.
-
-**Section sources**
-- [dependency graph engine:1-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L1015)
 
 ### Auto-Chaining Logic
 Auto-chaining derives a deterministic `depends_on` predecessor for every note based on filesystem-like hierarchy without touching the filesystem directly.
@@ -262,9 +210,6 @@ flowchart TD
   LinkPredecessors --> Plan["Produce ordered path list and predecessor map"]
 ```
 
-**Diagram sources**
-- [auto-chain planner:1-1094](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L1094)
-
 Integration with Tier-0 hygiene:
 - Hygiene filters exclude repo metadata, templates, translations, and phase subtrees.
 - Backbone vs leaf classification controls which notes may gate others.
@@ -274,14 +219,6 @@ Wikilink parsing:
 - Parses Obsidian wikilinks, including targets, aliases, and anchors.
 - Anchors are stripped for chaining purposes.
 - Parsing is pure and fs-free; vault resolution belongs to storage.
-
-Complexity:
-- Grouping and sorting: O(n log n) over notes and directories.
-- Wikilink scanning: linear in link content.
-
-**Section sources**
-- [auto-chain planner:1-1094](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L1094)
-- [tier-0 hygiene predicates:1-405](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L405)
 
 ### TOC Chain Processing
 The TOC tier is a secondary, author-enumerated ordering source. Where numbered layout does not fully express intent, markdown links in a table of contents can define chain order.
@@ -304,21 +241,11 @@ flowchart TD
   PhaseResort --> Compose["Compose with numbered plan"]
 ```
 
-**Diagram sources**
-- [toc-chain planner:1-1331](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L1-L1331)
-
 Robustness features:
 - Balanced bracket tables avoid quadratic scans on malformed documents.
 - Angle-bracket and paren-depth probes are memoized after the first failure.
 - Percent-decoding and anchor stripping follow CommonMark-compatible behavior.
 - Backslashes are literal characters, not path separators.
-
-Complexity:
-- Link extraction is designed to stay linear in document length.
-- Destination normalization and folding are linear in link text.
-
-**Section sources**
-- [toc-chain planner:1-1331](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L1-L1331)
 
 ### Declared Prerequisite Text Parser
 This component reads a note’s own `## Prerequisites` section and extracts explicit prerequisite references.
@@ -342,14 +269,8 @@ flowchart TD
   Resolve --> Result["Resolved and skipped references"]
 ```
 
-**Diagram sources**
-- [declared prerequisite text parser:1-317](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L317)
-
 Design choice:
 - Prose is deliberately not parsed for phrases like “requires X.” The cost-benefit measured zero reliable edges while introducing false positives, so only explicit links gate learners.
-
-**Section sources**
-- [declared prerequisite text parser:1-317](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L317)
 
 ### Topic ID Generation, Validation, and Normalization
 Topic IDs are the stable identity for PALEE-managed notes.
@@ -367,20 +288,10 @@ flowchart TD
   Combine --> Output["Return unique topic ID"]
 ```
 
-**Diagram sources**
-- [topic ID policy:1-81](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L1-L81)
-
 Validation:
 - Rejects non-string inputs.
 - Accepts canonical and legacy patterns.
 - Other layers should use this validator instead of ad hoc regexes.
-
-Complexity:
-- Generation is O(1).
-- Validation is O(k) over the candidate string length.
-
-**Section sources**
-- [topic ID policy:1-81](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L1-L81)
 
 ### Tier-0 Hygiene Rules
 Tier-0 hygiene decides which notes participate in batch adoption and which may gate other notes.
@@ -396,6 +307,7 @@ Rules summarized:
 - B3: Template names are excluded when they are whole tokens and unnumbered.
 - B4: Phase subtrees such as solutions or starter folders are leaves.
 - B5: README-class, numeric-prefixed, and phase-prefixed content names may join the backbone.
+- B6: The reporting rule — every batch adoption prints a per-rule hygiene report (skip counts by reason on the dry-run and confirmation screens; backbone and leaf counts as well under `--auto-chain`), so a note hygiene removes or demotes is always accounted for, never silently dropped. B6 is not a classification rule: B1–B5 and B7 classify, B6 reports.
 - B7: An invalid `palee_id` demotes a note to leaf but does not promote it.
 
 ```mermaid
@@ -410,15 +322,6 @@ flowchart TD
   Phase --> Content["Check content doc name"]
   Content --> Decision{"Backbone, leaf, or excluded?"}
 ```
-
-**Diagram sources**
-- [tier-0 hygiene predicates:1-405](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L405)
-
-Complexity:
-- Classification is linear in the number of path segments and constant-time lookups over small curated lists.
-
-**Section sources**
-- [tier-0 hygiene predicates:1-405](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L405)
 
 ## Dependency Analysis
 The engine modules have clear boundaries:
@@ -445,14 +348,6 @@ graph LR
   Toc --> Hygiene
 ```
 
-**Diagram sources**
-- [engine index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
-- [auto-chain planner:1-1094](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L1094)
-- [toc-chain planner:1-1331](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L1-L1331)
-- [declared prerequisite text parser:1-317](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L317)
-- [dependency graph engine:1-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L1015)
-- [tier-0 hygiene predicates:1-405](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L405)
-
 Coupling observations:
 - Low coupling between scheduling and graph logic improves testability.
 - Hygiene predicates are reused across planners, reducing rule divergence.
@@ -462,13 +357,6 @@ Potential risks:
 - If hygiene rules change, both auto-chain and TOC-tier consumers must remain consistent.
 - Cycle enumeration can be expensive on dense graphs, so bounded variants are important for interactive commands.
 
-**Section sources**
-- [engine index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
-- [auto-chain planner:1-1094](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L1094)
-- [toc-chain planner:1-1331](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L1-L1331)
-- [dependency graph engine:1-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L1015)
-- [tier-0 hygiene predicates:1-405](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L405)
-
 ## Performance Considerations
 | Area | Complexity | Consideration |
 |---|---:|---|
@@ -477,7 +365,8 @@ Potential risks:
 | Dependency edge map | O(V + E) | Deduplicates parallel edges and sorts adjacency for determinism. |
 | Tarjan SCC | O(V + E) | Iterative implementation avoids call-stack exhaustion. |
 | Cycle enumeration | O(cycles reported) | Johnson-style enumeration is proportional to reported cycles; dense SCCs can be exponential, so bounded variants exist. |
-| Auto-chain planning | O(n log n) | Sorting directories and lessons dominates. |
+| Dependency readiness check | O(prerequisites) | Linear in the number of prerequisites examined per topic. |
+| Auto-chain planning | O(n log n) | Sorting directories and lessons dominates; wikilink scanning is linear in link content. |
 | TOC link extraction | O(document length) | Linear scan with lazy balance tables for malformed inputs. |
 | Topic ID generation/validation | O(1) or O(k) | Very fast; intended for frequent use during adoption and validation. |
 | Tier-0 classification | O(segments) | Small constant-time list lookups over path segments. |
@@ -503,14 +392,6 @@ Common engine issues and their likely causes:
 | Topic ID validation fails | Non-canonical format or legacy mismatch | Confirm the ID matches the canonical or legacy pattern; regenerate with `generateTopicId`. |
 | Translation notes appear unexpectedly | Locale suffix misclassification or structural translation signal | Verify `classifyNoteForChain` input and the presence of translation directory segments. |
 
-**Section sources**
-- [sm2 spaced repetition engine:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-- [dependency graph engine:1-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L1015)
-- [toc-chain planner:1-1331](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L1-L1331)
-- [auto-chain planner:1-1094](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L1094)
-- [topic ID policy:1-81](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L1-L81)
-- [tier-0 hygiene predicates:1-405](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L405)
-
 ## Conclusion
 The PALEE core engine cleanly separates scheduling, mastery, graph analysis, chaining, and identity concerns. Its most important guarantees are:
 - SM-2 scheduling is numerically safe, capped, and timezone-aware.
@@ -523,3 +404,15 @@ The PALEE core engine cleanly separates scheduling, mastery, graph analysis, cha
 Higher layers should consume the barrel API, validate raw inputs early, prefer bounded graph operations, and treat hygiene classifications as the contract for what may gate learners.
 
 [No sources needed since this section summarizes without analyzing specific files]
+
+## References
+
+- [engine index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
+- [sm2 spaced repetition engine:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
+- [dependency graph engine:1-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L1015)
+- [mastery calculation engine:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
+- [auto-chain planner:1-1094](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L1094)
+- [toc-chain planner:1-1331](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L1-L1331)
+- [topic ID policy:1-81](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L1-L81)
+- [tier-0 hygiene predicates:1-405](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L405)
+- [declared prerequisite text parser:1-317](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L317)
