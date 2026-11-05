@@ -26,6 +26,7 @@
 7. [Performance Considerations](#performance-considerations)
 8. [Troubleshooting Guide](#troubleshooting-guide)
 9. [Conclusion](#conclusion)
+10. [References](#references)
 
 ## Introduction
 This document explains PALEE's security model and concurrency handling for vault-based Markdown storage. It covers:
@@ -64,21 +65,6 @@ graph TB
     AIBoundary["AI Provider Boundary<br/>(ADR-0027)"] --> Caller
 ```
 
-**Diagram sources**
-- [containment.ts:1-185](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts#L1-L185)
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
-- [lock.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L1-L200)
-- [source-cap.ts:1-109](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/source-cap.ts#L1-L109)
-- [0027-ai-provider-boundary.md:1-97](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0027-ai-provider-boundary.md#L1-L97)
-
-**Section sources**
-- [containment.ts:1-185](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts#L1-L185)
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
-- [lock.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L1-L200)
-- [source-cap.ts:1-109](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/source-cap.ts#L1-L109)
-- [0002-atomic-file-locking-and-occ.md:1-56](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0002-atomic-file-locking-and-occ.md#L1-L56)
-- [0014-atomic-write-durability-and-containment.md:1-79](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0014-atomic-write-durability-and-containment.md#L1-L79)
-
 ## Core Components
 PALEE's security model is layered:
 
@@ -89,13 +75,6 @@ PALEE's security model is layered:
 5. **Atomic write**: Temporary files, `fsync`, mode preservation, rename, and directory flush provide crash resilience.
 6. **Network boundary**: Only authorized commands reach the network, and only safe endpoints receive credentials.
 7. **Bounded resources**: Retries, locks, spawns, and responses have explicit budgets.
-
-**Section sources**
-- [containment.ts:1-185](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts#L1-L185)
-- [source-cap.ts:1-109](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/source-cap.ts#L1-L109)
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
-- [lock.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L1-L200)
-- [0027-ai-provider-boundary.md:1-97](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0027-ai-provider-boundary.md#L1-L97)
 
 ## Architecture Overview
 At a high level, every vault mutation flows through a controlled sequence rather than direct filesystem calls:
@@ -122,12 +101,6 @@ sequenceDiagram
     Writer-->>App: "Success or retryable conflict"
 ```
 
-**Diagram sources**
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
-- [atomic-write.ts:201-450](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L201-L450)
-- [lock.ts:200-500](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L200-L500)
-- [containment.ts:1-185](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts#L1-L185)
-
 ## Detailed Component Analysis
 
 ### Filesystem Containment
@@ -153,19 +126,12 @@ flowchart TD
     Compare -->|Yes| ReturnPath["Return canonical destination"]
 ```
 
-**Diagram sources**
-- [containment.ts:1-185](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts#L1-L185)
-
 Important constraints:
 
 - Containment is re-checked immediately before opening the temp file and renaming it, narrowing the TOCTOU window between initial certification and the filesystem call.
 - The residual gap between the final re-check and the actual open is documented rather than claimed closable from JavaScript.
 - Case differences and Windows 8.3 short names are handled by comparing canonical paths instead of raw strings.
 - Different volumes are rejected because an absolute relative path does not stay within the vault root.
-
-**Section sources**
-- [containment.ts:1-185](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts#L1-L185)
-- [0014-atomic-write-durability-and-containment.md:1-79](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0014-atomic-write-durability-and-containment.md#L1-L79)
 
 ### Optimistic Concurrency Control and Conflict Resolution
 OCC protects against lost updates when another process modifies a file between the time PALEE reads it and the time it writes the new version.
@@ -197,24 +163,12 @@ flowchart TD
     Conflict --> Retry(["Caller reloads and retries"])
 ```
 
-**Diagram sources**
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
-- [atomic-write.ts:201-450](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L201-L450)
-- [0002-atomic-file-locking-and-occ.md:1-56](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0002-atomic-file-locking-and-occ.md#L1-L56)
-- [0006-phase-1-concurrency-resilience-and-storage-isolation.md:1-87](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0006-phase-1-concurrency-resilience-and-storage-isolation.md#L1-L87)
-
 Conflict resolution strategy:
 
 - `isConflictError` recognizes both the error code and message prefixes used by OCC and lock contention.
 - Lock contention and OCC mismatches are classified as retryable conflicts, not permanent security failures.
 - The review path demonstrates re-reading the topic note immediately before writing and triggering a conflict when the fingerprint changes.
 - Batch operations tolerate partial failures while still preserving atomicity per note.
-
-**Section sources**
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
-- [atomic-write.ts:201-450](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L201-L450)
-- [0002-atomic-file-locking-and-occ.md:1-56](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0002-atomic-file-locking-and-occ.md#L1-L56)
-- [0006-phase-1-concurrency-resilience-and-storage-isolation.md:1-87](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0006-phase-1-concurrency-resilience-and-storage-isolation.md#L1-L87)
 
 ### Cross-Process Locking
 PALee uses an atomic directory-based lock scheme instead of native OS file locks, keeping the implementation portable and free of native addons.
@@ -248,11 +202,6 @@ stateDiagram-v2
     Released --> [*]
 ```
 
-**Diagram sources**
-- [lock.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L1-L200)
-- [lock.ts:200-500](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L200-L500)
-- [0036-bounded-lock-acquisition.md:1-91](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0036-bounded-lock-acquisition.md#L1-L91)
-
 Bounded acquisition guarantees:
 
 - `MAX_ACQUISITION_ITERATIONS` caps the outer acquisition loop.
@@ -261,11 +210,6 @@ Bounded acquisition guarantees:
 - `Atomics.wait` parks the thread during synchronous waits without consuming CPU.
 - Directory entries that cannot be removed are reported in a conflict message rather than causing an unbounded loop.
 - Entry names are escaped to prevent terminal forgery or log corruption.
-
-**Section sources**
-- [lock.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L1-L200)
-- [lock.ts:200-500](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L200-L500)
-- [0036-bounded-lock-acquisition.md:1-91](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0036-bounded-lock-acquisition.md#L1-L91)
 
 ### Atomic Writes and Durability
 Atomic writes ensure that vault notes are never partially persisted and that file permissions are preserved.
@@ -304,24 +248,12 @@ flowchart TD
     Cleanup --> Exit(["Exit"])
 ```
 
-**Diagram sources**
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
-- [atomic-write.ts:201-450](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L201-L450)
-- [0014-atomic-write-durability-and-containment.md:1-79](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0014-atomic-write-durability-and-containment.md#L1-L79)
-- [0005-concurrency-storage-and-schema-migration.md:1-51](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0005-concurrency-storage-and-schema-migration.md#L1-L51)
-
 Temporary-file safety:
 
 - The entropy component prevents collisions even among concurrent promises in the same process.
 - Stray temp files left by killed writers are reclaimed only after the lock is held and the OCC check passes.
 - Reclamation probes the host process table and requires a minimum age, protecting shared-network-fs scenarios.
 - Reclamation is best-effort: it does not turn unreadable or locked residue into a failed write.
-
-**Section sources**
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
-- [atomic-write.ts:201-450](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L201-L450)
-- [0005-concurrency-storage-and-schema-migration.md:1-51](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0005-concurrency-storage-and-schema-migration.md#L1-L51)
-- [0014-atomic-write-durability-and-containment.md:1-79](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0014-atomic-write-durability-and-containment.md#L1-L79)
 
 ### Source Cap and Denial-of-Service Protection
 The source cap limits how large a note can be loaded or written, preventing oversized documents from consuming memory or CPU during scans.
@@ -345,12 +277,6 @@ flowchart TD
     Skip --> End
 ```
 
-**Diagram sources**
-- [source-cap.ts:1-109](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/source-cap.ts#L1-L109)
-
-**Section sources**
-- [source-cap.ts:1-109](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/source-cap.ts#L1-L109)
-
 ### External AI Providers and Network Boundaries
 Phase 1 of PALEE is deterministic and offline. The first network boundary appears in Phase 2 through the AI provider adapter.
 
@@ -367,9 +293,6 @@ Security rules:
 - Changing the endpoint is treated as changing the credential target unless explicitly opted out.
 - Windows config-directory placement checks location rather than full ACLs, with a documented override.
 
-**Section sources**
-- [0027-ai-provider-boundary.md:1-97](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0027-ai-provider-boundary.md#L1-L97)
-
 ### Thread Safety, Process Isolation, and Credential Management
 PALee's concurrency model emphasizes process isolation rather than relying on a single global in-memory mutex:
 
@@ -381,14 +304,6 @@ PALee's concurrency model emphasizes process isolation rather than relying on a 
 - AI provider credentials are read from environment variables, stdin, or interactive prompts, never positional arguments.
 - Stored configuration is opened with restrictive mode semantics before payload bytes are written.
 - The offline core has no socket calls; network behavior is isolated to the provider boundary.
-
-**Section sources**
-- [lock.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L1-L200)
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
-- [0002-atomic-file-locking-and-occ.md:1-56](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0002-atomic-file-locking-and-occ.md#L1-L56)
-- [0005-concurrency-storage-and-schema-migration.md:1-51](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0005-concurrency-storage-and-schema-migration.md#L1-L51)
-- [0032-direct-spawn-bounding.md:1-79](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0032-direct-spawn-bounding.md#L1-L79)
-- [0027-ai-provider-boundary.md:1-97](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0027-ai-provider-boundary.md#L1-L97)
 
 ## Dependency Analysis
 The following diagram shows the main runtime dependencies between security and concurrency components.
@@ -405,12 +320,6 @@ graph LR
     SourceCap["source-cap.ts"] --> Types
 ```
 
-**Diagram sources**
-- [containment.ts:1-185](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts#L1-L185)
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
-- [lock.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L1-L200)
-- [source-cap.ts:1-109](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/source-cap.ts#L1-L109)
-
 Coupling observations:
 
 - `atomic-write.ts` depends on both `containment.ts` and `lock.ts`, making it the central orchestration point for secure vault writes.
@@ -418,12 +327,6 @@ Coupling observations:
 - `containment.ts` delegates vault membership to `isWithinVault`, centralizing the containment predicate.
 - `source-cap.ts` is intentionally independent of locking and containment; it guards resource consumption early in the read/write pipeline.
 - All components propagate typed Node errors so callers can distinguish security refusals, conflicts, and I/O failures.
-
-**Section sources**
-- [containment.ts:1-185](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts#L1-L185)
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
-- [lock.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L1-L200)
-- [source-cap.ts:1-109](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/source-cap.ts#L1-L109)
 
 ## Performance Considerations
 Security controls add deliberate overhead, but they are bounded and targeted:
@@ -459,10 +362,6 @@ These costs are tradeoffs for correctness, durability, and resistance to malicio
 - Do not retry; containment is not a transient condition.
 - Inspect filesystem links and junctions near the destination.
 
-**Section sources**
-- [containment.ts:1-185](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts#L1-L185)
-- [0014-atomic-write-durability-and-containment.md:1-79](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0014-atomic-write-durability-and-containment.md#L1-L79)
-
 ### Concurrent Modification Detected
 **Symptoms:**
 - Error code `ECONFLICT`.
@@ -478,11 +377,6 @@ These costs are tradeoffs for correctness, durability, and resistance to malicio
 - Reload the file and retry the operation.
 - Avoid holding stale fingerprints across long user interactions.
 - Ensure clients treat `ECONFLICT` as retryable.
-
-**Section sources**
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
-- [atomic-write.ts:201-450](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L201-L450)
-- [0006-phase-1-concurrency-resilience-and-storage-isolation.md:1-87](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0006-phase-1-concurrency-resilience-and-storage-isolation.md#L1-L87)
 
 ### Lock Acquisition Appears Hung or Slow
 **Symptoms:**
@@ -502,11 +396,6 @@ These costs are tradeoffs for correctness, durability, and resistance to malicio
 - Investigate antivirus or indexers that hold vault handles.
 - Treat bounded contention as retryable; do not assume permanent failure.
 
-**Section sources**
-- [lock.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L1-L200)
-- [lock.ts:200-500](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L200-L500)
-- [0036-bounded-lock-acquisition.md:1-91](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0036-bounded-lock-acquisition.md#L1-L91)
-
 ### Note Too Large to Read or Write
 **Symptoms:**
 - Diagnostic naming an oversized source or result.
@@ -522,9 +411,6 @@ These costs are tradeoffs for correctness, durability, and resistance to malicio
 - Remove or relocate large non-note files outside the vault.
 - Reduce embedded artifacts or split content into separate files.
 - Treat oversized notes as unreadable until reduced below the cap.
-
-**Section sources**
-- [source-cap.ts:1-109](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/source-cap.ts#L1-L109)
 
 ### AI Provider Connection Problems
 **Symptoms:**
@@ -547,8 +433,21 @@ These costs are tradeoffs for correctness, durability, and resistance to malicio
 - Keep the endpoint stable or explicitly opt in to changing the credential target.
 - Ensure the provider returns bounded responses.
 
-**Section sources**
-- [0027-ai-provider-boundary.md:1-97](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0027-ai-provider-boundary.md#L1-L97)
-
 ## Conclusion
 PALee's security and concurrency model is built around strict containment, bounded resources, process-safe locking, optimistic concurrency control, and atomic durability. Vault writes cannot escape the canonical vault root, oversized inputs are refused early, simultaneous modifications are detected and retried safely, and crashes leave consistent data rather than partial files. Network access is isolated to a carefully constrained AI provider boundary, and credentials are handled outside argv and with restricted file modes. Together, these layers make PALEE resilient against accidental corruption, hostile vault layouts, denial-of-service inputs, and concurrent editing by humans and machines.
+
+## References
+
+- [containment.ts:1-185](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts#L1-L185)
+- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
+- [lock.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L1-L200)
+- [source-cap.ts:1-109](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/source-cap.ts#L1-L109)
+- [0027-ai-provider-boundary.md:1-97](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0027-ai-provider-boundary.md#L1-L97)
+- [0002-atomic-file-locking-and-occ.md:1-56](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0002-atomic-file-locking-and-occ.md#L1-L56)
+- [0014-atomic-write-durability-and-containment.md:1-79](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0014-atomic-write-durability-and-containment.md#L1-L79)
+- [atomic-write.ts:201-450](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L201-L450)
+- [lock.ts:200-500](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L200-L500)
+- [0006-phase-1-concurrency-resilience-and-storage-isolation.md:1-87](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0006-phase-1-concurrency-resilience-and-storage-isolation.md#L1-L87)
+- [0036-bounded-lock-acquisition.md:1-91](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0036-bounded-lock-acquisition.md#L1-L91)
+- [0005-concurrency-storage-and-schema-migration.md:1-51](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0005-concurrency-storage-and-schema-migration.md#L1-L51)
+- [0032-direct-spawn-bounding.md:1-79](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0032-direct-spawn-bounding.md#L1-L79)

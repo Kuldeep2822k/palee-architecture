@@ -24,6 +24,7 @@
 7. [Performance Considerations](#performance-considerations)
 8. [Troubleshooting Guide](#troubleshooting-guide)
 9. [Conclusion](#conclusion)
+10. [References](#references)
 
 ## Introduction
 This document explains PALEE's storage layer and its integration with an Obsidian vault. It covers how PALEE discovers Markdown notes, parses and updates YAML frontmatter while preserving formatting, performs atomic writes with optimistic concurrency control (OCC), enforces path containment for security, coordinates concurrent access through file locks, and caches parsed data to keep repeated scans efficient.
@@ -63,19 +64,6 @@ graph TB
   Lock --> Containment
 ```
 
-**Diagram sources**
-- [storage index:1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
-- [vault walker:1-368](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/vault-walker.ts#L1-L368)
-- [note scanner:1-327](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L1-L327)
-- [frontmatter parser:1-220](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L220)
-- [atomic writer:1-611](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L611)
-- [file lock manager:1-956](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L1-L956)
-- [file cache:1-273](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/cache.ts#L1-L273)
-- [containment guard:1-185](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts#L1-L185)
-
-**Section sources**
-- [storage index:1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
-
 ## Core Components
 | Component | Responsibility | Key Behaviors |
 |---|---|---|
@@ -87,16 +75,6 @@ graph TB
 | File lock manager | Cross-process file mutex | Atomic directory acquisition; heartbeat; stale recovery; bounded retries |
 | Atomic writer | Safe durable updates | Temporary file, OCC fingerprint check, lock, permission preservation, rename, directory fsync |
 | Containment guard | Prevent writes outside vault | Canonical prefix resolution; link/junction escape detection; unified refusal error |
-
-**Section sources**
-- [vault walker:1-368](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/vault-walker.ts#L1-L368)
-- [note scanner:1-327](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L1-L327)
-- [frontmatter parser:1-220](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L220)
-- [topic loader:1-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L417)
-- [file cache:1-273](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/cache.ts#L1-L273)
-- [file lock manager:1-956](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L1-L956)
-- [atomic writer:1-611](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L611)
-- [containment guard:1-185](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts#L1-L185)
 
 ## Architecture Overview
 PALEE's storage layer follows a layered contract: callers use the public storage API, which delegates to specialized components. Reads flow from the vault walker through the scanner and loader into the cache. Writes flow through the atomic writer, which combines containment checking, locking, OCC verification, temporary-file persistence, and durability flushing.
@@ -128,13 +106,6 @@ sequenceDiagram
       Loader-->>Caller: topics[]
     end
 ```
-
-**Diagram sources**
-- [storage index:1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
-- [vault walker:1-368](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/vault-walker.ts#L1-L368)
-- [note scanner:1-327](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L1-L327)
-- [topic loader:1-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L417)
-- [file cache:1-273](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/cache.ts#L1-L273)
 
 ## Detailed Component Analysis
 
@@ -173,18 +144,11 @@ flowchart TD
   More -->|No| Return["Return results[]"]
 ```
 
-**Diagram sources**
-- [vault walker:1-368](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/vault-walker.ts#L1-L368)
-
 Security measures include:
 - Resolving the vault root before traversal.
 - Rejecting symlink targets that escape the vault when following links.
 - Using canonicalization helpers to derive reliable vault-relative paths.
 - Enforcing containment for newly created directories through `ensureVaultDirectory`, which asserts containment both before and after creation to fail closed across the small TOCTOU window.
-
-**Section sources**
-- [vault walker:1-368](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/vault-walker.ts#L1-L368)
-- [containment guard:1-185](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts#L1-L185)
 
 ### Scanner: Topic Discovery and Tolerant Parsing
 The scanner is the storage-boundary reader used by the validation framework. Its key design goals are:
@@ -213,18 +177,10 @@ flowchart TD
   Sort --> ScanEnd(["Return ScannedNote[]"])
 ```
 
-**Diagram sources**
-- [note scanner:1-327](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L1-L327)
-
 The scanner uses the vault walker and frontmatter parser but adds:
 - A stat-first size guard.
 - Graceful handling of deleted, locked, or unreadable files.
 - A heuristic that distinguishes YAML mapping content from accidental Markdown headings, blockquotes, lists, and other body-text shapes after the mapping region ends.
-
-**Section sources**
-- [note scanner:1-327](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L1-L327)
-- [vault walker:1-368](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/vault-walker.ts#L1-L368)
-- [frontmatter parser:1-220](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L220)
 
 ### Frontmatter Parsing and Manipulation
 The frontmatter module treats YAML frontmatter as a first-class structured object while treating surrounding Markdown and YAML formatting as immutable context.
@@ -254,16 +210,10 @@ classDiagram
   Frontmatter --> Document : "parses and mutates YAML CST"
 ```
 
-**Diagram sources**
-- [frontmatter parser:1-220](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L220)
-
 Important behaviors:
 - `parseFrontmatter` returns no frontmatter when the fenced content is empty, whitespace-only, a scalar, or otherwise invalid YAML.
 - `updateFrontmatter` throws only when existing frontmatter is unparseable; it does not treat missing frontmatter as an error.
 - Fingerprint computation is deterministic over UTF-8 text and is reused by the cache and atomic writer.
-
-**Section sources**
-- [frontmatter parser:1-220](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L220)
 
 ### Atomic File Operations and Rollback Mechanisms
 The atomic writer is the single durable write primitive for vault notes and managed metadata. It guarantees that either the old file or the new file survives, never a partially written destination.
@@ -294,11 +244,6 @@ sequenceDiagram
     Writer-->>Caller: success
 ```
 
-**Diagram sources**
-- [atomic writer:1-611](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L611)
-- [containment guard:1-185](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts#L1-L185)
-- [file lock manager:1-956](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L1-L956)
-
 Design highlights:
 - **Containment enforcement:** Every write begins by resolving and asserting that the destination lies inside the vault. The same unified error code and message prefix are used for all containment refusals.
 - **Locking:** A per-target lock prevents concurrent writers from racing the OCC check and rename.
@@ -313,10 +258,6 @@ Design highlights:
 Conflict vs containment:
 - `ECONFLICT` indicates a retryable condition such as a concurrent modification, lock contention, or expectation mismatch.
 - `ECONTAINMENT` indicates a vault-integrity violation that should not be retried.
-
-**Section sources**
-- [atomic writer:1-611](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L611)
-- [containment guard:1-185](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts#L1-L185)
 
 ### File Locking System for Concurrent Access Control
 The file lock manager provides cross-process synchronization for individual notes using `.palee/locks`:
@@ -343,16 +284,10 @@ stateDiagram-v2
   Released --> Unlocked
 ```
 
-**Diagram sources**
-- [file lock manager:1-956](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L1-L956)
-
 Platform considerations:
 - Case-insensitive platforms fold lock keys so different spellings of the same note share one lock directory.
 - Windows transient handle errors are retried with bounded delays.
 - Entry names are escaped in error messages to avoid terminal control-character injection.
-
-**Section sources**
-- [file lock manager:1-956](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L1-L956)
 
 ### Caching Strategy and Memory Management
 The file cache is a generic, path-keyed in-memory cache used by the topic loader and related read paths.
@@ -390,16 +325,9 @@ flowchart TD
   MtimeMatch -->|No| Rehash
 ```
 
-**Diagram sources**
-- [file cache:1-273](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/cache.ts#L1-L273)
-
 The loader uses two caches:
 - A topic cache for successfully parsed PALEE topics.
 - A separate negative cache for non-topic notes, so ordinary Markdown files cost only a stat after they have been classified once.
-
-**Section sources**
-- [file cache:1-273](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/cache.ts#L1-L273)
-- [topic loader:1-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L417)
 
 ### Loader: Efficient Data Retrieval and Normalization
 The topic loader is the central boundary for converting vault Markdown notes into normalized topic objects.
@@ -443,21 +371,12 @@ flowchart TD
   NextFile --> End(["Return topics[]"])
 ```
 
-**Diagram sources**
-- [topic loader:1-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L417)
-- [vault walker:1-368](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/vault-walker.ts#L1-L368)
-- [frontmatter parser:1-220](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L220)
-- [file cache:1-273](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/cache.ts#L1-L273)
-
 Normalization details include:
 - Scores are clamped to `[0.0, 1.0]` with four decimal places.
 - Integer fields are coerced and floored.
 - Optional integer fields retain a `null` absence state.
 - Dependency arrays accept multiple legacy field names.
 - Dates are normalized to strings or null where appropriate.
-
-**Section sources**
-- [topic loader:1-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L417)
 
 ### Filesystem Security Measures
 PALAE's security model centers on refusing writes that could escape the vault or corrupt its managed structure.
@@ -474,12 +393,6 @@ These guards ensure that:
 - Notes cannot be written outside the vault through crafted paths.
 - Managed metadata directories cannot be placed outside the vault through planted links.
 - Lock metadata remains associated with the vault rather than escaping to arbitrary locations.
-
-**Section sources**
-- [containment guard:1-185](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts#L1-L185)
-- [vault walker:1-368](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/vault-walker.ts#L1-L368)
-- [atomic writer:1-611](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L611)
-- [file lock manager:1-956](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L1-L956)
 
 ## Dependency Analysis
 The storage layer has clear inward-facing dependencies: higher-level application and CLI code depends on `src/storage/index.ts`, while internal modules depend on narrowly scoped primitives.
@@ -507,26 +420,12 @@ graph LR
   Lock --> Containment
 ```
 
-**Diagram sources**
-- [storage index:1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
-- [vault walker:1-368](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/vault-walker.ts#L1-L368)
-- [note scanner:1-327](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L1-L327)
-- [frontmatter parser:1-220](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L220)
-- [topic loader:1-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L417)
-- [atomic writer:1-611](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L611)
-- [file lock manager:1-956](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L1-L956)
-- [file cache:1-273](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/cache.ts#L1-L273)
-- [containment guard:1-185](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts#L1-L185)
-
 Coupling observations:
 - High cohesion within each module: each file implements one concern.
 - Controlled coupling through explicit imports and a public barrel.
 - Containment is a shared safety primitive consumed by both the atomic writer and the lock manager.
 - The loader composes walker, frontmatter, and cache logic without exposing internal implementation details.
 - Circular dependencies are avoided by keeping type definitions and shared contracts in well-defined locations.
-
-**Section sources**
-- [storage index:1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
 
 ## Performance Considerations
 - **Stat-first scanning:** Both the scanner and loader reject oversized notes before reading, bounding IO and memory usage.
@@ -554,10 +453,6 @@ Common causes:
 Recommended action:
 - Catch the error, classify it with `isConflictError`, reload the file, and retry up to a caller-defined limit.
 
-**Section sources**
-- [atomic writer:1-611](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L611)
-- [file lock manager:1-956](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L1-L956)
-
 ### Vault Integrity Violations
 Containment violations indicate that a destination resolves outside the vault. These are not retryable because retrying the same path will still escape.
 
@@ -570,10 +465,6 @@ Recommended action:
 - Log the refusal with the resolved canonical path.
 - Reject the operation and exit with the configured vault-integrity exit code.
 - Do not retry.
-
-**Section sources**
-- [containment guard:1-185](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts#L1-L185)
-- [atomic writer:1-611](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L611)
 
 ### Malformed or Unclosed Frontmatter
 When validation scans a vault, malformed YAML or an unclosed `---` fence produces a `ScannedNote` with `parseError` rather than aborting the scan.
@@ -588,10 +479,6 @@ Recommended action:
 - Repair the fence or convert the thematic break to `***`.
 - Re-run validation to confirm the diagnostic disappears.
 
-**Section sources**
-- [note scanner:1-327](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L1-L327)
-- [frontmatter parser:1-220](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L220)
-
 ### Stale Locks and Heartbeat Loss
 A stale lock means the holder appears gone or inactive. The lock manager recovers after platform-specific timeouts and, when possible, detects dead PIDs immediately.
 
@@ -605,9 +492,6 @@ Recommended action:
 - Investigate crashes or hung processes if stale locks appear frequently.
 - Inspect `.palee/locks` only through PALEE's tools to avoid manual corruption.
 
-**Section sources**
-- [file lock manager:1-956](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L1-L956)
-
 ### Cache Staleness and Memory Pressure
 If the cache serves stale data or grows too large:
 - Verify that the unsettled horizon is appropriate for the workload.
@@ -615,10 +499,19 @@ If the cache serves stale data or grows too large:
 - Use `cache.clear` to release all memory.
 - Prefer injected caches in tests to avoid cross-test contamination.
 
-**Section sources**
-- [file cache:1-273](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/cache.ts#L1-L273)
-
 ## Conclusion
 PALAE's storage layer is built around safety, consistency, and predictable performance. Vault traversal excludes unsafe and irrelevant paths, the scanner tolerates malformed notes without failing the whole scan, and the frontmatter layer preserves user formatting while enabling precise updates. Atomic writes combine containment checks, file locks, OCC fingerprints, temporary files, and durability flushing to ensure that vault data remains consistent even under concurrent or interrupted operations. The lock manager handles stale holders and platform differences, while the file cache and negative cache keep repeated loads efficient. Together, these components provide a secure, observable, and performant foundation for managing PALEE topics inside an Obsidian vault.
 
 [No sources needed since this section summarizes without analyzing specific files]
+
+## References
+
+- [storage index:1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
+- [vault walker:1-368](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/vault-walker.ts#L1-L368)
+- [note scanner:1-327](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L1-L327)
+- [frontmatter parser:1-220](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L220)
+- [atomic writer:1-611](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L611)
+- [file lock manager:1-956](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L1-L956)
+- [file cache:1-273](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/cache.ts#L1-L273)
+- [containment guard:1-185](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts#L1-L185)
+- [topic loader:1-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L417)
