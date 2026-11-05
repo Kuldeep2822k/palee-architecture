@@ -63,7 +63,6 @@ graph TB
     Cache["File Cache<br/>src/storage/cache.ts"]
   end
 
-  SM2 --> Index
   FM --> Index
   Lock --> Index
   AW --> Index
@@ -113,8 +112,8 @@ sequenceDiagram
   Writer->>Cont: Assert destination inside vault
   Writer->>Lock: Acquire per-note lock
   Lock->>FS: mkdir / heartbeat / quarantine
-  Writer->>FS: Reclaim stale temps for this target
   Writer->>FS: Read expected fingerprint (OCC)
+  Writer->>FS: Reclaim stale temps for this target
   Writer->>FS: Write temp file, fchmod, fsync
   Writer->>FS: Rename temp over destination
   Writer->>FS: Best-effort directory fsync
@@ -224,7 +223,7 @@ Trade-offs:
 | `missing` | File does not exist | Caller decides whether to rebuild or treat as absent |
 | `no-frontmatter` | Absent or empty fences | Tolerated by some flows |
 | `corrupt` | Delimiters present but YAML failed | Rebuilt by session start |
-| `schema-invalid` | Present but not supported version | Rebuilt; tolerant fields remain available for inspection |
+| `schema-invalid` | `palee_schema` absent or not exactly 1 | Rebuilt; tolerant fields remain available for inspection |
 
 Only `palee_schema: 1` is accepted as supported. Unknown versions are treated as invalid, not silently consumed.
 
@@ -329,7 +328,7 @@ A typical concurrent review illustrates the full chain:
 2. The loader reads the topic through the cache, applying unsettled-horizon fingerprint validation and negative caching for non-topic files.
 3. SM-2 computes the new review state, subject to field validation and interval/ease-factor bounds.
 4. The CLI re-reads the fresh file content just before writing to close the recall-window race.
-5. `atomicWrite` asserts containment, acquires the lock, reclaims stale temporary files, verifies the SHA-256 fingerprint, writes to a unique temp file, preserves mode, flushes, renames, and best-effort flushes the directory.
+5. `atomicWrite` asserts containment, acquires the lock, verifies the SHA-256 fingerprint (OCC), then reclaims stale temporary files, writes to a unique temp file, preserves mode, flushes, renames, and best-effort flushes the directory.
 6. If another process modified the file, the operation returns an `ECONFLICT`; the CLI can surface exit code 4 or retry according to caller policy.
 7. Sessions and hot memory are persisted under `.palee`, with hot memory reconstructed from confirmed sessions when its schema is unsupported or corrupt.
 
@@ -392,7 +391,7 @@ PALEE balances consistency against practical performance in several places:
 Recommended practices:
 - Avoid rapid edit-save loops on the same note without allowing OCC retries.
 - Keep generated or exported files out of the vault or accept that they are scanned.
-- Treat `ECONFLICT` as retryable; treat containment errors as terminal configuration issues.
+- Treat `ECONFLICT` as retryable; treat containment errors as terminal validation failures (exit 3).
 - Do not assume hot memory is authoritative when its schema is invalid.
 
 ## Troubleshooting Guide

@@ -42,11 +42,12 @@ This document explains:
 - The planned evolution toward dependency-aware recommendations, chain verification, per-edge blocking policies, and integrated tutoring sessions.
 
 ## Project Structure
-The AI integration lives under `src/ai`, while CLI configuration logic imports from it. Tests enforce that no other source file opens network connections.
+The AI integration lives under `src/ai`, while CLI configuration logic imports from it: `src/cli/config.ts` is the runtime importer, and `src/cli/exit-codes.ts` also imports `ProviderError` from it (type/classification only, with no network path). Tests enforce that no other source file opens network connections.
 
 ```mermaid
 graph TB
     CLI["CLI Layer<br/>src/cli/config.ts"] --> AIIndex["AI Subsystem Entry<br/>src/ai/index.ts"]
+    ExitCodes["CLI Exit Codes<br/>src/cli/exit-codes.ts<br/>(imports ProviderError only)"] --> AIIndex
     AIIndex --> Provider["Provider Adapter<br/>src/ai/provider.ts"]
     Provider --> Types["Shared Types<br/>src/types.ts"]
     Tests["Test Suite"] --> Provider
@@ -76,7 +77,7 @@ PALEE’s architecture separates concerns across layers:
 - Engine components compute SM-2 scheduling, dependency chains, mastery, and prerequisite text.
 - Storage handles vault files, frontmatter, locking, sessions, and scanning.
 - Validation rules enforce schema and policy constraints.
-- AI is isolated into `src/ai`; currently, only the CLI configuration command uses it.
+- AI is isolated into `src/ai`; currently, only two CLI files import from it — the CLI configuration command (`src/cli/config.ts`) and `src/cli/exit-codes.ts`, which imports `ProviderError` only to classify errors (type-only in effect, with no network path).
 
 ```mermaid
 graph TB
@@ -119,15 +120,15 @@ The adapter defines a small, testable contract:
 ```mermaid
 classDiagram
     class ChatTurn {
-        +string role
+        +'system'|'user'|'assistant' role
         +string content
     }
 
     class ChatRequest {
         +ChatTurn[] messages
-        +boolean expectJson
-        +number temperature
-        +number maxTokens
+        +boolean? expectJson
+        +number? temperature
+        +number? maxTokens
     }
 
     class UsageCounts {
@@ -138,13 +139,13 @@ classDiagram
 
     class ChatReply {
         +string text
-        +any json
-        +UsageCounts usage
+        +unknown? json
+        +UsageCounts? usage
     }
 
     class ProviderError {
-        +string kind
-        +number status
+        +ProviderErrorKind kind
+        +number? status
     }
 
     class Transport {
@@ -155,16 +156,16 @@ classDiagram
     class ProviderSettings {
         +string baseUrl
         +string model
-        +string apiKey
-        +string keySource
-        +string providerName
+        +string? apiKey
+        +KeySource keySource
+        +string? providerName
     }
 
     class ProviderOptions {
-        +Transport transport
-        +number timeoutMs
-        +Record env
-        +AbortSignal signal
+        +Transport? transport
+        +number? timeoutMs
+        +Record? env
+        +AbortSignal? signal
     }
 
     ChatRequest --> ChatTurn : "contains"
@@ -211,15 +212,13 @@ A typical provider call follows this flow:
 sequenceDiagram
     participant Caller as "Caller"
     participant Settings as "resolveProviderSettings"
-    participant Validator as "normalizeProviderEndpoint"
     participant Provider as "OpenAICompatibleProvider"
     participant Transport as "Transport"
     participant ProviderService as "External Provider"
 
     Caller->>Settings: "Load baseUrl, apiKey, model"
+    Settings->>Settings: "normalizeProviderEndpoint (internal step): validate base URL"
     Settings-->>Caller: "ProviderSettings"
-    Caller->>Validator: "Validate base URL"
-    Validator-->>Caller: "Validated URL"
     Caller->>Provider: "complete(request)"
     Provider->>Transport: "POST /chat/completions"
     Transport->>ProviderService: "Send request"

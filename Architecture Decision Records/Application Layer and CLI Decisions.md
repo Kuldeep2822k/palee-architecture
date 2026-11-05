@@ -187,7 +187,6 @@ classDiagram
   }
 
   CliEntry --> UpdateHandler : "dispatches"
-  UpdateHandler --> ApplicationUseCases : "calls pure use case"
   UpdateHandler --> ExitClassifier : "maps errors"
 ```
 

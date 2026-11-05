@@ -28,7 +28,7 @@
 9. [Conclusion](#conclusion)
 
 ## Introduction
-PALEE’s development practices are driven by three explicit architectural decision records that shape how tests are written, how CI evidence is collected, and how documentation is maintained:
+PALEE’s development practices are driven by four explicit architectural decision records that shape how tests are written, how CI evidence is collected, and how documentation is maintained:
 
 - **Test discipline prioritizes falsifiability over ceremony.** A test must be able to fail when the relevant code changes; dead guards, tautological checks, timing-bound band-aids, hand-computed expectations called through the implementation, and silent policy rewrites are rejected.
 - **Installed artifact CI evidence proves the shipped package, not just the repository build.** The pre-merge and post-publish smoke paths install a real tarball or published package and run one command that exercises dispatch, configuration resolution, vault access, JSON emission, and exit codes.
