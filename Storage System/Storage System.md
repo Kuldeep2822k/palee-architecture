@@ -102,7 +102,7 @@ The storage subsystem provides:
 - Atomic write system using temporary files and transaction-like commit semantics.
 - File locking with concurrency control and deadlock prevention.
 - Vault walker and scanner for efficient directory traversal with caching.
-- Session memory management combining hot memory and durable logs.
+- Session memory management: canonical per-session notes with derived hot-memory and index views.
 - Dependency storage, TOC management, and wikilink processing.
 
 These components work together to provide safe, efficient, and consistent access to a PALEE vault.
@@ -124,7 +124,7 @@ The vault storage architecture separates concerns into layers:
 - Data access: vault walker and scanner enumerate notes and manage cached entries.
 - Metadata manipulation: frontmatter parser/updater reads and writes YAML metadata safely.
 - Persistence safety: atomic writes ensure crash-safe updates; file locks prevent unsafe concurrent modification.
-- State persistence: sessions store active state and durable logs.
+- State persistence: sessions store canonical per-session notes; hot memory and the index are derived views.
 - Graph construction: dependencies, TOCs, and wikilinks build the knowledge graph used by higher layers.
 
 ```mermaid
@@ -158,29 +158,24 @@ The frontmatter module parses YAML metadata at the top of notes and supports upd
 Key aspects:
 
 - Field types: string identifiers, arrays of strings for dependencies, numeric or typed values for mastery and difficulty, date/time fields for review and assessment timestamps, and boolean or enum-like flags for status and other controls.
-- Validation rules:
-  - Required identifier presence when applicable.
-  - Dependency list membership constraints enforced elsewhere.
-  - Review and assessment dates must be valid ISO-style date-time values where present.
-  - Status and mastery values must belong to allowed sets defined by the application schema.
+- Parsing only: `parseFrontmatter` parses the YAML CST and returns a structured record, or a per-file error for malformed YAML. It does not validate field values — date, allowed-set, and other field validation is the validation framework's job, not the parser's.
 - Serialization format:
   - YAML frontmatter delimited by standard triple-dash markers.
   - Round-trip preservation of comments and structure is supported where the implementation permits.
   - Updates replace only requested fields, leaving unrelated metadata intact.
 
-Error handling includes parse failures for malformed YAML, missing required keys, invalid date formats, and unsupported field values. Recovery strategies include failing fast during validation or applying conservative repairs that remove or normalize invalid fields, depending on configuration.
+Error handling is limited to parse failures for malformed YAML, returned as a per-file error alongside the record-or-error result. The parser applies no repairs and performs no field validation; invalid field values are reported by the validation framework, not fixed here.
 
 ```mermaid
 flowchart TD
   Start(["Parse or update frontmatter"]) --> Detect["Detect YAML frontmatter block"]
-  Detect --> Parse["Parse YAML into structured record"]
-  Parse --> Validate["Validate field types and values"]
-  Validate --> Valid{"Valid?"}
-  Valid -->|No| RepairOrFail["Repair if allowed<br/>or return parse error"]
-  Valid -->|Yes| ApplyChanges["Apply requested field updates"]
+  Detect --> Parse["Parse YAML CST"]
+  Parse --> ParseError{"Parse error?"}
+  ParseError -->|Yes| ReturnError(["Return per-file error"])
+  ParseError -->|No| Record["Structured record"]
+  Record --> ApplyChanges["Apply requested field updates"]
   ApplyChanges --> Serialize["Serialize back to YAML frontmatter"]
-  Serialize --> Return(["Return updated note or error"])
-  RepairOrFail --> Return
+  Serialize --> Return(["Return updated note"])
 ```
 
 ### Atomic Write System
@@ -193,7 +188,7 @@ Core behavior, in order:
 - Optimistic concurrency control: when the caller passes `expectedFingerprint`, the current on-disk content's SHA-256 fingerprint (`computeFingerprint`, frontmatter.ts) must match it, or the write aborts with an `ECONFLICT` error ("OCC conflict: ...", CLI exit code 4). The optional `options.expectExists` states whether the caller believes the destination already exists; a violated expectation is also an `ECONFLICT`.
 - Temporary file creation in the destination's own directory, named `<target>.tmp.<pid>.<entropy>` — for example `note.md.tmp.4213.9f2ac41b`. The name carries the writing process's PID plus 8 hexadecimal characters (32 bits) drawn from `crypto.randomBytes(4)`, so two processes writing the same target never share a temp name, and a leftover temp identifies its owner.
 - The destination's previous permission mode is copied onto the temp file (`fchmod`) so a rewrite never widens a deliberately restricted file, then the content is written and `fsync`ed.
-- The temp file is renamed over the destination atomically, followed by a best-effort `fsync` of the containing directory so the rename itself is durable. On Windows, `EPERM`/`EBUSY` rename failures are retried up to 5 times with exponential backoff (50 ms initial delay, doubling, ±25% jitter, capped at 300 ms).
+- The temp file is renamed over the destination atomically, followed by a best-effort `fsync` of the containing directory so the rename itself is durable. On Windows, the writer attempts the rename up to 5 times (50 ms doubling, ±25% jitter, 300 ms cap) when an `EPERM`/`EBUSY` rename failure occurs.
 - Stale temp cleanup: before writing, temp files belonging to the same target are reclaimed — but only when the PID in the name is no longer running on this host *and* the file is older than 30,000 ms (the `STALE_TEMP_MIN_AGE_MS` floor, which protects a live writer on another host sharing the vault over a network filesystem).
 
 Consistency guarantees:
@@ -224,7 +219,7 @@ The locking module (lock.ts) provides cross-process mutual exclusion for vault f
 
 Layout and identity:
 
-- Locks do not sit next to the note. Each target maps to one directory `<vault>/.palee/locks/<hash>.lockdir`, where `<hash>` is the SHA-256 of the vault-relative target path (case-folded on Windows and macOS, where default volumes treat different casings as the same file). Before creating anything, the lock tree itself is asserted to be inside the vault (`assertContainedInVault`).
+- Locks do not sit next to the note. Each target maps to one directory `<vault>/.palee/locks/<sha256>.lockdir`, where `<sha256>` is the SHA-256 of the vault-relative target path (case-folded on Windows and macOS, where default volumes treat different casings as the same file). Before creating anything, the lock tree itself is asserted to be inside the vault (`assertContainedInVault`).
 - Acquisition is an atomic `mkdir` of the lock directory — whoever creates it owns the lock. The winner writes one record file, `<lockId>.json`, where the lock ID has the form `L-YYYYMMDDTHHMMSS-<8 hex chars>`; the record contains `lock_id`, `target`, `pid`, `hostname`, and `created_at`.
 - One lock per target file (not per vault), so unrelated notes never block each other.
 
@@ -235,8 +230,8 @@ Timing and retry values (constants in lock.ts):
 | `HEARTBEAT_INTERVAL` | 15,000 ms | How often the holder touches its record's `mtime` to advertise liveness |
 | `STALE_TIMEOUT` | 60,000 ms on Windows; 120,000 ms elsewhere | Age of the last heartbeat after which a lock is stale and reclaimable |
 | `MAX_ACQUISITION_ITERATIONS` | 20 rounds | Hard cap on the acquisition loop |
-| `ENOTEMPTY_RETRY_ATTEMPTS` | 5 retries | Budget for removing a stale lock directory that will not empty |
-| Windows transient retry | 5 attempts, 50 ms initial delay doubling, ±25% jitter, 300 ms cap | Backoff for `EPERM`/`EBUSY` handle contention on the lock directory |
+| `ENOTEMPTY_RETRY_ATTEMPTS` | 5 retries after the first attempt | Budget for removing a stale lock directory that will not empty |
+| Windows transient retry | 5 retries after the first attempt, 50 ms initial delay doubling, ±25% jitter, 300 ms cap | Backoff for `EPERM`/`EBUSY` handle contention on the lock directory |
 
 Stale recovery:
 
@@ -288,51 +283,41 @@ flowchart TD
 ```
 
 ### Session Memory Management
-Session storage manages active state for a running PALEE operation. It combines hot memory for fast access to recently used data with durable logging to survive restarts.
+Session storage is built on canonical per-session notes, not an event log. There is no session log, no replay on startup, no flush on shutdown, and no memory budget.
 
 Design points:
 
-- Hot memory holds lightweight representations of topics, assessments, reviews, and scheduling state.
-- Durable logs record session events so recovery can reconstruct recent state.
-- Memory budget controls limit growth of hot state.
-- Session files are stored under a dedicated `.palee/sessions` location inside the vault.
+- Canonical state is the per-session notes stored under `.palee/sessions/` (`S-*.md`); each confirmed session note is the source of truth for that session.
+- `hot.md` and `index.md` are derived views, rebuilt on demand from the session notes by `rebuildHotAndIndex` / `regenerateIndex` — they are not logs and are never replayed.
+- The only bound on hot memory is the 250-word cap on its body (`MAX_HOT_WORDS`, `src/storage/memory.ts`).
+- Draft checkpoints (`DRAFT-S-*.md`) capture intermediate progress during an active session and are not confirmed history.
 
 Lifecycle:
 
-- On startup, load existing session log and rebuild hot memory.
-- During execution, mutate hot memory and append durable log entries.
-- On shutdown, flush logs and optionally snapshot hot state.
+- Session commands write or update the canonical session notes, then rebuild the derived views (`rebuildHotAndIndex` / `regenerateIndex`) as part of that command.
+- Rebuilding scans the confirmed session notes, takes the newest confirmed session's body as the hot-memory summary, and regenerates the index; if there is no confirmed session, it falls back to the active-session marker context or a default message.
+- Nothing is loaded or replayed at startup and nothing is flushed at shutdown; a later command rebuilds the derived views from the notes whenever it needs them.
 
 ```mermaid
 sequenceDiagram
-  participant App as "Application"
-  participant Session as "SessionStore"
-  participant Hot as "HotMemory"
-  participant Log as "DurableLog"
+  participant App as "Application / Session Command"
+  participant Notes as "Session Notes (canonical)"
+  participant Rebuild as "rebuildHotAndIndex / regenerateIndex"
+  participant Hot as "hot.md (derived)"
+  participant Index as "index.md (derived)"
 
-  App->>Session: "Initialize session"
-  Session->>Log: "Load session log"
-  Log-->>Session: "Replay events"
-  Session->>Hot: "Rebuild hot memory"
-  App->>Hot: "Mutate active state"
-  Hot->>Log: "Append durable event"
-  App->>Session: "Flush and close"
-  Session->>Log: "Persist final log"
+  App->>Notes: "Write / update per-session note"
+  App->>Rebuild: "Rebuild derived views"
+  Rebuild->>Notes: "Scan confirmed session notes"
+  Notes-->>Rebuild: "Newest confirmed session"
+  Rebuild->>Hot: "Write hot summary (250-word cap)"
+  Rebuild->>Index: "Regenerate session index"
 ```
 
 ### Dependency Storage
-Dependency storage records declared prerequisites and relationships between topics. It supports validation against cycles, missing dependencies, and duplicate identifiers.
+`src/storage/dependencies.ts` exports exactly one function: `normalizeDependencies`. It merges the canonical `depends_on` field and the legacy `dependencies` alias into a single deduplicated list of dependency identifiers in first-seen order.
 
-Responsibilities:
-
-- Store dependency edges derived from frontmatter and explicit declarations.
-- Provide lookup APIs for prerequisite graphs.
-- Integrate with validation rules to enforce graph integrity.
-
-Scalability considerations:
-
-- Use adjacency structures optimized for lookups and traversal.
-- Avoid loading entire graphs into memory unless needed; prefer incremental construction.
+It does not store dependency edges, provide graph lookup APIs, or validate cycles. Graph construction, lookup, and traversal live in `src/engine/dependency.ts`, and cycle and missing-dependency checks are enforced by the validation rules that use that engine.
 
 ### TOC Management
 The table-of-contents module builds heading hierarchies from note content and integrates with the engine’s chain-building logic. It preserves heading levels and titles and supports ranking basenames by real stems when generating ordered indexes.
@@ -414,7 +399,7 @@ graph LR
 - Frontmatter parsing is per-file; batch operations should avoid unnecessary re-parsing.
 - Atomic writes incur filesystem overhead; group small mutations where appropriate.
 - Lock contention increases with concurrent writers; design workflows to minimize overlapping write windows.
-- Session hot memory should be bounded; rely on durable logs for recovery rather than keeping everything in RAM.
+- Session hot memory is bounded by the 250-word cap (`MAX_HOT_WORDS`); the canonical per-session notes are the durable record.
 - Dependency and TOC structures should be constructed incrementally and reused across operations.
 
 ## Troubleshooting Guide
@@ -428,7 +413,7 @@ Common issues and recovery procedures. The two error codes that matter here are 
   - Actions: re-run the command so it re-reads the current file. If it repeats, check for another process editing the same note.
 - Lock conflict:
   - Symptoms: `Lock conflict: <path> is locked by PID <pid>` (`ECONFLICT`, exit 4).
-  - Actions: look in `<vault>/.palee/locks/` for the target's `<hash>.lockdir`; the `<lockId>.json` record inside names the holder's `pid`, `hostname`, and `created_at`. If that PID is alive, the lock is real — wait for it or close the other process; do not delete the lock directory. If the holder crashed, recovery is automatic: a same-host dead PID is reclaimed immediately, and any other lock goes stale 60 seconds (Windows) or 120 seconds (elsewhere) after its last heartbeat.
+  - Actions: look in `<vault>/.palee/locks/` for the target's `<sha256>.lockdir`; the `<lockId>.json` record inside names the holder's `pid`, `hostname`, and `created_at`. If that PID is alive, the lock is real — wait for it or close the other process; do not delete the lock directory. If the holder crashed, recovery is automatic: a same-host dead PID is reclaimed immediately, and any other lock goes stale 60 seconds (Windows) or 120 seconds (elsewhere) after its last heartbeat.
 - Leftover temporary files:
   - Symptoms: files named `<note>.tmp.<pid>.<hex>` beside a note, for example `note.md.tmp.4213.9f2ac41b`, visible in Obsidian or in `git status`.
   - Actions: none required — the next successful write to that note deletes them once they are older than 30 seconds and the PID in the name is no longer running. They are also safe to delete by hand whenever no PALEE process is running.
@@ -440,7 +425,7 @@ Common issues and recovery procedures. The two error codes that matter here are 
   - Actions: `FileCache` is in-memory and per-process, so quitting and re-running the command starts from an empty cache. Within a run, entries re-validate by `mtime`/size on every hit, and files changed in the last 2,000 ms are re-checked by SHA-256 fingerprint, so staleness beyond a single in-flight edit should not persist.
 - Session state missing:
   - Symptoms: PALEE starts without the expected active session or recent context.
-  - Actions: check the state files directly — session notes live at `.palee/sessions/S-*.md`, the session index at `.palee/index.md`, hot memory at `.palee/hot.md`, and interrupted drafts at `.palee/sessions/DRAFT-S-*.md`. State is rebuilt from the session notes on startup (`loadSessions`, `readSessionIndex`); if only `.palee/hot.md` is damaged, the session notes are the source of truth and the hot summary can be regenerated (`regenerateIndex`, `rebuildHotAndIndex`).
+  - Actions: check the state files directly — session notes live at `.palee/sessions/S-*.md`, the session index at `.palee/index.md`, hot memory at `.palee/hot.md`, and interrupted drafts at `.palee/sessions/DRAFT-S-*.md`. The session notes are the source of truth; the derived views are rebuilt by `regenerateIndex`/`rebuildHotAndIndex` during session commands — there is no startup rebuild pass. `loadSessions` and `readSessionIndex` are the validation framework's read path for those files, not a startup pass.
 
 ## Conclusion
 The PALEE storage subsystem provides a robust foundation for vault operations. Frontmatter parsing and updating handle YAML metadata safely. Atomic writes and file locking deliver durability and concurrency control. The vault walker and scanner efficiently traverse large directories with caching. Session memory balances performance and persistence. Dependency storage, TOC management, and wikilink processing integrate into a coherent graph model. With careful attention to validation, error handling, and resource limits, the subsystem scales to large vaults while maintaining strong consistency and recovery guarantees.

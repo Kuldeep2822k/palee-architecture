@@ -169,7 +169,7 @@ The stored frontmatter is flat. The higher-level `Topic` interface is reserved f
 | `feynman` | number | Missing means `0.0` after loading | Feynman articulation score |
 | `topic_mastery` | number | Normalized and clamped to `[0.0, 1.0]` | Overall weighted mastery score |
 | `assessed_at` | ISO date or null | Optional | Timestamp of last assessment |
-| `ease_factor` | number | Defaults to `2.5` | SM-2 easiness factor |
+| `ease_factor` | number | Defaults to `2.5` | SM-2 ease factor |
 | `interval_days` | integer | Defaults to `1` | Current review interval in days |
 | `repetition` | integer | Defaults to `0` | Consecutive successful repetitions |
 | `lapses` | integer | Defaults to `0` | Cumulative failed reviews |
