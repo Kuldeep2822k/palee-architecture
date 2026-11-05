@@ -402,15 +402,3 @@ The PALEE core engine cleanly separates scheduling, mastery, graph analysis, cha
 - Topic IDs are generated and validated centrally so adoption, roadmap, and validation layers cannot disagree.
 
 Higher layers should consume the barrel API, validate raw inputs early, prefer bounded graph operations, and treat hygiene classifications as the contract for what may gate learners.
-
-## References
-
-- [engine index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
-- [sm2 spaced repetition engine:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-- [dependency graph engine:1-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L1015)
-- [mastery calculation engine:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [auto-chain planner:1-1094](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L1094)
-- [toc-chain planner:1-1331](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L1-L1331)
-- [topic ID policy:1-81](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L1-L81)
-- [tier-0 hygiene predicates:1-405](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L405)
-- [declared prerequisite text parser:1-317](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L317)

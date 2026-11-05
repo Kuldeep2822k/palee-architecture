@@ -412,28 +412,3 @@ If `.palee/hot.md` is missing, corrupt, or carries an unsupported schema:
 
 ## Conclusion
 PALEE's session model separates in-memory domain state from durable frontmatter records. `BaseSession` extends into `CompletedSession` and `DraftSession`, while `BaseSessionRecord` extends into `CompletedSessionRecord` and `DraftSessionRecord`. Hot memory provides a fast, derived working view, while session files provide canonical history. Draft recovery supports resume, save, discard, and ignore, with strict timestamp clamping and robust error handling. Durability is provided by atomic writes, locking, containment checks, and deterministic rebuild policies, while isolation is enforced per vault path.
-
-## References
-
-- [session.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L60)
-- [memory.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1-L40)
-- [sessions.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L40)
-- [types.ts:200-350](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L200-L350)
-- [types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)
-- [memory.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1-L60)
-- [types.ts:120-220](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L120-L220)
-- [0019-session-memory-lifecycle.md:1-71](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0019-session-memory-lifecycle.md#L1-L71)
-- [memory.ts:40-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L40-L120)
-- [0007-hot-memory-read-state-contract.md:1-54](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0007-hot-memory-read-state-contract.md#L1-L54)
-- [types.ts:200-300](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L200-L300)
-- [04-4-session-memory-storage.md:1-146](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-4-session-memory-storage.md#L1-L146)
-- [04-4-session-memory-storage.md:90-146](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-4-session-memory-storage.md#L90-L146)
-- [04-4-session-memory-storage.md:30-80](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-4-session-memory-storage.md#L30-L80)
-- [0019-session-memory-lifecycle.md:20-45](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0019-session-memory-lifecycle.md#L20-L45)
-- [session.ts:60-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L60-L120)
-- [04-4-session-memory-storage.md:60-120](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-4-session-memory-storage.md#L60-L120)
-- [draft-recovery-transaction.test.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/test/draft-recovery-transaction.test.ts#L1-L120)
-- [04-4-session-memory-storage.md:1-60](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-4-session-memory-storage.md#L1-L60)
-- [types.ts:120-350](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L120-L350)
-- [sessions.ts:40-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L40-L120)
-- [0019-session-memory-lifecycle.md:45-71](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0019-session-memory-lifecycle.md#L45-L71)

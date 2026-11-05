@@ -396,31 +396,3 @@ PALEE’s core concepts rest on four ideas:
 4. **Dependencies create a directed graph** that influences what you can study, independent of what is due for review.
 
 Understanding these ideas helps you interpret PALEE’s recommendations correctly, maintain healthy prerequisite graphs, and use spaced repetition as a tool for durable technical learning rather than short-term memorization.
-
-## References
-
-- [docs/01-0-overview.md:12-35](https://github.com/Kuldeep2822k/cli/blob/main/docs/01-0-overview.md#L12-L35)
-- [README.md:1-100](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L1-L100)
-- [src/types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)
-- [src/cli/adopt.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L200)
-- [src/cli/review.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L200)
-- [src/engine/mastery.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L200)
-- [src/engine/sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-- [bin/palee.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L200)
-- [docs/01-0-overview.md:36-142](https://github.com/Kuldeep2822k/cli/blob/main/docs/01-0-overview.md#L36-L142)
-- [docs/05-1-topic-and-assessment-schema.md:1-171](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md#L1-L171)
-- [docs/05-1-topic-and-assessment-schema.md:12-45](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md#L12-L45)
-- [docs/adr/0004-four-pillar-pedagogical-mastery.md:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
-- [examples/Docker Fundamentals.md:1-26](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Fundamentals.md#L1-L26)
-- [examples/Docker Networking.md:1-30](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Networking.md#L1-L30)
-- [examples/Docker Volumes.md:1-27](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Volumes.md#L1-L27)
-- [docs/05-1-topic-and-assessment-schema.md:12-171](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md#L12-L171)
-- [docs/adr/0004-four-pillar-pedagogical-mastery.md:12-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L12-L59)
-- [docs/03-1-sm2-spaced-repetition-algorithm.md:130-200](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L130-L200)
-- [docs/05-1-topic-and-assessment-schema.md:60-95](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md#L60-L95)
-- [docs/03-1-sm2-spaced-repetition-algorithm.md:24-120](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L24-L120)
-- [docs/03-1-sm2-spaced-repetition-algorithm.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L1-L200)
-- [docs/05-1-topic-and-assessment-schema.md:96-171](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md#L96-L171)
-- [docs/adr/0012-declared-prerequisites.md:1-82](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0012-declared-prerequisites.md#L1-L82)
-- [docs/05-1-topic-and-assessment-schema.md:30-45](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md#L30-L45)
-- [docs/05-1-topic-and-assessment-schema.md:60-171](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md#L60-L171)

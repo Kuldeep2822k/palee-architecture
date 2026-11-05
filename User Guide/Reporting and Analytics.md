@@ -329,16 +329,3 @@ PALEE’s reporting and analytics center on two complementary views:
 - The **mastery summary logic** provides a consistent, threshold-based classification of topics across the four-pillar model.
 
 For most automation needs, use `palee dashboard --json` and `palee progress --json`. For deep dives, combine JSON exports with local filtering to build weekly reviews, gap analyses, and long-term learning trend reports. Keep archived topics out of active metrics, distinguish review backlog from actionable topics, and rely on the canonical mastery threshold for consistent interpretations.
-
-## References
-
-- [dashboard.ts:1-217](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L217)
-- [progress.ts:1-316](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L316)
-- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [due-topics.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts)
-- [get-next-topics.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts)
-- [loader.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts)
-- [02-3-reporting-commands.md:1-435](https://github.com/Kuldeep2822k/cli/blob/main/docs/02-3-reporting-commands.md#L1-L435)
-- [cli-json-output.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-json-output.test.ts#L1-L200)
-- [application-mastery-summary.test.ts:1-27](https://github.com/Kuldeep2822k/cli/blob/main/test/application-mastery-summary.test.ts#L1-L27)

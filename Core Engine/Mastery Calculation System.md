@@ -419,20 +419,3 @@ For users, this means:
 | All omitted | null | null | null | null | No assessment data | `0.0` |
 | Just below threshold | 0.6 | 0.5 | 0.7 | 0.4 | `(0.6 + 0.5 + 0.7 + 2 × 0.4) / 5` | `0.64` |
 | Exactly at threshold | 0.7 | 0.6 | 0.5 | 0.5 | `(0.7 + 0.6 + 0.5 + 2 × 0.5) / 5` | `0.70` |
-
-## References
-
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
-- [0004-four-pillar-pedagogical-mastery.md:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
-- [0021-assessment-surface.md:1-86](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0021-assessment-surface.md#L1-L86)
-- [03-1-sm2-spaced-repetition-algorithm.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L1-L200)
-- [mastery.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L199)
-- [mastery.ts:39-93](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L39-L93)
-- [mastery.ts:156-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L156-L229)
-- [mastery.ts:95-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L95-L229)
-- [mastery.ts:1-70](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L70)

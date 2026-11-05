@@ -344,24 +344,3 @@ Recommended test categories for algorithmic correctness:
 8. **End-to-end simulation**: Repeatedly applying `processReview` and verifying that `due_at` remains a valid calendar string.
 
 These patterns are already covered extensively in the SM-2 unit tests.
-
-## References
-
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-- [03-1-sm2-spaced-repetition-algorithm.md:1-330](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L1-L330)
-- [0001-supermemo-sm2-algorithm.md:1-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L1-L63)
-- [engine-sm2.test.ts:1-442](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L1-L442)
-- [sm2.ts:19-70](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L19-L70)
-- [sm2.ts:160-177](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L160-L177)
-- [03-1-sm2-spaced-repetition-algorithm.md:44-65](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L44-L65)
-- [0001-supermemo-sm2-algorithm.md:14-29](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L14-L29)
-- [sm2.ts:71-177](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L71-L177)
-- [sm2.ts:179-210](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L179-L210)
-- [sm2.ts:71-210](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L71-L210)
-- [03-1-sm2-spaced-repetition-algorithm.md:67-123](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L67-L123)
-- [engine-sm2.test.ts:247-289](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L247-L289)
-- [sm2.ts:212-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L212-L306)
-- [engine-sm2.test.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L1-L120)
-- [engine-sm2.test.ts:201-246](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L201-L246)
-- [engine-sm2.test.ts:401-442](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L401-L442)
-- [engine-sm2.test.ts:291-399](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L291-L399)

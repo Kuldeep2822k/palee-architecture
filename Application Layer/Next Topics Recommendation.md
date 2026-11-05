@@ -372,15 +372,3 @@ The next topics recommendation function implements a disciplined, graph-aware le
 - Human-readable feedback that explains why a topic is blocked.
 
 For future personalization, the system is well positioned to extend scoring strategies without changing the prerequisite contract. Potential enhancements include difficulty-weighted ordering, multi-step path expansion, adaptive pacing, and cached graph queries — provided they preserve the existing readiness and blocking invariants.
-
-## References
-
-- [next.ts:1-227](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L227)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [dependency.ts:1-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L1015)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [dependencies.ts:1-28](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/dependencies.ts#L1-L28)
-- [types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)
-- [application-next-prerequisite-gate.test.ts:1-157](https://github.com/Kuldeep2822k/cli/blob/main/test/application-next-prerequisite-gate.test.ts#L1-L157)
-- [application-get-next-topics.test.ts:1-77](https://github.com/Kuldeep2822k/cli/blob/main/test/application-get-next-topics.test.ts#L1-L77)
