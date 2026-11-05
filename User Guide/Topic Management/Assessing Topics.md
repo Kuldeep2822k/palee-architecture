@@ -105,14 +105,14 @@ sequenceDiagram
     User->>CLI: "palee assess <topic> --pillar scores [--dry-run] [--force]"
     CLI->>CLI: Parse and validate pillar flags
     CLI->>Vault: Load topics and resolve target
-    CLI->>FS: Re-read note and compare fingerprint
-    FS-->>CLI: Fresh content or OCC conflict
     CLI->>App: buildAssessmentUpdate(frontmatter, parsed, timestamp)
     App->>Engine: computeTopicMastery(pillars)
     Engine-->>App: topic_mastery
     App-->>CLI: scores, previousMastery, new mastery, updates
     CLI->>CLI: assessmentAvailabilityDiff(previous → new)
     CLI-->>User: Print effect and unlock/block summary
+    CLI->>FS: Re-read note and compare fingerprint (TOCTOU guard, immediately before the write)
+    FS-->>CLI: Fresh content or OCC conflict
     CLI->>FS: atomicWrite updated frontmatter
 ```
 
@@ -124,7 +124,7 @@ The CLI handler is responsible for:
 - Accepting at least one pillar flag.
 - Parsing each pillar as a number between 0 and 1.
 - Rejecting non-numeric or out-of-range values with usage-level errors.
-- Resolving the target topic by exact `palee_id`, then by fuzzy matching.
+- Resolving the target topic by exact `palee_id`, then by substring matching against `palee_id` or title, then by exact vault-relative path.
 - Refusing ambiguous matches.
 - Performing an optimistic concurrency check before writing.
 - Computing the assessment effect on mastery and dependent topics.
@@ -134,7 +134,7 @@ The CLI handler is responsible for:
 #### CLI Options
 | Option | Required? | Value | Behavior |
 |---|---:|---|---|
-| `<topic>` | Yes | Topic query | Exact `palee_id` wins first; substring match is accepted next; ambiguity fails |
+| `<topic>` | Yes | Topic query | Exact `palee_id` wins first; substring match against `palee_id` or title is accepted next; exact vault-relative path is the third fallback; ambiguity fails |
 | `--conceptual` | Optional | Number from 0 to 1 | Sets the conceptual pillar |
 | `--practical` | Optional | Number from 0 to 1 | Sets the practical pillar |
 | `--debug` | Optional | Number from 0 to 1 | Sets the debug pillar |

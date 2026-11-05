@@ -30,7 +30,7 @@
 ## Introduction
 The `palee adopt --undo` command reverses adoption by removing only the frontmatter keys that PALEE owns from selected notes. It does not rewrite user-authored content, comments, key order, or body text unless those bytes are directly tied to a removed PALEE-owned key. Undo is intentionally narrow: it restores the pre-adoption state for PALEE-managed metadata while preserving everything else, including keys such as `status`, `topic`, `dependencies`, and `title` (the latter unless explicitly requested with `--drop-title`).
 
-Undo supports single-file and batch modes, mirrors adoption’s scope selection (`--all`, `--include`, `--exclude`, `--tag`), and uses dry-run previews before any vault mutation. Atomic writes and optimistic concurrency control (OCC) protect both the undo execution path and its rollback journal, so interrupted or partially completed runs can be detected and reversed safely.
+Undo supports single-file and batch modes, mirrors adoption’s scope selection (`--all`, `--include`, `--exclude`, `--tag`), and offers dry-run previews before any vault mutation. Atomic writes and optimistic concurrency control (OCC) protect both the undo execution path and its rollback journal, so interrupted or partially completed runs can be detected and reversed safely.
 
 ## Project Structure
 The undo mechanism spans three layers:
@@ -271,7 +271,7 @@ For bulk operations, always use dry-run first. The test suite verifies that dry-
 
 | Symptom | Likely Cause | Recommended Action |
 |---|---|---|
-| `Error: Not a markdown note` | A `.md` file was passed alongside a directory scan, or a non-markdown target was given to batch undo | Pass the note alone or pass a directory |
+| `Error: Not a markdown note` | The target is a file that does not end in .md | Pass a .md file or a directory to un-adopt |
 | `Error: Path escapes vault` | Target resolves outside the configured vault root | Use a path inside the vault |
 | `Error: Non-interactive environment` | Batch undo ran without `-y/--yes` in a non-TTY environment | Add `--yes` or automate confirmation |
 | `Error: <path> has malformed frontmatter` | Frontmatter cannot be parsed | Fix YAML syntax or leave the note unchanged |
@@ -335,7 +335,7 @@ For mass adoption operations, the recommended workflow is:
 | Reverting bulk adoption mistakes | Undo strips owned keys from matching notes and leaves authored content | Use dry-run first, then confirm with `--yes` |
 | Interrupted undo operation | Rollback journal restores undo output where possible | Inspect unrestored notes and rerun undo |
 | Recovering from failed adoptions | Undo restores pre-adoption PALEE metadata | Validate notes and sessions after undo |
-| Partial recovery after interrupted operations | Only notes whose original content still matches the journal are restored | Treat conflicts as evidence of concurrent modification |
+| Partial recovery after interrupted operations | Only notes that still hold exactly what the undo run wrote are restored | Treat conflicts as evidence of concurrent modification |
 
 ### Best Practices for Mass Adoption and Undo
 
