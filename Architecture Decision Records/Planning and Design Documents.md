@@ -361,10 +361,12 @@ The storage plan maps closely to several concrete modules:
 | Concrete-syntax frontmatter update | `src/storage/frontmatter.ts` |
 | Atomic temp-file + rename write | `src/storage/atomic-write.ts` |
 | Exclusive lock with heartbeat and stale recovery | `src/storage/lock.ts` |
-| Session drafts and confirmed sessions | `src/storage/sessions.ts` |
+| Session reads (single-read loader: `loadSessions`, `LoadedSession`) | `src/storage/sessions.ts` |
+| Session writes, drafts, and hot memory (`writeSessionNote`, `writeDraftCheckpoint`, `updateHotMemory`, `recoverDraft`) | `src/storage/memory.ts` |
 | Roadmap import formats | `src/storage/roadmap-parser.ts` |
 | Vault scanning and safe traversal | Storage scanner and related modules |
-| Caching and fingerprint freshness | Storage cache and source-cap layers |
+| Caching and fingerprint freshness | `src/storage/cache.ts` (`FileCache`, `UNSETTLED_HORIZON` 2,000 ms, SHA-256 re-verification) |
+| Note-size cap (separate size guard) | `src/storage/source-cap.ts` (`MAX_NOTE_SOURCE_BYTES`, `noteExceedsReadCap`) |
 
 The strongest design-to-code relationship here is atomicity: the plan forbids truncation fallbacks, requires temporary-file replacement, and demands conflict detection; the implementation must enforce those constraints in every mutation path.
 
@@ -375,7 +377,7 @@ The CLI specification defines commands that should exist independently of AI. Th
 |---|---|---|
 | `palee plan` | `src/cli/plan.ts` | Generates study sessions using engine recommendations. |
 | `palee next` | `src/cli/next.ts` | Recommends the next action. |
-| `palee progress` | Related dashboard or analytics command | Reports mastery and status. |
+| `palee progress` | `src/cli/progress.ts` | Reports mastery and status. |
 | `palee roadmap --from <file>` | `src/cli/roadmap.ts` | Imports and validates a user-provided roadmap. |
 | `palee adopt` | `src/cli/adopt.ts` | Adds PALEE frontmatter to notes. |
 | `palee review` | `src/cli/review.ts` | Records SM-2 review results. |
@@ -389,16 +391,16 @@ The entry points connect the CLI layer to the application and engine layers. `bi
 
 ```mermaid
 graph LR
-    Bin["bin/palee.ts"] --> Index["src/index.ts"]
-    Index --> CliAdopt["src/cli/adopt.ts"]
-    Index --> CliNext["src/cli/next.ts"]
-    Index --> CliPlan["src/cli/plan.ts"]
-    Index --> CliReview["src/cli/review.ts"]
-    Index --> CliSession["src/cli/session.ts"]
-    Index --> CliConfig["src/cli/config.ts"]
-    Index --> CliRoadmap["src/cli/roadmap.ts"]
-    Index --> CliValidate["src/cli/validate.ts"]
-    Index --> CliAssess["src/cli/assess.ts"]
+    Bin["bin/palee.ts"] --> CliAdopt["src/cli/adopt.ts"]
+    Bin --> CliNext["src/cli/next.ts"]
+    Bin --> CliPlan["src/cli/plan.ts"]
+    Bin --> CliReview["src/cli/review.ts"]
+    Bin --> CliSession["src/cli/session.ts"]
+    Bin --> CliConfig["src/cli/config.ts"]
+    Bin --> CliRoadmap["src/cli/roadmap.ts"]
+    Bin --> CliValidate["src/cli/validate.ts"]
+    Bin --> CliAssess["src/cli/assess.ts"]
+    Index["src/index.ts<br/>Library surface: ./types, ./engine, ./storage, ./validation<br/>(not on the executable path)"]
 ```
 
 ### Memory-to-Storage Flow
@@ -409,9 +411,10 @@ flowchart TD
     Hot["Load hot.md"] --> Draft["Write DRAFT-S checkpoint"]
     Draft --> Confirm{"Learner confirms session?"}
     Confirm -->|Yes| Canonical["Write canonical S- session"]
-    Confirm -->|No| Recover["Resume, save, discard, or ignore"]
+    Confirm -->|No| DraftRemains["Draft checkpoint remains on disk"]
     Canonical --> Index["Regenerate index.md"]
     Index --> HotView["Regenerate hot.md"]
+    Startup["Next startup: leftover draft found"] --> Recover["Resume, save, discard, or ignore"]
     Recover --> Hot
 ```
 
@@ -445,41 +448,40 @@ The AI module design explicitly separates read-only context access from mutation
 
 ```mermaid
 classDiagram
-    class CLICommand {
-        +start()
-        +end()
+    class OpenAICompatibleProvider {
+        +complete(request) ChatReply
     }
 
-    class AISessionManager {
-        +initializeProvider()
-        +loadContext()
-        +executeToolCall(call)
-        +proposeMutation(proposal)
-        +confirmMutation(user)
+    class ChatRequest {
+        +ChatTurn[] messages
+        +boolean? expectJson
+        +number? temperature
+        +number? maxTokens
     }
 
-    class ProviderBoundary {
-        +normalizeEndpoint()
-        +sendRequest(context)
-        +parseResponse()
+    class ChatReply {
+        +string text
+        +unknown? json
+        +UsageCounts? usage
     }
 
-    class EngineTools {
-        +getTopic(id)
-        +getHotMemory()
-        +getSession(id)
+    class ProviderSettings {
+        +string baseUrl
+        +string model
+        +string? apiKey
+        +KeySource keySource
+        +string? providerName
     }
 
-    class MutationAPI {
-        +recordAssessment(data)
-        +recordReview(data)
-        +saveSession(data)
+    class Transport {
+        <<function>>
+        +call(url, init) Promise~Response~
     }
 
-    CLICommand --> AISessionManager : "uses"
-    AISessionManager --> ProviderBoundary : "calls"
-    AISessionManager --> EngineTools : "read-only"
-    AISessionManager --> MutationAPI : "confirmed mutations only"
+    OpenAICompatibleProvider --> ChatRequest : "accepts"
+    OpenAICompatibleProvider --> ChatReply : "returns"
+    OpenAICompatibleProvider --> ProviderSettings : "resolved by resolveProviderSettings"
+    OpenAICompatibleProvider --> Transport : "sends through"
 ```
 
 ## Dependency Analysis

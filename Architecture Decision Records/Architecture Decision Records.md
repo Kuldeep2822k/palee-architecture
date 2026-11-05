@@ -37,7 +37,7 @@
 ## Introduction
 This document organizes PALEE’s architectural decision records and planning artifacts into a single, accessible reference. It explains how decisions about spaced repetition, storage, validation, concurrency, identity, roadmap import safety, session memory, readiness contracts, and future phases evolved from planning documents into the current implementation. It also documents the ADR lifecycle defined in the repository’s `agent.md` (with the status vocabulary in `docs/adr/README.md`), guidance for creating new ADRs, and the relationship between past decisions and present architecture.
 
-PALEE is a study tracker CLI built on Node.js. Its engine is deterministic and runs fully offline: it schedules learning with SM-2 spaced repetition and dependency-aware recommendations over an Obsidian vault. AI features are not part of that engine — they sit behind a separate Phase 2 provider boundary, which is the only place network access is allowed. Its codebase is deliberately layered: shared types are the contract; the engine provides pure scheduling and graph logic; the storage layer owns vault filesystem I/O; the application layer implements use cases; the validation layer inspects vault content; the AI provider boundary isolates network access; and the CLI exposes commands.
+PALEE is a study tracker CLI built on Node.js. Its engine is deterministic and runs fully offline: it schedules learning with SM-2 spaced repetition and dependency-aware recommendations over an Obsidian vault. AI features are not part of that engine — they sit behind a separate Phase 2 provider boundary, which is the only place network access is allowed, plus the update command's bounded npm child process (ADR-0033). Its codebase is deliberately layered: shared types are the contract; the engine provides pure scheduling and graph logic; the storage layer owns vault filesystem I/O; the application layer implements use cases; the validation layer inspects vault content; the AI provider boundary isolates network access; and the CLI exposes commands.
 
 The central design philosophy is conservative durability and explicit boundaries: vault notes are canonical, derived views are rebuildable, writes are atomic and conflict-aware, locks protect concurrent writers, and network access is confined to one abstraction. Decisions are recorded as numbered ADRs and constrained by stable invariant IDs so that tests can pin behavior rather than silently drift.
 
@@ -93,11 +93,11 @@ The repository records 37 ADRs in `docs/adr/`, numbered ADR-0001 through ADR-003
 | ADR-0028 | Phase-2 Design Directions | Proposed (specified in open issues; not implemented) |
 | ADR-0029 | Test-Time CLI Launch Policy | Accepted (amended by ADR-0032) |
 | ADR-0030 | Installed-Artifact CI Evidence | Accepted |
-| ADR-0031 | Documentation Truth - Current-State Docs, Labeled History | Accepted |
+| ADR-0031 | Documentation Truth — Current-State Docs, Labeled History | Accepted |
 | ADR-0032 | Direct Spawn Bounding — What ADR-0029 Claimed, and the Check That Pins It | Accepted (amends ADR-0029) |
 | ADR-0033 | The Update Command and Its npm Child Process | Accepted |
 | ADR-0034 | Reclaiming a Killed Writer's Temporary File, Bounded to the Target It Belongs To | Accepted (amends ADR-0005) |
-| ADR-0035 | `--fix` Mastery Repair and Partial Pillar Eligibility | Accepted (2026-10-22) |
+| ADR-0035 | `--fix` Mastery Repair and Partial Pillar Eligibility | Accepted (2026-10-22; amends ADR-0008) |
 | ADR-0036 | Bounded Lock Acquisition — A Non-Empty Lockdir Is Not a Retry Signal | Accepted |
 | ADR-0037 | Manifest Values Reach the Shell as Data, Never as Interpolation | Accepted |
 
@@ -111,7 +111,7 @@ PALEE’s architecture is defined more by its layers and boundaries than by larg
 | Storage | Vault traversal, frontmatter parsing, atomic writes, locking, caching, sessions, TOC, and dependencies | All vault mutations pass through it |
 | Application | Use-case cores behind CLI commands | No Commander, no process, no I/O |
 | Validation | One-pass vault collection, deterministic rule execution, formatting, and managed-note gating | Used by `palee validate` and repair flows |
-| AI provider | Only place allowed to open network sockets | Deliberately excluded from published surface |
+| AI provider | Only place allowed to open network sockets, plus the update command's bounded npm child process (ADR-0033) | Deliberately excluded from published surface |
 | CLI | Command handlers, exit codes, JSON output policy, config, and vault path validation | Thin orchestration around application and storage |
 
 These responsibilities are enforced by imports, tests, and the ADR/invariant system rather than by runtime checks alone.
@@ -290,7 +290,7 @@ classDiagram
 
     class Mastery {
         +threshold number
-        +computeGlobalMastery() number|null
+        +computeTopicMastery() number|null
     }
 
     DependencyEngine --> Topic : "reads"
@@ -374,7 +374,7 @@ Readiness gates ensure learners only see topics whose prerequisites are satisfie
 Key decisions include:
 
 - Readiness excludes archived topics.
-- A topic is ready when its own mastery is below the mastery threshold (0.70) — it still needs work — and every prerequisite topic’s mastery is at or above the threshold. A topic at or above the threshold is already mastered and drops off the ready list; a topic with any prerequisite below the threshold is blocked, however low its own mastery is.
+- A topic is ready when its own mastery is below the mastery threshold (0.70) — it still needs work — and every prerequisite topic’s mastery is at or above the threshold. A topic at or above the threshold is already mastered and drops off the ready list; a topic with any prerequisite below the threshold is blocked, however low its own mastery is. Exception: when a note's `depends_on_source` is advisory, `areDependenciesSatisfied` returns true immediately, so its prerequisites do not gate it in that case.
 - Global mastery excludes archived topics but includes paused ones.
 - Missing dependencies block readiness.
 - The readiness threshold is defined centrally and reused by planning logic.
@@ -444,7 +444,7 @@ Performance decisions in PALEE favor correctness and bounded resource use over r
 - Caching avoids redundant parsing but includes an unsettled horizon to guard against rapid edits.
 - Atomic writes and locking add overhead but prevent corruption and races.
 - SM-2 scheduling is pure and fast; the main cost is graph traversal and readiness computation.
-- Test concurrency is capped at four workers to avoid memory pressure on development machines.
+- Test concurrency is capped at four workers in the full and coverage suites (`test` and `test:coverage` in `package.json`) to avoid memory pressure on development machines; the other suites do not carry that cap.
 - Coverage thresholds require substantial test coverage, reducing regression risk.
 
 Recommendations:

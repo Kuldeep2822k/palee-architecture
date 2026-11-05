@@ -163,6 +163,7 @@ Example rule families represented in the catalog:
 | Managed entities | `valid-managed-note-kind` | Ensures managed notes have expected kinds |
 | Schema | `valid-palee-schema` | Validates PALEE-specific schema shape |
 | Identity | `valid-topic-id-format` | Enforces the tool’s topic ID format |
+| Schema | `valid-topic-status` | Topic status must be one of the four lifecycle values (`not_started`, `learning`, `paused`, `archived`) |
 | Graph structure | `no-duplicate-topic-id` | Detects duplicate identities |
 | Dependencies | `valid-dependency-list` | Validates dependency list shape |
 | Dependencies | `no-missing-dependency` | Warns by default; missing prerequisites become quarantined |
@@ -172,7 +173,7 @@ Example rule families represented in the catalog:
 | Review state | `valid-review-fields` | Detects invalid SM-2 review fields |
 | Review state | `valid-review-dates` | Validates review date consistency |
 | Sessions | `valid-session-schema` | Enforces stricter contract for session notes |
-| Sessions | `no-session-unknown-topic` | Detects references to unknown sessions |
+| Sessions | `no-session-unknown-topic` | Reports session records whose `topic_id` references a nonexistent topic |
 | Derived views | `valid-session-index` | Warns about stale `.palee/index.md` |
 | Derived views | `valid-hot-memory` | Warns about stale `.palee/hot.md` |
 | Safety | `safe-vault-paths` | Audits managed entity paths |
