@@ -57,24 +57,6 @@ graph TB
     Types --> Engine
 ```
 
-**Diagram sources**
-- [next.ts:1-227](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L227)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [dependency.ts:1-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L1015)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [dependencies.ts:1-28](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/dependencies.ts#L1-L28)
-- [types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)
-
-**Section sources**
-- [next.ts:1-227](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L227)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [dependency.ts:1-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L1015)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [dependencies.ts:1-28](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/dependencies.ts#L1-L28)
-- [types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)
-
 ## Core Components
 
 ### Application Use Case: `getNextTopics`
@@ -108,14 +90,6 @@ flowchart TD
     AddBlocked --> Result
 ```
 
-**Diagram sources**
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-
-**Section sources**
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-
 ### Due-Topic Partitioning
 The due-topic utilities provide pure primitives used by both the next recommendation and other read models such as plan and dashboard.
 
@@ -126,9 +100,6 @@ Important operations:
 - `partitionDue`: splits items into never-scheduled and elapsed scheduled reviews; future-due items belong to neither bucket.
 
 This separation keeps recommendation logic independent from scheduling policy.
-
-**Section sources**
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
 
 ### Dependency Graph Engine
 The dependency graph engine provides the mathematical and graph-theoretic foundation for prerequisite validation and cycle handling.
@@ -171,14 +142,6 @@ classDiagram
     DependencyEngine --> TopicNode : "analyzes"
 ```
 
-**Diagram sources**
-- [dependency.ts:1-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L1015)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-
-**Section sources**
-- [dependency.ts:1-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L1015)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-
 ### CLI Integration: `next` Command
 The CLI command bridges user input, storage loading, application logic, and output formatting.
 
@@ -210,14 +173,6 @@ sequenceDiagram
     CLI-->>User: Actionable topics or blocked explanation
 ```
 
-**Diagram sources**
-- [next.ts:1-227](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L227)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [dependency.ts:1-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L1015)
-
-**Section sources**
-- [next.ts:1-227](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L227)
-
 ### Storage and Type Contracts
 The storage layer normalizes raw dependency fields into the canonical `depends_on` representation, deduplicating values and tolerating legacy aliases. The type system defines difficulty levels, assessment pillars, spaced repetition state, and mastery computation.
 
@@ -227,11 +182,6 @@ Relevant points:
 - Invalid entries are filtered.
 - Difficulty is normalized to `beginner`, `intermediate`, or `advanced`.
 - Mastery uses a weighted four-pillar model with a default readiness threshold of 0.70.
-
-**Section sources**
-- [dependencies.ts:1-28](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/dependencies.ts#L1-L28)
-- [types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
 
 ## Architecture Overview
 The next topics recommendation architecture follows a layered pipeline:
@@ -252,11 +202,6 @@ graph LR
 - **Gater**: Enforces prerequisite mastery and existence.
 - **Quarantine**: Removes undefined learning order caused by cycles.
 - **Output**: Exposes actionable recommendations and blocked explanations.
-
-**Diagram sources**
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [dependency.ts:1-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L1015)
-- [next.ts:1-227](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L227)
 
 ## Detailed Component Analysis
 
@@ -284,14 +229,6 @@ flowchart TD
     CheckMastery -->|Yes| Ready
 ```
 
-**Diagram sources**
-- [dependency.ts:1-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L1015)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-
-**Section sources**
-- [dependency.ts:1-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L1015)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-
 ### Cycle Detection and Quarantine
 The engine handles circular dependencies through two complementary mechanisms:
 
@@ -308,12 +245,6 @@ flowchart TD
     Downstream --> Quarantine["Remove cyclic and downstream topics"]
     Quarantine --> Acyclic["Return acyclic subgraph"]
 ```
-
-**Diagram sources**
-- [dependency.ts:1-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L1015)
-
-**Section sources**
-- [dependency.ts:1-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L1015)
 
 ### Personalized Learning Path Generation
 The current recommendation strategy is a readiness-and-scheduling filter rather than a forward-planning optimizer. It generates personalized paths by:
@@ -338,14 +269,6 @@ flowchart TD
     PrereqGate --> Blocked["Blocked topics"]
 ```
 
-**Diagram sources**
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-
-**Section sources**
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-
 ### Fallback Mechanisms
 When no suitable topics are found, the system distinguishes three states:
 
@@ -356,9 +279,6 @@ When no suitable topics are found, the system distinguishes three states:
 | `nothing_due` | No actionable topics and no blockers | Report nothing due or print empty-vault onboarding |
 
 The CLI also prints blocked topics with truncated detail when there are many, and warns about withheld topics even when some are still shown.
-
-**Section sources**
-- [next.ts:1-227](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L227)
 
 ## Dependency Analysis
 The next topics recommendation depends on multiple modules with clear boundaries:
@@ -381,20 +301,6 @@ graph TD
     Engine --> Types
     Storage["Storage dependencies"] --> Types
 ```
-
-**Diagram sources**
-- [next.ts:1-227](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L227)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [dependency.ts:1-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L1015)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [dependencies.ts:1-28](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/dependencies.ts#L1-L28)
-- [types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)
-
-**Section sources**
-- [next.ts:1-227](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L227)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [dependency.ts:1-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L1015)
 
 ## Performance Considerations
 The codebase includes several performance-oriented design choices relevant to complex dependency graphs:
@@ -443,11 +349,6 @@ The prerequisite gate produces detailed blocker messages:
 - Advisory edges are explicitly excluded from blocking.
 - Archived prerequisites remain visible in the graph so they do not appear missing.
 
-**Section sources**
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [dependency.ts:1-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L1015)
-- [application-next-prerequisite-gate.test.ts:1-157](https://github.com/Kuldeep2822k/cli/blob/main/test/application-next-prerequisite-gate.test.ts#L1-L157)
-
 ### Test Coverage Summary
 Tests verify the following aspects of the recommendation function:
 
@@ -464,10 +365,6 @@ Tests verify the following aspects of the recommendation function:
 - Cyclic topics are not reported as prerequisite-blocked.
 - Future-due dependent topics are not withheld.
 
-**Section sources**
-- [application-get-next-topics.test.ts:1-77](https://github.com/Kuldeep2822k/cli/blob/main/test/application-get-next-topics.test.ts#L1-L77)
-- [application-next-prerequisite-gate.test.ts:1-157](https://github.com/Kuldeep2822k/cli/blob/main/test/application-next-prerequisite-gate.test.ts#L1-L157)
-
 ## Conclusion
 The next topics recommendation function implements a disciplined, graph-aware learning progression model. It combines spaced repetition state with strict prerequisite validation and robust cycle quarantine. Its strengths include:
 
@@ -477,3 +374,15 @@ The next topics recommendation function implements a disciplined, graph-aware le
 - Human-readable feedback that explains why a topic is blocked.
 
 For future personalization, the system is well positioned to extend scoring strategies without changing the prerequisite contract. Potential enhancements include difficulty-weighted ordering, multi-step path expansion, adaptive pacing, and cached graph queries — provided they preserve the existing readiness and blocking invariants.
+
+## References
+
+- [next.ts:1-227](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L227)
+- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
+- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
+- [dependency.ts:1-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L1015)
+- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
+- [dependencies.ts:1-28](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/dependencies.ts#L1-L28)
+- [types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)
+- [application-next-prerequisite-gate.test.ts:1-157](https://github.com/Kuldeep2822k/cli/blob/main/test/application-next-prerequisite-gate.test.ts#L1-L157)
+- [application-get-next-topics.test.ts:1-77](https://github.com/Kuldeep2822k/cli/blob/main/test/application-get-next-topics.test.ts#L1-L77)
