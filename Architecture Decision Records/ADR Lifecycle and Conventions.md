@@ -45,12 +45,6 @@ graph TB
     ADRDir --> ADR0036["docs/adr/0036-bounded-lock-acquisition.md"]
 ```
 
-**Diagram sources**
-- [README.md:1-62](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/README.md#L1-L62)
-
-**Section sources**
-- [README.md:1-62](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/README.md#L1-L62)
-
 ## Core Components
 PALEE’s ADR system has three core components:
 
@@ -72,10 +66,6 @@ The repository defines four relevant states:
 
 The index explicitly allows both `Superseded by ADR-nnnn` and `Amended by ADR-nnnn`, making amendment the preferred mechanism when only part of a decision changes.
 
-**Section sources**
-- [README.md:11-24](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/README.md#L11-L24)
-- [0005-concurrency-storage-and-schema-migration.md:11-14](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0005-concurrency-storage-and-schema-migration.md#L11-L14)
-
 ### ADR Template Structure
 Each ADR should use consistent Title Case page titles and headings, and should keep one convention per page rather than mixing styles. The documented template sections include:
 
@@ -93,12 +83,6 @@ Existing ADRs demonstrate this structure:
 - ADR-0004 follows the same structure and adds mathematical notation to clarify the decision.
 - ADR-0005 uses the standard sections and shows how an amendment line is attached to an existing record.
 
-**Section sources**
-- [README.md:11-24](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/README.md#L11-L24)
-- [0001-supermemo-sm2-algorithm.md:1-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L1-L63)
-- [0004-four-pillar-pedagogical-mastery.md:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
-- [0005-concurrency-storage-and-schema-migration.md:1-51](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0005-concurrency-storage-and-schema-migration.md#L1-L51)
-
 ### Naming Conventions and Numbering Scheme
 ADR filenames follow a zero-padded numeric prefix followed by a descriptive slug:
 
@@ -114,9 +98,6 @@ Contributors should:
 - Make titles concise but specific enough to distinguish related decisions.
 - Keep page titles and section headings in Title Case.
 
-**Section sources**
-- [README.md:11-62](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/README.md#L11-L62)
-
 ### Cross-Referencing Rules
 ADRs cross-reference each other through two mechanisms:
 
@@ -124,10 +105,6 @@ ADRs cross-reference each other through two mechanisms:
 2. **In-record references**: Amendments and supersessions point directly at another ADR using the `ADR-nnnn` identifier.
 
 When a later ADR changes part of an earlier decision, the earlier record should receive an amendment line rather than being edited in place. When a later ADR fully replaces an earlier one, the earlier record should be marked as superseded.
-
-**Section sources**
-- [README.md:11-24](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/README.md#L11-L24)
-- [0005-concurrency-storage-and-schema-migration.md:11-14](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0005-concurrency-storage-and-schema-migration.md#L11-L14)
 
 ## Architecture Overview
 The ADR lifecycle is a documentation workflow rather than executable software. Its control flow is driven by contributors creating, reviewing, amending, or superseding records.
@@ -166,9 +143,6 @@ stateDiagram-v2
     Amended --> Superseded : "Later ADR replaces full decision"
 ```
 
-**Diagram sources**
-- [README.md:11-24](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/README.md#L11-L24)
-
 #### Proposed
 A Proposed ADR is a candidate decision. It should clearly separate context from decision and avoid implying implementation has already occurred.
 
@@ -184,10 +158,6 @@ Example evidence:
 
 #### Superseded
 A superseded ADR remains in the repository as history, but its decision is replaced by a newer ADR. Consumers should prefer the newer record.
-
-**Section sources**
-- [README.md:11-24](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/README.md#L11-L24)
-- [0005-concurrency-storage-and-schema-migration.md:11-14](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0005-concurrency-storage-and-schema-migration.md#L11-L14)
 
 ### ADR Template Sections in Practice
 
@@ -206,12 +176,6 @@ Best practice:
 - Place amendment or supersession lines immediately after the main status line.
 - Keep amendment notes short and scoped.
 
-**Section sources**
-- [0001-supermemo-sm2-algorithm.md:5-8](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L5-L8)
-- [0004-four-pillar-pedagogical-mastery.md:5-8](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L5-L8)
-- [0005-concurrency-storage-and-schema-migration.md:11-14](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0005-concurrency-storage-and-schema-migration.md#L11-L14)
-- [0036-bounded-lock-acquisition.md:3-6](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0036-bounded-lock-acquisition.md#L3-L6)
-
 #### Context
 Context answers “why did we need this decision?” It should describe the problem space, constraints, stakeholders, and prior assumptions.
 
@@ -226,11 +190,6 @@ Guidance:
 - Keep context focused on the decision boundary.
 - Link to supporting evidence, issues, or design documents when necessary.
 - Avoid writing implementation details as if they are already settled.
-
-**Section sources**
-- [0001-supermemo-sm2-algorithm.md:10-20](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L10-L20)
-- [0004-four-pillar-pedagogical-mastery.md:10-16](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L10-L16)
-- [0005-concurrency-storage-and-schema-migration.md:16-24](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0005-concurrency-storage-and-schema-migration.md#L16-L24)
 
 #### Decision
 The Decision section should state what was chosen and why. Where helpful, link to source modules or commands so reviewers can verify alignment between architecture and implementation.
@@ -247,11 +206,6 @@ Guidance:
 - Separate policy decisions from implementation details.
 - Reference implementation paths sparingly; ADRs are not code reviews.
 
-**Section sources**
-- [0001-supermemo-sm2-algorithm.md:22-43](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L22-L43)
-- [0004-four-pillar-pedagogical-mastery.md:18-34](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L18-L34)
-- [0005-concurrency-storage-and-schema-migration.md:26-43](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0005-concurrency-storage-and-schema-migration.md#L26-L43)
-
 #### Consequences
 Consequences should be honest about benefits and tradeoffs. Good ADRs list both positive and negative effects.
 
@@ -267,11 +221,6 @@ Guidance:
 - Call out operational behaviors that tests or CI should observe.
 - If a consequence is uncertain, mark it as such.
 
-**Section sources**
-- [0001-supermemo-sm2-algorithm.md:45-56](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L45-L56)
-- [0004-four-pillar-pedagogical-mastery.md:36-45](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L36-L45)
-- [0005-concurrency-storage-and-schema-migration.md:45-51](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0005-concurrency-storage-and-schema-migration.md#L45-L51)
-
 #### Alternatives Considered
 This section documents rejected options and their reasons. It prevents future contributors from repeating rejected work and makes evolution traceable.
 
@@ -286,11 +235,6 @@ Guidance:
 - Name alternatives clearly.
 - Explain why they were rejected, not just why they were less convenient.
 - Treat rejected alternatives as evidence, not as insults to past choices.
-
-**Section sources**
-- [0001-supermemo-sm2-algorithm.md:58-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L58-L63)
-- [0004-four-pillar-pedagogical-mastery.md:47-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L47-L59)
-- [0005-concurrency-storage-and-schema-migration.md:47-51](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0005-concurrency-storage-and-schema-migration.md#L47-L51)
 
 ### When to Use an ADR Versus Other Documentation Forms
 Not every technical choice warrants an ADR. Use the following guidance:
@@ -308,10 +252,6 @@ Evidence from the repository supports this distinction:
 - The ADR index says it records “significant architectural and design decisions.”
 - Agent documentation describes broader project structure, CLI conventions, invariants, and verification loops that are not themselves ADRs.
 - Existing ADRs cover topics such as algorithms, storage layer isolation, validation framework boundaries, CLI launch policy, installed-artifact evidence, and lock acquisition—decisions with architectural reach.
-
-**Section sources**
-- [README.md:1-6](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/README.md#L1-L6)
-- [agent.md:1-92](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L1-L92)
 
 ### Writing Effective ADRs
 Based on the repository’s existing records and index instructions, effective ADRs should:
@@ -347,13 +287,6 @@ As PALEE evolves:
 - Ensure implementation and tests remain consistent with the current accepted ADR.
 - Use the ADR as evidence during code reviews, especially for storage, scheduling, CLI boundaries, and error contracts.
 
-**Section sources**
-- [README.md:11-62](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/README.md#L11-L62)
-- [0001-supermemo-sm2-algorithm.md:1-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L1-L63)
-- [0004-four-pillar-pedagogical-mastery.md:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
-- [0005-concurrency-storage-and-schema-migration.md:1-51](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0005-concurrency-storage-and-schema-migration.md#L1-L51)
-- [0036-bounded-lock-acquisition.md:1-91](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0036-bounded-lock-acquisition.md#L1-L91)
-
 ## Dependency Analysis
 ADRs depend on each other through amendment and supersession relationships, and on implementation through referenced modules or commands.
 
@@ -369,12 +302,6 @@ graph LR
     Index --> ADR0036
 ```
 
-**Diagram sources**
-- [README.md:11-62](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/README.md#L11-L62)
-- [0005-concurrency-storage-and-schema-migration.md:11-14](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0005-concurrency-storage-and-schema-migration.md#L11-L14)
-- [0001-supermemo-sm2-algorithm.md:22-26](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L22-L26)
-- [0004-four-pillar-pedagogical-mastery.md:18-24](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L18-L24)
-
 ### Coupling and Cohesion
 - ADRs are loosely coupled: each file documents one decision.
 - Cohesion is high within an ADR because Context, Decision, Consequences, and Alternatives focus on the same topic.
@@ -385,12 +312,6 @@ graph LR
 - The ADR system depends on Git history and the repository index.
 - Some ADRs reference implementation modules such as `src/engine/sm2.ts` and `src/engine/mastery.ts`.
 - The agent documentation describes project-wide rules and verification loops that influence how ADR-backed decisions are implemented and tested.
-
-**Section sources**
-- [README.md:11-62](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/README.md#L11-L62)
-- [0001-supermemo-sm2-algorithm.md:22-26](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L22-L26)
-- [0004-four-pillar-pedagogical-mastery.md:18-24](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L18-L24)
-- [0005-concurrency-storage-and-schema-migration.md:11-14](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0005-concurrency-storage-and-schema-migration.md#L11-L14)
 
 ## Performance Considerations
 The ADR system itself has negligible runtime performance impact because it is documentation. However, good ADRs improve long-term maintenance performance by:
@@ -424,9 +345,6 @@ Poorly maintained ADRs can hurt performance by:
 - If the whole decision changed, mark the old ADR as superseded.
 - Update the index entry to match the current filename and title.
 
-**Section sources**
-- [README.md:11-24](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/README.md#L11-L24)
-
 ### Symptom: Two ADRs seem to contradict each other
 **Likely causes:**
 
@@ -440,9 +358,6 @@ Poorly maintained ADRs can hurt performance by:
 - Add amendment or supersession linkage to the older record.
 - Clarify the boundary between the two decisions in the newer ADR.
 
-**Section sources**
-- [README.md:11-24](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/README.md#L11-L24)
-
 ### Symptom: A new ADR cannot find an expected numbering slot
 **Likely causes:**
 
@@ -454,9 +369,6 @@ Poorly maintained ADRs can hurt performance by:
 - Scan the existing ADR filenames in `docs/adr/`.
 - Choose the next unused zero-padded number.
 - Update the index entry.
-
-**Section sources**
-- [README.md:11-62](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/README.md#L11-L62)
 
 ### Symptom: Reviewers disagree on whether something belongs in an ADR
 **Likely causes:**
@@ -470,10 +382,6 @@ Poorly maintained ADRs can hurt performance by:
 - Ask whether the decision will affect multiple components, long-term evolution, or non-obvious tradeoffs.
 - If yes, draft an ADR.
 - If no, use planning docs, implementation comments, or user documentation.
-
-**Section sources**
-- [README.md:1-6](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/README.md#L1-L6)
-- [agent.md:1-92](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L1-L92)
 
 ## Conclusion
 PALEE’s ADR system is a lightweight but disciplined way to record architectural and design decisions. Its strength lies in the combination of a fixed status vocabulary, a consistent template, explicit amendment and supersession semantics, and a centralized index.
@@ -490,3 +398,33 @@ For contributors, the most important practices are:
 For maintainers, ADRs serve as the project’s architectural memory. They should be reviewed carefully, updated deliberately, and treated as evidence when code, tests, or user-facing behavior evolve.
 
 [No sources needed since this section summarizes without analyzing specific files]
+
+## References
+
+- [README.md:1-62](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/README.md#L1-L62)
+- [README.md:11-24](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/README.md#L11-L24)
+- [0005-concurrency-storage-and-schema-migration.md:11-14](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0005-concurrency-storage-and-schema-migration.md#L11-L14)
+- [0001-supermemo-sm2-algorithm.md:1-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L1-L63)
+- [0004-four-pillar-pedagogical-mastery.md:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
+- [0005-concurrency-storage-and-schema-migration.md:1-51](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0005-concurrency-storage-and-schema-migration.md#L1-L51)
+- [README.md:11-62](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/README.md#L11-L62)
+- [0001-supermemo-sm2-algorithm.md:5-8](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L5-L8)
+- [0004-four-pillar-pedagogical-mastery.md:5-8](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L5-L8)
+- [0036-bounded-lock-acquisition.md:3-6](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0036-bounded-lock-acquisition.md#L3-L6)
+- [0001-supermemo-sm2-algorithm.md:10-20](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L10-L20)
+- [0004-four-pillar-pedagogical-mastery.md:10-16](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L10-L16)
+- [0005-concurrency-storage-and-schema-migration.md:16-24](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0005-concurrency-storage-and-schema-migration.md#L16-L24)
+- [0001-supermemo-sm2-algorithm.md:22-43](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L22-L43)
+- [0004-four-pillar-pedagogical-mastery.md:18-34](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L18-L34)
+- [0005-concurrency-storage-and-schema-migration.md:26-43](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0005-concurrency-storage-and-schema-migration.md#L26-L43)
+- [0001-supermemo-sm2-algorithm.md:45-56](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L45-L56)
+- [0004-four-pillar-pedagogical-mastery.md:36-45](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L36-L45)
+- [0005-concurrency-storage-and-schema-migration.md:45-51](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0005-concurrency-storage-and-schema-migration.md#L45-L51)
+- [0001-supermemo-sm2-algorithm.md:58-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L58-L63)
+- [0004-four-pillar-pedagogical-mastery.md:47-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L47-L59)
+- [0005-concurrency-storage-and-schema-migration.md:47-51](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0005-concurrency-storage-and-schema-migration.md#L47-L51)
+- [README.md:1-6](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/README.md#L1-L6)
+- [agent.md:1-92](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L1-L92)
+- [0036-bounded-lock-acquisition.md:1-91](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0036-bounded-lock-acquisition.md#L1-L91)
+- [0001-supermemo-sm2-algorithm.md:22-26](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L22-L26)
+- [0004-four-pillar-pedagogical-mastery.md:18-24](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L18-L24)

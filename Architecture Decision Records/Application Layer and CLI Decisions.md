@@ -65,16 +65,6 @@ graph TB
   Tests --> Guard
 ```
 
-**Diagram sources**
-- [bin/palee.ts:1-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L389)
-- [src/cli/update.ts:1-84](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update.ts#L1-L84)
-- [test/palee-cli.ts:1-104](https://github.com/Kuldeep2822k/cli/blob/main/test/palee-cli.ts#L1-L104)
-- [test/cli-spawn-timeouts.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-spawn-timeouts.test.ts#L1-L200)
-
-**Section sources**
-- [bin/palee.ts:1-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L389)
-- [docs/adr/0025-application-layer.md:1-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0025-application-layer.md#L1-L63)
-
 ## Core Components
 - **Command dispatcher and lifecycle hooks**: Commander is configured with `exitOverride()` so usage errors become `CommanderError` objects instead of hard-coded process exits. A `preAction` hook records whether the current command declares `--json`, and a `postAction` hook invokes the update notice only after successful command execution.
 - **Fatal reporter**: Unhandled rejections and uncaught exceptions go through `reportFatal`, which sets `process.exitCode` rather than calling `process.exit`, writes a JSON payload when JSON mode is active, and avoids duplicate reports.
@@ -83,14 +73,6 @@ graph TB
 - **Update check module**: Encapsulates npm invocation, cache persistence, SemVer comparison, and platform-specific spawning rules.
 - **Test CLI launcher**: Provides `PALEE_ARGV`, `PALEE_CMD`, and coverage-aware selection between the built dist entry and TypeScript sources.
 - **Spawn timeout guard**: Scans test files for direct synchronous child launches and requires an active top-level `timeout` option outside a shrinking allow-list.
-
-**Section sources**
-- [bin/palee.ts:1-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L389)
-- [src/cli/exit-codes.ts:1-65](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts#L1-L65)
-- [src/cli/update.ts:1-84](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update.ts#L1-L84)
-- [src/cli/update-check.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update-check.ts#L1-L200)
-- [test/palee-cli.ts:1-104](https://github.com/Kuldeep2822k/cli/blob/main/test/palee-cli.ts#L1-L104)
-- [test/cli-spawn-timeouts.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-spawn-timeouts.test.ts#L1-L200)
 
 ## Architecture Overview
 PALEE's CLI boundary is intentionally thin:
@@ -125,10 +107,6 @@ sequenceDiagram
   B-->>U: stdout/stderr + process.exitCode
 ```
 
-**Diagram sources**
-- [bin/palee.ts:1-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L389)
-- [src/cli/exit-codes.ts:1-65](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts#L1-L65)
-
 ## Detailed Component Analysis
 
 ### CLI Entry and Error Contract
@@ -158,13 +136,6 @@ flowchart TD
   Drain --> End(["Process exits"])
 ```
 
-**Diagram sources**
-- [bin/palee.ts:201-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L201-L389)
-
-**Section sources**
-- [bin/palee.ts:1-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L389)
-- [docs/adr/0024-exit-codes-and-error-contract.md:1-75](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0024-exit-codes-and-error-contract.md#L1-L75)
-
 ### Exit Codes and Machine-Readable Error Contract
 The exit-code contract is a documented interface for scripts:
 
@@ -186,10 +157,6 @@ The exit-code contract is a documented interface for scripts:
 - Everything else → 5.
 
 This prevents the same error class from exiting differently depending on which handler catches it.
-
-**Section sources**
-- [src/cli/exit-codes.ts:1-65](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts#L1-L65)
-- [docs/adr/0024-exit-codes-and-error-contract.md:1-75](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0024-exit-codes-and-error-contract.md#L1-L75)
 
 ### Application Layer Separation
 ADR-0025 documents why command handlers were split into argument handling, application use cases, output formatting, and exit mapping. The application layer contains pure functions such as due-topic selection, next-topic computation, mastery summarization, review updates, and assessment updates. CLI concerns like Commander, `process`, OCC reads, atomic writes, and exit codes stay in the CLI layer.
@@ -224,14 +191,6 @@ classDiagram
   UpdateHandler --> ExitClassifier : "maps errors"
 ```
 
-**Diagram sources**
-- [bin/palee.ts:1-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L389)
-- [src/cli/update.ts:1-84](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update.ts#L1-L84)
-- [src/cli/exit-codes.ts:1-65](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts#L1-L65)
-
-**Section sources**
-- [docs/adr/0025-application-layer.md:1-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0025-application-layer.md#L1-L63)
-
 ### Test-Time CLI Launch Policy
 Tests launch the real CLI through two centralized exports:
 
@@ -256,13 +215,6 @@ flowchart TD
   Timeout -->|No| Result["Capture stdout/stderr and exit code"]
 ```
 
-**Diagram sources**
-- [test/palee-cli.ts:1-104](https://github.com/Kuldeep2822k/cli/blob/main/test/palee-cli.ts#L1-L104)
-
-**Section sources**
-- [docs/adr/0029-test-cli-launch-policy.md:1-97](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0029-test-cli-launch-policy.md#L1-L97)
-- [test/palee-cli.ts:1-104](https://github.com/Kuldeep2822k/cli/blob/main/test/palee-cli.ts#L1-L104)
-
 ### Direct Spawn Bounding Security Measures
 ADR-0029 originally claimed every spawn was bounded, but direct spawns in many test files bypassed the helper timeout policy. ADR-0032 corrects this claim and introduces an executable guard:
 
@@ -273,10 +225,6 @@ ADR-0029 originally claimed every spawn was bounded, but direct spawns in many t
 - The scanner accepts literal numbers, shorthand `{ timeout }`, and non-literal identifiers as bounding because static analysis cannot safely guess spread or computed options.
 
 This turns an unproven prose claim into a failing test whenever new unbounded synchronous spawns appear.
-
-**Section sources**
-- [docs/adr/0032-direct-spawn-bounding.md:1-79](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0032-direct-spawn-bounding.md#L1-L79)
-- [test/cli-spawn-timeouts.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-spawn-timeouts.test.ts#L1-L200)
 
 ### Update Command and npm Child Process Boundary
 The update command is a deliberate deviation from PALEE's no-network rule. Instead of opening sockets itself, it asks the user's own `npm` through one bounded child process.
@@ -313,15 +261,6 @@ sequenceDiagram
   end
 ```
 
-**Diagram sources**
-- [src/cli/update.ts:1-84](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update.ts#L1-L84)
-- [src/cli/update-check.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update-check.ts#L1-L200)
-
-**Section sources**
-- [docs/adr/0033-update-command-and-npm-child-process-boundary.md:1-145](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0033-update-command-and-npm-child-process-boundary.md#L1-L145)
-- [src/cli/update.ts:1-84](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update.ts#L1-L84)
-- [src/cli/update-check.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update-check.ts#L1-L200)
-
 ## Dependency Analysis
 The CLI boundary depends on lower layers but isolates them behind clear interfaces.
 
@@ -341,27 +280,11 @@ graph LR
   SpawnGuard -->|"scans"| TestHelper
 ```
 
-**Diagram sources**
-- [bin/palee.ts:1-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L389)
-- [src/cli/exit-codes.ts:1-65](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts#L1-L65)
-- [src/cli/update.ts:1-84](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update.ts#L1-L84)
-- [src/cli/update-check.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update-check.ts#L1-L200)
-- [test/palee-cli.ts:1-104](https://github.com/Kuldeep2822k/cli/blob/main/test/palee-cli.ts#L1-L104)
-- [test/cli-spawn-timeouts.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-spawn-timeouts.test.ts#L1-L200)
-
 Coupling observations:
 - The CLI entry imports all command handlers but delegates their behavior.
 - Exit-code classification is imported by handlers rather than duplicated.
 - The update command imports only the update-check boundary, not vault or engine internals.
 - Test infrastructure is separate from shipped code but exercises the real CLI artifact.
-
-**Section sources**
-- [bin/palee.ts:1-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L389)
-- [src/cli/exit-codes.ts:1-65](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts#L1-L65)
-- [src/cli/update.ts:1-84](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update.ts#L1-L84)
-- [src/cli/update-check.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update-check.ts#L1-L200)
-- [test/palee-cli.ts:1-104](https://github.com/Kuldeep2822k/cli/blob/main/test/palee-cli.ts#L1-L104)
-- [test/cli-spawn-timeouts.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-spawn-timeouts.test.ts#L1-L200)
 
 ## Performance Considerations
 - Per-spawn cold start cost matters because tests repeatedly launch the CLI. The coverage path pays a tsx/esbuild startup cost, while normal tests use the compiled dist entry.
@@ -385,10 +308,6 @@ Resolution:
 - Derive JSON mode from parsed commander options.
 - Rely on the shared fatal reporter, which sets `process.exitCode` and lets the event loop drain.
 
-**Section sources**
-- [docs/adr/0024-exit-codes-and-error-contract.md:1-75](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0024-exit-codes-and-error-contract.md#L1-L75)
-- [bin/palee.ts:201-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L201-L389)
-
 ### An unexpected error exits with a misleading code
 Likely cause:
 - The handler hard-coded `ExitCode.Unexpected` or did not use the classifier.
@@ -396,10 +315,6 @@ Likely cause:
 Resolution:
 - Replace per-handler mappings with `exitCodeFor(error)`.
 - Verify that containment errors classify as validation and conflicts classify as retryable.
-
-**Section sources**
-- [src/cli/exit-codes.ts:1-65](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts#L1-L65)
-- [docs/adr/0024-exit-codes-and-error-contract.md:1-75](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0024-exit-codes-and-error-contract.md#L1-L75)
 
 ### A test worker stalls indefinitely during CLI testing
 Likely cause:
@@ -411,10 +326,6 @@ Resolution:
 - If migration is not immediate, acknowledge it as tracked debt and verify against the guard.
 - Prefer the centralized helpers where possible.
 
-**Section sources**
-- [docs/adr/0032-direct-spawn-bounding.md:1-79](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0032-direct-spawn-bounding.md#L1-L79)
-- [test/cli-spawn-timeouts.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-spawn-timeouts.test.ts#L1-L200)
-
 ### The update command behaves unexpectedly on Windows
 Likely cause:
 - Inherited working directory allowed a planted `npm.cmd` to run.
@@ -425,10 +336,6 @@ Resolution:
 - Confirm win32 uses `npm.cmd` with `shell: true`, while POSIX uses `npm` with `shell: false`.
 - Verify argv elements remain compile-time constants.
 
-**Section sources**
-- [docs/adr/0033-update-command-and-npm-child-process-boundary.md:1-145](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0033-update-command-and-npm-child-process-boundary.md#L1-L145)
-- [src/cli/update-check.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update-check.ts#L1-L200)
-
 ### Coverage reports lose function coverage
 Likely cause:
 - Parent and child processes used different compilers, causing merged v8-istanbul function maps to collide.
@@ -437,10 +344,6 @@ Resolution:
 - Keep coverage children on the tsx source path.
 - Keep normal test children on the dist entry.
 - Do not waive the function-coverage threshold to hide the mismatch.
-
-**Section sources**
-- [docs/adr/0029-test-cli-launch-policy.md:1-97](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0029-test-cli-launch-policy.md#L1-L97)
-- [test/palee-cli.ts:1-104](https://github.com/Kuldeep2822k/cli/blob/main/test/palee-cli.ts#L1-L104)
 
 ## Conclusion
 PALEE's application layer and CLI boundary are defined by disciplined separation of concerns:
@@ -453,3 +356,18 @@ PALEE's application layer and CLI boundary are defined by disciplined separation
 - Network access is confined to the AI provider except for a narrowly bounded npm child process whose argv, working directory, platform decision, caching, and suppression rules are explicitly designed and tested.
 
 These decisions create clean interfaces between users and core functionality while maintaining security, scriptability, and testability.
+
+## References
+
+- [bin/palee.ts:1-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L389)
+- [src/cli/update.ts:1-84](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update.ts#L1-L84)
+- [test/palee-cli.ts:1-104](https://github.com/Kuldeep2822k/cli/blob/main/test/palee-cli.ts#L1-L104)
+- [test/cli-spawn-timeouts.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-spawn-timeouts.test.ts#L1-L200)
+- [docs/adr/0025-application-layer.md:1-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0025-application-layer.md#L1-L63)
+- [src/cli/exit-codes.ts:1-65](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts#L1-L65)
+- [src/cli/update-check.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update-check.ts#L1-L200)
+- [bin/palee.ts:201-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L201-L389)
+- [docs/adr/0024-exit-codes-and-error-contract.md:1-75](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0024-exit-codes-and-error-contract.md#L1-L75)
+- [docs/adr/0029-test-cli-launch-policy.md:1-97](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0029-test-cli-launch-policy.md#L1-L97)
+- [docs/adr/0032-direct-spawn-bounding.md:1-79](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0032-direct-spawn-bounding.md#L1-L79)
+- [docs/adr/0033-update-command-and-npm-child-process-boundary.md:1-145](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0033-update-command-and-npm-child-process-boundary.md#L1-L145)
