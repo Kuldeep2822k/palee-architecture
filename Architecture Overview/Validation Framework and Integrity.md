@@ -38,12 +38,13 @@
 3. [Core Components](#core-components)
 4. [Architecture Overview](#architecture-overview)
 5. [Detailed Component Analysis](#detailed-component-analysis)
-6. [Dependency Analysis](#dependency-analysis)
-7. [Performance Considerations](#performance-considerations)
-8. [Troubleshooting Guide](#troubleshooting-guide)
-9. [Conclusion](#conclusion)
-10. [Appendices](#appendices)
-11. [References](#references)
+6. [Rule Catalog and Execution Order](#rule-catalog-and-execution-order)
+7. [Dependency Analysis](#dependency-analysis)
+8. [Performance Considerations](#performance-considerations)
+9. [Troubleshooting Guide](#troubleshooting-guide)
+10. [Conclusion](#conclusion)
+11. [Appendices](#appendices)
+12. [References](#references)
 
 ## Introduction
 PALEE’s validation framework is a rule-based integrity system for an Obsidian vault that stores topics, assessments, reviews, sessions, and derived memory projections. It separates three responsibilities clearly:
@@ -221,7 +222,7 @@ Managed-note eligibility is centralized so multiple rules cannot disagree about 
 - `isManagedNote`: Any identity key or session-index marker.
 - `isTopicNote`: Exactly one identity key, it must be `palee_id`, and it must not be the session index.
 
-A note with only `palee_schema` but no identity is managed enough for kind classification but is not treated as a topic note. This avoids false-positive ID-format errors.
+A note with only `palee_schema` but no identity is not a managed note under `isManagedNote` and is not treated as a topic note; the kind rule uses a separate, broader gate that does cover `palee_schema`-only notes for kind classification. This avoids false-positive ID-format errors.
 
 ```mermaid
 flowchart TD
@@ -245,7 +246,7 @@ Human output groups errors and warnings separately and preserves runner order. J
 - `errors[]` and `warnings[]`.
 - Each entry includes `rule_id`, `severity`, `message`, legacy locator fields where applicable, and `details`.
 
-## Detailed Component Analysis
+## Rule Catalog and Execution Order
 
 ### Rule Catalog Order
 The canonical rule catalog is ordered by concern:
@@ -414,7 +415,7 @@ PALEE’s validation framework is a disciplined, rule-driven integrity layer. It
 | `valid-topic-id-format` | Error | No | Centralized topic ID policy |
 | `valid-topic-status` | Error | Manual | Lifecycle status values |
 | `no-duplicate-topic-id` | Error | No | Duplicate topic IDs |
-| `valid-dependency-list` | Mixed | Manual | Raw dependency array shape and semantics |
+| `valid-dependency-list` | Error | Manual | Raw dependency array shape and semantics; duplicate entries are downgraded to warnings per-finding |
 | `no-missing-dependency` | Warning | No | Dangling dependency references |
 | `no-dependency-cycle` | Error | No | Dependency cycles |
 | `valid-assessment-fields` | Error | Manual | Pillar score ranges and assessed date |

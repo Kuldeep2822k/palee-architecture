@@ -210,13 +210,16 @@ Mastery is computed as a weighted formula where Feynman articulation is double-w
 flowchart TD
     Start(["Assess Command"]) --> ParsePillars["Parse and range-check pillar flags"]
     ParsePillars --> LoadTopics["Load topics and resolve topic"]
-    LoadTopics --> BuildAssessment["buildAssessmentUpdate(frontmatter, parsed, assessedAt)"]
+    LoadTopics --> ReRead["Re-read disk and compare fingerprint"]
+    ReRead --> BuildAssessment["buildAssessmentUpdate(frontmatter, parsed, assessedAt)"]
     BuildAssessment --> Mastery["computeTopicMastery(pillars)"]
     Mastery --> AvailabilityDiff["assessmentAvailabilityDiff(topics, id, old, new)"]
-    AvailabilityDiff --> CLIOutput["Print unlocked/blocked topics and mastery change"]
-    CLIOutput --> OCCWrite["Re-read disk, compare fingerprint, atomicWrite"]
-    OCCWrite --> End(["Assessment recorded"])
+    AvailabilityDiff --> OCCWrite["atomicWrite"]
+    OCCWrite --> CLIOutput["Print unlocked/blocked topics and mastery change"]
+    CLIOutput --> End(["Assessment recorded"])
 ```
+
+On `--dry-run`, the print step occurs without the atomic write.
 
 #### Topic State Changes During Assessment
 Assessment changes do not directly set a topic status field. Instead, it changes `topic_mastery` and pillar values. Downstream consumers such as `palee plan` use mastery and dependency graphs to decide availability. A lowering assessment can make previously ready dependents unavailable, which is reported as newly blocked topics.
@@ -258,7 +261,7 @@ sequenceDiagram
 ```
 
 #### Early Reviews and Due Dates
-A review is considered early if the stored `due_at` is a calendar day earlier than the local review day. Early reviews are still recorded, but a warning is printed unless `--force` is passed. The due date is computed from the review timestamp plus the resulting interval.
+A review is considered early if the local review day is earlier than the stored `due_at` calendar day — that is, `formatLocalDateOnly(reviewedAt) < currentDueAt`, where `currentDueAt` is the stored due day. Early reviews are still recorded, but a warning is printed unless `--force` is passed. The due date is computed from the review timestamp plus the resulting interval.
 
 ### Planning and Readiness Transitions
 `palee next` computes which topics are actionable today. A topic is actionable if it has never been reviewed or is due for review, and its prerequisites are satisfied.
