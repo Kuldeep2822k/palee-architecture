@@ -1,20 +1,5 @@
 # Frontmatter Parser and Updater
 
-::: details Referenced Files in This Document
-
-- [frontmatter.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts)
-- [types.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts)
-- [loader.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts)
-- [topic-id.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts)
-- [mastery.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts)
-- [valid-palee-schema.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-palee-schema.ts)
-- [valid-topic-status.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-status.ts)
-- [valid-assessment-fields.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts)
-- [valid-review-fields.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-fields.ts)
-- [storage-frontmatter.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-frontmatter.test.ts)
-
-:::
-
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Project Structure](#project-structure)
@@ -26,6 +11,7 @@
 8. [Troubleshooting Guide](#troubleshooting-guide)
 9. [Conclusion](#conclusion)
 10. [Appendices](#appendices)
+11. [References](#references)
 
 ## Introduction
 This document explains the PALEE frontmatter parser and updater subsystem that turns raw Markdown topic files into structured topic data and back again. It covers:
@@ -64,16 +50,6 @@ graph TB
     Updater --> Markdown
 ```
 
-**Diagram sources**
-- [frontmatter.ts:1-220](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L220)
-- [types.ts:444-493](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L444-L493)
-- [loader.ts:350-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L350-L417)
-
-**Section sources**
-- [frontmatter.ts:1-220](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L220)
-- [types.ts:444-493](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L444-L493)
-- [loader.ts:350-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L350-L417)
-
 ## Core Components
 The core runtime components are:
 
@@ -84,10 +60,6 @@ The core runtime components are:
 | `computeFingerprint` | Computes a SHA-256 hex digest of file content | Used by caching and OCC layers to detect out-of-band changes |
 | `FrontmatterResult` | Typed return value for parsing | Includes optional parsed frontmatter, body, raw YAML, CST document, and error message |
 | `ScannedNote` | One entry per scanned Markdown file | Carries path, parsed frontmatter, parse errors, read errors, and optional raw content |
-
-**Section sources**
-- [frontmatter.ts:1-220](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L220)
-- [types.ts:444-493](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L444-L493)
 
 ## Architecture Overview
 The architecture is layered:
@@ -116,10 +88,6 @@ sequenceDiagram
     Caller->>Validator: "Validate raw frontmatter"
     Validator-->>Caller: "Validation issues"
 ```
-
-**Diagram sources**
-- [frontmatter.ts:1-220](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L220)
-- [loader.ts:350-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L350-L417)
 
 ## Detailed Component Analysis
 
@@ -151,13 +119,6 @@ flowchart TD
     IsMapping -->|Mapping| Success["Return frontmatter + body + raw + doc"]
 ```
 
-**Diagram sources**
-- [frontmatter.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L120)
-
-**Section sources**
-- [frontmatter.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L120)
-- [storage-frontmatter.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-frontmatter.test.ts#L1-L200)
-
 ### Frontmatter Update Mechanism
 `updateFrontmatter` performs targeted mutations:
 
@@ -188,13 +149,6 @@ flowchart TD
     RenderUpdated --> AttachBody
     AttachBody --> End(["Rewritten Markdown"])
 ```
-
-**Diagram sources**
-- [frontmatter.ts:120-220](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L120-L220)
-
-**Section sources**
-- [frontmatter.ts:120-220](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L120-L220)
-- [storage-frontmatter.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-frontmatter.test.ts#L1-L200)
 
 ### YAML Frontmatter Schema for PALEE Topics
 The stored frontmatter is flat. The higher-level `Topic` interface is reserved for future AI assessment integration and is explicitly documented as not the runtime storage shape. The runtime contract is what loaders and validators consume from actual YAML frontmatter.
@@ -229,11 +183,6 @@ Important distinctions:
 - Review state is stored as flat SM-2 fields.
 - `topic_mastery` is derived from assessment pillars, but its stored value may be preserved depending on precedence mode.
 - `assessed_at` is normalized through loader logic; `last_reviewed_at` and `due_at` are coerced to strings when present.
-
-**Section sources**
-- [types.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L120)
-- [types.ts:444-493](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L444-L493)
-- [loader.ts:350-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L350-L417)
 
 ### Validation Rules
 Validation rules operate on raw frontmatter values and expose real vault defects. They are separate from loader normalization, which may coerce or default values.
@@ -296,20 +245,6 @@ classDiagram
     ValidTopicStatusRule --> TopicIdPolicy : "uses allowed statuses"
 ```
 
-**Diagram sources**
-- [valid-palee-schema.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-palee-schema.ts#L1-L79)
-- [valid-topic-status.ts:1-62](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-status.ts#L1-L62)
-- [valid-assessment-fields.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L1-L79)
-- [valid-review-fields.ts:1-166](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-fields.ts#L1-L166)
-- [topic-id.ts:1-81](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L1-L81)
-
-**Section sources**
-- [valid-palee-schema.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-palee-schema.ts#L1-L79)
-- [valid-topic-status.ts:1-62](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-status.ts#L1-L62)
-- [valid-assessment-fields.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L1-L79)
-- [valid-review-fields.ts:1-166](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-fields.ts#L1-L166)
-- [topic-id.ts:1-81](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L1-L81)
-
 ### Example Operations
 
 #### Setting Assessment Scores
@@ -342,12 +277,6 @@ To manage prerequisites:
 
 Best practice: prefer `depends_on` as the canonical alias and keep `dependencies` only where compatibility matters. Keep topic IDs kebab-case and lowercase after the `T-` prefix.
 
-**Section sources**
-- [mastery.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L200)
-- [loader.ts:350-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L350-L417)
-- [valid-review-fields.ts:1-166](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-fields.ts#L1-L166)
-- [topic-id.ts:1-81](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L1-L81)
-
 ## Dependency Analysis
 The frontmatter subsystem has clear boundaries:
 
@@ -366,19 +295,6 @@ graph LR
     Validation --> Types
     Tests["storage-frontmatter.test.ts"] --> FM
 ```
-
-**Diagram sources**
-- [frontmatter.ts:1-220](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L220)
-- [types.ts:444-493](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L444-L493)
-- [loader.ts:350-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L350-L417)
-- [mastery.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L200)
-- [topic-id.ts:1-81](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L1-L81)
-- [storage-frontmatter.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-frontmatter.test.ts#L1-L200)
-
-**Section sources**
-- [frontmatter.ts:1-220](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L220)
-- [loader.ts:350-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L350-L417)
-- [storage-frontmatter.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-frontmatter.test.ts#L1-L200)
 
 ## Performance Considerations
 For large vaults, the most important performance characteristics are:
@@ -413,12 +329,6 @@ The design deliberately avoids parsing the entire Markdown body as YAML. Malform
 | Validation reports invalid assessment field | A pillar score is not a finite number in `[0.0, 1.0]` or `assessed_at` is invalid | Correct the numeric range or date value |
 | Validation reports invalid review field | SM-2 values violate engine bounds | Reset offending fields to adopt defaults or correct them manually |
 
-**Section sources**
-- [frontmatter.ts:1-220](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L220)
-- [valid-topic-status.ts:1-62](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-status.ts#L1-L62)
-- [valid-assessment-fields.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L1-L79)
-- [valid-review-fields.ts:1-166](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-fields.ts#L1-L166)
-
 ## Conclusion
 PALEE’s frontmatter subsystem is designed around two complementary goals:
 
@@ -439,6 +349,28 @@ The schema separates storage-level flat keys from higher-level domain models. Va
 | `updateFrontmatter(content, updates, removals)` | Markdown string, key-value map, optional removal list | Rewritten Markdown string | Throws on malformed existing frontmatter |
 | `computeFingerprint(content)` | String | SHA-256 hex string | Used for caching and concurrency checks |
 
-**Section sources**
+## References
+
+- [frontmatter.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts)
+- [types.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts)
+- [loader.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts)
+- [topic-id.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts)
+- [mastery.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts)
+- [valid-palee-schema.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-palee-schema.ts)
+- [valid-topic-status.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-status.ts)
+- [valid-assessment-fields.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts)
+- [valid-review-fields.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-fields.ts)
+- [storage-frontmatter.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-frontmatter.test.ts)
 - [frontmatter.ts:1-220](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L220)
 - [types.ts:444-493](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L444-L493)
+- [loader.ts:350-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L350-L417)
+- [frontmatter.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L120)
+- [storage-frontmatter.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-frontmatter.test.ts#L1-L200)
+- [frontmatter.ts:120-220](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L120-L220)
+- [types.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L120)
+- [valid-palee-schema.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-palee-schema.ts#L1-L79)
+- [valid-topic-status.ts:1-62](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-status.ts#L1-L62)
+- [valid-assessment-fields.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L1-L79)
+- [valid-review-fields.ts:1-166](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-fields.ts#L1-L166)
+- [topic-id.ts:1-81](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L1-L81)
+- [mastery.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L200)
