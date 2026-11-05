@@ -86,7 +86,7 @@ graph TB
 
 | Field | Type | Purpose | Valid values / constraints | Default behavior |
 |---|---:|---|---|---|
-| `vaultPath` | `string` | Absolute path to the active Obsidian vault used by commands that read or write topic notes. | Must be an absolute path accepted by the vault reader; invalid paths cause usage errors. | If absent, many commands prompt or refuse until a vault is configured. |
+| `vaultPath` | `string` | Absolute path to the active Obsidian vault used by commands that read or write topic notes. | Stored as an absolute path; `set-vault` resolves relative input before saving. Invalid paths cause usage errors. | If absent, many commands prompt or refuse until a vault is configured. |
 | `aiProvider` | `string` | AI backend provider name. | Typically `'gemini'` or `'openai'`; other OpenAI-compatible providers may work through the base URL. | Absent unless set via `palee config set-provider`. |
 | `model` | `string` | LLM model identifier sent to the configured provider. | Provider-specific model name. | Absent unless set via `palee config set-model`. |
 | `baseUrl` | `string` | OpenAI-compatible endpoint URL for the configured provider. | A valid HTTP(S) endpoint. | Absent unless set via `palee config set-base-url`. |
@@ -381,7 +381,7 @@ Validation rules:
 Example invocations:
 
 ```text
-palee session start --topic topic-docker-volumes
+palee session start --topic T-docker-fundamentals
 palee session start --interactive
 palee session list --json
 ```
@@ -540,7 +540,7 @@ Common validation and configuration problems:
 | `Multiple topics match ...` | Topic query is ambiguous. | Narrow the query to a unique topic. |
 | `Error: assess needs at least one pillar score` | No pillar flag was provided. | Add at least one of `--conceptual`, `--practical`, `--debug`, or `--feynman`. |
 | Pillar score out of range | Non-finite or outside `0..1` value. | Pass a finite number between `0` and `1`. |
-| `palee validate` exits non-zero with only warnings | Warnings were treated as failures. | Use `--strict` to acknowledge warnings as failures, or fix the warnings. |
+| `palee validate` exits non-zero with only warnings | Warnings were treated as failures because `--strict` is enabled. | Re-run without `--strict` if warnings should not fail the run, or fix the warnings. |
 | Invalid SM-2 review state | Corrupted ease factor, interval, repetition, or lapse data. | Run `palee validate --fix`, then rerun affected commands. |
 | Config shows old or missing vault path | `PALEE_CONFIG_DIR` changed or config is malformed. | Check the environment variable and inspect `~/.config/palee/config.json` or `%LOCALAPPDATA%\palee\config.json`. |
 
@@ -549,7 +549,7 @@ Exit codes commonly used by these commands:
 | Code | Meaning |
 |---:|---|
 | `2` | Usage error: missing vault, invalid quality, invalid pillar score, ambiguous or missing topic, invalid pattern, or other caller-supplied argument problem. |
-| `3` | Validation warnings treated as failures when `--strict` is enabled. |
+| `3` | Validation failure (errors, or warnings when `--strict` is enabled). |
 | `4` | Lock conflict or concurrent modification, such as an OCC conflict during review or assessment. |
 | `5` | Unexpected exception or infrastructure failure. |
 

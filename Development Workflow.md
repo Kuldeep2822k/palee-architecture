@@ -71,7 +71,7 @@ Key areas:
 ### Node.js Requirements
 - Minimum supported runtime: **Node.js ≥ 22.12.0**.
 - The package declares this through the `engines.node` field.
-- CI installs and tests against Node 22.x, 24.x, and 26.x across Ubuntu, Windows, and macOS.
+- CI installs and tests against Node 22.x and 24.x on Ubuntu, Windows, and macOS, plus Node 26.x on Ubuntu only.
 
 Use your preferred Node version manager and install a version satisfying the requirement before installing dependencies.
 
@@ -205,7 +205,7 @@ The exit-code guard prevents numeric literals in `process.exitCode` assignments.
 ## Commit, Branch, and Pull Request Workflow
 
 ### Commit Messages
-PR titles and commit messages should follow Conventional Commits. Recent commits in this repository demonstrate patterns such as:
+Commit messages are one line, two at most — a subject that says plainly what the commit did, with no paragraph bodies (reasoning belongs in the PR description or an ADR, not the commit log). Conventional Commits applies to PR titles and to commit subjects. Recent commits in this repository demonstrate patterns such as:
 - `fix(engine): ...`
 - `docs(agent): ...`
 - `fix(storage): ...`
@@ -244,7 +244,8 @@ It includes:
 |---|---|
 | `quality-check` | Installs dependencies without workspaces, runs `npm run check`, and builds |
 | `docs-check` | Installs the docs workspace and builds VitePress documentation |
-| `test-matrix` | Runs coverage tests across Node 22, 24, and 26 on Ubuntu, Windows, and macOS |
+| `test-matrix` | Runs coverage tests across Node 22.x and 24.x on Ubuntu, Windows, and macOS, plus Node 26.x on Ubuntu only |
+| `engines-floor-smoke` (Built Artifact on the Declared Node Floor) | Runs the built bundle on the `engines.node` floor version read from `package.json` |
 | `smoke-install` | Packs the package, verifies tarball contents, installs globally, checks version, runs `--help`, and executes an isolated smoke test |
 | Changed-code coverage check | On pull requests, requires at least 50% changed-file coverage using diff-cover |
 
