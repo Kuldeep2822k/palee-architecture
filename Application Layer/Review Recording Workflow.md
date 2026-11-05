@@ -27,7 +27,7 @@
 This document explains the review recording workflow used by the application when a user submits a spaced repetition recall rating for a topic. The workflow spans three layers:
 
 - **CLI layer**: parses and validates the user’s input, locates the target topic, protects against concurrent modifications, and persists durable state.
-- **Application layer**: performs pure SM-2 scheduling calculations, computes updated mastery, and produces a frontmatter update payload without performing I/O.
+- **Application layer**: orchestrates engine functions (`processReview`, `computeDueDate`), computes updated mastery, and produces a frontmatter update payload without performing I/O.
 - **Engine layer**: implements the SuperMemo-2 algorithm, calendar-based due date computation, and robust numeric validation.
 
 The design deliberately separates stateless calculation from file system operations so that the core scheduling logic can be tested deterministically while the CLI handles concurrency, durability, user feedback, and error recovery.
@@ -62,25 +62,12 @@ graph TB
   Storage --> Vault
 ```
 
-**Diagram sources**
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-
-**Section sources**
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)
-
 ## Core Components
 The workflow is centered around one application function and one engine function:
 
 | Function | Location | Purpose |
 |---|---|---|
-| `buildReviewUpdate` | `src/application/record-review.ts` | Reads current frontmatter, applies SM-2, computes mastery, and returns an immutable set of updates plus display state |
+| `buildReviewUpdate` | `src/application/record-review.ts` | Receives a parsed frontmatter map (performs no I/O), applies SM-2, computes mastery, and returns a plain `Record` of updates plus display state |
 | `processReview` | `src/engine/sm2.ts` | Calculates new SM-2 state from current state and quality rating |
 | `computeDueDate` | `src/engine/sm2.ts` | Advances local calendar days to produce the next due date |
 | `resolveTopicMastery` / `carriedPillarScores` | `src/engine/mastery.ts` | Computes weighted mastery and preserves only present pillar scores |
@@ -93,12 +80,6 @@ Key data contracts:
 | `Review` | Stores SM-2 fields such as `interval_days`, `repetition`, `ease_factor`, `lapses`, `last_quality`, `last_reviewed_at`, and `due_at` |
 | `ReviewOutcome` | Returned by the application layer; includes updates, new SM-2 state, computed due date, early-review flag, and stored due day |
 | Frontmatter | Untrusted raw key/value map forwarded into the engine; validated defensively at each boundary |
-
-**Section sources**
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)
 
 ## Architecture Overview
 The review recording process follows a strict read-compute-write pipeline with defensive boundaries at every layer.
@@ -131,12 +112,6 @@ sequenceDiagram
   C-->>U: Output results or error
 ```
 
-**Diagram sources**
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-
 ## Detailed Component Analysis
 
 ### CLI Review Command
@@ -161,7 +136,7 @@ The CLI command is the entry point for user interaction. Its responsibilities in
 
 5. **Durable persistence**
    - Builds updated content through the storage helper.
-   - Writes atomically using the original fresh fingerprint.
+   - Writes atomically using the fresh fingerprint taken from the re-read.
 
 6. **User feedback and recovery**
    - Prints success details, including new ease factor, interval, repetitions, and due date.
@@ -188,12 +163,6 @@ flowchart TD
   AtomicWrite --> Output["Print results and warnings"]
   Output --> End(["Exit"])
 ```
-
-**Diagram sources**
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-
-**Section sources**
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
 
 ### Application Review Builder
 The application layer isolates business logic from I/O. `buildReviewUpdate` accepts raw frontmatter, a numeric quality rating, and a review timestamp, then returns:
@@ -229,14 +198,6 @@ flowchart TD
   Pillars --> Updates["Compose updates + timestamps"]
   Updates --> Return(["Return ReviewOutcome"])
 ```
-
-**Diagram sources**
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-
-**Section sources**
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
 
 ### SM-2 Engine
 The SM-2 engine implements the SuperMemo-2 scheduling rules with strong defensive checks:
@@ -283,25 +244,15 @@ flowchart TD
   CapInterval --> Result(["Return new SM-2 state"])
 ```
 
-**Diagram sources**
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-
-**Section sources**
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-
 ### Mastery Integration
 Mastery integration ensures that review updates do not fabricate assessment data:
 
 - Only pillar keys actually present in the frontmatter are carried forward.
 - Carried pillar values are normalized to `[0.0, 1.0]`.
 - `topic_mastery` is computed using the weighted formula with conceptual, practical, debug, and twice-weighted feynman scores.
-- In review mode, `pillars-first` precedence means any present pillar triggers a recompute; absent pillars remain absent.
+- In review mode, `pillars-first` precedence means a recompute only when a normalized pillar is greater than zero; a present-but-zero pillar falls back to the existing stored mastery, and absent pillars remain absent.
 
 This prevents the common defect where a review writes zero pillar scores even though the learner never supplied them, which would make the note appear assessed but zeroed and could pin mastery incorrectly.
-
-**Section sources**
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
 
 ### Data Model Contracts
 The shared `Review` type defines the scheduled repetition state persisted alongside other topic metadata. Important fields include:
@@ -310,16 +261,13 @@ The shared `Review` type defines the scheduled repetition state persisted alongs
 |---|---|
 | `interval_days` | Next spacing interval in days |
 | `repetition` | Consecutive successful review count |
-| `ease_factor` | Adjusted easiness factor controlling future interval growth |
-| `lapses` | Cumulative failures after initial mastery |
+| `ease_factor` | Adjusted ease factor controlling future interval growth |
+| `lapses` | Cumulative failed reviews that ended a run of at least one successful repetition |
 | `last_quality` | Most recent recall quality |
 | `last_reviewed_at` | Local date stamp of last review |
 | `due_at` | Local date string indicating next due time |
 
 The `Assessment` type describes the four pedagogical pillars used by mastery calculations, although runtime frontmatter is flat and untyped until parsed.
-
-**Section sources**
-- [types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)
 
 ## Dependency Analysis
 The review recording workflow has a clear layered dependency structure:
@@ -339,20 +287,6 @@ graph LR
 - The engine depends on shared types and validation utilities.
 - There is no circular dependency between CLI, application, and engine layers.
 
-**Diagram sources**
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)
-
-**Section sources**
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)
-
 ## Performance Considerations
 For high-frequency review scenarios, the implementation already separates cheap pure computation from potentially expensive I/O:
 
@@ -364,15 +298,10 @@ For high-frequency review scenarios, the implementation already separates cheap 
 
 Optimization opportunities should focus on batching multiple reviews into fewer storage reads/writes at the CLI or caller level, while keeping the engine and application layers pure and single-topic focused.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 
 ### Invalid Recall Quality
 If the user passes a value outside `0`–`5`, the CLI detects it early and reports a usage error without touching the vault.
-
-**Section sources**
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
 
 ### Corrupted SM-2 State
 If a note contains malformed SM-2 fields such as a string in `interval_days`, a boolean in `ease_factor`, or a negative or non-integer `lapses`, the engine throws a field-specific error. The CLI recognizes these errors and prints a hint directing the user to run the validation repair command.
@@ -382,11 +311,6 @@ Recommended recovery:
 2. Run the validation fix tool referenced in the CLI hint.
 3. Retry the review after the schema has been repaired.
 
-**Section sources**
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [engine-sm2.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L1-L200)
-
 ### Concurrent Modification During Review
 If another process modifies the topic note between the initial load and the pre-write re-read, the CLI throws an OCC conflict error. The operation does not partially update the note.
 
@@ -394,22 +318,11 @@ Recommended recovery:
 1. Retry the review after ensuring no other writer is active.
 2. If reviewing many topics, serialize writes or coordinate locks at a higher level.
 
-**Section sources**
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-
 ### Early Review Before Due Date
 When a review occurs before the stored `due_at`, the application marks the outcome as early. The CLI still records the review and exits successfully, but prints a warning unless `--force` is provided. This prevents schedule drift while allowing intentional early practice.
 
-**Section sources**
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-
 ### Missing Pillar Scores Are Not Fabricated
-If a note lacks pillar scores, the review update must not write zeros. The test suite asserts that absent pillars remain absent and that mastery remains zero when no pillars exist.
-
-**Section sources**
-- [application-record-review.test.ts:1-83](https://github.com/Kuldeep2822k/cli/blob/main/test/application-record-review.test.ts#L1-L83)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
+If a note lacks pillar scores, the review update must not write zeros. The test suite asserts that absent pillars remain absent and that mastery remains zero when no pillars exist and no existing valid `topic_mastery` is present; when an existing valid `topic_mastery` is present, it is returned.
 
 ## Conclusion
 The review recording workflow cleanly separates concerns:
@@ -420,5 +333,3 @@ The review recording workflow cleanly separates concerns:
 - Shared types define the persistent review contract.
 
 This separation makes it possible to verify SM-2 behavior independently of file system behavior, protect durable state from concurrent modification, recover gracefully from corrupted notes, and maintain consistent progress tracking across spaced repetition intervals and mastery calculations.
-
-[No sources needed since this section summarizes without analyzing specific files]

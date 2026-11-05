@@ -30,7 +30,7 @@
 ## Introduction
 The `palee adopt --undo` command reverses adoption by removing only the frontmatter keys that PALEE owns from selected notes. It does not rewrite user-authored content, comments, key order, or body text unless those bytes are directly tied to a removed PALEE-owned key. Undo is intentionally narrow: it restores the pre-adoption state for PALEE-managed metadata while preserving everything else, including keys such as `status`, `topic`, `dependencies`, and `title` (the latter unless explicitly requested with `--drop-title`).
 
-Undo supports single-file and batch modes, mirrors adoption’s scope selection (`--all`, `--include`, `--exclude`, `--tag`), and uses dry-run previews before any vault mutation. Atomic writes and optimistic concurrency control (OCC) protect both the undo execution path and its rollback journal, so interrupted or partially completed runs can be detected and reversed safely.
+Undo supports single-file and batch modes, mirrors adoption’s scope selection (`--all`, `--include`, `--exclude`, `--tag`), and offers dry-run previews before any vault mutation. Atomic writes and optimistic concurrency control (OCC) protect both the undo execution path and its rollback journal, so interrupted or partially completed runs can be detected and reversed safely.
 
 ## Project Structure
 The undo mechanism spans three layers:
@@ -53,20 +53,6 @@ graph TB
     AtomicWrite --> DurabilityContract["Atomic Write Contract<br/>ADR-0014"]
 ```
 
-**Diagram sources**
-- [adopt-undo.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts#L1-L200)
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
-- [frontmatter.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L200)
-- [sessions.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L200)
-- [0022-adoption-contracts.md:1-77](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0022-adoption-contracts.md#L1-L77)
-- [0014-atomic-write-durability-and-containment.md:1-79](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0014-atomic-write-durability-and-containment.md#L1-L79)
-
-**Section sources**
-- [adopt-undo.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts#L1-L200)
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
-- [frontmatter.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L200)
-- [sessions.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L200)
-
 ## Core Components
 The undo subsystem is built around five core responsibilities:
 
@@ -77,13 +63,6 @@ The undo subsystem is built around five core responsibilities:
 | CST-based frontmatter updater | Removes only selected keys while preserving comments, ordering, unknown keys, and body bytes | Uses a concrete syntax tree instead of full re-serialization |
 | Batch planner | Plans changes before writing and refuses partial plans when vault state drifts | Re-reads every target and compares fingerprints; oversized notes are treated as concurrent changes |
 | Rollback journal | Records what was written during undo and restores original content if later writes fail | Restores in reverse order using verified atomic writes |
-
-**Section sources**
-- [adopt-undo.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts#L1-L200)
-- [adopt-undo.ts:201-500](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts#L201-L500)
-- [adopt-undo.ts:501-850](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts#L501-L850)
-- [adopt-undo.ts:851-1156](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts#L851-L1156)
-- [frontmatter.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L200)
 
 ## Architecture Overview
 Undo follows a strict scan → plan → verify → commit → journal phase model. The important invariant is that undo never assumes ownership of a key just because it happens to exist.
@@ -112,14 +91,6 @@ flowchart TD
     Success --> End
 ```
 
-**Diagram sources**
-- [adopt-undo.ts:501-850](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts#L501-L850)
-- [adopt-undo.ts:851-1156](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts#L851-L1156)
-
-**Section sources**
-- [adopt-undo.ts:501-850](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts#L501-L850)
-- [adopt-undo.ts:851-1156](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts#L851-L1156)
-
 ## Detailed Component Analysis
 
 ### Owned-Key Removal Policy
@@ -140,14 +111,6 @@ flowchart TD
     NoKeys --> Result
 ```
 
-**Diagram sources**
-- [adopt-undo.ts:201-350](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts#L201-L350)
-
-**Section sources**
-- [adopt-undo.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts#L1-L200)
-- [adopt-undo.ts:201-350](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts#L201-L350)
-- [0022-adoption-contracts.md:1-77](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0022-adoption-contracts.md#L1-L77)
-
 ### Frontmatter Preservation and Comment Loss Detection
 Undo relies on a YAML concrete syntax tree updater rather than full YAML re-serialization. This preserves:
 
@@ -162,12 +125,6 @@ Undo relies on a YAML concrete syntax tree updater rather than full YAML re-seri
 When a key is removed, comments attached to that key node may also disappear. Undo computes which comment lines were lost by comparing the raw frontmatter before and after removal and reports them. This is the only part of undo that intentionally removes non-PALEE bytes, and it is surfaced as a warning rather than hidden.
 
 An empty frontmatter block after removal is collapsed away so a note that originally had no frontmatter returns to its original shape.
-
-**Section sources**
-- [frontmatter.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L200)
-- [frontmatter.ts:201-220](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L201-L220)
-- [adopt-undo.ts:350-500](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts#L350-L500)
-- [cli-adopt-undo.test.ts:201-500](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-undo.test.ts#L201-L500)
 
 ### Undo Planning and Validation
 Undo separates planning from execution. During planning:
@@ -204,16 +161,6 @@ sequenceDiagram
     end
 ```
 
-**Diagram sources**
-- [adopt-undo.ts:501-850](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts#L501-L850)
-- [adopt-undo.ts:851-1156](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts#L851-L1156)
-- [frontmatter.ts:201-220](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L201-L220)
-
-**Section sources**
-- [adopt-undo.ts:501-850](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts#L501-L850)
-- [adopt-undo.ts:851-1156](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts#L851-L1156)
-- [cli-adopt-undo-disclosure.test.ts:201-359](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-undo-disclosure.test.ts#L201-L359)
-
 ### Atomic Writes and Optimistic Concurrency Control
 Every undo write goes through the atomic writer, which:
 
@@ -246,16 +193,6 @@ flowchart TD
     DirFsync --> Done(["Success"])
 ```
 
-**Diagram sources**
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
-- [atomic-write.ts:201-450](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L201-L450)
-- [0014-atomic-write-durability-and-containment.md:1-79](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0014-atomic-write-durability-and-containment.md#L1-L79)
-
-**Section sources**
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
-- [atomic-write.ts:201-450](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L201-L450)
-- [0014-atomic-write-durability-and-containment.md:1-79](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0014-atomic-write-durability-and-containment.md#L1-L79)
-
 ### Rollback Journal and Partial Recovery
 Both adoption and undo maintain a rollback journal. For undo, each successfully written note records:
 
@@ -286,29 +223,12 @@ sequenceDiagram
     Undo->>Store: Restore note 1 with written fingerprint
 ```
 
-**Diagram sources**
-- [adopt-undo.ts:350-500](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts#L350-L500)
-- [adopt.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L200)
-- [0022-adoption-contracts.md:1-77](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0022-adoption-contracts.md#L1-L77)
-
-**Section sources**
-- [adopt-undo.ts:350-500](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts#L350-L500)
-- [adopt.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L200)
-- [0022-adoption-contracts.md:1-77](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0022-adoption-contracts.md#L1-L77)
-
 ### Relationship Between Adoption Sessions, Temporary Files, and Rollback
 Undo does not rewrite `.palee/sessions`, `.palee/index.md`, or `.palee/hot.md`. Those are canonical or derived session views, and undo treats them as read-only diagnostic sources. If un-adopting a note leaves a session record referencing a topic that no longer exists in the vault, undo reports the reference and directs recovery to `palee session` and `palee validate`.
 
 Temporary files created by atomic writes are reclaimed only when they belong to a crashed writer whose process ID is gone and whose age exceeds a staleness floor. This prevents undo and other commands from deleting in-flight temp files belonging to another host or antivirus-locked process.
 
 Session memory lifecycle rules reinforce the safety boundary: `.palee/hot.md` is derived working memory, `.palee/sessions/` is canonical history, and rebuilds do not delete canonical session files.
-
-**Section sources**
-- [adopt-undo.ts:501-850](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts#L501-L850)
-- [sessions.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L200)
-- [sessions.ts:201-279](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L201-L279)
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
-- [0019-session-memory-lifecycle.md:1-71](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0019-session-memory-lifecycle.md#L1-L71)
 
 ## Dependency Analysis
 Undo depends on adoption’s selection semantics and storage-layer durability. Its most important external dependencies are:
@@ -332,20 +252,6 @@ graph LR
     AtomicWrite --> Durability["ADR-0014"]
 ```
 
-**Diagram sources**
-- [adopt-undo.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts#L1-L200)
-- [adopt.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L200)
-- [frontmatter.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L200)
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
-- [sessions.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L200)
-- [0022-adoption-contracts.md:1-77](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0022-adoption-contracts.md#L1-L77)
-- [0014-atomic-write-durability-and-containment.md:1-79](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0014-atomic-write-durability-and-containment.md#L1-L79)
-
-**Section sources**
-- [adopt-undo.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts#L1-L200)
-- [0022-adoption-contracts.md:1-77](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0022-adoption-contracts.md#L1-L77)
-- [0014-atomic-write-durability-and-containment.md:1-79](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0014-atomic-write-durability-and-containment.md#L1-L79)
-
 ## Performance Considerations
 Undo is designed for correctness first, but its structure supports large vaults:
 
@@ -359,15 +265,13 @@ Undo is designed for correctness first, but its structure supports large vaults:
 
 For bulk operations, always use dry-run first. The test suite verifies that dry-run output names the affected notes and keys while changing no bytes.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 
 ### Common Undo Failures
 
 | Symptom | Likely Cause | Recommended Action |
 |---|---|---|
-| `Error: Not a markdown note` | A `.md` file was passed alongside a directory scan, or a non-markdown target was given to batch undo | Pass the note alone or pass a directory |
+| `Error: Not a markdown note` | The target is a file that does not end in .md | Pass a .md file or a directory to un-adopt |
 | `Error: Path escapes vault` | Target resolves outside the configured vault root | Use a path inside the vault |
 | `Error: Non-interactive environment` | Batch undo ran without `-y/--yes` in a non-TTY environment | Add `--yes` or automate confirmation |
 | `Error: <path> has malformed frontmatter` | Frontmatter cannot be parsed | Fix YAML syntax or leave the note unchanged |
@@ -403,14 +307,6 @@ Corrupted or unreadable session data does not prevent undo from processing reada
 
 Use `palee session` and `palee validate` to diagnose session issues separately from undo.
 
-**Section sources**
-- [adopt-undo.ts:501-850](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts#L501-L850)
-- [adopt-undo.ts:851-1156](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts#L851-L1156)
-- [sessions.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L200)
-- [sessions.ts:201-279](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L201-L279)
-- [cli-adopt-undo.test.ts:201-500](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-undo.test.ts#L201-L500)
-- [cli-adopt-undo-disclosure.test.ts:201-359](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-undo-disclosure.test.ts#L201-L359)
-
 ## Conclusion
 `palee adopt --undo` is a narrowly scoped reversal tool. It removes only PALEE-owned frontmatter, preserves user-authored content, warns about comment loss tied to removed keys, and refuses to guess ownership of ambiguous keys like `title`. Its safety comes from three layers:
 
@@ -429,11 +325,6 @@ For mass adoption operations, the recommended workflow is:
 7. Run undo with `--yes` only after reviewing the plan.
 8. Check derived-view warnings and run `palee validate`.
 
-**Section sources**
-- [0022-adoption-contracts.md:1-77](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0022-adoption-contracts.md#L1-L77)
-- [cli-adopt-undo.test.ts:201-500](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-undo.test.ts#L201-L500)
-- [cli-adopt-undo-disclosure.test.ts:201-359](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-undo-disclosure.test.ts#L201-L359)
-
 ## Appendices
 
 ### Practical Scenarios
@@ -444,7 +335,7 @@ For mass adoption operations, the recommended workflow is:
 | Reverting bulk adoption mistakes | Undo strips owned keys from matching notes and leaves authored content | Use dry-run first, then confirm with `--yes` |
 | Interrupted undo operation | Rollback journal restores undo output where possible | Inspect unrestored notes and rerun undo |
 | Recovering from failed adoptions | Undo restores pre-adoption PALEE metadata | Validate notes and sessions after undo |
-| Partial recovery after interrupted operations | Only notes whose original content still matches the journal are restored | Treat conflicts as evidence of concurrent modification |
+| Partial recovery after interrupted operations | Only notes that still hold exactly what the undo run wrote are restored | Treat conflicts as evidence of concurrent modification |
 
 ### Best Practices for Mass Adoption and Undo
 
@@ -456,8 +347,3 @@ For mass adoption operations, the recommended workflow is:
 - Keep session management separate from topic note editing.
 - Treat OCC conflicts as signals to stop and re-plan, not retry blindly.
 - Preserve backups or version-control snapshots before large-scale operations.
-
-**Section sources**
-- [adopt-undo.ts:501-850](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts#L501-L850)
-- [adopt-undo.ts:851-1156](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts#L851-L1156)
-- [cli-adopt-undo-disclosure.test.ts:201-359](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-undo-disclosure.test.ts#L201-L359)

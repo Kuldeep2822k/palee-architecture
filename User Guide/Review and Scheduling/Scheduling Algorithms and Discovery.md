@@ -28,7 +28,7 @@
 ## Introduction
 This document explains how PALEE schedules topic reviews and discovers topics ready for study. It covers two tightly coupled parts:
 
-- The **SM-2 spaced repetition engine**, which updates a topic’s review state after an assessment and computes the next due date.
+- The **SM-2 spaced repetition engine**, which updates a topic’s review state after a review and computes the next due date.
 - The **topic discovery system**, which finds actionable topics, applies prerequisite gating through the dependency graph, and orders them for the `palee next` command.
 
 The implementation is layered: CLI commands read vault data, application logic selects due or never-reviewed topics and filters them through readiness rules, and the engine performs pure scheduling math and graph analysis.
@@ -63,22 +63,6 @@ graph TB
   GetNext --> Vault
 ```
 
-**Diagram sources**
-- [next.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L100)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [dependency.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L120)
-- [mastery.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L60)
-- [sm2.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L120)
-
-**Section sources**
-- [next.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L100)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [dependency.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L120)
-- [mastery.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L60)
-- [sm2.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L120)
-
 ## Core Components
 
 ### SM-2 Spaced Repetition Engine
@@ -90,16 +74,16 @@ The SM-2 engine maintains per-topic review state:
 - `lapses`: count of failed reviews on previously learned topics.
 - `last_quality`: most recent quality rating.
 
-The core processing function validates stored values defensively because raw frontmatter can contain unexpected types. It then branches by the quality rating:
+The core processing function validates stored values defensively because raw frontmatter can contain unexpected types. For any quality >= 3 it then branches on the **resulting** repetition count, not on the quality value:
 
-| Quality Range | Review Outcome | Repetition | Interval Rule | Lapse Handling | Ease Factor |
-|---|---|---|---|---|---|
-| 0–2 | Failure | Reset to 0 | Set to 1 day | Increment only if `repetition > 0` | Decreased by canonical delta, clamped to 1.3 |
-| 3 | First success | Increments to 1 | Set to 1 day | No change | Increased by delta, clamped to 1.3 |
-| 4 | Second success | Increments to 2 | Set to 6 days | No change | Increased by delta, clamped to 1.3 |
-| 5+ | Subsequent success | Increments | `round(interval_days × ease_factor)` | No change | Increased by delta, clamped to 1.3 |
+| Case | Repetition | Interval Rule | Lapse Handling |
+|---|---|---|---|
+| Failure (quality 0–2) | Reset to 0 | Set to 1 day | Increment only if `repetition > 0` |
+| Success, resulting repetition = 1 | 1 | Set to 1 day | No change |
+| Success, resulting repetition = 2 | 2 | Set to 6 days | No change |
+| Success, resulting repetition > 2 | Increments | `round(interval_days × ease_factor)` | No change |
 
-The ease-factor delta follows the canonical SuperMemo formula. A perfect response increases it slightly, hesitation has no effect, and incorrect responses reduce it more aggressively.
+The ease-factor delta is per quality (clamped to a minimum ease factor of 1.3): quality 0: -0.80, 1: -0.54, 2: -0.32, 3: -0.14, 4: 0.00 (unchanged), 5: +0.10. A perfect response increases it slightly, hesitation (quality 4) has no effect, and incorrect responses reduce it more aggressively.
 
 Important safety properties include:
 
@@ -107,13 +91,6 @@ Important safety properties include:
 - Intervals are capped at 36,500 days so long-lived notes do not produce corrupt due dates.
 - Date computation uses local calendar days instead of UTC millisecond arithmetic, avoiding daylight saving ambiguity.
 - Extreme inputs such as strings, booleans, NaN, Infinity, negative counts, fractional counts, and safe-integer boundary values are rejected with field-specific diagnostics.
-
-**Section sources**
-- [sm2.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L120)
-- [sm2.ts:121-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L121-L200)
-- [sm2.ts:201-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L201-L306)
-- [engine-sm2.test.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L1-L120)
-- [engine-sm2.test.ts:201-442](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L201-L442)
 
 ### Topic Discovery and Readiness Gate
 The discovery layer answers one question: which topics should the learner study now?
@@ -138,12 +115,6 @@ Before being returned, candidates pass the prerequisite gate:
 
 The result includes both actionable topics and blocked topics with human-readable waiting-on reasons.
 
-**Section sources**
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [mastery.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L60)
-- [application-get-next-topics.test.ts:1-77](https://github.com/Kuldeep2822k/cli/blob/main/test/application-get-next-topics.test.ts#L1-L77)
-
 ### CLI Integration for `palee next`
 The CLI command loads configuration, validates the vault path, loads topics, calls the application layer, filters out archived topics, and outputs either human-readable text or machine-readable JSON.
 
@@ -165,11 +136,6 @@ Command-line parameters affecting scheduling behavior:
 | Vault configuration | Determines which vault is scanned |
 
 The command does not itself compute intervals; it reads already-scheduled review state and lets the engine update it during assessments.
-
-**Section sources**
-- [next.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L200)
-- [next.ts:201-227](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L201-L227)
-- [cli-next-plan-prerequisite-gating.test.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-next-plan-prerequisite-gating.test.ts#L1-L120)
 
 ## Architecture Overview
 The end-to-end flow for discovering the next topic is:
@@ -195,17 +161,10 @@ sequenceDiagram
     CLI-->>User: Next topic or blocked explanation
 ```
 
-**Diagram sources**
-- [next.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L100)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [dependency.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L120)
-- [mastery.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L60)
-
 ## Detailed Component Analysis
 
 ### SM-2 Review Processing Flow
-After a learner completes an assessment, the review pipeline computes new review state and the next due date.
+After a learner completes a review, the review pipeline computes new review state and the next due date.
 
 ```mermaid
 flowchart TD
@@ -223,28 +182,18 @@ flowchart TD
   CapInterval --> Return(["Return updated review state"])
 ```
 
-**Diagram sources**
-- [sm2.ts:60-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L60-L200)
-- [sm2.ts:201-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L201-L306)
-
 #### Example Scenarios
 
 | Scenario | Inputs | Output Behavior |
 |---|---|---|
-| New topic, correct answer | `repetition = 0`, quality 4 | Repetition becomes 1, interval stays 1 day, ease factor increases slightly |
+| New topic, correct answer | `repetition = 0`, quality 4 | Repetition becomes 1, interval stays 1 day, ease factor unchanged (quality 4 delta is 0.00) |
 | New topic, incorrect answer | `repetition = 0`, quality 2 | Repetition resets to 0, interval becomes 1 day, lapse is not counted because there was no prior repetition |
-| Established topic, good answer | `repetition = 5`, interval 15, ease 2.5, quality 4 | Repetition becomes 6, interval becomes `round(15 × 2.5) = 37`, ease factor increases |
+| Established topic, good answer | `repetition = 5`, interval 15, ease 2.5, quality 4 | Repetition becomes 6, interval becomes `round(15 × 2.5) = 37`, ease factor unchanged (quality 4 delta is 0.00) |
 | Established topic, blackout | `repetition = 5`, interval 37, ease 2.5, quality 0 | Repetition resets to 0, interval becomes 1 day, lapse increments, ease factor drops toward 1.3 |
 | Near-cap interval | Interval already at 36,500 days | Interval remains capped at 36,500 days |
 | Corrupt stored value | String or boolean in `interval_days` | Throws with a field-specific diagnostic instead of writing NaN |
 
 These scenarios are validated by tests covering integer bounds, type safety, overflow protection, cap saturation, and calendar-day due-date computation.
-
-**Section sources**
-- [sm2.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L120)
-- [sm2.ts:121-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L121-L306)
-- [engine-sm2.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L1-L200)
-- [engine-sm2.test.ts:201-442](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L201-L442)
 
 ### Topic Discovery and Priority Ordering
 Discovery combines due-state classification with prerequisite gating.
@@ -255,16 +204,11 @@ flowchart TD
   Normalize --> Partition["Partition into never-reviewed and elapsed due reviews"]
   Partition --> Order["Order: never-reviewed first, then oldest due date"]
   Order --> BuildGraph["Build full topic graph for gating"]
-  BuildGraph --> Quarantine["Quarantine cyclic topics"]
+  BuildGraph --> Quarantine["Exclude cyclic topics from the blocked set (they remain actionable)"]
   Quarantine --> Gate["Apply prerequisite gate"]
   Gate --> FilterArchived["Exclude archived topics"]
   FilterArchived --> Result["Return actionable and blocked topics"]
 ```
-
-**Diagram sources**
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [dependency.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L120)
 
 #### Due-Date Calculation Rules
 - Valid past or present due dates are eligible as “due.”
@@ -280,11 +224,6 @@ flowchart TD
 - Advisory edges and missing references are handled by the dependency predicate.
 - Cyclic topics are not hidden by the gate; their scheduling semantics are undefined and are surfaced separately.
 
-**Section sources**
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [cli-next-plan-prerequisite-gating.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-next-plan-prerequisite-gating.test.ts#L1-L200)
-
 ### Mastery Influence on Scheduling
 Mastery affects scheduling indirectly through prerequisite gating, not directly through SM-2 intervals.
 
@@ -295,10 +234,6 @@ Mastery affects scheduling indirectly through prerequisite gating, not directly 
 - The SM-2 engine continues to adjust intervals independently based on review quality, ease factor, and repetition history.
 
 This separation means mastery controls *access* to dependent topics, while SM-2 controls *timing* of repeated exposure to the same topic.
-
-**Section sources**
-- [mastery.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L60)
-- [get-next-topics.ts:80-160](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L80-L160)
 
 ### CLI Contract and Parameters
 The `next` command is the learner-facing entry point for discovery.
@@ -312,11 +247,6 @@ The `next` command is the learner-facing entry point for discovery.
 | Empty vault | Shows onboarding guidance | Empty result with zero totals |
 
 The JSON contract includes additive keys for gating state, preserving backward compatibility while exposing whether the system is ready, blocked, or quiet.
-
-**Section sources**
-- [next.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L200)
-- [next.ts:201-227](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L201-L227)
-- [cli-next-plan-prerequisite-gating.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-next-plan-prerequisite-gating.test.ts#L1-L200)
 
 ## Dependency Analysis
 The scheduling subsystem has clear directional dependencies:
@@ -342,20 +272,6 @@ Coupling characteristics:
 - External integration points include vault loading, frontmatter parsing, session recording, and CLI configuration.
 
 Potential circular risks are avoided by keeping scheduling math in the engine, decision logic in the application layer, and presentation in the CLI.
-
-**Diagram sources**
-- [next.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L100)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [dependency.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L120)
-- [mastery.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L60)
-- [sm2.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L120)
-
-**Section sources**
-- [next.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L100)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [dependency.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L120)
-- [sm2.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L120)
 
 ## Performance Considerations
 
@@ -390,11 +306,6 @@ For large vaults, the bottleneck is usually the dependency graph analysis, espec
 
 These choices make the system suitable for thousands of topics, provided the vault’s dependency graph is not extremely dense with many overlapping cycles.
 
-**Section sources**
-- [dependency.ts:120-450](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L120-L450)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-
 ## Troubleshooting Guide
 
 ### Common Scheduling Issues
@@ -415,23 +326,14 @@ These choices make the system suitable for thousands of topics, provided the vau
 | Topic with no prior reviews | Treated as actionable immediately and prioritized over dated due topics |
 | Invalid or malformed `due_at` | Treated as never reviewed |
 | Future-due topic | Excluded from actionable list |
-| Early review | Allowed; SM-2 processes the assessment and computes a new interval |
+| Early review | Allowed; SM-2 processes the review and computes a new interval |
 | Missed deadline | Topic remains due until reviewed; discovery includes all elapsed due dates |
 | Circular dependency | Topics on or downstream of a cycle are not silently withheld by the readiness gate; they appear in quarantine reporting |
 | Self-dependency | Detected as a one-node cycle in the dependency graph |
 | Extremely high mastery score | Treated as mastered for prerequisite gating |
-| Negative or fractional mastery input | Normalized and clamped to `[0.0, 1.0]` before calculations |
+| Negative or fractional mastery input | Normalized and clamped to `[0.0, 1.0]` during mastery computation only; gating paths compare the raw stored `topic_mastery ?? 0` with no clamp |
 | Overflowing interval or ease factor | Computed non-finite values throw rather than persisting invalid state |
 | Safe-integer boundary repetition or lapse | Explicitly checked to prevent silent no-op increments |
-
-**Section sources**
-- [sm2.ts:60-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L60-L306)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [dependency.ts:1-450](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L450)
-- [engine-sm2.test.ts:1-442](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L1-L442)
-- [application-get-next-topics.test.ts:1-77](https://github.com/Kuldeep2822k/cli/blob/main/test/application-get-next-topics.test.ts#L1-L77)
-- [cli-next-plan-prerequisite-gating.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-next-plan-prerequisite-gating.test.ts#L1-L200)
 
 ## Conclusion
 PALEE’s scheduling system separates concerns cleanly:

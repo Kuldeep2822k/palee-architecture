@@ -72,23 +72,6 @@ graph TB
   CAAC --> AC
 ```
 
-**Diagram sources**
-- [auto-chain.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L200)
-- [prereq-text.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L120)
-- [wikilink.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L1-L120)
-- [0011-tiered-auto-chain.md:1-99](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0011-tiered-auto-chain.md#L1-L99)
-- [0012-declared-prerequisites.md:1-82](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0012-declared-prerequisites.md#L1-L82)
-- [engine-auto-chain.test.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-auto-chain.test.ts#L1-L60)
-- [engine-prereq-text.test.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-prereq-text.test.ts#L1-L40)
-- [cli-adopt-autochain.test.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-autochain.test.ts#L1-L60)
-
-**Section sources**
-- [auto-chain.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L200)
-- [prereq-text.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L120)
-- [wikilink.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L1-L120)
-- [0011-tiered-auto-chain.md:1-99](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0011-tiered-auto-chain.md#L1-L99)
-- [0012-declared-prerequisites.md:1-82](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0012-declared-prerequisites.md#L1-L82)
-
 ## Core Components
 The auto-chaining pipeline has four main responsibilities:
 
@@ -109,16 +92,6 @@ flowchart TD
   ValidateGraph --> CommitOrReject(["Commit Chain or Reject"])
 ```
 
-**Diagram sources**
-- [auto-chain.ts:201-400](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L201-L400)
-- [prereq-text.ts:201-317](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L201-L317)
-- [wikilink.ts:201-510](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L201-L510)
-
-**Section sources**
-- [auto-chain.ts:201-575](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L201-L575)
-- [prereq-text.ts:201-317](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L201-L317)
-- [wikilink.ts:201-510](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L201-L510)
-
 ## Architecture Overview
 Auto-chaining combines two design decisions:
 
@@ -130,16 +103,12 @@ flowchart LR
   Hygiene["Hygiene Plan<br/>Numbered Tree"] --> Merge["Merge with TOC Tier"]
   TOC["TOC Enumeration<br/>README/SUMMARY"] --> Decision{"In Numbered Tree?"}
   Decision -->|Yes| Drop["Drop TOC Edge<br/>Numbering Wins"]
+  Drop --> Dropped(["Terminal outcome: no TOC edge written"])
   Decision -->|No| PlanToc["Plan TOC Chain<br/>Deduplicate / Group / Resort"]
   PlanToc --> Replace["Replace Inferred Predecessor<br/>Where Chainable"]
-  Merge --> Merge
   Replace --> Merge
   Merge --> Final["Final Depends-On Edges"]
 ```
-
-**Diagram sources**
-- [0011-tiered-auto-chain.md:1-99](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0011-tiered-auto-chain.md#L1-L99)
-- [auto-chain.ts:201-400](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L201-L400)
 
 The architecture also separates parsing from resolution:
 
@@ -165,22 +134,39 @@ sequenceDiagram
   Validator-->>User: Accept or reject chain
 ```
 
-**Diagram sources**
-- [auto-chain.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L200)
-- [prereq-text.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L200)
-- [wikilink.ts:201-510](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L201-L510)
-
 ## Detailed Component Analysis
 
 ### Numbered-Tree Chaining and Lesson Ordering
-The core planner groups notes by immediate parent directory and orders them deterministically:
+The core planner (`planAutoChain`) groups notes by immediate parent directory and orders them deterministically. Directory ordering and within-directory file ordering are separate comparisons:
+
+Directory ordering (`compareDirs` / `dirSortKey`):
 
 - Directories are compared segment by segment.
-- Numeric prefixes come first and sort by number.
-- Phase keywords follow a fixed pedagogical order.
+- Each directory segment is ordered by numeric prefix, then by segment name only.
+
+Within-directory file ordering (`compareLessonOrder` / `lessonRank`):
+
+- Numeric-prefixed files come first and sort by number.
+- Phase keywords (`deep-dive`, `lab`, `exam`) rank files via `lessonRank`, in that fixed pedagogical order.
 - Remaining basenames sort alphabetically.
+
+Base-plan linking — the following two bullets describe the pre-hygiene base plan produced by raw `planAutoChain` only, not the shipped adopt path:
+
 - Each note points to the previous note in its group.
 - The first note of each non-first group bridges to the last note of the previous group.
+
+#### Tier-0 hygiene stage (shipped adopt path)
+
+The shipped adopt path does not use the raw base plan directly. `planAutoChainWithHygiene` first classifies every note with `classifyNoteForChain` from `tier0-hygiene.ts`, then refines the base plan:
+
+- Excluded notes get no edge at all and appear nowhere in the plan.
+- Leaves attach to the nearest preceding backbone note: a leaf's predecessor is that backbone note, and a leaf never gates or becomes the predecessor spine for later notes.
+- A backbone note's predecessor is the previous backbone note, subject to the cross-group bridge rule below.
+- The cross-group bridge uses the previous group's last non-homework lesson, and is refused when `dirTransitionJustified` fails — unnumbered sibling directories therefore start their own chain instead of inheriting a bridge edge.
+- The vault-root group is hoisted to the front of the plan.
+- Within each directory, notes are re-sorted by `compareLessonOrderTier0` (see the homework-placement row below).
+
+Per-rule counters (B6): `HygieneChainPlan.counts.byReason` is a `Tier0RuleCounts` value — `Record<Tier0SkipReason, number>` — holding the totals the CLI prints verbatim on the dry-run and confirmation screens. The five `Tier0SkipReason` values are `repo-meta`, `translation`, `template`, `phase-subtree`, and `invalid-palee-id`.
 
 ```mermaid
 flowchart TD
@@ -192,9 +178,6 @@ flowchart TD
   Bridge --> Plan["ChainPlan"]
 ```
 
-**Diagram sources**
-- [auto-chain.ts:201-400](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L201-L400)
-
 Key implementation details:
 
 | Feature | Behavior |
@@ -204,12 +187,7 @@ Key implementation details:
 | Year rejection | `2024-recap` is not lesson 2024 |
 | Phase keywords | Fixed order: deep-dive, lab, exam |
 | Alphabetical fallback | Flagged through `hasUnnumbered` and detailed per-note reporting |
-| Homework placement | Assignment, quiz, and solution are placed last within a directory |
-
-**Section sources**
-- [auto-chain.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L200)
-- [auto-chain.ts:201-400](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L201-L400)
-- [engine-auto-chain.test.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-auto-chain.test.ts#L1-L120)
+| Homework placement | Homework-last is a property of the Tier-0 comparator only: in `compareLessonOrderTier0`, assignment, quiz, and solution are placed last within a directory. In the shipped `compareLessonOrder` used by `planAutoChain`, homework names are rank 2 and sort alphabetically with the other unranked files. |
 
 ### Wikilink Parsing and Text-Based Prerequisite Detection
 Wikilink parsing is fs-free and focused on extracting targets from text. It supports:
@@ -241,9 +219,6 @@ flowchart TD
   Dedup --> References["Reference Candidates"]
 ```
 
-**Diagram sources**
-- [prereq-text.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L200)
-
 Cue classification:
 
 | Cue | Example meaning | Result |
@@ -251,11 +226,6 @@ Cue classification:
 | Negation | Denies the gate it names | Item skipped |
 | Reversal | States the link is the dependent, not the prerequisite | Item skipped |
 | Disjunction | Offers a choice the engine cannot model as AND | Item skipped |
-
-**Section sources**
-- [auto-chain.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L200)
-- [prereq-text.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L200)
-- [engine-prereq-text.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-prereq-text.test.ts#L1-L200)
 
 ### Declared-Prerequisite Processing Pipeline
 The declared-prerequisite pipeline transforms raw note text into resolvable references:
@@ -285,9 +255,6 @@ flowchart TD
   Resolve --> Outcome["Resolved or Skipped"]
 ```
 
-**Diagram sources**
-- [prereq-text.ts:201-317](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L201-L317)
-
 Resolution outcomes:
 
 | Outcome | Meaning | Effect |
@@ -295,10 +262,6 @@ Resolution outcomes:
 | Missing | Name matches no target | Edge skipped |
 | Ambiguous | Name matches multiple targets | Edge skipped |
 | Resolved | Exactly one unique target | Edge added |
-
-**Section sources**
-- [prereq-text.ts:201-317](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L201-L317)
-- [0012-declared-prerequisites.md:1-82](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0012-declared-prerequisites.md#L1-L82)
 
 ### Wikilink Resolution and Vault Safety
 The storage layer resolves parsed wikilinks against the vault with a strict safety policy:
@@ -332,9 +295,6 @@ flowchart TD
   Ambig -->|No| Return
 ```
 
-**Diagram sources**
-- [wikilink.ts:201-510](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L201-L510)
-
 Important safety guarantees:
 
 - Unsafe paths cannot fall through to basename matching.
@@ -342,10 +302,6 @@ Important safety guarantees:
 - Hidden namespaces and invisible paths are rejected.
 - Casing and Unicode normalization preserve topic identity.
 - Ambiguity fails closed instead of guessing.
-
-**Section sources**
-- [wikilink.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L1-L200)
-- [wikilink.ts:201-510](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L201-L510)
 
 ### Conflict Resolution Between Automatic Discovery and Explicit Declarations
 Conflict handling follows a clear precedence rule:
@@ -371,14 +327,6 @@ flowchart TD
   Advisory --> FinalEdge
 ```
 
-**Diagram sources**
-- [0011-tiered-auto-chain.md:1-99](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0011-tiered-auto-chain.md#L1-L99)
-- [0012-declared-prerequisites.md:1-82](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0012-declared-prerequisites.md#L1-L82)
-
-**Section sources**
-- [0011-tiered-auto-chain.md:1-99](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0011-tiered-auto-chain.md#L1-L99)
-- [0012-declared-prerequisites.md:1-82](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0012-declared-prerequisites.md#L1-L82)
-
 ### Validation Rules Preventing Invalid Chains
 The system enforces several invariants before committing chains:
 
@@ -393,9 +341,6 @@ The system enforces several invariants before committing chains:
 
 CLI integration tests confirm that pre-existing vault cycles block commits with a specific exit status and zero writes.
 
-**Section sources**
-- [cli-adopt-autochain.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-autochain.test.ts#L1-L200)
-
 ### Examples of Auto-Chaining Scenarios
 
 #### Scenario 1: Numbered Modules with a Cross-Module Bridge
@@ -407,9 +352,6 @@ flowchart LR
   B --> C["02-linux/01-processes.md"]
   C --> D["02-linux/lab-01-triage.md"]
 ```
-
-**Diagram sources**
-- [engine-auto-chain.test.ts:60-140](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-auto-chain.test.ts#L60-L140)
 
 Expected outcome:
 
@@ -426,9 +368,6 @@ flowchart LR
   R2 --> R3["Roadmap Topic 3"]
 ```
 
-**Diagram sources**
-- [wikilink.ts:201-510](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L201-L510)
-
 #### Scenario 3: Hedged Prerequisites
 A prerequisites section contains both a real requirement and a hedged statement.
 
@@ -441,9 +380,6 @@ Outcome:
 
 - Real link becomes an edge.
 - Hedged item contributes nothing.
-
-**Section sources**
-- [engine-prereq-text.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-prereq-text.test.ts#L1-L200)
 
 ### Edge Cases in Text Parsing
 
@@ -459,9 +395,6 @@ Outcome:
 | Plain bullet without a link | Contributes no reference |
 | Sentence describing what a lesson involves | Does not declare a prerequisite |
 
-**Section sources**
-- [engine-prereq-text.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-prereq-text.test.ts#L1-L200)
-
 ### Troubleshooting Common Auto-Discovery Issues
 
 | Symptom | Likely Cause | Resolution |
@@ -474,15 +407,11 @@ Outcome:
 | Chain conflicts with manual dependencies | Inferred edges were applied before explicit declarations | Ensure explicit declarations take precedence; declared edges replace inferred ones |
 | CLI reports false alphabetical ordering | Same-rank filenames decided order inside a directory | Keep this edge if the order is intentional; report it explicitly |
 
-**Section sources**
-- [engine-auto-chain.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-auto-chain.test.ts#L1-L200)
-- [engine-prereq-text.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-prereq-text.test.ts#L1-L200)
-- [cli-adopt-autochain.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-autochain.test.ts#L1-L200)
-
 ## Dependency Analysis
 The components have clear boundaries:
 
 - `auto-chain.ts` owns chain planning, lesson ranking, and wikilink parsing at the engine level.
+- `auto-chain.ts` imports `classifyNoteForChain` from `tier0-hygiene.ts`: the hygiene planner (`planAutoChainWithHygiene`) classifies every note through it before refining the base plan.
 - `prereq-text.ts` owns prerequisites section scanning and reference resolution contracts.
 - `wikilink.ts` owns vault-safe resolution and roadmap chaining.
 - `pattern-matcher.ts` provides glob pattern compilation and matching used by CLI filters, not directly by auto-chaining but relevant to how notes are selected before chaining.
@@ -490,15 +419,10 @@ The components have clear boundaries:
 ```mermaid
 graph LR
   AutoChain["auto-chain.ts"] --> PrereqText["prereq-text.ts"]
+  AutoChain --> Tier0Hygiene["tier0-hygiene.ts"]
   AutoChain --> Wikilink["wikilink.ts"]
   PatternMatcher["pattern-matcher.ts"] -. "CLI filtering" .- AutoChain
 ```
-
-**Diagram sources**
-- [auto-chain.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L200)
-- [prereq-text.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L120)
-- [wikilink.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L1-L120)
-- [pattern-matcher.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/pattern-matcher.ts#L1-L120)
 
 Coupling observations:
 
@@ -507,24 +431,16 @@ Coupling observations:
 - ADRs document design decisions that constrain implementation choices.
 - Tests pin expected parsing, ordering, and CLI behavior.
 
-**Section sources**
-- [auto-chain.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L200)
-- [prereq-text.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L120)
-- [wikilink.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L1-L120)
-- [pattern-matcher.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/pattern-matcher.ts#L1-L120)
-
 ## Performance Considerations
 The auto-chaining system emphasizes predictable, bounded performance:
 
-- Wikilink parsing uses bracket-balance tables to avoid quadratic rescans on pathological content.
+- Wikilink parsing in `extractWikilinks` runs a global regex over the text; for each match it slices the prefix and compares `lastIndexOf('[[)` against `lastIndexOf(']]')` to reject a match nested inside an unclosed `[[` — there is no bracket-balance table.
 - The scan is linear in document size.
 - Basename matching avoids unnecessary filesystem calls when possible.
 - Canonical vault root computation can be hoisted for bulk roadmap resolution.
 - Glob patterns intended for validation are separated from matching to prevent catastrophic backtracking on repeated `.test()` calls.
 
 These properties matter especially for large READMEs, generated indexes, and curricula with many notes.
-
-[No sources needed since this section provides general guidance]
 
 ## Troubleshooting Guide
 Use these checks when auto-discovery behaves unexpectedly:
@@ -537,11 +453,6 @@ Use these checks when auto-discovery behaves unexpectedly:
 6. For CLI failures, check exit codes and dry-run output before any files are modified.
 7. For existing chains, remember that declared prerequisites replace inferred predecessors rather than merging with them.
 
-**Section sources**
-- [cli-adopt-autochain.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-autochain.test.ts#L1-L200)
-- [engine-prereq-text.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-prereq-text.test.ts#L1-L200)
-- [wikilink.ts:201-510](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L201-L510)
-
 ## Conclusion
 The auto-chaining system is designed around trust signals:
 
@@ -551,5 +462,3 @@ The auto-chaining system is designed around trust signals:
 - Pure alphabetical ordering is not trusted for gating.
 
 Its parsing rules favor safety over completeness. Hedged prerequisites, ambiguous names, unsafe paths, and invalid graphs are rejected rather than guessed. This makes auto-discovery reliable for automated workflows while keeping learners from being silently locked out by weak signals.
-
-[No sources needed since this section summarizes without analyzing specific files]

@@ -59,21 +59,8 @@ graph TB
   Collector --> Types
 ```
 
-**Diagram sources**
-- [collect-vault.ts:1-147](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts#L1-L147)
-- [scanner.ts:1-327](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L1-L327)
-- [vault-walker.ts:1-368](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/vault-walker.ts#L1-L368)
-- [loader.ts:1-150](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L150)
-- [sessions.ts:1-279](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L279)
-- [memory.ts:1-400](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1-L400)
-- [types.ts (validation):1-161](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts#L1-L161)
-
-**Section sources**
-- [collect-vault.ts:1-147](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts#L1-L147)
-- [index.ts (storage):1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
-
 ## Core Components
-The collector composes six core responsibilities:
+The collector composes seven core responsibilities:
 
 | Component | Responsibility | Failure Behavior |
 |---|---|---|
@@ -84,15 +71,6 @@ The collector composes six core responsibilities:
 | `loadSessions` | Reads canonical session notes from `.palee/sessions` | Includes unreadable notes with `readError` |
 | `readSessionIndex` | Parses `.palee/index.md` as a rebuildable projection | Classifies as missing, corrupt, or ok |
 | `readHotMemoryForValidation` | Reads `.palee/hot.md` under its state contract | Treats ENOENT as missing; other errors become component read failures |
-
-**Section sources**
-- [collect-vault.ts:1-147](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts#L1-L147)
-- [scanner.ts:1-327](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L1-L327)
-- [vault-walker.ts:1-368](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/vault-walker.ts#L1-L368)
-- [sessions.ts:1-279](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L279)
-- [memory.ts:1-400](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1-L400)
-- [loader.ts:1-150](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L150)
-- [types.ts (validation):1-161](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts#L1-L161)
 
 ## Architecture Overview
 The collector follows a strict single-pass design so that concurrent edits cannot make different parts of validation observe inconsistent vault snapshots.
@@ -124,14 +102,6 @@ sequenceDiagram
     Collector-->>Caller: ValidationContext
 ```
 
-**Diagram sources**
-- [collect-vault.ts:40-147](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts#L40-L147)
-- [scanner.ts:150-327](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L150-L327)
-- [vault-walker.ts:100-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/vault-walker.ts#L100-L200)
-- [loader.ts:1-150](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L150)
-- [sessions.ts:120-279](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L120-L279)
-- [memory.ts:60-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L60-L120)
-
 ### Why Order Matters Under Concurrent Session End
 The collector reads the session index before loading sessions. This ordering closes a race window during a concurrent session completion:
 
@@ -153,10 +123,6 @@ flowchart TD
     AnyIndexRef -->|No| NoFalseWarning["No false unknown-session warning"]
     ReadSessionsSecond --> NoFalseWarning
 ```
-
-**Diagram sources**
-- [collect-vault.ts:90-120](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts#L90-L120)
-- [sessions.ts:201-279](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L201-L279)
 
 ## Detailed Component Analysis
 
@@ -195,14 +161,6 @@ flowchart TD
     Sort --> Return(["Return ScannedNote[]"])
 ```
 
-**Diagram sources**
-- [scanner.ts:150-327](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L150-L327)
-- [vault-walker.ts:100-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/vault-walker.ts#L100-L200)
-
-**Section sources**
-- [scanner.ts:1-327](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L1-L327)
-- [vault-walker.ts:1-368](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/vault-walker.ts#L1-L368)
-
 ### Managed Note Classification
 The managed-note classification system answers the shared question: “Is this note PALEE-controlled?” It is used by multiple validation rules so they can agree on identity, topics, and schema ownership.
 
@@ -231,21 +189,15 @@ classDiagram
         +isTopicNote(fm) boolean
     }
 
-    class PaletteIdentityKeys {
+    class PaleeIdentityKeys {
         <<constant>>
         +PALEE_IDENTITY_KEYS : ["palee_id", "session_id", "memory_id"]
         +TOPIC_IDENTITY_KEY : "palee_id"
         +SESSION_INDEX_TYPE : "session_index"
     }
 
-    ManagedNoteClassification --> PaletteIdentityKeys : "uses"
+    ManagedNoteClassification --> PaleeIdentityKeys : "uses"
 ```
-
-**Diagram sources**
-- [managed-note.ts:1-87](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/managed-note.ts#L1-L87)
-
-**Section sources**
-- [managed-note.ts:1-87](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/managed-note.ts#L1-L87)
 
 ### Raw Notes Versus Normalized Topics
 Not every scanned note becomes a `LoadedTopic`. The relationship is intentionally layered:
@@ -264,16 +216,6 @@ flowchart TD
     Scanned -. retained for reporting .-> Context["ValidationContext.notes"]
     Normalized -. consumed by engine/rules .-> Context
 ```
-
-**Diagram sources**
-- [collect-vault.ts:56-95](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts#L56-L95)
-- [loader.ts:1-150](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L150)
-- [types.ts (validation):60-161](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts#L60-L161)
-
-**Section sources**
-- [collect-vault.ts:56-95](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts#L56-L95)
-- [loader.ts:1-150](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L150)
-- [types.ts (validation):60-161](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts#L60-L161)
 
 ### Memory Subsystem Integration
 The memory subsystem has three related pieces that the collector reads together:
@@ -336,14 +278,6 @@ stateDiagram-v2
     ReadHot --> Ok : "Supported schema"
 ```
 
-**Diagram sources**
-- [sessions.ts:120-279](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L120-L279)
-- [memory.ts:60-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L60-L120)
-
-**Section sources**
-- [sessions.ts:1-279](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L279)
-- [memory.ts:1-400](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1-L400)
-
 ### Concurrency, Locked Files, and Deleted Notes
 The collector treats concurrency as expected, not exceptional. Three categories of transient filesystem state are handled differently:
 
@@ -384,16 +318,6 @@ flowchart TD
     SetFlag --> Provisional["Rules must treat findings as provisional"]
 ```
 
-**Diagram sources**
-- [collect-vault.ts:108-147](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts#L108-L147)
-- [scanner.ts:230-327](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L230-L327)
-- [sessions.ts:120-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L120-L200)
-
-**Section sources**
-- [collect-vault.ts:108-147](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts#L108-L147)
-- [scanner.ts:230-327](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L230-L327)
-- [sessions.ts:120-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L120-L200)
-
 ### Error Collection Strategy
 The collector prefers partial results over total failure. Errors are collected in two layers:
 
@@ -406,11 +330,6 @@ This separation matters because:
 - Component-level errors identify infrastructure gaps such as an unreadable sessions directory, unreadable index, or unreadable hot memory.
 - The `read-failure` rule reports provisional snapshot conditions.
 - Other rules skip unreadable entities while still running against the rest of the vault.
-
-**Section sources**
-- [types.ts (validation):60-161](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts#L60-L161)
-- [sessions.ts:30-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L30-L120)
-- [collect-vault.ts:100-147](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts#L100-L147)
 
 ## Dependency Analysis
 The collector sits above storage and below the validation framework. It imports concrete storage functions and typed contracts rather than importing filesystem APIs directly.
@@ -445,10 +364,6 @@ graph LR
   SIndex --> SSessions
 ```
 
-**Diagram sources**
-- [collect-vault.ts:1-39](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts#L1-L39)
-- [index.ts (storage):1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
-
 ### Coupling and Cohesion
 - `collect-vault.ts` is cohesive around snapshot assembly. It owns read order, error aggregation, and the `readIncomplete` flag.
 - `scanner.ts` is cohesive around per-file scanning and frontmatter parsing.
@@ -458,10 +373,6 @@ graph LR
 - `vault-walker.ts` owns vault traversal and path containment helpers.
 
 There is no circular dependency among these modules. The collector depends downward on storage; storage modules do not depend back on validation.
-
-**Section sources**
-- [collect-vault.ts:1-39](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts#L1-L39)
-- [index.ts (storage):1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
 
 ## Performance Considerations
 The collector is designed for large vaults and repeated scans.
@@ -505,16 +416,6 @@ flowchart TD
     SortedOutput --> Determinism["Deterministic rule output"]
 ```
 
-**Diagram sources**
-- [scanner.ts:230-260](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L230-L260)
-- [loader.ts:20-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L20-L120)
-- [collect-vault.ts:56-75](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts#L56-L75)
-
-**Section sources**
-- [scanner.ts:230-327](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L230-L327)
-- [loader.ts:20-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L20-L120)
-- [collect-vault.ts:56-75](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts#L56-L75)
-
 ## Troubleshooting Guide
 
 ### Symptom: Validation runs on an incomplete snapshot
@@ -528,10 +429,6 @@ flowchart TD
 
 **Expected behavior:** Validation continues with partial results. Rules should treat findings as provisional when `readIncomplete` is true.
 
-**Section sources**
-- [types.ts (validation):80-161](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts#L80-L161)
-- [collect-vault.ts:108-147](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts#L108-L147)
-
 ### Symptom: Unknown-session or missing-dependency warnings appear intermittently
 **Likely cause:** Concurrent write activity during scanning.
 
@@ -542,10 +439,6 @@ flowchart TD
 
 **Recommended action:** Rerun validation after writes settle, or investigate locking behavior in the writer path.
 
-**Section sources**
-- [collect-vault.ts:90-120](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts#L90-L120)
-- [sessions.ts:120-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L120-L200)
-
 ### Symptom: Unclosed frontmatter warnings
 **Likely cause:** A Markdown heading or body content was parsed as YAML because the closing `---` fence is missing.
 
@@ -555,16 +448,10 @@ flowchart TD
 
 **Recommended action:** Close the frontmatter block explicitly or replace a thematic-break `---` with `***`.
 
-**Section sources**
-- [scanner.ts:200-327](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L200-L327)
-
 ### Symptom: Managed-note classification seems inconsistent
 **Likely cause:** Multiple rules previously defined their own identity-key sets.
 
 **Resolution:** Use the shared managed-note predicates in `managed-note.ts`. They centralize eligibility, topic identification, and index-marker handling so all rules agree.
-
-**Section sources**
-- [managed-note.ts:1-87](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/managed-note.ts#L1-L87)
 
 ### Symptom: Hot memory appears missing or invalid
 **Likely cause:** `.palee/hot.md` is absent, malformed, or uses an unsupported schema version.
@@ -575,10 +462,6 @@ flowchart TD
 - `corrupt`: YAML parsing failed.
 - `schema-invalid`: Unsupported `palee_schema`.
 - `ok`: Supported and ready.
-
-**Section sources**
-- [memory.ts:60-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L60-L120)
-- [sessions.ts:250-279](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L250-L279)
 
 ## Conclusion
 The vault collection system is a deliberate composition layer that turns a mutable filesystem into one immutable-looking `ValidationContext`. Its design emphasizes consistency over perfection:

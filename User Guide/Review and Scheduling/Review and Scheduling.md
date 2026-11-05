@@ -65,26 +65,6 @@ graph TB
   GETNEXT --> MASTERY
 ```
 
-**Diagram sources**
-- [next.ts:1-227](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L227)
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-
-**Section sources**
-- [next.ts:1-227](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L227)
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-
 ## Core Components
 - **Next discovery**: `getNextTopics` computes actionable topics by combining never-reviewed notes with elapsed scheduled reviews, then applies prerequisite gating.
 - **Due-date normalization and partitioning**: `normalizeDueDate`, `compareDue`, and `partitionDue` define when a topic is actionable.
@@ -92,14 +72,6 @@ graph TB
 - **Mastery and prerequisites**: Mastery is computed from four pillars with Feynman double-weighted; a threshold of 0.70 gates prerequisite edges.
 - **Assessment updates**: `buildAssessmentUpdate` merges explicit pillar scores over stored values and recomputes mastery without silently clamping corrupt stored data.
 - **Review updates**: `buildReviewUpdate` computes new SM-2 state, next due date, carried pillar scores, updated mastery, and early-review detection.
-
-**Section sources**
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
 
 ## Architecture Overview
 The `palee next` workflow answers “what should I work on now?” while enforcing the prerequisite policy. The `palee review` workflow records recall quality, expands or resets the SM-2 schedule, and persists updated frontmatter.
@@ -133,15 +105,6 @@ sequenceDiagram
   ReviewCli-->>User: Confirmation, next interval, due date, warnings
 ```
 
-**Diagram sources**
-- [next.ts:1-227](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L227)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-
 ## Detailed Component Analysis
 
 ### Next Command and Topic Discovery
@@ -167,17 +130,6 @@ flowchart TD
   CheckBlocked -->|Yes| OutputBlocked["Explain prerequisites"]
   CheckBlocked -->|No| OutputNothing["Report nothing due"]
 ```
-
-**Diagram sources**
-- [next.ts:1-227](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L227)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-
-**Section sources**
-- [next.ts:1-227](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L227)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [0020-readiness-and-scheduling-contracts.md:1-68](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0020-readiness-and-scheduling-contracts.md#L1-L68)
 
 ### Prerequisite Gating and Learning Progression
 Prerequisite gating is centralized in `findPrerequisiteBlocked`. A topic is blocked only when:
@@ -213,14 +165,6 @@ flowchart TD
   Continue --> Exit(["Return blocked map"])
 ```
 
-**Diagram sources**
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-
-**Section sources**
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [0020-readiness-and-scheduling-contracts.md:1-68](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0020-readiness-and-scheduling-contracts.md#L1-L68)
-
 ### SM-2 Spaced Repetition Engine
 SM-2 drives review frequency through four state fields:
 - Ease factor: increases or decreases based on recall quality.
@@ -250,12 +194,6 @@ flowchart TD
   ClampEase --> RoundEase["Round ease factor to 4 decimals"]
   RoundEase --> ReturnState(["Return updated review state"])
 ```
-
-**Diagram sources**
-- [sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-
-**Section sources**
-- [sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
 
 ### Review Recording Workflow
 The review command validates the quality rating, resolves the target topic, protects against concurrent writes, builds SM-2 updates, and persists them atomically. It also detects early reviews and provides guidance when SM-2 state is corrupted.
@@ -288,15 +226,6 @@ sequenceDiagram
   CLI-->>CLI: Print confirmation and warnings
 ```
 
-**Diagram sources**
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-
-**Section sources**
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-
 ### Assessment and Mastery Model
 Mastery determines which prerequisite chains open. PALEE uses a four-pillar model:
 - Conceptual understanding
@@ -327,16 +256,6 @@ flowchart TD
   Updates --> Result(["Return AssessmentUpdate"])
 ```
 
-**Diagram sources**
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [0021-assessment-surface.md:1-86](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0021-assessment-surface.md#L1-L86)
-
-**Section sources**
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [0021-assessment-surface.md:1-86](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0021-assessment-surface.md#L1-L86)
-
 ### Priority Ordering and Urgency
 Priority is defined by two factors:
 1. **Urgency**: Never-reviewed topics are treated as actionable alongside elapsed scheduled reviews. Among scheduled topics, older due dates come first.
@@ -347,11 +266,6 @@ The ordering contract is:
 - Equal or both-null due dates preserve stability.
 - Non-null due dates sort by ascending timestamp.
 - Archived topics are filtered after discovery so they never compete for the next slot.
-
-**Section sources**
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [next.ts:1-227](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L227)
 
 ### Handling Early Reviews and Missed Reviews
 Early reviews:
@@ -365,11 +279,6 @@ Missed reviews:
 - If no topic is eligible after prerequisite filtering, `next` reports either blocked prerequisites or nothing due.
 - Repeated missed reviews accumulate in the queue until reviewed; each review adjusts ease and interval according to SM-2 rules.
 
-**Section sources**
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-
 ### Custom Review Intervals and Manual Scheduling Overrides
 The implementation does not expose a general-purpose API for arbitrary custom review intervals outside normal SM-2 scheduling. Instead:
 - `interval_days` and `ease_factor` are persisted frontmatter fields that influence future SM-2 computations.
@@ -381,11 +290,6 @@ Therefore, manual overrides should be understood as editing stored SM-2 state ra
 2. Use validation tools to identify and repair invalid values.
 3. Record a legitimate review to let SM-2 adjust the schedule normally.
 
-**Section sources**
-- [sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-
 ### Integration with Daily Planning Tools
 The documentation indicates that `palee plan` and `palee next` answer the same question about what to study now. The readiness and scheduling contracts ensure both commands enforce the same prerequisite gate, so planning outputs and immediate next-topic recommendations stay consistent.
 
@@ -395,10 +299,6 @@ For external daily planning tools, the machine-readable JSON output from `next` 
 - `due_count` and `total_topics`: summary counts.
 - `blocked`: prerequisite blockers with reasons.
 - Extended mode may include `due_topics` with per-topic metadata.
-
-**Section sources**
-- [next.ts:1-227](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L227)
-- [0020-readiness-and-scheduling-contracts.md:1-68](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0020-readiness-and-scheduling-contracts.md#L1-L68)
 
 ## Dependency Analysis
 The review and scheduling subsystem has clear boundaries:
@@ -425,25 +325,6 @@ Potential risks:
 - Read models share `partitionDue` and the prerequisite gate instead of re-deriving readiness rules, reducing drift risk.
 - Archived topic handling and cycle quarantine are coordinated through explicit decisions documented in the ADRs.
 
-**Diagram sources**
-- [next.ts:1-227](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L227)
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-
-**Section sources**
-- [next.ts:1-227](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L227)
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [0020-readiness-and-scheduling-contracts.md:1-68](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0020-readiness-and-scheduling-contracts.md#L1-L68)
-
 ## Performance Considerations
 Large review sets introduce several costs:
 - Loading all topics from the vault.
@@ -466,8 +347,6 @@ Operational recommendations:
 - Fix invalid SM-2 state promptly; corrupted fields cause validation failures during review.
 - Use JSON mode for tooling integrations to reduce text-processing overhead.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 
 Common issues and resolutions:
@@ -482,15 +361,6 @@ Common issues and resolutions:
 | Assessment refuses to write | Corrupt stored pillar value or ambiguous topic ID | Fix the stored pillar or supply the exact `palee_id` and required pillar flags |
 | Planned availability differs from expected | Cycle quarantine or prerequisite gating changed readiness | Check cycle quarantine and whether mastering the assessed topic unlocks or hides dependents |
 
-**Section sources**
-- [next.ts:1-227](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L227)
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-- [0020-readiness-and-scheduling-contracts.md:1-68](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0020-readiness-and-scheduling-contracts.md#L1-L68)
-- [0021-assessment-surface.md:1-86](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0021-assessment-surface.md#L1-L86)
-
 ## Conclusion
 PALEE’s review and scheduling system combines SM-2 spaced repetition with prerequisite gating and a four-pillar mastery model. The `next` command surfaces urgent, schedulable, and prerequisite-ready topics, while `review` records recall quality and updates the schedule. Mastery derived from conceptual, practical, debugging, and Feynman pillars controls learning progression, and assessment updates provide the mechanism to open prerequisite gates safely.
 
@@ -501,5 +371,3 @@ For efficient study sessions:
 - Handle early and missed reviews intentionally.
 - Use JSON output for automation and keep SM-2 state valid.
 - Leverage assessment updates to unlock learning paths rather than bypassing prerequisites.
-
-[No sources needed since this section summarizes without analyzing specific files]

@@ -66,24 +66,6 @@ graph TB
     Tests --> MasterySummary
 ```
 
-**Diagram sources**
-- [dashboard.ts:1-217](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L217)
-- [progress.ts:1-316](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L316)
-- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [due-topics.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts)
-- [get-next-topics.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts)
-- [loader.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts)
-- [02-3-reporting-commands.md:1-435](https://github.com/Kuldeep2822k/cli/blob/main/docs/02-3-reporting-commands.md#L1-L435)
-- [cli-json-output.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-json-output.test.ts#L1-L200)
-
-**Section sources**
-- [dashboard.ts:1-217](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L217)
-- [progress.ts:1-316](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L316)
-- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [02-3-reporting-commands.md:1-435](https://github.com/Kuldeep2822k/cli/blob/main/docs/02-3-reporting-commands.md#L1-L435)
-
 ## Core Components
 
 ### Dashboard Command
@@ -99,14 +81,9 @@ The `palee dashboard` command produces an executive snapshot of your vault:
 Key behaviors documented by implementation:
 
 - Archived topics are excluded from derived figures such as mastered, learning, new, and difficulty breakdowns.
-- `reviews_due` counts elapsed scheduled reviews; never-reviewed notes are not included because they belong to the “New” bucket.
+- `reviews_due` counts elapsed scheduled reviews; notes with no scheduled due date (`due_at` null) are not included — that set overlaps, but is not identical to, the zero-mastery “New” bucket. In particular, assessed-but-never-reviewed topics with mastery > 0 also have `due_at` null and sit in Learning/Mastered, not New; the New bucket is defined purely by zero mastery.
 - `next_review` is the first non-archived topic from the prerequisite-gated actionable set returned by the next-topic use case.
 - Empty vaults emit consistent JSON fields even when there is no data.
-
-**Section sources**
-- [dashboard.ts:1-217](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L217)
-- [02-3-reporting-commands.md:1-435](https://github.com/Kuldeep2822k/cli/blob/main/docs/02-3-reporting-commands.md#L1-L435)
-- [cli-json-output.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-json-output.test.ts#L1-L200)
 
 ### Mastery Summary and Four-Pillar Model
 Mastery summary logic is intentionally pure and reusable:
@@ -121,11 +98,6 @@ Mastery summary logic is intentionally pure and reusable:
 
 The underlying four-pillar model computes an overall topic mastery score from frontmatter assessment values. Pillars are normalized before calculation, and the formula emphasizes conceptual understanding, practical application, debugging ability, and especially Feynman articulation.
 
-**Section sources**
-- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [application-mastery-summary.test.ts:1-27](https://github.com/Kuldeep2822k/cli/blob/main/test/application-mastery-summary.test.ts#L1-L27)
-
 ### Progress Command
 The `palee progress` command provides deeper analytics:
 
@@ -133,10 +105,6 @@ The `palee progress` command provides deeper analytics:
 - Topic-specific mode surfaces SRS metadata for one note, including mastery, difficulty, repetitions, lapses, assessed date, and last reviewed date.
 - It reuses the same mastery bucketing logic as the dashboard.
 - It handles missing or ambiguous topic queries with structured errors in JSON mode.
-
-**Section sources**
-- [progress.ts:1-316](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L316)
-- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
 
 ## Architecture Overview
 
@@ -164,13 +132,6 @@ sequenceDiagram
     CLI->>Output: "Render text or JSON"
 ```
 
-**Diagram sources**
-- [dashboard.ts:1-217](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L217)
-- [loader.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts)
-- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
-- [due-topics.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts)
-- [get-next-topics.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts)
-
 ## Detailed Component Analysis
 
 ### Dashboard Metrics and Their Meaning
@@ -194,10 +155,6 @@ The dashboard’s `reviews_due` is intentionally a review-backlog metric. It cou
 #### Why Archived Topics Are Excluded From Derived Figures
 Archived topics are removed from mastery aggregation and difficulty breakdowns. This avoids inflating or diluting learning metrics with content no longer actively maintained.
 
-**Section sources**
-- [dashboard.ts:1-217](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L217)
-- [02-3-reporting-commands.md:1-435](https://github.com/Kuldeep2822k/cli/blob/main/docs/02-3-reporting-commands.md#L1-L435)
-
 ### Mastery Calculation Flow
 
 ```mermaid
@@ -215,19 +172,11 @@ flowchart TD
     Bucket --> End(["Return Summary Counts"])
 ```
 
-**Diagram sources**
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
-
 #### Interpreting Mastery Scores
 - A score near `0.0` means little or no recorded assessment.
 - A score between `0.0` and `0.70` means partial mastery; these topics are “learning.”
 - A score at or above `0.70` means mastery; these topics satisfy prerequisite gates and count as “mastered.”
 - Because the Feynman pillar is weighted more heavily, strong articulation can raise overall mastery even when other pillars are moderate.
-
-**Section sources**
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [application-mastery-summary.test.ts:1-27](https://github.com/Kuldeep2822k/cli/blob/main/test/application-mastery-summary.test.ts#L1-L27)
 
 ### Output Formats
 
@@ -252,34 +201,25 @@ Use `--json` or set the environment variable to enable machine-readable output. 
 
 Errors in JSON mode are emitted to standard error as structured objects rather than plain text.
 
-**Section sources**
-- [dashboard.ts:1-217](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L217)
-- [cli-json-output.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-json-output.test.ts#L1-L200)
-
 ### Custom Reports for Time Periods, Categories, and Thresholds
 
 #### Built-in Capabilities
-- **Time periods**: The dashboard and progress commands read current time to compute review backlogs and next actions. They do not expose explicit start/end date filters.
+- **Time periods**: Only the dashboard command reads the current time to compute review backlogs and next actions (`partitionDue`/`getNextTopics`); `progress` does not read the current time for computation and computes neither backlogs nor next actions. Neither command exposes explicit start/end date filters.
 - **Topic categories**: The dashboard groups by difficulty (`beginner`, `intermediate`, `advanced`). There is no built-in category filter by arbitrary tags or folders.
 - **Mastery thresholds**: The dashboard and progress commands use the canonical `MASTERY_THRESHOLD = 0.70`. There is no CLI flag to override it.
 
 #### Recommended Approach for Custom Filtering
-For custom time windows, topic categories, or alternative thresholds:
+Vault-wide JSON does not carry per-topic records, so it cannot be filtered per topic:
 
-1. Run `palee dashboard --json` or `palee progress --json`.
-2. Parse the JSON in a script.
-3. Filter by:
-   - Dates around `assessed_at`, `last_reviewed_at`, or `due_at`.
-   - Difficulty tiers or any additional metadata you maintain in frontmatter.
-   - Mastery ranges such as `topic_mastery < 0.70` for gaps or `topic_mastery >= 0.9` for advanced retention checks.
-4. Aggregate or export the filtered results for external visualization.
+- `palee progress --json` (vault-wide) emits only aggregates: `global_mastery`, `avg_mastery`, `total_repetitions`, `total_lapses`, and `by_difficulty` — no per-topic rows, and no `assessed_at`, `last_reviewed_at`, or `due_at` fields to filter on.
+- `palee dashboard --json` carries per-topic data only inside `next_review`.
 
-This approach keeps PALEE’s canonical calculations intact while giving you flexibility for custom analytics.
+For per-topic filtering, call `palee progress --topic <id> --json` once per topic and filter the returned fields in your script:
 
-**Section sources**
-- [dashboard.ts:1-217](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L217)
-- [progress.ts:1-316](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L316)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
+- `mastery` (note: the single-topic field is `mastery`, not `topic_mastery`), `repetition`, `lapses`, `assessed_at`, and `last_reviewed_at`.
+- Filter by dates around `assessed_at` or `last_reviewed_at`, or by mastery ranges such as `mastery < 0.70` for gaps or `mastery >= 0.9` for advanced retention checks.
+
+Use vault-wide JSON only for aggregate trending. This approach keeps PALEE’s canonical calculations intact while giving you flexibility for custom analytics.
 
 ### Practical Reporting Scenarios
 
@@ -294,14 +234,14 @@ Run `palee dashboard --json` weekly and track:
 Save the JSON output to a file or database and plot trends over weeks.
 
 #### Identifying Knowledge Gaps
-Use `palee progress --json` for vault-wide data, then:
+Vault-wide `palee progress --json` exposes only aggregates, so it cannot identify individual gap topics. Instead, call `palee progress --topic <id> --json` once per topic, then:
 
-- Identify topics where `topic_mastery < 0.70`.
+- Identify topics where `mastery < 0.70`.
 - Group by difficulty to find weak areas.
 - Cross-reference with `repetition` and `lapses`:
   - Low repetition plus high lapses suggests fragile memory.
   - High repetition but low mastery suggests ineffective review or overly ambitious material.
-- Prioritize topics with recent assessments but declining or stalled mastery.
+- Prioritize topics with recent assessments (`assessed_at`, `last_reviewed_at`) but declining or stalled mastery.
 
 #### Tracking Long-Term Learning Outcomes
 Over months, compare:
@@ -320,8 +260,6 @@ Stalls often appear as:
 - High `reviews_due` combined with low new mastery gains.
 - `next_review` pointing repeatedly to the same topic, which may indicate excessive difficulty or missing prerequisites.
 
-[No sources needed since this section synthesizes interpretation guidance without analyzing specific code lines]
-
 ## Dependency Analysis
 
 ```mermaid
@@ -337,16 +275,6 @@ graph LR
     Tests --> Progress
 ```
 
-**Diagram sources**
-- [dashboard.ts:1-217](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L217)
-- [progress.ts:1-316](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L316)
-- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
-- [due-topics.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts)
-- [get-next-topics.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts)
-- [loader.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [cli-json-output.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-json-output.test.ts#L1-L200)
-
 ### Coupling and Cohesion
 - The dashboard command depends on multiple services but remains focused on orchestration and presentation.
 - Mastery bucketing is isolated in a pure module, improving testability and reuse.
@@ -358,11 +286,6 @@ graph LR
 - Standard error for structured JSON errors.
 - Exit codes for configuration and usage failures.
 - Timestamps and ISO-like date strings for downstream processing.
-
-**Section sources**
-- [dashboard.ts:1-217](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L217)
-- [progress.ts:1-316](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L316)
-- [cli-json-output.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-json-output.test.ts#L1-L200)
 
 ## Performance Considerations
 
@@ -381,8 +304,6 @@ When generating reports for large vaults:
 - Use the difficulty breakdown to prioritize scanning or remediation rather than inspecting every topic manually.
 - Keep archived topics separated conceptually so they do not distort performance-related metrics.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 
 ### Common Issues
@@ -391,7 +312,7 @@ When generating reports for large vaults:
 |---|---|---|
 | Dashboard reports zero reviews due but `next_review` is present | Never-reviewed topics are counted as “New,” not as scheduled backlog | This is intentional; use `palee next` to see actionable topics. |
 | Archived topics do not appear in mastery breakdowns | Archived topics are excluded from derived figures | Treat them as inactive content, not part of active learning metrics. |
-| JSON parsing fails | Output may contain logs or non-JSON lines | Capture only the last `console.log` line and validate schema against documented fields. |
+| JSON parsing fails | JSON mode was not actually active, so stdout carried human-readable text instead of JSON | Ensure `--json` or `PALEE_JSON` was actually active; in JSON mode, dashboard/progress stdout carries one structured JSON document and diagnostics go to stderr. |
 | Topic query returns not found or ambiguous | Query matches none or multiple topics | Use exact IDs or more specific titles. |
 | Error output is plain text | JSON mode was not enabled | Add `--json` or set the JSON environment variable. |
 | Exit code indicates configuration failure | Missing or invalid vault path | Check configuration and ensure the vault directory exists. |
@@ -400,11 +321,6 @@ When generating reports for large vaults:
 - Configuration and setup errors in JSON mode emit structured JSON objects to standard error.
 - Usage errors, such as missing or ambiguous topic queries, set a non-zero exit code.
 - Unexpected runtime exceptions use a distinct error exit code path.
-
-**Section sources**
-- [dashboard.ts:1-217](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L217)
-- [progress.ts:1-316](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L316)
-- [cli-json-output.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-json-output.test.ts#L1-L200)
 
 ## Conclusion
 PALEE’s reporting and analytics center on two complementary views:

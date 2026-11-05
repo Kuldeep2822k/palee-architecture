@@ -49,27 +49,9 @@ graph TB
   Scheduler["Next-topic / plan<br/>due partition + sorting"]
 
   Types --> Loader
-  Loader --> Engine
-  Validator --> Loader
   Engine --> Application
   Application --> Scheduler
 ```
-
-**Diagram sources**
-- [types.ts:28-60](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L28-L60)
-- [loader.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L200)
-- [valid-review-fields.ts:1-166](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-fields.ts#L1-L166)
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-
-**Section sources**
-- [types.ts:28-60](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L28-L60)
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
 
 ## Core Components
 
@@ -80,7 +62,7 @@ The `Review` interface defines the canonical SM-2 scheduling state attached to a
 |---|---|---|---|
 | `interval_days` | `number` | Current scheduled interval in days until the next review. | Must be finite and at least 1. The engine caps computed intervals at 36,500 days (about 100 years). |
 | `repetition` | `number` | Number of consecutive successful reviews since the last lapse. | Must be a non-negative integer. Resets to 0 after a failed review. |
-| `ease_factor` | `number` | SM-2 easiness multiplier controlling future interval growth. | Minimum 1.3; initial default 2.5. Rounded to four decimal places. |
+| `ease_factor` | `number` | SM-2 ease factor controlling future interval growth. | Minimum 1.3; initial default 2.5. Rounded to four decimal places. |
 | `lapses` | `number` | Cumulative count of failed reviews after the item was previously learned. | Non-negative integer. Increments only when `repetition > 0`. |
 | `last_quality` | `number \| null` | Quality rating submitted during the last review session. | Integer 0–5, or `null` when no review has been recorded. |
 | `last_reviewed_at` | `string \| null` | Timestamp of the last completed review. | ISO 8601 string or `null`. Written as a local date-only string by the application layer. |
@@ -116,19 +98,11 @@ classDiagram
     Topic --> Review : "has"
 ```
 
-**Diagram sources**
-- [types.ts:28-60](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L28-L60)
-- [types.ts:120-170](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L120-L170)
-
-**Section sources**
-- [types.ts:28-60](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L28-L60)
-- [types.ts:120-170](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L120-L170)
-
 ### SM-2 Algorithm Mechanics
 The SM-2 engine implements the core state transition and scheduling logic.
 
 #### Quality Rating Scale
-Quality ratings map to specific easiness-factor deltas:
+Quality ratings map to specific ease factor deltas:
 
 | Quality | Meaning | Ease Factor Delta | Interval Effect |
 |---|---|---:|---|
@@ -179,20 +153,12 @@ flowchart TD
   SetSix --> EaseFactor
   FailBranch --> EaseFactor
   EaseFactor["Compute delta from quality<br/>Add delta to ease_factor<br/>Round to 4 decimals<br/>Clamp ease_factor to ≥ 1.3"]
-  EaseFactor --> ComputeDue["Advance local calendar days<br/>from reviewedAt by interval_days"]
-  ComputeDue --> CapCheck{"interval > 36,500 days?"}
+  EaseFactor --> CapCheck{"interval > 36,500 days?"}
   CapCheck -->|Yes| Cap["Cap interval at 36,500 days"]
-  CapCheck -->|No| ReturnState["Return updated Review fields"]
-  Cap --> ReturnState
+  CapCheck -->|No| ComputeDue["Advance local calendar days<br/>from reviewedAt by interval_days"]
+  Cap --> ComputeDue
+  ComputeDue --> ReturnState["Return updated Review fields"]
 ```
-
-**Diagram sources**
-- [sm2.ts:25-199](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L25-L199)
-- [sm2.ts:201-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L201-L306)
-
-**Section sources**
-- [sm2.ts:25-199](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L25-L199)
-- [sm2.ts:201-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L201-L306)
 
 ### Record Review Use Case
 The application layer bridges the CLI and the pure SM-2 engine.
@@ -222,13 +188,6 @@ sequenceDiagram
   App-->>CLI: "Updates, new state, due date, early flag"
 ```
 
-**Diagram sources**
-- [record-review.ts:26-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L26-L116)
-- [sm2.ts:100-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L100-L200)
-
-**Section sources**
-- [record-review.ts:26-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L26-L116)
-
 ### Relationship Between Review and Topic
 A Topic owns a Review instance. During storage loading, the loader reads flat frontmatter keys and normalizes them into the runtime model. Review fields are part of the Topic’s domain state and participate in scheduling decisions independently from assessment scores, although both are updated during review recording.
 
@@ -238,10 +197,6 @@ Key relationships:
 - `Topic.review.repetition` indicates recent success streaks and affects lapse counting.
 - `Topic.review.ease_factor` controls long-term interval growth.
 - Assessment scores and `topic_mastery` influence prerequisite gating but do not directly change SM-2 math.
-
-**Section sources**
-- [types.ts:120-170](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L120-L170)
-- [loader.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L200)
 
 ## Architecture Overview
 
@@ -256,19 +211,10 @@ graph LR
   Plan["Plan Command<br/>due list + blocked topics"]
 
   Frontmatter --> Loader
-  Loader --> SM2
-  Validator --> Loader
   SM2 --> ReviewUseCase
   ReviewUseCase --> NextTopics
   NextTopics --> Plan
 ```
-
-**Diagram sources**
-- [loader.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L200)
-- [valid-review-fields.ts:1-166](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-fields.ts#L1-L166)
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
 
 ## Detailed Component Analysis
 
@@ -330,16 +276,6 @@ flowchart TD
   EnginePrecondition --> ReviewShape
 ```
 
-**Diagram sources**
-- [valid-review-fields.ts:20-166](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-fields.ts#L20-L166)
-- [sm2.ts:90-199](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L90-L199)
-- [loader.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L200)
-
-**Section sources**
-- [valid-review-fields.ts:20-166](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-fields.ts#L20-L166)
-- [sm2.ts:90-199](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L90-L199)
-- [loader.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L200)
-
 ### SM-2 State Progression Examples
 
 #### First Study Session
@@ -354,7 +290,7 @@ Initial state:
 After a successful review with quality 4:
 - `repetition = 1`
 - `interval_days = 1`
-- `ease_factor` increases slightly
+- `ease_factor` unchanged at 2.5 (quality 4 has a delta of 0)
 - `lapses = 0`
 - `last_quality = 4`
 - `due_at = today + 1 local day`
@@ -394,11 +330,6 @@ An early review is one recorded before the stored `due_at`. The system still acc
 #### Forced Review
 Forcing a review is conceptually equivalent to reviewing an item regardless of whether it is due. The engine does not reject early reviews; it computes the next state and due date normally while the application layer reports that the review occurred before the scheduled due date.
 
-**Section sources**
-- [engine-sm2.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L1-L200)
-- [engine-sm2.test.ts:201-400](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L201-L400)
-- [record-review.ts:26-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L26-L116)
-
 ### Timezone and Date Format Handling
 
 #### Local Calendar Days
@@ -412,10 +343,6 @@ Full timestamps may appear in input or diagnostic contexts, but scheduling prefe
 
 #### Epoch Numbers
 Epoch numbers are intentionally excluded from the scheduler’s baseline signature because they represent UTC instants without a local calendar day.
-
-**Section sources**
-- [sm2.ts:220-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L220-L306)
-- [record-review.ts:26-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L26-L116)
 
 ### Integration with Progress and Next-Topic Discovery
 
@@ -448,14 +375,6 @@ flowchart TD
   Gate --> Actionable
 ```
 
-**Diagram sources**
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [get-next-topics.ts:100-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L100-L199)
-
-**Section sources**
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [get-next-topics.ts:100-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L100-L199)
-
 ## Dependency Analysis
 
 ```mermaid
@@ -472,28 +391,9 @@ graph TD
   Types --> SM2
   Types --> RecordReview
   Types --> DueTopics
-  Loader --> SM2
-  Validator --> Loader
   SM2 --> RecordReview
   DueTopics --> GetNextTopics
-  RecordReview --> GetNextTopics
 ```
-
-**Diagram sources**
-- [types.ts:28-60](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L28-L60)
-- [loader.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L200)
-- [valid-review-fields.ts:1-166](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-fields.ts#L1-L166)
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-
-**Section sources**
-- [types.ts:28-60](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L28-L60)
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
 
 ## Performance Considerations
 - The SM-2 state transition is a constant-time calculation per review.
@@ -501,8 +401,6 @@ graph TD
 - Ease factor rounding uses a deterministic half-up helper to reduce floating-point drift.
 - Due-date comparison and partitioning operate on normalized dates and are linear in the number of candidate topics.
 - Validation inspects raw frontmatter fields once per topic to surface corruption without mutating it.
-
-[No sources needed since this section provides general guidance]
 
 ## Troubleshooting Guide
 
@@ -522,10 +420,6 @@ Recovery:
 - Use repair mappings where available to reset corrupted fields to adopt defaults.
 - Do not manually patch arbitrary values; restore the SM-2 contract instead.
 
-**Section sources**
-- [valid-review-fields.ts:20-166](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-fields.ts#L20-L166)
-- [sm2.ts:90-199](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L90-L199)
-
 ### Missing or Malformed Dates
 Symptoms:
 - `due_at` shows as `null`.
@@ -537,10 +431,6 @@ Guidance:
 - Avoid epoch-number baselines for scheduling calculations.
 - Remember that full ISO timestamps are instants; local calendar day comparisons rely on local date formatting.
 
-**Section sources**
-- [sm2.ts:220-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L220-L306)
-- [record-review.ts:26-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L26-L116)
-
 ### Lapse Counter Anomalies
 Symptoms:
 - `lapses` does not increase after a failure.
@@ -551,10 +441,6 @@ Explanation:
 - The first failure after creating a new item does not count as a lapse.
 - Safe-integer overflow protection rejects unsafe increments.
 
-**Section sources**
-- [sm2.ts:120-199](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L120-L199)
-- [engine-sm2.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L1-L200)
-
 ### Interval Explosion and Invalid Dates
 Symptoms:
 - Very large intervals.
@@ -564,11 +450,6 @@ Explanation:
 - The SM-2 multiply is unbounded.
 - The engine caps intervals at 36,500 days.
 - Additional defense rejects advancing a date beyond the representable calendar range.
-
-**Section sources**
-- [sm2.ts:15-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L15-L40)
-- [sm2.ts:201-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L201-L306)
-- [engine-sm2.test.ts:201-400](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L201-L400)
 
 ## Conclusion
 The Review model is the persistent SM-2 memory behind PALEE’s spaced repetition system. Its seven fields capture interval progression, ease adaptation, success streaks, failure history, recall quality, and scheduling timestamps. The engine enforces SM-2 invariants defensively, treating raw frontmatter as untrusted and preferring explicit error messages over silent correction.

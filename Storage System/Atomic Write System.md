@@ -29,7 +29,7 @@
 ## Introduction
 This document explains the atomic write system that protects vault data from partial writes, crashes, and concurrent access. It focuses on durability and crash safety through:
 
-- Temporary files written outside the target’s containment window.
+- Temporary files written alongside the target, inside the vault’s containment boundary, under names no reader will mistake for a note.
 - Unique identifiers for temporary files to avoid collisions.
 - Transaction-like semantics where a successful write is committed by an atomic rename.
 - Cleanup of abandoned temporary files and stale locks after failures or process termination.
@@ -73,30 +73,6 @@ graph TB
     T3 --> AW
 ```
 
-**Diagram sources**
-- [atomic-write.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts)
-- [containment.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts)
-- [lock.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts)
-- [0014-atomic-write-durability-and-containment.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0014-atomic-write-durability-and-containment.md)
-- [0034-abandoned-temp-file-reclaim.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0034-abandoned-temp-file-reclaim.md)
-- [0036-bounded-lock-acquisition.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0036-bounded-lock-acquisition.md)
-- [04-1-frontmatter-parser-and-atomic-writes.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-1-frontmatter-parser-and-atomic-writes.md)
-- [storage-atomic-write.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-atomic-write.test.ts)
-- [storage-atomic-write-containment-window.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-atomic-write-containment-window.test.ts)
-- [storage-atomic-write-stale-temp-reap.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-atomic-write-stale-temp-reap.test.ts)
-
-**Section sources**
-- [atomic-write.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts)
-- [containment.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts)
-- [lock.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts)
-- [0014-atomic-write-durability-and-containment.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0014-atomic-write-durability-and-containment.md)
-- [0034-abandoned-temp-file-reclaim.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0034-abandoned-temp-file-reclaim.md)
-- [0036-bounded-lock-acquisition.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0036-bounded-lock-acquisition.md)
-- [04-1-frontmatter-parser-and-atomic-writes.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-1-frontmatter-parser-and-atomic-writes.md)
-- [storage-atomic-write.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-atomic-write.test.ts)
-- [storage-atomic-write-containment-window.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-atomic-write-containment-window.test.ts)
-- [storage-atomic-write-stale-temp-reap.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-atomic-write-stale-temp-reap.test.ts)
-
 ## Core Components
 The atomic write system has three primary responsibilities:
 
@@ -108,11 +84,6 @@ The atomic write system has three primary responsibilities:
 
 These components collaborate so that readers see either the old complete file or the new complete file, never a partially written one.
 
-**Section sources**
-- [atomic-write.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts)
-- [containment.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts)
-- [lock.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts)
-
 ## Architecture Overview
 At a high level, a write operation follows this sequence:
 
@@ -121,41 +92,35 @@ sequenceDiagram
     participant Caller as "Caller"
     participant Writer as "Atomic Writer"
     participant Ctl as "Containment Validator"
-    participant FS as "Filesystem"
     participant Lk as "Lock Manager"
+    participant FS as "Filesystem"
 
     Caller->>Writer: "Write(targetPath, content)"
     Writer->>Ctl: "Validate target path containment"
     Ctl-->>Writer: "Allowed"
-    Writer->>FS: "Create temporary file with unique ID"
-    Writer->>Writer: "Write content to temporary file"
     Writer->>Lk: "Acquire exclusive lock for target"
     Lk-->>Writer: "Lock acquired"
-    Writer->>FS: "Flush and sync if available"
+    Writer->>Writer: "OCC fingerprint / expectation checks"
+    Writer->>FS: "Reap stale temp files for target"
+    Writer->>FS: "Create temp file and write content (inside retry loop)"
+    Writer->>FS: "fsync temp file (unconditional)"
     Writer->>FS: "Rename temporary file to target atomically"
+    Writer->>FS: "Best-effort fsync of containing directory"
     Writer->>Lk: "Release lock"
     Writer-->>Caller: "Success"
 
     Note over Writer,FS: "On failure, remove temporary file and release lock"
 ```
 
-**Diagram sources**
-- [atomic-write.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts)
-- [containment.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts)
-- [lock.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts)
-
 ### Transaction-Like Semantics
 A write behaves like a small transaction:
 
-1. **Prepare**: Validate containment and create a temporary file.
-2. **Commit**: Rename the temporary file to the target path.
-3. **Abort**: On any error, clean up the temporary file and released locks.
+1. **Prepare**: Validate containment, acquire the lock, run the OCC fingerprint/expectation checks, and reap stale temp files.
+2. **Write**: Create the temporary file inside the retry loop, write the content, and fsync the temp file unconditionally.
+3. **Commit**: Rename the temporary file to the target path, then best-effort fsync the containing directory and release the lock.
+4. **Abort**: On any error, clean up the temporary file and release the lock.
 
 Because rename is typically atomic on POSIX and most modern filesystems, readers cannot observe an intermediate state.
-
-**Section sources**
-- [0014-atomic-write-durability-and-containment.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0014-atomic-write-durability-and-containment.md)
-- [atomic-write.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts)
 
 ## Detailed Component Analysis
 
@@ -174,11 +139,16 @@ flowchart TD
     Start(["Start write"]) --> Validate["Validate target path containment"]
     Validate --> Valid{"Path valid?"}
     Valid -->|No| Error["Reject with containment error"]
-    Valid -->|Yes| CreateTemp["Create unique temporary file"]
+    Valid -->|Yes| AcquireLock["Acquire exclusive lock for target"]
+    AcquireLock --> Locked{"Exclusive lock acquired?"}
+    Locked -->|No| Abort["Abort and clean up"]
+    Locked -->|Yes| Occ["OCC fingerprint / expectation checks"]
+    Occ --> OccOk{"OCC checks pass?"}
+    OccOk -->|No| Abort
+    OccOk -->|Yes| Reap["Reap stale temp files for target"]
+    Reap --> CreateTemp["Create unique temporary file"]
     CreateTemp --> WriteContent["Write content to temporary file"]
-    WriteContent --> Locked{"Exclusive lock acquired?"}
-    Locked -->|No| Abort["Abort and clean up temporary file"]
-    Locked -->|Yes| Sync["Flush/sync if supported"]
+    WriteContent --> Sync["fsync temp file (unconditional)"]
     Sync --> Commit["Rename temporary file to target"]
     Commit --> Success["Release lock and return success"]
     Commit --> FailedCommit["Handle commit failure"]
@@ -188,17 +158,12 @@ flowchart TD
     Success --> End
 ```
 
-**Diagram sources**
-- [atomic-write.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts)
-- [containment.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts)
-- [lock.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts)
-
 #### Temporary File Strategy
-Temporary files must not be visible to normal readers until they are fully written and renamed. The implementation uses:
+The temp file is created in the target's own directory — rename is only atomic within one filesystem, so a separate temp directory is not an option — under a name no reader will mistake for a note:
 
-- Unique identifiers derived from process context, timestamps, counters, or random values.
-- A temporary directory or naming scheme that keeps temporary files separate from live data.
-- Containment validation for both the target path and the temporary location.
+- The name is `<target>.tmp.<pid>.<entropy>`, for example `note.md.tmp.4213.9f2ac41b`. The `<pid>` is the writing process's ID; the entropy is 8 hexadecimal characters (32 bits) from `crypto.randomBytes(4)`. The pair makes the name unique per process and per write, so concurrent writers to the same target never collide on a temp name, and a leftover temp identifies the process that created it. No timestamps or counters are involved.
+- Because the name ends in `.<hex>` rather than `.md`, vault enumeration never treats an in-flight temp as a note.
+- The destination is containment-validated before the temp is created, and re-validated immediately before the rename; the temp inherits the validated location because it is derived from the resolved target path.
 
 This prevents partial writes from corrupting active notes, indexes, or metadata.
 
@@ -220,109 +185,68 @@ If any step fails, the writer must ensure no dangling temporary file remains. Ty
 #### Security and Containment
 Before creating or moving files, the writer relies on containment validation to prevent path traversal. This ensures attackers cannot escape the intended vault or configuration directories by crafting malicious targets.
 
-**Section sources**
-- [atomic-write.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts)
-- [containment.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts)
-- [0014-atomic-write-durability-and-containment.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0014-atomic-write-durability-and-containment.md)
-
 ### Containment Validator
-The containment module enforces that paths remain inside allowed roots such as the vault, configuration, session, lock, or output directories. Its responsibilities include:
+The containment module (containment.ts) is a set of functions, not a class. The main entry point is `assertContainedInVault(vaultPath, targetPath)`, which returns the canonical resolved target path or throws an error with code `ECONTAINMENT` (CLI exit code 3); `isContainmentError(e)` classifies that refusal. Its responsibilities include:
 
-- Normalizing paths before comparison.
-- Detecting traversal sequences such as parent-directory references.
-- Rejecting absolute paths when only relative vault paths are allowed.
-- Verifying both read and write destinations.
-
-```mermaid
-classDiagram
-    class ContainmentValidator {
-        +validateTarget(path) boolean
-        +validateSource(path) boolean
-        -normalizePath(path) string
-        -checkWithinRoot(base, candidate) boolean
-    }
-```
-
-**Diagram sources**
-- [containment.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts)
-
-**Section sources**
-- [containment.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts)
+- Resolving the real path of the destination (following symlinks and junctions in every component, not just the last one) and verifying the result lies inside the vault — so a planted link such as `vault/.palee/sessions` pointing outside is refused, not followed.
+- Accepting absolute paths (every in-repo caller passes them) and resolving relative ones against the vault root, so the path that is certified is the path that is written.
+- Being re-run immediately before the temp file is opened and renamed, narrowing the window in which a path component could be swapped for a link after the first check.
 
 ### Lock Manager
-The lock manager provides exclusive access during the commit phase. It is designed to be bounded and resilient:
+The lock manager is the `Lock` class in lock.ts, constructed per target file as `new Lock(vaultPath, targetPath)`. `atomicWrite` acquires it before the OCC check and releases it in a `finally` block, so the rename always happens while holding the lock. It is designed to be bounded and resilient:
 
-- Bounded acquisition time to avoid indefinite blocking.
-- Heartbeat support so long-running writers can keep ownership alive.
-- Cleanup of stale locks when a process exits without releasing them.
+- Bounded acquisition: the acquisition loop is capped at 20 rounds (`MAX_ACQUISITION_ITERATIONS`); contention surfaces as an `ECONFLICT` error instead of indefinite blocking.
+- Heartbeat support: a 15,000 ms heartbeat keeps long-running writers' leases alive; if the holder's own record disappears (a stale takeover), the `lockLost` getter reports it and `atomicWrite` aborts rather than renaming over the new owner's bytes.
+- Cleanup of stale locks when a process exits without releasing them (60 s staleness timeout on Windows, 120 s elsewhere; immediate when the recorded PID is dead on this host).
 - Coordination with the atomic writer to ensure rename happens while holding the lock.
 
 ```mermaid
 classDiagram
-    class LockManager {
-        +acquire(targetPath, options) LockHandle
-        +release(handle) void
-        -createLockFile(path) void
-        -verifyOwnership(handle) boolean
-        -cleanupStaleLock(path) void
+    class Lock {
+        +lockPath string
+        +lockLost boolean
+        +acquire() Promise~void~
+        +release() void
+        +startHeartbeat() void
     }
 ```
 
-**Diagram sources**
-- [lock.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts)
-- [0036-bounded-lock-acquisition.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0036-bounded-lock-acquisition.md)
-
-**Section sources**
-- [lock.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts)
-- [0036-bounded-lock-acquisition.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0036-bounded-lock-acquisition.md)
-
 ### Abandoned Temporary File Reclaim
-When a process crashes or is killed, temporary files may remain. The reclaim mechanism scans known temporary locations and removes orphaned files that do not belong to a running writer.
+A process killed by a signal between the temp write and the rename never runs its cleanup handler, so its temp file stays behind. The reclaim mechanism (`reapStaleTempsForTarget` in atomic-write.ts) runs inside `atomicWrite` itself — inside the lock, after the OCC check has passed, just before the new temp is written. There is no background sweeper and no separate temp directory to scan: only the current target's own directory is examined, and only temps belonging to that target.
 
-Key ideas:
+A leftover is deleted only when all of these hold:
 
-- Identify temporary files using their naming convention and unique identifiers.
-- Check whether a corresponding lock or writer still exists.
-- Delete temporary files whose owners are absent.
-- Run reclaim proactively or periodically.
+- Its name matches the anchored pattern `<target>.tmp.<pid>.<8+ hex>` exactly. A name that merely contains `.tmp.` (such as `note.md.tmp.1234.abcd1234.md`, which is a real note name) is never touched — the mechanism deletes only what it can prove `atomicWrite` wrote.
+- The PID in the name no longer exists in this host's process table (`process.kill(pid, 0)`; `EPERM` counts as alive).
+- The file is older than 30,000 ms (`STALE_TEMP_MIN_AGE_MS`). The age floor protects a live writer on another host sharing the vault over a network filesystem, whose PID this host cannot probe.
+
+Reclaim is best-effort: a file it cannot inspect or delete is skipped, never raised — litter must not fail an otherwise valid write.
 
 ```mermaid
 flowchart TD
-    Scan(["Scan temporary directory"]) --> List["List temporary files"]
-    List --> ForEach["For each temporary file"]
-    ForEach --> OwnerAlive{"Owner lock still alive?"}
+    Scan(["Next atomicWrite to the target<br/>scans the target's directory"]) --> ForEach["For each entry matching<br/>&lt;target&gt;.tmp.&lt;pid&gt;.&lt;hex&gt;"]
+    ForEach --> OwnerAlive{"Owner PID alive on this host?"}
     OwnerAlive -->|Yes| Keep["Keep file"]
-    OwnerAlive -->|No| Remove["Remove abandoned temporary file"]
+    OwnerAlive -->|No| Age{"Older than 30,000 ms?"}
+    Age -->|No| Keep
+    Age -->|Yes| Remove["Delete abandoned temp file"]
     Keep --> Next["Next file"]
     Remove --> Next
     Next --> Done(["Reclaim complete"])
 ```
 
-**Diagram sources**
-- [atomic-write.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts)
-- [0034-abandoned-temp-file-reclaim.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0034-abandoned-temp-file-reclaim.md)
-
-**Section sources**
-- [0034-abandoned-temp-file-reclaim.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0034-abandoned-temp-file-reclaim.md)
-- [storage-atomic-write-stale-temp-reap.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-atomic-write-stale-temp-reap.test.ts)
-
 ## Dependency Analysis
 The atomic write system depends on containment and locking, and it is consumed by higher-level storage operations.
 
+Edges point from a module to the modules it imports; consumers of `atomicWrite` are shown on the left.
+
 ```mermaid
 graph LR
-    Containment["Containment<br/>src/storage/containment.ts"] --> Atomic["Atomic Writer<br/>src/storage/atomic-write.ts"]
-    Lock["Lock Manager<br/>src/storage/lock.ts"] --> Atomic
-    Atomic --> Frontmatter["Frontmatter Writer"]
-    Atomic --> Adoption["Adoption Writer"]
-    Atomic --> Roadmap["Roadmap Writer"]
-    Atomic --> Sessions["Session Writer"]
+    Memory["Memory<br/>src/storage/memory.ts"] --> Atomic["Atomic Writer<br/>src/storage/atomic-write.ts"]
+    Atomic --> Containment["Containment<br/>src/storage/containment.ts"]
+    Atomic --> Lock["Lock<br/>src/storage/lock.ts"]
+    Atomic --> Frontmatter["Frontmatter (computeFingerprint)<br/>src/storage/frontmatter.ts"]
 ```
-
-**Diagram sources**
-- [atomic-write.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts)
-- [containment.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts)
-- [lock.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts)
 
 ### Coupling and Cohesion
 - **Coupling**: The atomic writer couples filesystem operations, path validation, and locking into one durable write primitive.
@@ -333,12 +257,7 @@ graph LR
 - Filesystem rename semantics.
 - Directory listing and deletion APIs.
 - Process exit behavior and lock cleanup.
-- Optional sync or flush calls depending on platform support.
-
-**Section sources**
-- [atomic-write.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts)
-- [containment.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts)
-- [lock.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts)
+- File fsync (`fs.fsyncSync`) on the temp file runs unconditionally on every write on every platform; only the post-rename directory fsync is best-effort and silently skipped where refused (Windows `EPERM`/`EISDIR`).
 
 ## Performance Considerations
 Atomic writes trade some performance for durability:
@@ -349,7 +268,7 @@ Atomic writes trade some performance for durability:
 | Disk space | Temporary files temporarily double usage per write | Monitor vault growth; reclaim abandoned temp files |
 | Lock overhead | Exclusive locks block concurrent writers | Batch related writes when possible; respect bounded acquisition |
 | Rename cost | Usually low but filesystem-dependent | Avoid excessive micro-writes; group updates |
-| Sync and flush | Can increase latency | Use only when durability guarantees require it |
+| Sync and flush | File fsync can increase latency but runs unconditionally on every write | File fsync is mandatory; only the post-rename directory fsync is best-effort and skipped where the platform refuses it |
 | Containment checks | Small CPU cost | Keep path normalization simple and cached where appropriate |
 
 ### Storage Requirements
@@ -362,20 +281,18 @@ Atomic writes trade some performance for durability:
 - If rename is not atomic, add additional safeguards such as copy-then-swap with strict ordering and verification.
 - Test behavior on Windows, macOS, Linux, and common containerized environments.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 
 ### Common Symptoms and Fixes
 
 | Symptom | Likely Cause | Resolution |
 |---|---|---|
-| Write fails with path traversal error | Target path escapes containment root | Fix caller input; reject unsafe paths early |
-| Stale temporary files accumulate | Process crashed during write | Run abandoned temp file reclaim |
-| Writers deadlock or timeout | Lock acquisition exceeded bounds | Investigate long-running writers; increase diagnostics |
-| Data appears incomplete after crash | Temporary file was not cleaned up | Reclaim abandoned temporary files |
-| Rename fails on network filesystem | Platform does not support atomic rename | Add compatibility fallback and verify consistency |
-| Concurrent writers interfere | Lock not held around rename | Ensure exclusive lock covers commit |
+| Write refused with `ECONTAINMENT` (exit 3) | The resolved target path escapes the vault, usually because a path component is a symlink/junction pointing outside | Replace the link with a real in-vault directory; retrying never succeeds while it stands |
+| Write fails with `OCC conflict: ... was modified by another process` (`ECONFLICT`, exit 4) | The file changed between the caller's read and the write | Re-read the file and retry; check for an editor or second PALEE process writing the same note |
+| Write fails with `Lock conflict: ... is locked by PID <pid>` (`ECONFLICT`, exit 4) | Another live process holds the target's lock | Wait for that PID, or close it; see the File Locking page for the lock directory layout under `.palee/locks/` |
+| Stale temporary files (`<note>.tmp.<pid>.<hex>`) accumulate | A process was killed between temp write and rename | Nothing to run: the next write to the same note reaps them automatically once they are over 30 s old and the owner PID is gone. Safe to delete by hand when no PALEE process is running |
+| Rename keeps failing on Windows with `EPERM`/`EBUSY` | An antivirus or indexer briefly holds a handle on the file | The writer already attempts the rename up to 5 times (50 ms doubling, ±25% jitter, 300 ms cap); if it still fails, exclude the vault from the scanner or close the holding process |
+| File content is the old version after a crash mid-write | The crash happened before the rename | Expected behavior, not corruption: readers see either the complete old file or the complete new one, never a partial write |
 
 ### Error Recovery Procedures
 1. **Catch write errors** and inspect whether a temporary file was created.
@@ -390,13 +307,7 @@ Atomic writes trade some performance for durability:
 - Verify that temporary files are also contained.
 - Audit lock files and temporary files periodically.
 - Restrict vault permissions so only trusted processes can modify managed data.
-
-**Section sources**
-- [storage-atomic-write.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-atomic-write.test.ts)
-- [storage-atomic-write-containment-window.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-atomic-write-containment-window.test.ts)
-- [storage-atomic-write-stale-temp-reap.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-atomic-write-stale-temp-reap.test.ts)
+- The destination's existing permission mode is restored onto the temp file before rename; a new file keeps the platform default — this primitive preserves, it never tightens.
 
 ## Conclusion
 The atomic write system provides durability and crash safety by isolating partial writes behind unique temporary files and committing changes through atomic renames. Containment validation prevents path traversal, while locking ensures exclusive access during the critical commit phase. Abandoned temporary file reclaim and bounded lock acquisition improve resilience after crashes and reduce resource leaks. Together, these mechanisms make the storage layer safer for concurrent, crash-prone environments while keeping integration points clear for frontmatter, adoption, roadmap, and session writers.
-
-[No sources needed since this section summarizes without analyzing specific files]

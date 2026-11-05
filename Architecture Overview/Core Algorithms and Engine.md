@@ -64,17 +64,6 @@ graph TB
   Dependency --> Mastery
 ```
 
-**Diagram sources**
-- [src/engine/index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
-- [src/engine/sm2.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L60)
-- [src/engine/mastery.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L30)
-- [src/engine/dependency.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L30)
-- [src/engine/auto-chain.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L30)
-- [src/engine/tier0-hygiene.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L30)
-
-**Section sources**
-- [src/engine/index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
-
 ## Core Components
 This section summarizes each algorithm’s inputs, outputs, invariants, and role in the larger learning pipeline.
 
@@ -88,11 +77,6 @@ This section summarizes each algorithm’s inputs, outputs, invariants, and role
   - Quality must be an integer in `[0, 5]`.
   - All stored numeric fields are validated because raw frontmatter reaches the scheduler untyped.
 
-**Section sources**
-- [src/engine/sm2.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L120)
-- [docs/adr/0001-supermemo-sm2-algorithm.md:1-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L1-L63)
-- [docs/03-1-sm2-spaced-repetition-algorithm.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L1-L200)
-
 ### Four-Pillar Mastery Engine
 - **Purpose:** Convert four pedagogical assessment scores into one normalized mastery score used for prerequisite gating.
 - **Pillars and weights:**
@@ -102,11 +86,6 @@ This section summarizes each algorithm’s inputs, outputs, invariants, and role
   - Feynman: 40% (double weighted)
 - **Threshold:** A topic is considered mastered at `topic_mastery ≥ 0.70`.
 - **Normalization:** Scores are clamped to `[0.0, 1.0]` and rounded to four decimal places; non-finite, missing, or invalid values become `0.0`.
-
-**Section sources**
-- [src/engine/mastery.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L120)
-- [docs/adr/0004-four-pillar-pedagogical-mastery.md:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
-- [docs/03-1-sm2-spaced-repetition-algorithm.md:200-330](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L200-L330)
 
 ### Dependency Graph Engine
 - **Purpose:** Model prerequisites as a directed graph, detect cycles, enforce mastery thresholds, and compute ready topics.
@@ -118,22 +97,12 @@ This section summarizes each algorithm’s inputs, outputs, invariants, and role
   - Johnson-style elementary cycle enumeration.
   - Ready-topic selection using mastery threshold and dependency satisfaction.
 
-**Section sources**
-- [src/engine/dependency.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L120)
-- [docs/03-2-dependency-graph-engine.md:1-215](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-2-dependency-graph-engine.md#L1-L215)
-
 ### Auto-Chaining Engine
 - **Purpose:** Infer prerequisite chains from vault structure without filesystem access.
 - **Inputs:** Vault-relative paths, basenames, directory hierarchy, optional repository enumeration, and hygiene classification.
-- **Ordering rules:**
-  - Numeric prefixes first (`01-foundations`).
-  - Phase keywords second (`deep-dive`, `lab`, `exam`).
-  - Remaining names third, with stable case-insensitive then case-sensitive ordering.
+- **Ordering rules (operative, shipped path):** `src/cli/adopt.ts` calls `planAutoChainWithHygiene`, whose Tier-0 comparator ranks: README-class first, then numeric prefixes (`01-foundations`), then phase keywords (`deep-dive`, `lab`, `exam`), then other names (stable case-insensitive then case-sensitive ordering), with homework (`assignment`/`quiz`/`solution`) last.
+  - The bare `planAutoChain` comparator (unfiltered) ranks only three ways: numeric -> phase -> alphabetical.
 - **Hygiene integration:** Uses `classifyNoteForChain` so only eligible backbone or leaf notes participate in planning.
-
-**Section sources**
-- [src/engine/auto-chain.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L120)
-- [docs/adr/0011-tiered-auto-chain.md:1-99](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0011-tiered-auto-chain.md#L1-L99)
 
 ### Tier-0 Hygiene Classifier
 - **Purpose:** Decide whether a vault-relative note path may gate other notes.
@@ -148,10 +117,6 @@ This section summarizes each algorithm’s inputs, outputs, invariants, and role
   - B4: phase subtrees such as `solutions/`, `your-work/`, `start/`, `sketch/`, `answers/`.
   - B5: content-doc naming signals such as README-class, numeric prefix, or phase prefixes.
   - B7: invalid `palee_id`.
-
-**Section sources**
-- [src/engine/tier0-hygiene.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L120)
-- [docs/adr/0010-tier0-hygiene-classification.md:1-72](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0010-tier0-hygiene-classification.md#L1-L72)
 
 ## Architecture Overview
 The learning recommendation pipeline connects these engines in a predictable order:
@@ -185,14 +150,6 @@ sequenceDiagram
     CLI-->>User: "Recommendations and progress"
 ```
 
-**Diagram sources**
-- [src/engine/index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
-- [src/engine/auto-chain.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L40)
-- [src/engine/tier0-hygiene.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L40)
-- [src/engine/dependency.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L40)
-- [src/engine/mastery.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L30)
-- [src/engine/sm2.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L40)
-
 ## Detailed Component Analysis
 
 ### SM-2 Spaced Repetition Algorithm
@@ -218,9 +175,9 @@ $$I(n) = \begin{cases} 1 & n = 1 \\ 6 & n = 2 \\ \text{clamp}\big(\text{round}(I
 
 Failure branch ($q < 3$):
 
+- `lapses ← lapses + 1` only if `repetition > 0` (checked against the pre-reset repetition value)
 - `repetition ← 0`
 - `interval_days ← 1`
-- `lapses ← lapses + 1` only if `repetition > 0`
 
 Success branch ($q \ge 3$):
 
@@ -249,15 +206,6 @@ flowchart TD
   UpdateEF --> DueDate["computeDueDate(today, interval_days)"]
   DueDate --> End(["Return updated partial Review"])
 ```
-
-**Diagram sources**
-- [src/engine/sm2.ts:60-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L60-L200)
-- [docs/03-1-sm2-spaced-repetition-algorithm.md:100-200](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L100-L200)
-
-**Section sources**
-- [src/engine/sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-- [docs/adr/0001-supermemo-sm2-algorithm.md:1-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L1-L63)
-- [docs/03-1-sm2-spaced-repetition-algorithm.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L1-L200)
 
 ### Four-Pillar Pedagogical Mastery
 Mastery combines four dimensions into one scalar decision metric. The formula is:
@@ -298,15 +246,6 @@ flowchart TD
   Threshold -->|No| Learning["Topic still learning"]
 ```
 
-**Diagram sources**
-- [src/engine/mastery.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L120)
-- [docs/adr/0004-four-pillar-pedagogical-mastery.md:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
-
-**Section sources**
-- [src/engine/mastery.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L120)
-- [docs/adr/0004-four-pillar-pedagogical-mastery.md:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
-- [docs/03-1-sm2-spaced-repetition-algorithm.md:200-330](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L200-L330)
-
 ### Dependency Graph Engine Using Directed Acyclic Graphs
 PALEE represents prerequisites as a directed graph where edges point from a topic to its required predecessors. The engine supports:
 
@@ -336,10 +275,6 @@ flowchart TD
   CycleOps --> Canonical["canonicalize + deduplicate"]
 ```
 
-**Diagram sources**
-- [src/engine/dependency.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L120)
-- [docs/03-2-dependency-graph-engine.md:120-215](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-2-dependency-graph-engine.md#L120-L215)
-
 #### Prerequisite Satisfaction and Readiness
 A topic is ready when:
 1. It is not already mastered.
@@ -356,14 +291,6 @@ flowchart TD
   DepCheck -->|False| Blocked["Blocked by missing or insufficient prerequisite"]
 ```
 
-**Diagram sources**
-- [src/engine/dependency.ts:1-80](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L80)
-- [docs/03-2-dependency-graph-engine.md:60-120](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-2-dependency-graph-engine.md#L60-L120)
-
-**Section sources**
-- [src/engine/dependency.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L200)
-- [docs/03-2-dependency-graph-engine.md:1-215](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-2-dependency-graph-engine.md#L1-L215)
-
 ### Auto-Chaining Algorithm for Automatic Prerequisite Resolution
 Auto-chaining infers ordered prerequisites from vault layout rather than guessing alphabetically. Its design goals are:
 
@@ -374,11 +301,15 @@ Auto-chaining infers ordered prerequisites from vault layout rather than guessin
 - Explicit separation between inferred and author-authored edges.
 
 #### Lesson Ranking
-Basenames are ranked as follows:
+Basenames are ranked as follows in the operative Tier-0 ordering used by `planAutoChainWithHygiene` (the shipped path via `src/cli/adopt.ts`):
 
-1. Numeric prefix: `01-foundations`, `02-linux/01-processes`.
-2. Phase keyword: `deep-dive`, `lab`, `exam`.
-3. Everything else: stable alphabetical tiebreak.
+1. README-class first.
+2. Numeric prefix: `01-foundations`, `02-linux/01-processes`.
+3. Phase keyword: `deep-dive`, `lab`, `exam`.
+4. Everything else: stable alphabetical tiebreak.
+5. Homework (`assignment`, `quiz`, `solution`) last.
+
+The bare `planAutoChain` comparator (unfiltered) uses only the 3-rank version: numeric -> phase -> alphabetical.
 
 #### Directory Ordering
 Directories are compared segment by segment. Numbered segments dominate unnumbered ones, ancestors sort before descendants, and ties fall back to segment name.
@@ -394,14 +325,6 @@ flowchart TD
   Plan --> Edges["Computed depends_on edges"]
   Edges --> Validation["validateDependencyGraph / detectCycles"]
 ```
-
-**Diagram sources**
-- [src/engine/auto-chain.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L120)
-- [src/engine/tier0-hygiene.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L120)
-
-**Section sources**
-- [src/engine/auto-chain.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L200)
-- [docs/adr/0011-tiered-auto-chain.md:1-99](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0011-tiered-auto-chain.md#L1-L99)
 
 ### Tier-0 Hygiene Classification System
 Tier-0 hygiene is a pre-planning filter that prevents repository furniture from becoming curriculum gates.
@@ -420,23 +343,15 @@ flowchart TD
   ContentDoc -->|No| Leaf
 ```
 
-**Diagram sources**
-- [docs/adr/0010-tier0-hygiene-classification.md:20-72](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0010-tier0-hygiene-classification.md#L20-L72)
-- [src/engine/tier0-hygiene.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L120)
-
 #### Rule Summary
 | Rule | Signal | Outcome |
 |---|---|---|
 | B1 | Repo-meta basename stems | Excluded |
 | B2 | Locale-suffixed generic docs or structural translation segment | Excluded or demoted to leaf |
-| B3 | Template token in stem or directory segment | Excluded or demoted |
+| B3 | Template token in stem or directory segment | Excluded |
 | B4 | Phase subtree segment | Subtree becomes leaves |
 | B5 | README-class, numeric prefix, or content-doc prefix | Backbone eligible |
 | B7 | Invalid `palee_id` | Demoted to leaf |
-
-**Section sources**
-- [src/engine/tier0-hygiene.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L200)
-- [docs/adr/0010-tier0-hygiene-classification.md:1-72](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0010-tier0-hygiene-classification.md#L1-L72)
 
 ### How the Algorithms Work Together
 A typical learning workflow uses these algorithms together:
@@ -460,13 +375,6 @@ flowchart LR
   Readiness --> Recommendations
 ```
 
-**Diagram sources**
-- [src/engine/tier0-hygiene.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L40)
-- [src/engine/auto-chain.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L40)
-- [src/engine/dependency.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L40)
-- [src/engine/mastery.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L40)
-- [src/engine/sm2.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L40)
-
 ## Dependency Analysis
 The engine barrel centralizes imports and exposes a stable API:
 
@@ -482,9 +390,6 @@ graph LR
   TopicId["topic-id.ts"] --> Index
 ```
 
-**Diagram sources**
-- [src/engine/index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
-
 ### Coupling and Cohesion
 - `auto-chain.ts` depends on `tier0-hygiene.ts` for classification.
 - `dependency.ts` depends on `mastery.ts` for the `MASTERY_THRESHOLD`.
@@ -494,12 +399,6 @@ graph LR
 ### External Dependencies
 - The core algorithms depend on TypeScript primitives and standard library functions.
 - They avoid filesystem access, network calls, and external libraries, supporting deterministic testing.
-
-**Section sources**
-- [src/engine/index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
-- [src/engine/auto-chain.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L40)
-- [src/engine/dependency.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L40)
-- [src/engine/sm2.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L40)
 
 ## Performance Considerations
 | Component | Time Complexity | Space Complexity | Key Optimization |
@@ -518,8 +417,6 @@ graph LR
 - **Pathological cycle counts:** Bounded enumeration with a truncation flag protects interactive commands.
 - **Large repository enumerations:** TOC scanning uses bracket-balance tables to avoid quadratic rescans on malformed markdown.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 
 ### SM-2 Issues
@@ -531,18 +428,12 @@ graph LR
 | Error about invalid repetition or lapses | Stored counter is negative, non-integer, or unsafe | Repair stored counters |
 | Future due date appears invalid | Day count exceeds representable calendar range | Investigate extremely long interval history or bypassed cap |
 
-**Section sources**
-- [src/engine/sm2.ts:60-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L60-L200)
-
 ### Mastery Issues
 | Symptom | Likely Cause | Resolution |
 |---|---|---|
 | Mastery stays at 0.60 despite strong conceptual/practical/debug scores | Feynman pillar is missing or zero | Record a non-zero Feynman articulation score |
 | Existing mastery overrides new assessment scores | `existing-first` precedence mode was selected | Use `pillars-first` when new assessment data should win |
 | Non-numeric string scores cause unexpected results | String parsing fallback produced 0.0 | Normalize pillar scores before calculation |
-
-**Section sources**
-- [src/engine/mastery.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L120)
 
 ### Dependency Graph Issues
 | Symptom | Likely Cause | Resolution |
@@ -552,10 +443,6 @@ graph LR
 | Too many cycles reported | Unbounded enumeration triggered | Use bounded enumeration for interactive commands |
 | Advisory edges do not block readiness | `toc` or `tie` source edges are advisory | Treat them as ranking hints, not hard gates |
 
-**Section sources**
-- [src/engine/dependency.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L200)
-- [docs/03-2-dependency-graph-engine.md:120-215](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-2-dependency-graph-engine.md#L120-L215)
-
 ### Auto-Chain Issues
 | Symptom | Likely Cause | Resolution |
 |---|---|---|
@@ -564,20 +451,12 @@ graph LR
 | Phase solutions become lessons | Phase subtree rule violated or misapplied | Respect phase directory semantics |
 | Alphabetical chaining occurs | No numbered layout and no chainable order signal | Add numbering or use `--chain-tier full` where appropriate |
 
-**Section sources**
-- [src/engine/auto-chain.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L120)
-- [docs/adr/0011-tiered-auto-chain.md:1-99](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0011-tiered-auto-chain.md#L1-L99)
-
 ### Tier-0 Hygiene Issues
 | Symptom | Likely Cause | Resolution |
 |---|---|---|
 | Note is excluded from adoption | Matches repo-meta, translation, template, or invalid-palee-id rule | Rename, relocate, or adopt directly in single-file mode |
 | Note is a leaf but expected to gate | Classified as leaf instead of backbone | Add a numeric prefix, README-class name, or phase prefix |
 | Root README does not bridge numbered modules | Layout expectation mismatch | Ensure root README targets first numbered module per owner ruling |
-
-**Section sources**
-- [src/engine/tier0-hygiene.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L200)
-- [docs/adr/0010-tier0-hygiene-classification.md:1-72](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0010-tier0-hygiene-classification.md#L1-L72)
 
 ## Conclusion
 PALEE’s core engine is a composition of small, deterministic algorithms with clear contracts:
@@ -589,8 +468,6 @@ PALEE’s core engine is a composition of small, deterministic algorithms with c
 - Tier-0 hygiene keeps repository noise out of the curriculum graph.
 
 Together, they transform Markdown notes, assessment scores, and review history into safe, reproducible learning recommendations.
-
-[No sources needed since this section summarizes without analyzing specific files]
 
 ## Appendices
 
@@ -608,9 +485,6 @@ The engine barrel exports:
 | Declared prerequisites | Declaration extraction and resolution |
 | Topic ID | Unique `T-` prefixed identifier generation |
 
-**Section sources**
-- [src/engine/index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
-
 ### Appendix B: Design Decisions and Trade-offs
 | Decision | Rationale | Trade-off |
 |---|---|---|
@@ -619,9 +493,3 @@ The engine barrel exports:
 | Advisory TOC edges | Enumeration is weaker evidence than numbering or hand-authored dependencies | Learner must understand edge provenance |
 | Tier-0 hygiene by default | Repository furniture caused measured false edges | Scope is stricter than naïve `.md` scanning |
 | Iterative graph algorithms | Avoid call-stack limits on deep curricula | More code than simple recursive DFS |
-
-**Section sources**
-- [docs/adr/0001-supermemo-sm2-algorithm.md:1-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L1-L63)
-- [docs/adr/0004-four-pillar-pedagogical-mastery.md:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
-- [docs/adr/0010-tier0-hygiene-classification.md:1-72](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0010-tier0-hygiene-classification.md#L1-L72)
-- [docs/adr/0011-tiered-auto-chain.md:1-99](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0011-tiered-auto-chain.md#L1-L99)

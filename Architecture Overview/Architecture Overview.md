@@ -46,55 +46,40 @@
 PALEE is a Personal Active Learning & Evaluation Engine that turns an Obsidian vault into a deterministic study workspace. It reads Markdown notes with YAML frontmatter, computes spaced-repetition schedules using SuperMemo SM-2, evaluates four-pillar mastery, and enforces prerequisite dependencies through a directed acyclic graph. The CLI is the user-facing boundary; the engine is pure computation; the storage layer owns filesystem operations safely; and the validation layer audits vault integrity.
 
 The high-level design principles are:
-- Layered architecture with strict downward dependency direction: CLI depends on application, which depends on engine and storage; engine and storage do not depend on CLI.
+- Layered architecture with strict downward dependency direction (the rule is stated in full under [Dependency Analysis](#dependency-analysis)).
 - Domain-driven design: domain concepts such as `Topic`, `Assessment`, `Review`, sessions, and mastery are modeled explicitly in shared types.
 - Separation of concerns: command parsing and terminal output belong in CLI; scheduling and readiness logic belong in application and engine; persistence, locking, caching, and vault traversal belong in storage.
 - Vault-first data model: the Obsidian vault is the source of truth; PALEE does not introduce a separate database for topic state.
 - Deterministic core: engine algorithms produce identical outputs for identical inputs and avoid I/O.
 
-**Section sources**
-- [README.md:1-120](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L1-L120)
-- [docs/01-2-architecture-overview.md:1-135](https://github.com/Kuldeep2822k/cli/blob/main/docs/01-2-architecture-overview.md#L1-L135)
-
 ## Project Structure
-At the repository root, the project separates executable entry points, source modules, documentation, planning artifacts, examples, tests, and deployment/build scripts. The main runtime package is published under `@kuldeep2822k/palee`, ships compiled JavaScript under `dist`, and exposes a `palee` binary.
+The repository root separates the executable entry point, runtime source, documentation, planning artifacts, architecture models, tests, examples, and release scripts. The runtime package is published as `@kuldeep2822k/palee`, ships compiled JavaScript under `dist`, and exposes a `palee` binary.
 
-```mermaid
-graph TB
-    Root["Repository Root"]
-    Bin["bin/palee.ts<br/>CLI entry point"]
-    Src["src/<br/>Runtime modules"]
-    Types["src/types.ts<br/>Shared domain models"]
-    Engine["src/engine/*<br/>Pure computation"]
-    Application["src/application/*<br/>Use cases"]
-    Validation["src/validation/*<br/>Audit framework"]
-    Storage["src/storage/*<br/>Filesystem and memory"]
-    Docs["docs/<br/>Architecture and ADRs"]
-    Tests["test/<br/>Unit, integration, e2e"]
-    Package["package.json<br/>Node, TypeScript, Commander, YAML"]
-
-    Root --> Bin
-    Root --> Src
-    Root --> Docs
-    Root --> Tests
-    Root --> Package
-    Src --> Engine
-    Src --> Application
-    Src --> Validation
-    Src --> Storage
-    Src --> Types
-    Bin --> Src
+```text
+cli/
+├── bin/
+│   └── palee.ts          Entry point: Commander registration, exit-code tail, update notice
+├── src/
+│   ├── index.ts          Library barrel re-exporting the public contract
+│   ├── types.ts          Shared domain models, CLI option types, config and session schemas
+│   ├── cli/              Command handlers, config management, exit codes, update check
+│   ├── application/      Use-case orchestration (next topics, review and assessment recording)
+│   ├── engine/           Pure computation: SM-2, mastery, dependency graph, TOC chains, topic IDs
+│   ├── storage/          Filesystem boundary: vault walking, frontmatter, locking, atomic writes, cache, sessions
+│   ├── validation/       Vault audit framework: collector, ordered rule catalog, formatters
+│   └── ai/               Optional AI provider boundary; the only module that opens network sockets
+├── docs/                 Numbered documentation set (01-09) plus adr/ with the decision records
+├── architecture/         Architecture model (Structurizr DSL), dependency graphs, audit evidence
+├── planning/             Phase specifications and the invariant catalog (INV-01 and onward)
+├── test/                 Node test runner suites: unit, integration, e2e, and fuzz coverage
+├── examples/             Sample vault notes used by documentation and tests
+├── scripts/              Release tooling: package packing, tarball verification, installed smoke test
+├── assets/               Project images and logos
+├── package.json          Package manifest for @kuldeep2822k/palee; declares the palee binary
+└── dist/                 Compiled JavaScript build output shipped by npm
 ```
 
-**Diagram sources**
-- [package.json:1-85](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L1-L85)
-- [bin/palee.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L60)
-- [src/index.ts:1-27](https://github.com/Kuldeep2822k/cli/blob/main/src/index.ts#L1-L27)
-
-**Section sources**
-- [package.json:1-85](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L1-L85)
-- [bin/palee.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L60)
-- [src/index.ts:1-27](https://github.com/Kuldeep2822k/cli/blob/main/src/index.ts#L1-L27)
+Each `src/` subdirectory corresponds to one layer in the Core Components table below; `docs/` and `planning/` hold the written contracts (architecture documents, ADRs, and invariants) that the code is checked against.
 
 ## Core Components
 PALEE is organized around five import-reachable layers plus shared types and optional AI integration:
@@ -110,13 +95,8 @@ PALEE is organized around five import-reachable layers plus shared types and opt
 
 The library barrel at [src/index.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/index.ts) re-exports domain types, engine, storage, and validation subsystems so consumers can import the public contract without coupling to internal module layout.
 
-**Section sources**
-- [src/index.ts:1-27](https://github.com/Kuldeep2822k/cli/blob/main/src/index.ts#L1-L27)
-- [src/types.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L120)
-- [docs/01-2-architecture-overview.md:25-85](https://github.com/Kuldeep2822k/cli/blob/main/docs/01-2-architecture-overview.md#L25-L85)
-
 ## Architecture Overview
-PALEE follows a layered architecture where each higher layer calls lower layers but never imports upward. The system boundaries are:
+The diagram below shows the system boundaries; the dependency rules behind it are stated once, under [Dependency Analysis](#dependency-analysis):
 
 ```mermaid
 graph TB
@@ -151,25 +131,11 @@ graph TB
     CLI -. "Delegates update" .-> NPM
 ```
 
-**Diagram sources**
-- [bin/palee.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L60)
-- [src/application/get-next-topics.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L60)
-- [src/engine/index.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L40)
-- [src/storage/index.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L40)
-- [src/validation/index.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L1-L40)
-- [src/types.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L60)
-- [README.md:1-120](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L1-L120)
-
 The architecture emphasizes:
 - **Vault as source of truth**: Notes are Markdown with YAML frontmatter. No secondary database holds topic state.
 - **Deterministic computation**: Engine functions are side-effect free and testable in isolation.
 - **Safe persistence**: All mutations go through storage abstractions that enforce containment, locking, and atomic replacement.
 - **Auditable integrity**: Validation rules run in a fixed order and produce structured findings rather than ad hoc console warnings.
-
-**Section sources**
-- [docs/01-2-architecture-overview.md:1-135](https://github.com/Kuldeep2822k/cli/blob/main/docs/01-2-architecture-overview.md#L1-L135)
-- [docs/03-0-engine-core.md:1-60](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-0-engine-core.md#L1-L60)
-- [docs/04-0-storage-layer.md:1-60](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-0-storage-layer.md#L1-L60)
 
 ## Detailed Component Analysis
 
@@ -212,24 +178,10 @@ sequenceDiagram
     CLI-->>Output: JSON or formatted response
 ```
 
-**Diagram sources**
-- [bin/palee.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L120)
-- [src/cli/next.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L60)
-- [src/cli/config.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L60)
-- [src/application/get-next-topics.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L60)
-- [src/engine/index.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L40)
-
-**Section sources**
-- [bin/palee.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L120)
-- [src/cli/program-name.ts:1-91](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/program-name.ts#L1-L91)
-- [src/cli/config.ts:1-80](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L80)
-- [src/cli/exit-codes.ts:1-65](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts#L1-L65)
-- [src/cli/next.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L60)
-
 ### Application Layer
 The application layer encapsulates business workflows that combine storage reads and engine computations without touching Commander or process globals. The primary example is next-topic selection:
 
-- It loads topics through storage.
+- Receives topics already loaded by the CLI via storage; it performs no I/O itself.
 - It partitions due and never-reviewed candidates.
 - It applies the prerequisite gate using the engine.
 - It returns actionable topics and explains blocked topics.
@@ -245,13 +197,6 @@ flowchart TD
     AddBlocked --> Result["Return { dueTopics, totalTopics, blockedTopics }"]
     AddActionable --> Result
 ```
-
-**Diagram sources**
-- [src/application/get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [src/engine/index.ts:40-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L40-L126)
-
-**Section sources**
-- [src/application/get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
 
 ### Engine Layer
 The engine is the deterministic core. It provides:
@@ -311,13 +256,6 @@ classDiagram
     EngineIndex --> Dependency : "delegates"
 ```
 
-**Diagram sources**
-- [src/engine/index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
-
-**Section sources**
-- [docs/03-0-engine-core.md:1-120](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-0-engine-core.md#L1-L120)
-- [src/engine/index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
-
 ### Storage Layer
 The storage layer is the single boundary over the filesystem. Its public API bundles vault traversal, frontmatter manipulation, locking, atomic writes, caching, roadmap parsing, pattern matching, TOC discovery, session memory, and topic loading.
 
@@ -337,23 +275,14 @@ flowchart TD
 
     Vault --> Walker
     Walker --> Scanner
-    Scanner --> Loader
+    Walker --> Loader
     Loader --> Frontmatter
     Loader --> Cache
     AtomicWrite --> Frontmatter
     AtomicWrite --> Lock
     AtomicWrite --> Containment
-    Memory --> Sessions
+    Sessions --> Memory
 ```
-
-**Diagram sources**
-- [src/storage/index.ts:1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
-- [src/storage/atomic-write.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L60)
-- [src/storage/containment.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts#L1-L60)
-
-**Section sources**
-- [docs/04-0-storage-layer.md:1-145](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-0-storage-layer.md#L1-L145)
-- [src/storage/index.ts:1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
 
 ### Validation Layer
 The validation layer runs a fixed catalog of rules over collected vault entities. Its role is to audit data integrity, classify severity and fixability, and produce deterministic output suitable for humans and machines.
@@ -369,7 +298,7 @@ flowchart TD
         Parse["parse-frontmatter, read-failure"]
         Kind["valid-managed-note-kind"]
         Schema["valid-palee-schema"]
-        Identity["valid-topic-id-format, no-duplicate-topic-id"]
+        Identity["valid-topic-id-format, valid-topic-status, no-duplicate-topic-id"]
         Graph["valid-dependency-list, no-missing-dependency, no-dependency-cycle"]
         Assessment["valid-assessment-fields, valid-topic-mastery"]
         Review["valid-review-fields, valid-review-dates"]
@@ -390,19 +319,13 @@ flowchart TD
     Rules --> Paths
 ```
 
-**Diagram sources**
-- [src/validation/index.ts:1-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L1-L130)
-
-**Section sources**
-- [src/validation/index.ts:1-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L1-L130)
-
 ## Dependency Analysis
 The dependency direction is intentionally restrictive:
 
-- CLI depends on application, validation, shared types, and configuration helpers.
+- CLI depends on application, validation, shared types, and configuration helpers, plus the storage error guards and the AI ProviderError type, used only by the exit-code mapper.
 - Application depends on engine and storage.
 - Validation depends on storage reads and shared types.
-- Engine depends only on shared types and pure algorithm modules.
+- Engine depends primarily on shared types and pure algorithm modules, with one named boundary exception: `src/engine/sm2.ts` imports `formatDiagnosticValue` from `../validation/rules/diagnostic-value` (engine -> validation).
 - Storage depends on Node.js filesystem APIs and shared types.
 - No layer imports its caller.
 
@@ -419,17 +342,6 @@ graph LR
     Storage --> Types
 ```
 
-**Diagram sources**
-- [bin/palee.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L60)
-- [src/application/get-next-topics.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L40)
-- [src/validation/index.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L1-L40)
-- [src/engine/index.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L40)
-- [src/storage/index.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L40)
-- [src/types.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L40)
-
-**Section sources**
-- [docs/01-2-architecture-overview.md:15-40](https://github.com/Kuldeep2822k/cli/blob/main/docs/01-2-architecture-overview.md#L15-L40)
-
 ## Performance Considerations
 Performance is primarily addressed by the storage layer's read path and cache:
 
@@ -445,14 +357,12 @@ Optimization opportunities should preserve the existing contracts:
 - Treat `FileCache` as performance-only; it must be deletable without changing behavior.
 - Do not replace the vault-first model with an in-process database.
 
-[No sources needed since this section provides general guidance]
-
 ## Security Model and System Boundaries
 The security model centers on three boundaries:
 
-1. **Vault containment**: Write destinations must resolve inside the configured vault root. Escape attempts raise a containment error rather than a retryable conflict.
+1. **Vault containment**: Write destinations must resolve inside the configured vault root. Escape attempts raise a dedicated containment error (`ECONTAINMENT`) rather than a retryable conflict. Containment is its own error category, but not its own exit code: the exit-code mapper (`exitCodeFor` in `src/cli/exit-codes.ts`) classifies a containment refusal as a validation failure, so it exits with code `3`.
 2. **Credential handling**: API keys are stored securely on POSIX (`0600`) and refused outside safe profile roots on Windows unless explicitly overridden. Keys are never printed.
-3. **Network boundary**: Only `config test-connection` reaches a provider endpoint directly. Other commands delegate update checks to npm and do not open network sockets themselves.
+3. **Network boundary**: Only `config test-connection` reaches a provider endpoint directly. Only the update path (`update.ts` and `update-check.ts`, which spawn npm) delegates update checks to npm; other commands do not open network sockets themselves.
 
 ```mermaid
 flowchart TD
@@ -470,24 +380,16 @@ flowchart TD
     OtherCommands["Other Commands"] --> NoDirect["No direct network call"]
 ```
 
-**Diagram sources**
-- [src/storage/containment.ts:1-185](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts#L1-L185)
-- [src/cli/config.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L120)
-- [README.md:60-120](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L60-L120)
-
-**Section sources**
-- [src/storage/containment.ts:1-185](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts#L1-L185)
-- [src/cli/config.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L120)
-- [README.md:60-120](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L60-L120)
-
 ## Concurrency, Atomicity, and Containment
-PALEE implements a two-tier synchronization mechanism for vault writes:
+PALEE implements a two-tier synchronization mechanism for vault writes, as decided in ADR-0002:
 
-1. **Cross-process mutex**: Directory-based locking under `.palee/locks/` prevents concurrent PALEE writers from stepping on each other. Heartbeats allow stale-lock recovery.
-2. **Optimistic concurrency control**: Before writing, the expected content fingerprint is validated. A mismatch raises a conflict error mapped to exit code `4`.
-3. **Atomic replacement**: Writes target a unique temporary file, flush data, then atomically rename it over the destination.
-4. **Stale temp reclaim**: Crashed writers may leave temporary files; the current writer reclaims only its own abandoned temps after staleness and owner liveness checks.
-5. **Containment refusal**: Any resolved destination outside the vault is rejected with a dedicated containment error.
+1. **Tier 1 — Cross-process mutex**: Directory-based locking under `.palee/locks/` (one target-hashed lock directory per file) prevents concurrent PALEE writers from stepping on each other. Heartbeats allow stale-lock recovery.
+2. **Tier 2 — Optimistic concurrency control and atomic overwrite**: Before writing, the expected SHA-256 content fingerprint is validated; a mismatch raises a conflict error mapped to exit code `4`. The write itself goes to a unique temporary file, is flushed with `fsync`, and is then atomically renamed over the destination.
+
+Two supporting behaviors sit around the tiers; they are not synchronization tiers themselves:
+
+- **Stale temp reclaim**: Crashed writers may leave temporary files; the current writer reclaims only its own abandoned temps after staleness and owner liveness checks.
+- **Containment refusal**: A precondition of every write rather than a synchronization mechanism — any resolved destination outside the vault is rejected with the dedicated containment error (`ECONTAINMENT`), which the exit-code mapper classifies as a validation failure (exit code `3`; see Security Model and System Boundaries).
 
 ```mermaid
 flowchart TD
@@ -504,17 +406,6 @@ flowchart TD
     DirFsync --> Success["Success"]
 ```
 
-**Diagram sources**
-- [src/storage/atomic-write.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L120)
-- [src/storage/containment.ts:120-185](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts#L120-L185)
-- [docs/adr/0002-atomic-file-locking-and-occ.md:1-56](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0002-atomic-file-locking-and-occ.md#L1-L56)
-
-**Section sources**
-- [docs/adr/0002-atomic-file-locking-and-occ.md:1-56](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0002-atomic-file-locking-and-occ.md#L1-L56)
-- [src/storage/atomic-write.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L120)
-- [src/storage/containment.ts:1-185](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts#L1-L185)
-- [src/cli/exit-codes.ts:1-65](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts#L1-L65)
-
 ## Validation Framework
 The validation framework is an auditable pipeline:
 
@@ -523,10 +414,7 @@ The validation framework is an auditable pipeline:
 3. **Classification**: Each finding has severity and fixability information.
 4. **Formatting**: Human and JSON formatters support both interactive users and automation.
 
-The canonical rule catalog includes parse/read failures, managed-note kind, schema version, identity, dependency shape, missing dependencies, cycles, assessment fields, mastery consistency, review fields, review dates, session schema, unknown session references, session index, hot memory, and safe vault paths.
-
-**Section sources**
-- [src/validation/index.ts:1-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L1-L130)
+The canonical rule catalog includes parse/read failures, managed-note kind, schema version, identity, topic status, dependency shape, missing dependencies, cycles, assessment fields, mastery consistency, review fields, review dates, session schema, unknown session references, session index, hot memory, and safe vault paths.
 
 ## Data Flow from User Input to Storage
 A typical write flow, such as recording a review, moves through the following stages:
@@ -557,16 +445,6 @@ sequenceDiagram
     FS-->>CLI: Success or Conflict
 ```
 
-**Diagram sources**
-- [src/cli/next.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L60)
-- [src/application/get-next-topics.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L60)
-- [src/engine/index.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L40)
-- [src/storage/atomic-write.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L60)
-
-**Section sources**
-- [docs/01-2-architecture-overview.md:85-135](https://github.com/Kuldeep2822k/cli/blob/main/docs/01-2-architecture-overview.md#L85-L135)
-- [docs/04-0-storage-layer.md:120-145](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-0-storage-layer.md#L120-L145)
-
 ## Technology Stack
 PALEE is a Node.js application written in TypeScript:
 
@@ -577,11 +455,7 @@ PALEE is a Node.js application written in TypeScript:
 | CLI Framework | Commander | Declarative command registration and option parsing |
 | YAML Parsing | YAML | Reads and writes YAML frontmatter used by Obsidian notes |
 | Persistence | Markdown + YAML frontmatter | Vault-first design keeps data human-readable and portable |
-| Test Runner | Node test runner with TSX | Fast unit, integration, and e2e testing without extra runtime dependencies |
-
-**Section sources**
-- [package.json:1-85](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L1-L85)
-- [README.md:30-60](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L30-L60)
+| Test Runner | Node test runner with TSX | Fast unit, integration, and e2e testing with no test-framework dependency beyond the tsx loader (devDependency) |
 
 ## Deployment Topology and Infrastructure Requirements
 PALEE is deployed as a local CLI tool installed through npm. The topology is simple because it does not run a server.
@@ -608,14 +482,6 @@ Infrastructure requirements:
 - Optional network access only for `palee update` (delegated to npm) and `palee config test-connection`.
 - Platform-specific file permissions respected on POSIX; Windows relies on profile-root safety checks for credential-bearing config.
 
-**Diagram sources**
-- [README.md:30-120](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L30-L120)
-- [package.json:1-85](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L1-L85)
-
-**Section sources**
-- [README.md:30-120](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L30-L120)
-- [package.json:1-85](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L1-L85)
-
 ## Extension Points and Future Capabilities
 The architecture leaves deliberate extension points:
 
@@ -628,15 +494,9 @@ The architecture leaves deliberate extension points:
 Future capabilities should respect existing constraints:
 - Do not bypass vault containment.
 - Do not store secrets in command-line arguments.
-- Do not introduce network calls from non-AI commands.
+- Do not open network sockets outside the AI provider boundary. Per INV-29, non-AI commands open no network sockets; the only network-adjacent surface outside the AI module is the update path (`palee update` and the new-version notice), which delegates registry access to the user's own npm child process instead of opening a socket itself.
 - Keep engine calculations deterministic and side-effect free.
 - Preserve backward compatibility of frontmatter fields and session schemas through migration and validation rules.
-
-**Section sources**
-- [README.md:1-120](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L1-L120)
-- [src/validation/index.ts:80-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L80-L130)
-- [src/engine/index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
-- [src/storage/index.ts:1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
 
 ## Troubleshooting Guide
 Common operational signals and their architectural meaning:
@@ -644,7 +504,7 @@ Common operational signals and their architectural meaning:
 | Symptom | Likely Cause | Correct Handling |
 |---|---|---|
 | Exit code `2` | Invalid usage, missing vault, or provider configuration problem | Fix CLI arguments or configuration; do not retry automatically |
-| Exit code `3` | Validation failure, bad schema, or destination escapes vault containment | Repair vault data or correct path/link; retrying will not fix containment |
+| Exit code `3` | Validation failure: bad schema, vault integrity error, or a write destination escaping vault containment (`ECONTAINMENT`) | Repair vault data or correct path/link; retrying will not fix containment |
 | Exit code `4` | Optimistic concurrency conflict or active lock | Reload vault state and retry the write once or with backoff |
 | Exit code `5` | Unexpected runtime exception or provider I/O failure | Inspect logs; treat as a crash-class error rather than user-config error |
 | Note not updated | Concurrent edit or lock held by another process | Wait, close conflicting editors, or investigate stale locks |
@@ -653,13 +513,5 @@ Common operational signals and their architectural meaning:
 
 The exit-code mapper centralizes conflict, containment, and provider error classification so handlers do not hard-code numeric values.
 
-**Section sources**
-- [src/cli/exit-codes.ts:1-65](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts#L1-L65)
-- [src/storage/atomic-write.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L120)
-- [src/storage/containment.ts:1-185](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts#L1-L185)
-- [README.md:60-120](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L60-L120)
-
 ## Conclusion
 PALEE’s architecture is a disciplined separation between user interface, business workflow, pure computation, and safe persistence. The Obsidian vault is the authoritative data store, the engine is deterministic, and the storage layer enforces containment, locking, atomicity, and optimistic concurrency. The validation framework provides a stable audit surface for vault integrity, while the optional AI boundary allows future capability growth without compromising the security and determinism guarantees of the core system. For maintainers, the most important rule is to keep dependencies downward, keep engine logic pure, and route every filesystem mutation through the storage layer.
-
-[No sources needed since this section summarizes without analyzing specific files]

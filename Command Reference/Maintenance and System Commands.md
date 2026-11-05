@@ -26,17 +26,13 @@
 ## Introduction
 This document describes PALEE's maintenance and system administration commands: `validate`, `migrate`, `session`, `update`, and the vault inspection utility exposed through `vault-echo`. It explains how each command validates, repairs, migrates, records, or inspects vault state; what options are available; what output formats to expect; and which exit codes indicate success, usage problems, validation failures, conflicts, or unexpected errors.
 
-These commands share a common design:
-- They load per-run configuration from a config file.
-- They resolve and validate the vault target before mutating data.
+Most of these commands share a common design:
+- `validate`, `migrate`, and `session` load per-run configuration from a config file, and resolve and validate the vault target before mutating data.
+- `update` is the exception: it is machine-level (like `config`), loads no config, resolves no vault, and never touches the vault; it also has no `--json` surface.
 - Human-mode output is human-readable prose; machine-mode output (`--json`) emits one structured JSON document on stdout with diagnostics on stderr.
 - Exit codes follow a documented contract rather than Node's default behavior.
 
 The CLI entry point registers all commands and their help text, while individual handler modules implement the business logic for each action.
-
-**Section sources**
-- [bin/palee.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L60)
-- [bin/palee.ts:201-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L201-L389)
 
 ## Project Structure
 PALEE organizes maintenance commands as separate TypeScript handlers under the CLI module, then wires them into the Commander-based CLI entry point.
@@ -50,18 +46,6 @@ graph TB
   Entry --> VaultEcho["Vault Target Utility<br/>src/cli/vault-echo.ts"]
 ```
 
-**Diagram sources**
-- [bin/palee.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L60)
-- [src/cli/validate.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L1-L40)
-- [src/cli/migrate.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/migrate.ts#L1-L30)
-- [src/cli/session.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L30)
-- [src/cli/update.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update.ts#L1-L20)
-- [src/cli/vault-echo.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/vault-echo.ts#L1-L30)
-
-**Section sources**
-- [bin/palee.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L60)
-- [bin/palee.ts:201-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L201-L389)
-
 ## Core Components
 | Command | Purpose | Key Options | Primary Output |
 |---|---|---|---|
@@ -71,20 +55,13 @@ graph TB
 | `palee update` | Checks the latest published version and optionally upgrades the global install through npm. | `--dry-run` | Version status and npm invocation preview |
 | Vault inspection | Resolves and echoes the active vault and config paths used by a run. | Used internally by other commands | Two-line echo or two JSON fields |
 
-**Section sources**
-- [src/cli/validate.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L1-L40)
-- [src/cli/migrate.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/migrate.ts#L1-L30)
-- [src/cli/session.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L30)
-- [src/cli/update.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update.ts#L1-L20)
-- [src/cli/vault-echo.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/vault-echo.ts#L1-L30)
-
 ## Architecture Overview
 Each maintenance command follows a similar lifecycle:
 
 ```mermaid
 flowchart TD
-  Start(["Command Invocation"]) --> LoadConfig["Load Configuration"]
-  LoadConfig --> ResolveTarget["Resolve and Validate Vault Target"]
+  Start(["Command Invocation"]) --> LoadConfig["Load Configuration<br/>(validate / migrate / session)"]
+  LoadConfig --> ResolveTarget["Resolve and Validate Vault Target<br/>(validate / migrate / session;<br/>update skips both steps)"]
   ResolveTarget --> RunAction["Run Command-Specific Action"]
   RunAction --> HumanOrJson{"Human Mode or JSON?"}
   HumanOrJson -->|Human| PrintProse["Print Human Report"]
@@ -94,18 +71,10 @@ flowchart TD
   ExitCode --> End(["Process Exit"])
 ```
 
-**Diagram sources**
-- [bin/palee.ts:201-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L201-L389)
-- [src/cli/vault-echo.ts:60-138](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/vault-echo.ts#L60-L138)
-
 Key responsibilities:
 - `bin/palee.ts`: Registers commands, parses arguments, handles fatal exceptions, and provides environment/help documentation.
 - `src/cli/vault-echo.ts`: Centralizes vault resolution and echoing so every mutating command reports its actual target.
 - Individual handlers: Implement command-specific validation, mutation, reporting, and error handling.
-
-**Section sources**
-- [bin/palee.ts:201-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L201-L389)
-- [src/cli/vault-echo.ts:60-138](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/vault-echo.ts#L60-L138)
 
 ## Detailed Component Analysis
 
@@ -134,12 +103,19 @@ The validate command scans the vault, runs validation rules, and reports finding
 - A conflict inside one repair does not abort unrelated repairs.
 
 #### JSON Report Fields
-- Issues array with severity, rule id, and diagnostic context.
-- `topicCount`: unique topic count.
-- `fileCount`: scanned file count.
+The `validate --json` payload uses snake_case keys:
+- `valid`: whether no errors were found.
 - `strict`: whether strict mode was enabled.
-- `repairs`: repair entries when `--fix` ran.
-- `repair_conflicts`: conflicts encountered during repair.
+- `gated_by_warnings`: whether a warnings-only run was gated by `--strict`.
+- `topic_count`: unique topic count.
+- `file_count`: scanned file count.
+- `error_count`: number of errors.
+- `warning_count`: number of warnings.
+- `errors`: array of error entries, kept separate from `warnings`.
+- `warnings`: array of warning entries, kept separate from `errors`.
+- Entries in `errors` and `warnings` carry `type`, `rule_id`, `severity`, and `message`.
+- `repairs`: repair entries added by the handler when `--fix` ran.
+- `repair_conflicts`: conflicts encountered during repair, added by the handler when `--fix` ran.
 
 #### Exit Codes
 | Condition | Exit Code |
@@ -154,11 +130,6 @@ The validate command scans the vault, runs validation rules, and reports finding
 2. Fix safe issues: `palee validate --fix`.
 3. Treat warnings as failures in CI: `palee validate --strict`.
 4. Review repaired fields and conflicts from the JSON report.
-
-**Section sources**
-- [src/cli/validate.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L1-L120)
-- [src/cli/validate.ts:201-330](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L201-L330)
-- [src/cli/validate.ts:331-535](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L331-L535)
 
 ### `palee migrate`
 The migrate command performs two related but distinct maintenance tasks:
@@ -219,12 +190,6 @@ A stored tie is considered relabelable only when:
 3. Include unlabeled ties: `palee migrate --relabel-ties --include-unlabeled-ties --dry-run`.
 4. Apply fixes: `palee migrate --fix --relabel-ties`.
 
-**Section sources**
-- [src/cli/migrate.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/migrate.ts#L1-L120)
-- [src/cli/migrate.ts:201-489](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/migrate.ts#L201-L489)
-- [src/cli/migrate.ts:490-801](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/migrate.ts#L490-L801)
-- [bin/palee.ts:201-260](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L201-L260)
-
 ### `palee session`
 The session command manages the lifecycle of a learning session and its working memory. Supported actions are `start`, `draft`, `end`, and `list`.
 
@@ -267,17 +232,11 @@ When unconfirmed draft checkpoints exist and `--interactive` is not supplied, `s
 - Hot memory disappears during start/end is treated as a runtime error.
 
 #### Example Workflow
-1. Start a session: `palee session start --topic topic-linear-algebra`.
-2. Create a draft checkpoint: `palee session draft --topic topic-linear-algebra`.
+1. Start a session: `palee session start --topic T-linear-algebra`.
+2. Create a draft checkpoint: `palee session draft --topic T-linear-algebra`.
 3. Resolve pending drafts: `palee session start --interactive`.
-4. End a session: `palee session end --topic topic-linear-algebra`.
+4. End a session: `palee session end --topic T-linear-algebra`.
 5. List sessions: `palee session list --json`.
-
-**Section sources**
-- [src/cli/session.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L120)
-- [src/cli/session.ts:201-553](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L201-L553)
-- [src/cli/session.ts:554-888](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L554-L888)
-- [bin/palee.ts:260-320](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L260-L320)
 
 ### `palee update`
 The update command checks the latest published version of PALEE and optionally upgrades the global installation through npm.
@@ -306,10 +265,6 @@ The update command checks the latest published version of PALEE and optionally u
 1. Check for updates: `palee update`.
 2. Preview without installing: `palee update --dry-run`.
 
-**Section sources**
-- [src/cli/update.ts:1-84](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update.ts#L1-L84)
-- [bin/palee.ts:320-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L320-L389)
-
 ### Vault Inspection Utilities
 The vault inspection utilities resolve the vault target used by a command and provide both human-readable and machine-readable forms.
 
@@ -325,9 +280,6 @@ Most mutating commands call this utility instead of duplicating vault validation
 #### Example Outputs
 - Human mode: two lines naming the vault and config path.
 - JSON mode: `vault_path` and `config_path` fields embedded in the command's JSON document.
-
-**Section sources**
-- [src/cli/vault-echo.ts:1-138](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/vault-echo.ts#L1-L138)
 
 ## Dependency Analysis
 The maintenance commands depend on shared infrastructure rather than implementing vault I/O themselves.
@@ -354,28 +306,12 @@ graph LR
   VaultEcho --> Onboarding["onboarding.validateVaultPath"]
 ```
 
-**Diagram sources**
-- [src/cli/validate.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L1-L40)
-- [src/cli/migrate.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/migrate.ts#L1-L30)
-- [src/cli/session.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L40)
-- [src/cli/update.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update.ts#L1-L20)
-- [src/cli/vault-echo.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/vault-echo.ts#L1-L30)
-
-**Section sources**
-- [src/cli/validate.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L1-L40)
-- [src/cli/migrate.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/migrate.ts#L1-L30)
-- [src/cli/session.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L40)
-- [src/cli/update.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update.ts#L1-L20)
-- [src/cli/vault-echo.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/vault-echo.ts#L1-L30)
-
 ## Performance Considerations
 - `validate` may scan the entire vault twice when `--fix` is used: once before repair and again after repair to reflect fresh disk state.
 - `migrate` reads the vault once and derives both tie auditing and schema classification from that snapshot, minimizing redundant scanning.
 - Atomic writes use optimistic concurrency control, so concurrent mutations cause retries or conflicts rather than silent overwrites.
 - Derived view rebuilds delegate to storage-layer routines that already encapsulate session selection, truncation limits, and locking policy.
 - `session list` reads the sessions directory directly and should be lightweight unless the directory contains many session files.
-
-[No sources needed since this section provides general guidance]
 
 ## Troubleshooting Guide
 
@@ -396,9 +332,6 @@ graph LR
 - Conflict exit code means locks or optimistic-concurrency collisions require a retry.
 - Unexpected exit code indicates read/write failures unrelated to schema recognition.
 
-**Section sources**
-- [src/cli/migrate.ts:490-801](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/migrate.ts#L490-L801)
-
 ### Session Corruption
 **Symptoms:**
 - `session start` warns about corrupt hot memory.
@@ -416,10 +349,6 @@ graph LR
 - Interactive recovery failure leaves unresolved drafts and exits with a usage-style error.
 - Runtime disappearance of hot memory escalates to an unexpected or partial-import error depending on the stage.
 
-**Section sources**
-- [src/cli/session.ts:201-553](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L201-L553)
-- [src/cli/session.ts:554-888](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L554-L888)
-
 ### Update Failures
 **Symptoms:**
 - `palee update` reports it could not determine the latest version.
@@ -431,9 +360,6 @@ graph LR
 3. Check network connectivity and npm configuration.
 4. Re-run without `--dry-run` after resolving registry or permission issues.
 
-**Section sources**
-- [src/cli/update.ts:1-84](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update.ts#L1-L84)
-
 ### Validation Conflicts After Repair
 **Symptoms:**
 - `palee validate --fix` reports skipped repairs due to conflicts.
@@ -444,9 +370,6 @@ graph LR
 2. Resolve concurrent edits or file locks.
 3. Re-run `palee validate --fix`.
 4. If remaining issues are warnings, add `--strict` to enforce a failure in automated environments.
-
-**Section sources**
-- [src/cli/validate.ts:201-535](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L201-L535)
 
 ## Conclusion
 PALEE's maintenance commands provide a consistent interface for vault health checks, schema migration, prerequisite tie correction, session lifecycle management, and version updates. The most important operational principles are:
@@ -466,8 +389,6 @@ Recommended baseline maintenance workflow:
 7. Finish sessions with `palee session end`.
 8. Run `palee update --dry-run` and then `palee update` when ready.
 
-[No sources needed since this section summarizes without analyzing specific files]
-
 ## Appendices
 
 ### Environment Variables
@@ -477,7 +398,3 @@ Recommended baseline maintenance workflow:
 | `PALEE_JSON` | Global | Requests JSON output where supported. |
 | `PALEE_NO_UPDATE_CHECK` | Global | Silences the new-version notice for interactive runs. |
 | `PALEE_DEBUG` | Global | Enables raw stack traces on fatal errors. |
-
-**Section sources**
-- [bin/palee.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L60)
-- [bin/palee.ts:320-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L320-L389)

@@ -5,7 +5,7 @@
 - [package.json](https://github.com/Kuldeep2822k/cli/blob/main/package.json)
 - [src/index.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/index.ts)
 - [src/types.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts)
-- [bin/bin/palee.ts](https://github.com/Kuldeep2822k/cli/blob/main/bin/bin/palee.ts)
+- [bin/palee.ts](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts)
 - [src/cli/program-name.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/program-name.ts)
 - [src/cli/config.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts)
 - [src/cli/exit-codes.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts)
@@ -40,10 +40,6 @@ PALEE is a layered TypeScript application that turns a markdown-based knowledge 
 
 At runtime, Node.js loads the published binary entry point from `package.json`, which registers Commander commands. Those command handlers parse user input, call application-layer use cases, delegate algorithms to the engine, persist changes through the storage subsystem, and map errors to documented exit codes. The library root re-exports shared types and the three subsystem barrels so consumers can import only what they need.
 
-**Section sources**
-- [package.json:1-85](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L1-L85)
-- [src/index.ts:1-27](https://github.com/Kuldeep2822k/cli/blob/main/src/index.ts#L1-L27)
-
 ## Project Structure
 The repository is organized by feature and architectural layer rather than by file type:
 
@@ -69,21 +65,6 @@ graph TB
     Validation --> Types
 ```
 
-**Diagram sources**
-- [package.json:1-85](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L1-L85)
-- [src/index.ts:1-27](https://github.com/Kuldeep2822k/cli/blob/main/src/index.ts#L1-L27)
-- [src/types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)
-- [src/cli/program-name.ts:1-91](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/program-name.ts#L1-L91)
-- [src/application/get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [src/engine/index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
-- [src/storage/index.ts:1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
-- [src/validation/index.ts:1-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L1-L130)
-
-**Section sources**
-- [package.json:1-85](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L1-L85)
-- [src/index.ts:1-27](https://github.com/Kuldeep2822k/cli/blob/main/src/index.ts#L1-L27)
-- [src/types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)
-
 ## Core Components
 
 ### CLI Layer
@@ -99,11 +80,6 @@ Example responsibility boundaries:
 - Program name derivation lives in [src/cli/program-name.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/program-name.ts).
 - Configuration loading, saving, and credential safety live in [src/cli/config.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts).
 - Exit-code classification delegates error-type checks to storage and AI modules via [src/cli/exit-codes.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts).
-
-**Section sources**
-- [src/cli/program-name.ts:1-91](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/program-name.ts#L1-L91)
-- [src/cli/config.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L200)
-- [src/cli/exit-codes.ts:1-65](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts#L1-L65)
 
 ### Application Layer
 The application layer contains pure use cases. It takes already-loaded domain data and returns structured results without touching the filesystem, network, commander, or process globals. This makes it trivially unit-testable and reusable across non-CLI interfaces.
@@ -127,16 +103,6 @@ flowchart TD
     AddToResult --> Return["Return result"]
     RecordBlock --> Return
 ```
-
-**Diagram sources**
-- [src/application/get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [src/application/due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-
-**Section sources**
-- [src/application/get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [src/application/due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [src/application/record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [src/application/record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
 
 ### Engine Layer
 The engine layer holds deterministic domain algorithms. It has no I/O, no network calls, and no process-level concerns. Its public surface is exposed through the engine barrel at [src/engine/index.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts).
@@ -180,18 +146,6 @@ classDiagram
     EngineBarrel --> Dependency : "re-exports"
 ```
 
-**Diagram sources**
-- [src/engine/index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
-- [src/engine/sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-- [src/engine/mastery.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L200)
-- [src/engine/dependency.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L200)
-
-**Section sources**
-- [src/engine/index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
-- [src/engine/sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-- [src/engine/mastery.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L200)
-- [src/engine/dependency.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L200)
-
 ### Storage Layer
 The storage layer is the boundary between PALEE’s in-memory domain model and the vault filesystem. It handles vault traversal, frontmatter parsing, locking, atomic writes, session/memory persistence, pattern matching, roadmap parsing, and caching.
 
@@ -213,23 +167,18 @@ sequenceDiagram
     Loader->>Walker: walkVault()
     Walker-->>Loader: note paths
     loop For each note path
-        Loader->>Parser: parseFrontmatter(file)
-        Parser-->>Loader: normalized frontmatter
         Loader->>Cache: get(path)
-        alt cache miss
+        alt cache hit
+            Cache-->>Loader: LoadedTopic (read and parse skipped)
+        else cache miss
+            Loader->>Loader: readFileSync(path)
+            Loader->>Parser: parseFrontmatter(content)
+            Parser-->>Loader: normalized frontmatter
             Loader->>Cache: put(path, LoadedTopic)
         end
     end
     Loader-->>Caller: LoadedTopic[]
 ```
-
-**Diagram sources**
-- [src/storage/loader.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L200)
-- [src/storage/index.ts:1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
-
-**Section sources**
-- [src/storage/index.ts:1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
-- [src/storage/loader.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L200)
 
 ### Validation Layer
 The validation layer is independent from the write path. It collects vault state, runs an ordered catalog of rules, and formats findings. Rules inspect schemas, identity fields, dependency integrity, assessment/review state, sessions, hot memory, and vault path safety.
@@ -255,22 +204,8 @@ flowchart TD
     RulePaths --> Format
 ```
 
-**Diagram sources**
-- [src/validation/index.ts:1-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L1-L130)
-- [src/validation/run-rules.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts#L1-L60)
-
-**Section sources**
-- [src/validation/index.ts:1-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L1-L130)
-- [src/validation/run-rules.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts#L1-L60)
-
 ## Architecture Overview
-The strict dependency direction is:
-
-1. **CLI → Application**: Command handlers parse input and call pure use cases.
-2. **Application → Engine/Storage**: Use cases compute domain results and request I/O through well-defined storage functions.
-3. **Engine**: Depends only on shared types and other pure engine modules.
-4. **Storage**: Depends on filesystem primitives, YAML, and shared types; does not depend on CLI or application logic.
-5. **Validation**: Depends on shared types and its own rule implementations; it does not mutate vault state during normal rule execution.
+The layering rule is stated in full in the Dependency Analysis section of Architecture Overview, which is the canonical statement; it is not restated in full here. The real rule, in brief, is: no layer imports CLI, and the application layer imports no I/O — its only storage dependency is a type-only dependency on `LoadedTopic` (in `src/application/get-next-topics.ts`), and CLI handlers make every storage call and own all storage I/O.
 
 ```mermaid
 graph LR
@@ -278,6 +213,9 @@ graph LR
     APP --> ENG["Engine Layer"]
     APP --> STG["Storage Layer"]
     CLI --> VAL["Validation Layer"]
+    VAL --> STG
+    STG --> ENG
+    ENG --> VAL
     ENG --> TYPES["Shared Types"]
     STG --> TYPES
     VAL --> TYPES
@@ -288,15 +226,6 @@ This direction prevents circular dependencies because lower layers never import 
 - The application does not import Commander or process state.
 - The storage layer does not import application use cases.
 - The validation layer does not perform the same mutations as the CLI.
-
-**Diagram sources**
-- [src/index.ts:1-27](https://github.com/Kuldeep2822k/cli/blob/main/src/index.ts#L1-L27)
-- [src/types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)
-- [src/cli/exit-codes.ts:1-65](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts#L1-L65)
-- [src/application/get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [src/engine/index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
-- [src/storage/index.ts:1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
-- [src/validation/index.ts:1-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L1-L130)
 
 ## Detailed Component Analysis
 
@@ -330,12 +259,6 @@ sequenceDiagram
     CLI-->>User: exit code and output
 ```
 
-**Diagram sources**
-- [src/application/record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [src/engine/sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-- [src/storage/index.ts:1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
-- [src/cli/exit-codes.ts:1-65](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts#L1-L65)
-
 ### Data Flow: Getting Next Topics
 A read flow shows how the application layer composes engine and storage without leaking I/O into domain logic:
 
@@ -358,12 +281,6 @@ sequenceDiagram
     CLI-->>Types: typed result for display
 ```
 
-**Diagram sources**
-- [src/application/get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [src/engine/dependency.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L200)
-- [src/storage/loader.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L200)
-- [src/types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)
-
 ### Barrel Export Pattern
 Each subsystem exposes a clean API surface through a barrel file:
 
@@ -380,12 +297,6 @@ Benefits:
 - Testing and documentation can reference the public surface directly.
 - Circular imports are easier to detect because each barrel has a small, explicit export list.
 
-**Section sources**
-- [src/index.ts:1-27](https://github.com/Kuldeep2822k/cli/blob/main/src/index.ts#L1-L27)
-- [src/engine/index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
-- [src/storage/index.ts:1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
-- [src/validation/index.ts:1-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L1-L130)
-
 ### Shared Type Boundary
 Shared types in [src/types.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts) define the cross-layer contract for assessments, reviews, topics, sessions, progress, and related utilities. Lower layers consume these types but do not mutate them arbitrarily; writers transform raw frontmatter into normalized domain values through loader and application-layer helpers before persistence.
 
@@ -393,9 +304,6 @@ Examples of boundary behavior:
 - Assessment and review shapes are reserved for schema documentation and future phases; the runtime shape is normalized by storage loaders.
 - Difficulty normalization is centralized so CLI, engine, storage, and validation remain consistent.
 - Session states distinguish completed sessions from draft checkpoints.
-
-**Section sources**
-- [src/types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)
 
 ### Error Handling and Exit Codes
 The CLI maps exceptions to documented exit codes rather than printing stack traces to users:
@@ -412,63 +320,46 @@ flowchart TD
     Classify -->|Provider error| ProviderCheck{"Provider error kind/status"}
     ProviderCheck -->|Config or auth| ExitUsage["ExitCode.Usage"]
     ProviderCheck -->|Schema| ExitValidation
+    ProviderCheck -->|Provider status 401/403| ExitUsage
     ProviderCheck -->|Transport/refusal| ExitUnexpected["ExitCode.Unexpected"]
     Classify -->|Unknown| ExitUnexpected
 ```
-
-**Diagram sources**
-- [src/cli/exit-codes.ts:1-65](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts#L1-L65)
-
-**Section sources**
-- [src/cli/exit-codes.ts:1-65](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts#L1-L65)
 
 ## Dependency Analysis
 The dependency direction reinforces isolation:
 
 ```mermaid
 graph TD
-    Bin["bin/bin/palee.ts"] --> Commander["Commander CLI"]
+    Bin["bin/palee.ts"] --> Commander["Commander CLI"]
     Commander --> CLIFiles["CLI handlers"]
     CLIFiles --> AppConfig["src/cli/config.ts"]
     CLIFiles --> ExitCodes["src/cli/exit-codes.ts"]
     CLIFiles --> AppUseCases["Application use cases"]
     AppUseCases --> EngineBarrel["src/engine/index.ts"]
-    AppUseCases --> StorageBarrel["src/storage/index.ts"]
+    AppUseCases -->|type-only LoadedTopic| StorageBarrel["src/storage/index.ts"]
     EngineBarrel --> Sm2["src/engine/sm2.ts"]
     EngineBarrel --> Mastery["src/engine/mastery.ts"]
     EngineBarrel --> Dependency["src/engine/dependency.ts"]
     StorageBarrel --> Loader["src/storage/loader.ts"]
     CLIFiles --> ValidationBarrel["src/validation/index.ts"]
     ValidationBarrel --> RunRules["src/validation/run-rules.ts"]
+    ValidationBarrel --> StorageBarrel
+    StorageBarrel --> EngineBarrel
+    EngineBarrel --> ValidationBarrel
 ```
-
-**Diagram sources**
-- [bin/bin/palee.ts](https://github.com/Kuldeep2822k/cli/blob/main/bin/bin/palee.ts)
-- [src/cli/config.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L200)
-- [src/cli/exit-codes.ts:1-65](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts#L1-L65)
-- [src/application/get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [src/engine/index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
-- [src/engine/sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-- [src/engine/mastery.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L200)
-- [src/engine/dependency.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L200)
-- [src/storage/index.ts:1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
-- [src/storage/loader.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L200)
-- [src/validation/index.ts:1-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L1-L130)
-- [src/validation/run-rules.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts#L1-L60)
 
 Coupling observations:
 - The CLI depends on storage guards and AI provider errors only through the exit-code mapper, keeping command handlers free of low-level error taxonomy.
-- The application layer depends on engine algorithms and shared types, but not on storage mutation primitives unless it is coordinating a use case.
-- The engine depends only on shared types and sibling engine modules.
-- The storage layer depends on filesystem primitives and YAML, but not on application use cases.
-- The validation layer is decoupled from mutation flows; it consumes collected context and produces issues.
+- The application layer depends on engine algorithms and shared types; its only storage dependency is a type-only dependency on `LoadedTopic` in `get-next-topics.ts`, and CLI handlers make every storage call and own all storage I/O.
+- The engine depends on shared types and sibling engine modules, with one named boundary exception: `src/engine/sm2.ts` imports `formatDiagnosticValue` from `../validation/rules/diagnostic-value` (engine -> validation).
+- The storage layer depends on filesystem primitives, YAML, and engine modules (`auto-chain`, `toc-chain`, `topic-id`, `tier0-hygiene`), but not on application use cases.
+- The validation layer is decoupled from mutation flows; it consumes collected context and produces issues, and it imports storage directly (for example, `collect-vault.ts` imports `../storage/cache`, `loader`, `memory`, `scanner`, and `sessions`).
 
 Potential risks to monitor:
 - Accidentally importing Commander or process globals into the application or engine layers.
 - Adding bidirectional imports between storage and validation or application.
 - Expanding barrel exports to include internal-only helpers that should stay private.
 
-[No additional section sources needed since this section aggregates previously analyzed files]
 
 ## Performance Considerations
 The architecture includes several performance-oriented patterns:
@@ -482,11 +373,6 @@ The architecture includes several performance-oriented patterns:
 
 These behaviors are implemented in storage loaders, atomic writers, dependency analyzers, and the validation runner.
 
-**Section sources**
-- [src/storage/loader.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L200)
-- [src/engine/dependency.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L200)
-- [src/validation/run-rules.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts#L1-L60)
-
 ## Troubleshooting Guide
 Common architectural troubleshooting scenarios:
 
@@ -499,14 +385,5 @@ Common architectural troubleshooting scenarios:
 | Validation output order changes | Validation | Ensure the same `VALIDATION_RULES` catalog is used by both CLI and tests in [src/validation/index.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts). |
 | Tests are slow or nondeterministic | Storage or engine | Check whether shared caches are isolated per test and whether graph traversal order is deterministic. |
 
-**Section sources**
-- [src/cli/program-name.ts:1-91](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/program-name.ts#L1-L91)
-- [src/cli/exit-codes.ts:1-65](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts#L1-L65)
-- [src/application/get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [src/engine/sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-- [src/engine/dependency.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L200)
-- [src/storage/loader.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L200)
-- [src/validation/index.ts:1-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L1-L130)
-
 ## Conclusion
-PALEE’s layered architecture enforces a strict dependency direction: CLI orchestrates user interaction, the application layer owns pure use cases, the engine implements domain algorithms, the storage layer manages I/O and persistence, and the validation layer audits state deterministically. Barrel exports provide clean public surfaces, shared types stabilize cross-layer contracts, and the separation of concerns enables isolated unit tests, mockable interfaces, and predictable behavior. This structure makes PALEE maintainable as it grows: new commands add CLI handlers, new domain logic belongs in the engine, new persistence needs belong in storage, and new integrity checks belong in validation.
+PALEE’s layered architecture follows the dependency direction described above (no layer imports CLI, and the application layer imports no I/O): CLI orchestrates user interaction, the application layer owns pure use cases, the engine implements domain algorithms, the storage layer manages I/O and persistence, and the validation layer audits state deterministically. Barrel exports provide clean public surfaces, shared types stabilize cross-layer contracts, and the separation of concerns enables isolated unit tests, mockable interfaces, and predictable behavior. This structure makes PALEE maintainable as it grows: new commands add CLI handlers, new domain logic belongs in the engine, new persistence needs belong in storage, and new integrity checks belong in validation.

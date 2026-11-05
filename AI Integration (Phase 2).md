@@ -62,15 +62,7 @@ graph TB
     Tests --> CLI
 ```
 
-**Diagram sources**
-- [index.ts:1-11](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/index.ts#L1-L11)
-- [provider.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L1-L60)
-
 The barrel at `src/ai/index.ts` re-exports the provider contract but is itself not re-exported from `src/index.ts`. That distinction is what keeps PALEE’s published API offline by default.
-
-**Section sources**
-- [index.ts:1-11](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/index.ts#L1-L11)
-- [ai-module-design.md:1-60](https://github.com/Kuldeep2822k/cli/blob/main/planning/ai_module_design.md#L1-L60)
 
 ## Core Components
 The Phase 2 AI integration has two primary concerns:
@@ -99,10 +91,6 @@ The Phase 2 AI integration has two primary concerns:
 | Tool registry | Registers read-only engine functions available to the model | Planned |
 | Adaptive recommendations | Generates roadmap or study guidance after learner input | Planned |
 
-**Section sources**
-- [provider.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L1-L120)
-- [ai-module-design.md:1-120](https://github.com/Kuldeep2822k/cli/blob/main/planning/ai_module_design.md#L1-L120)
-
 ## Architecture Overview
 The provider abstraction separates PALEE from any specific AI backend. Consumers call into the provider through a stable interface; they do not construct URLs, assemble headers, manage retries, or inspect raw network responses directly.
 
@@ -122,19 +110,11 @@ sequenceDiagram
     Provider-->>Consumer: "ChatReply or ProviderError"
 ```
 
-**Diagram sources**
-- [provider.ts:480-700](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L480-L700)
-- [provider.ts:701-904](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L701-L904)
-
 Key architectural guarantees:
 - Only `src/ai/provider.ts` may open network sockets.
 - No test reaches an external host; all network behavior goes through an injected transport or a loopback server.
 - The provider does not import CLI logic, preserving a clean dependency direction.
 - The published library surface does not expose the AI subsystem.
-
-**Section sources**
-- [ai-network-boundary.test.ts:1-114](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-network-boundary.test.ts#L1-L114)
-- [provider.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L1-L60)
 
 ## Detailed Component Analysis
 
@@ -155,10 +135,6 @@ The provider interface is defined by TypeScript types and one concrete class:
 
 The adapter does not stream responses and does not send tool definitions. Structured output is supported by requesting a complete JSON document, not by using the provider’s function-calling protocol.
 
-**Section sources**
-- [provider.ts:1-180](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L1-L180)
-- [provider.ts:480-700](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L480-L700)
-
 ### Connection Handling and Security Boundaries
 Connection handling is centralized around three stages:
 
@@ -175,7 +151,7 @@ Connection handling is centralized around three stages:
    - Rejects embedded userinfo, query strings, and fragments in the base URL.
 
 3. **Transport execution**
-   - Uses an injected transport by default, falling back to global `fetch`.
+   - Uses global `fetch` as the default transport; an injected transport is the override.
    - Sets `redirect: 'error'` so bearer tokens are never forwarded to a redirect target.
    - Applies a per-request timeout and supports caller cancellation.
    - Reads responses incrementally up to a byte limit.
@@ -204,14 +180,6 @@ flowchart TD
     ClassifyNetwork --> End(["Fail"])
     SchemaError --> End
 ```
-
-**Diagram sources**
-- [provider.ts:201-450](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L201-L450)
-- [provider.ts:451-700](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L451-L700)
-
-**Section sources**
-- [provider.ts:201-450](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L201-L450)
-- [provider.ts:451-700](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L451-L700)
 
 ### Request and Response Protocol
 The adapter implements an OpenAI-compatible chat-completion protocol with these constraints:
@@ -259,14 +227,6 @@ sequenceDiagram
     end
 ```
 
-**Diagram sources**
-- [provider.ts:480-700](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L480-L700)
-- [provider.ts:701-904](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L701-L904)
-
-**Section sources**
-- [provider.ts:451-700](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L451-L700)
-- [provider.ts:701-904](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L701-L904)
-
 ### Error Management
 Errors are classified into four kinds:
 
@@ -278,11 +238,6 @@ Errors are classified into four kinds:
 | `schema` | Invalid JSON envelope, missing content, fenced or repaired structured output | Usually unexpected error |
 
 Each `ProviderError` carries enough information for the CLI to map it to a single exit code without leaking secrets.
-
-**Section sources**
-- [provider.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L1-L120)
-- [provider.ts:480-700](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L480-L700)
-- [cli-config-test-connection.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-config-test-connection.test.ts#L1-L200)
 
 ## Dependency Analysis
 The dependency relationships keep AI functionality separate from core algorithms:
@@ -304,22 +259,13 @@ graph LR
     CLI --> Engine
     CLI --> Storage
     CLI --> Validation
-    Engine -. depends on .-> Storage
-    Storage --> Validation
+    Validation --> Storage
 ```
 
 Important constraints enforced by tests:
 - No source outside `src/ai/provider.ts` uses network primitives.
 - `src/index.ts` does not re-export the AI subsystem.
 - AI source files do not import from `src/cli`.
-
-**Diagram sources**
-- [index.ts:1-11](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/index.ts#L1-L11)
-- [provider.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L1-L60)
-- [ai-network-boundary.test.ts:1-114](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-network-boundary.test.ts#L1-L114)
-
-**Section sources**
-- [ai-network-boundary.test.ts:1-114](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-network-boundary.test.ts#L1-L114)
 
 ## Performance Considerations
 The current provider implementation focuses on correctness and security rather than streaming throughput:
@@ -336,12 +282,6 @@ The current provider implementation focuses on correctness and security rather t
 | Retry policy | Planned exponential backoff with jitter; not implemented here |
 
 The provider avoids buffering unbounded responses, which protects against denial-of-service from large provider payloads. It also avoids trusting provider-reported token counts blindly by returning `undefined` when the usage object lacks numeric fields.
-
-**Section sources**
-- [provider.ts:120-180](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L120-L180)
-- [provider.ts:480-700](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L480-L700)
-- [provider.ts:701-904](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L701-L904)
-- [ai-module-design.md:201-317](https://github.com/Kuldeep2822k/cli/blob/main/planning/ai_module_design.md#L201-L317)
 
 ## Troubleshooting Guide
 
@@ -369,12 +309,6 @@ The provider avoids buffering unbounded responses, which protects against denial
 - **Empty assistant message:** Indicates missing content or possibly a token-cap truncation.
 - **Oversized response:** Reading stops after the configured byte limit.
 
-**Section sources**
-- [provider.ts:201-450](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L201-L450)
-- [provider.ts:451-700](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L451-L700)
-- [provider.ts:701-904](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L701-L904)
-- [cli-config-test-connection.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-config-test-connection.test.ts#L1-L200)
-
 ## Security, Privacy, and Ethics
 
 ### Security Boundaries
@@ -399,13 +333,6 @@ The provider avoids buffering unbounded responses, which protects against denial
 - Vault notes are treated as untrusted learning material; prompts must instruct the model not to execute instructions found inside note content.
 - Integrity markers in prompts are helpers, not cryptographic guarantees.
 - AI assistance should remain transparent, auditable, and reversible.
-
-**Section sources**
-- [ai-network-boundary.test.ts:1-114](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-network-boundary.test.ts#L1-L114)
-- [provider.ts:201-450](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L201-L450)
-- [provider.ts:480-700](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L480-L700)
-- [provider.ts:701-904](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L701-L904)
-- [ai-module-design.md:201-317](https://github.com/Kuldeep2822k/cli/blob/main/planning/ai_module_design.md#L201-L317)
 
 ## Testing Strategy
 
@@ -451,19 +378,6 @@ flowchart TD
     CLI --> TestConnection["Verify Exit Codes and Output"]
 ```
 
-**Diagram sources**
-- [ai-provider.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-provider.test.ts#L1-L200)
-- [ai-provider-loopback.test.ts:1-131](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-provider-loopback.test.ts#L1-L131)
-- [cli-config-provider-credentials.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-config-provider-credentials.test.ts#L1-L200)
-- [cli-config-test-connection.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-config-test-connection.test.ts#L1-L200)
-
-**Section sources**
-- [ai-provider.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-provider.test.ts#L1-L200)
-- [ai-provider-loopback.test.ts:1-131](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-provider-loopback.test.ts#L1-L131)
-- [ai-network-boundary.test.ts:1-114](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-network-boundary.test.ts#L1-L114)
-- [cli-config-provider-credentials.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-config-provider-credentials.test.ts#L1-L200)
-- [cli-config-test-connection.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-config-test-connection.test.ts#L1-L200)
-
 ## Planned Phase 2 Capabilities
 
 ### Content Generation
@@ -495,10 +409,6 @@ The separation is explicit:
 - The engine core remains deterministic and offline.
 - SM-2 scheduling, dependency graphs, mastery calculations, and file storage stay outside the AI boundary.
 - The AI layer accesses engine state through read-only tools and application APIs.
-
-**Section sources**
-- [ai-module-design.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/planning/ai_module_design.md#L1-L200)
-- [ai-module-design.md:201-317](https://github.com/Kuldeep2822k/cli/blob/main/planning/ai_module_design.md#L201-L317)
 
 ## Conclusion
 PALEE’s Phase 2 AI integration begins with a narrow, security-first provider abstraction. The current implementation provides a single OpenAI-compatible adapter, strict endpoint validation, credential isolation, bounded I/O, classified errors, and strong tests proving that network access is confined to one place.

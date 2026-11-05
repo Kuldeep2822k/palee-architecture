@@ -55,14 +55,6 @@ graph TB
     Vault --> ActiveMarker[".palee/active-session.md"]
 ```
 
-**Diagram sources**
-- [session.ts:220-360](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L220-L360)
-- [memory.ts:1-80](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1-L80)
-
-**Section sources**
-- [session.ts:1-80](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L80)
-- [memory.ts:1-80](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1-L80)
-
 ## Core Components
 
 ### Session Command Surface
@@ -81,10 +73,6 @@ The command also supports:
 - `--interactive`: Prompts for unresolved draft checkpoints during `start`.
 - `--json`: Emits one structured document per run while keeping conversation and warnings separate.
 
-**Section sources**
-- [session.ts:201-360](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L201-L360)
-- [session.ts:501-856](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L501-L856)
-
 ### Hot Memory
 Hot memory is the short-term working surface for a session:
 
@@ -95,11 +83,6 @@ Hot memory is the short-term working surface for a session:
 - Is intentionally **not** the main durable data store.
 
 When hot memory is missing, corrupt, or has an unsupported schema version, the CLI rebuilds it from existing session notes rather than silently overwriting vault contents.
-
-**Section sources**
-- [memory.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1-L120)
-- [memory.ts:201-380](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L201-L380)
-- [memory.ts:720-820](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L720-L820)
 
 ### Durable Sessions and Drafts
 Confirmed sessions are canonical history:
@@ -113,10 +96,7 @@ Drafts are temporary recovery artifacts:
 - Filename pattern: `DRAFT-S-randomEntropy.md`.
 - Marked with `status: draft`.
 - Retained until explicitly resumed, saved as a session, discarded, or ignored.
-
-**Section sources**
-- [memory.ts:201-320](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L201-L320)
-- [memory.ts:900-1060](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L900-L1060)
+- Also retired automatically by `palee session end`: ending a session deletes all drafts for the ended topic (`deleteTopicDrafts`, reported as “Consumed draft …”), with no per-draft choice.
 
 ### Session Index
 `.palee/index.md` is a derived catalog of confirmed sessions. It:
@@ -125,11 +105,6 @@ Drafts are temporary recovery artifacts:
 - Uses filename-derived session IDs, not potentially inconsistent frontmatter values.
 - Reports skipped sessions when they cannot be read or carry an unsupported schema.
 - Is regenerated whenever session state changes.
-
-**Section sources**
-- [memory.ts:601-760](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L601-L760)
-- [sessions.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L200)
-- [sessions.ts:201-279](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L201-L279)
 
 ## Architecture Overview
 
@@ -162,11 +137,6 @@ sequenceDiagram
     CLI-->>User: Recorded session response
 ```
 
-**Diagram sources**
-- [session.ts:220-360](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L220-L360)
-- [session.ts:501-856](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L501-L856)
-- [memory.ts:601-820](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L601-L820)
-
 ## Detailed Component Analysis
 
 ### Session Lifecycle
@@ -182,15 +152,13 @@ flowchart TD
     ValidateFrontmatter --> ResolveTopic["Resolve --topic or use active_topic"]
     ResolveTopic --> NoTopic{"No resolvable topic?"}
     NoTopic -->|Yes| Refuse["Refuse start with usage error"]
-    NoTopic -->|Yes| WarnOverlap["Warn about existing active session"]
-    WarnOverlap --> UpdateHot["Update hot.md with active_topic and started_at"]
+    NoTopic -->|No| CheckActive{"Existing active session?"}
+    CheckActive -->|Yes| WarnOverlap["Warn about existing active session"]
+    CheckActive -->|No| UpdateHot["Update hot.md with active_topic and started_at"]
+    WarnOverlap --> UpdateHot
     UpdateHot --> WriteMarker["Write active-session marker"]
     WriteMarker --> Done(["Started"])
 ```
-
-**Diagram sources**
-- [session.ts:220-360](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L220-L360)
-- [memory.ts:720-820](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L720-L820)
 
 #### End Flow
 ```mermaid
@@ -211,10 +179,6 @@ flowchart TD
     ClearMarker --> PostRebuild["Clear active_topic only if rebuilt view agrees"]
     PostRebuild --> DoneEnd
 ```
-
-**Diagram sources**
-- [session.ts:501-856](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L501-L856)
-- [memory.ts:987-1295](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L987-L1295)
 
 ### Draft Recovery and Crash Safety
 Draft recovery is central to crash resilience:
@@ -245,28 +209,16 @@ stateDiagram-v2
     Ignored --> [*]
 ```
 
-**Diagram sources**
-- [memory.ts:900-1295](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L900-L1295)
-- [session.ts:360-500](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L360-L500)
-
-**Section sources**
-- [memory.ts:900-1295](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L900-L1295)
-- [session.ts:360-500](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L360-L500)
-
 ### Timestamp Rules and Staleness Clamping
 PALEE deliberately avoids inflating study duration:
 
 - A recovered `started_at` older than 24 hours is clamped to a 24-hour floor.
 - A start within 60 seconds of the current time is accepted as-is.
 - More than 60 seconds in the future is clamped to now.
-- These rules apply consistently across draft recovery, hot memory, and session end.
+- These 60-second rules apply to start-preservation, draft recovery, and session end.
+- Draft creation (`palee session draft`) is stricter: it reuses hot memory's `started_at` only when it is at or before now (zero future tolerance), and for a start more than 24 hours old it silently falls back to now instead of clamping to now minus 24 hours.
 
 This policy protects the learning signal downstream scheduling algorithms consume.
-
-**Section sources**
-- [0019-session-memory-lifecycle.md:1-71](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0019-session-memory-lifecycle.md#L1-L71)
-- [session.ts:501-856](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L501-L856)
-- [memory.ts:987-1060](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L987-L1060)
 
 ### Hot Memory vs Durable Store
 | Aspect | Hot Memory (`.palee/hot.md`) | Durable Session (`.palee/sessions/S-*.md`) |
@@ -278,19 +230,11 @@ This policy protects the learning signal downstream scheduling algorithms consum
 | Primary mutation point | `updateHotMemory`, `resetHotMemory`, `rebuildHotAndIndex` | `writeSessionNote` |
 | Recovery role | Reflects newest completed session and active topic | Provides evidence for rebuilds and reviews |
 
-**Section sources**
-- [memory.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1-L120)
-- [memory.ts:601-820](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L601-L820)
-
 ### Integration With Reviews, Assessments, and Topics
 - Topic resolution uses the same query mechanism as other PALEE commands, so `session start --topic` resolves to the canonical `palee_id` instead of trusting arbitrary strings.
 - When no explicit topic is provided, the session falls back to the `active_topic` stored in hot memory.
 - This design keeps session context consistent with review and assessment flows, which also depend on topic identity.
 - Hot memory is the visible working surface, but validated durable records live in session notes and topic files.
-
-**Section sources**
-- [session.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L120)
-- [session.ts:120-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L120-L200)
 
 ## Dependency Analysis
 
@@ -310,16 +254,6 @@ graph LR
     SessionsLoader --> MemoryModule
 ```
 
-**Diagram sources**
-- [session.ts:1-80](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L80)
-- [memory.ts:1-80](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1-L80)
-- [sessions.ts:1-80](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L80)
-
-**Section sources**
-- [session.ts:1-80](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L80)
-- [memory.ts:1-80](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1-L80)
-- [sessions.ts:1-80](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L80)
-
 ## Performance Considerations
 
 - **Hot memory cap**: The 250-word limit prevents working memory from growing without bound. Truncation is word-based and adds ellipsis when trimmed.
@@ -327,8 +261,6 @@ graph LR
 - **Deterministic ordering**: Session files are sorted by filename, avoiding OS-dependent directory traversal differences.
 - **Optimistic concurrency**: Atomic writes and fingerprint checks avoid unnecessary full rewrites while protecting against concurrent mutations.
 - **Bounded draft retries**: Draft checkpoint writes retry a limited number of times with jitter, avoiding infinite contention loops.
-
-[No sources needed since this section provides general guidance]
 
 ## Troubleshooting Guide
 
@@ -349,11 +281,6 @@ graph LR
 - Let `palee session end` rebuild derived views; it clears active state only when the rebuilt view agrees with the ended topic.
 - If hot memory remains stale after recording, run `palee session start` to reset working memory as instructed by the warning.
 
-**Section sources**
-- [session.ts:201-260](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L201-L260)
-- [session.ts:501-856](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L501-L856)
-- [memory.ts:720-820](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L720-L820)
-
 ### Memory Corruption
 **Symptoms**:
 - CLI detects corrupt hot memory.
@@ -369,11 +296,6 @@ graph LR
 - Do not manually edit `.palee/hot.md` outside the normal flow.
 - Allow the CLI to rebuild derived views.
 - Inspect `.palee/sessions/` for malformed session notes.
-
-**Section sources**
-- [session.ts:300-360](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L300-L360)
-- [memory.ts:601-760](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L601-L760)
-- [0019-session-memory-lifecycle.md:30-71](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0019-session-memory-lifecycle.md#L30-L71)
 
 ### Cross-Session Data Conflicts
 **Symptoms**:
@@ -391,10 +313,6 @@ graph LR
 - Verify the active topic in hot memory.
 - Rebuild derived views with another start or end operation.
 
-**Section sources**
-- [session.ts:300-360](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L300-L360)
-- [session.ts:120-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L120-L200)
-
 ### Backup Strategy
 Recommended approach:
 
@@ -404,8 +322,6 @@ Recommended approach:
 4. Treat `.palee/index.md` as a rebuildable catalog.
 5. Preserve `.palee/active-session.md` during crashes so recovery can identify the in-progress session.
 6. Avoid backing up only hot memory; it may contain incomplete or outdated working context.
-
-[No sources needed since this section provides general guidance]
 
 ## Conclusion
 PALEE’s session model separates temporary working state from durable learning history. Hot memory gives each session a focused, bounded workspace, while session notes provide auditable, schedulable records. Draft checkpoints make interrupted work recoverable, and rebuilds keep derived views consistent even after crashes. The CLI enforces safe topic resolution, timestamp clamping, and cleanup behavior, making sessions suitable for multiple concurrent learning contexts while minimizing accidental cross-session pollution.

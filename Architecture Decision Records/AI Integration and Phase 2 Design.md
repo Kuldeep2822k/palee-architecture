@@ -42,27 +42,18 @@ This document explains:
 - The planned evolution toward dependency-aware recommendations, chain verification, per-edge blocking policies, and integrated tutoring sessions.
 
 ## Project Structure
-The AI integration lives under `src/ai`, while CLI configuration logic imports from it. Tests enforce that no other source file opens network connections.
+The AI integration lives under `src/ai`, while CLI configuration logic imports from it: `src/cli/config.ts` is the runtime importer, and `src/cli/exit-codes.ts` also imports `ProviderError` from it (type/classification only, with no network path). Tests enforce that no other source file opens network connections.
 
 ```mermaid
 graph TB
     CLI["CLI Layer<br/>src/cli/config.ts"] --> AIIndex["AI Subsystem Entry<br/>src/ai/index.ts"]
+    ExitCodes["CLI Exit Codes<br/>src/cli/exit-codes.ts<br/>(imports ProviderError only)"] --> AIIndex
     AIIndex --> Provider["Provider Adapter<br/>src/ai/provider.ts"]
     Provider --> Types["Shared Types<br/>src/types.ts"]
     Tests["Test Suite"] --> Provider
     Tests --> Config["CLI Config Tests"]
     Tests --> Boundary["Network Boundary Test"]
 ```
-
-**Diagram sources**
-- [index.ts:1-11](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/index.ts#L1-L11)
-- [provider.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L1-L20)
-- [config.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L30)
-- [ai-network-boundary.test.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-network-boundary.test.ts#L1-L30)
-
-**Section sources**
-- [index.ts:1-11](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/index.ts#L1-L11)
-- [ai-network-boundary.test.ts:1-114](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-network-boundary.test.ts#L1-L114)
 
 ## Core Components
 The AI subsystem exposes three primary responsibilities:
@@ -79,10 +70,6 @@ Key exported types and values include:
 
 The subsystem is intentionally not re-exported from the main library barrel, so importing PALEE as a library does not automatically introduce network behavior.
 
-**Section sources**
-- [index.ts:1-11](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/index.ts#L1-L11)
-- [provider.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L1-L120)
-
 ## Architecture Overview
 PALEE’s architecture separates concerns across layers:
 - CLI commands parse arguments, load configuration, format output, and map exit codes.
@@ -90,7 +77,7 @@ PALEE’s architecture separates concerns across layers:
 - Engine components compute SM-2 scheduling, dependency chains, mastery, and prerequisite text.
 - Storage handles vault files, frontmatter, locking, sessions, and scanning.
 - Validation rules enforce schema and policy constraints.
-- AI is isolated into `src/ai`; currently, only the CLI configuration command uses it.
+- AI is isolated into `src/ai`; currently, only two CLI files import from it — the CLI configuration command (`src/cli/config.ts`) and `src/cli/exit-codes.ts`, which imports `ProviderError` only to classify errors (type-only in effect, with no network path).
 
 ```mermaid
 graph TB
@@ -121,15 +108,6 @@ graph TB
     Provider --> Types["Types Only"]
 ```
 
-**Diagram sources**
-- [config.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L30)
-- [index.ts:1-11](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/index.ts#L1-L11)
-- [provider.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L1-L20)
-
-**Section sources**
-- [0025-application-layer.md:1-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0025-application-layer.md#L1-L63)
-- [ai-network-boundary.test.ts:70-114](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-network-boundary.test.ts#L70-L114)
-
 ## Detailed Component Analysis
 
 ### AI Provider Adapter Contract
@@ -142,15 +120,15 @@ The adapter defines a small, testable contract:
 ```mermaid
 classDiagram
     class ChatTurn {
-        +string role
+        +'system'|'user'|'assistant' role
         +string content
     }
 
     class ChatRequest {
         +ChatTurn[] messages
-        +boolean expectJson
-        +number temperature
-        +number maxTokens
+        +boolean? expectJson
+        +number? temperature
+        +number? maxTokens
     }
 
     class UsageCounts {
@@ -161,13 +139,13 @@ classDiagram
 
     class ChatReply {
         +string text
-        +any json
-        +UsageCounts usage
+        +unknown? json
+        +UsageCounts? usage
     }
 
     class ProviderError {
-        +string kind
-        +number status
+        +ProviderErrorKind kind
+        +number? status
     }
 
     class Transport {
@@ -178,27 +156,21 @@ classDiagram
     class ProviderSettings {
         +string baseUrl
         +string model
-        +string apiKey
-        +string keySource
-        +string providerName
+        +string? apiKey
+        +KeySource keySource
+        +string? providerName
     }
 
     class ProviderOptions {
-        +Transport transport
-        +number timeoutMs
-        +Record env
-        +AbortSignal signal
+        +Transport? transport
+        +number? timeoutMs
+        +Record? env
+        +AbortSignal? signal
     }
 
     ChatRequest --> ChatTurn : "contains"
     ChatReply --> UsageCounts : "optional"
 ```
-
-**Diagram sources**
-- [provider.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L1-L120)
-
-**Section sources**
-- [provider.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L1-L120)
 
 ### Endpoint Normalization and Network Security
 Endpoint validation is the central security gate:
@@ -226,13 +198,6 @@ flowchart TD
     CheckCredentials --> Accept["Return validated URL"]
 ```
 
-**Diagram sources**
-- [provider.ts:201-450](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L201-L450)
-
-**Section sources**
-- [provider.ts:201-450](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L201-L450)
-- [0027-ai-provider-boundary.md:1-97](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0027-ai-provider-boundary.md#L1-L97)
-
 ### Request Flow and Error Classification
 A typical provider call follows this flow:
 1. Resolve settings from configuration and environment.
@@ -247,15 +212,13 @@ A typical provider call follows this flow:
 sequenceDiagram
     participant Caller as "Caller"
     participant Settings as "resolveProviderSettings"
-    participant Validator as "normalizeProviderEndpoint"
     participant Provider as "OpenAICompatibleProvider"
     participant Transport as "Transport"
     participant ProviderService as "External Provider"
 
     Caller->>Settings: "Load baseUrl, apiKey, model"
+    Settings->>Settings: "normalizeProviderEndpoint (internal step): validate base URL"
     Settings-->>Caller: "ProviderSettings"
-    Caller->>Validator: "Validate base URL"
-    Validator-->>Caller: "Validated URL"
     Caller->>Provider: "complete(request)"
     Provider->>Transport: "POST /chat/completions"
     Transport->>ProviderService: "Send request"
@@ -263,14 +226,6 @@ sequenceDiagram
     Transport-->>Provider: "Bounded response"
     Provider-->>Caller: "ChatReply or ProviderError"
 ```
-
-**Diagram sources**
-- [provider.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L1-L200)
-- [ai-provider-loopback.test.ts:1-131](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-provider-loopback.test.ts#L1-L131)
-
-**Section sources**
-- [provider.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L1-L200)
-- [ai-provider-loopback.test.ts:1-131](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-provider-loopback.test.ts#L1-L131)
 
 ### Credential Management
 Credential handling spans CLI configuration and runtime resolution:
@@ -296,14 +251,6 @@ flowchart TD
     Protect --> Done(["Done"])
 ```
 
-**Diagram sources**
-- [config.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L200)
-- [cli-config-provider-credentials.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-config-provider-credentials.test.ts#L1-L200)
-
-**Section sources**
-- [config.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L200)
-- [cli-config-provider-credentials.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-config-provider-credentials.test.ts#L1-L200)
-
 ### Connection Testing
 `palee config test-connection` is the only command designed to reach the configured provider:
 - It validates configuration before sending any request.
@@ -328,12 +275,6 @@ sequenceDiagram
     CLI-->>User: "Status, endpoint, key source, tokens"
 ```
 
-**Diagram sources**
-- [cli-config-test-connection.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-config-test-connection.test.ts#L1-L200)
-
-**Section sources**
-- [cli-config-test-connection.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-config-test-connection.test.ts#L1-L200)
-
 ## Dependency Analysis
 The AI layer depends only on shared types, not on CLI commands. The CLI depends on the AI layer for provider configuration and testing. The rest of the system remains offline.
 
@@ -346,24 +287,12 @@ graph LR
     Tests --> CLIConfigFile
 ```
 
-**Diagram sources**
-- [index.ts:1-11](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/index.ts#L1-L11)
-- [provider.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L1-L20)
-- [types.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L30)
-- [config.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L30)
-- [ai-network-boundary.test.ts:70-114](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-network-boundary.test.ts#L70-L114)
-
-**Section sources**
-- [ai-network-boundary.test.ts:70-114](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-network-boundary.test.ts#L70-L114)
-
 ## Performance Considerations
 - Each provider request has a default timeout to avoid hanging the CLI.
 - Response bodies are read incrementally and cancelled once they exceed `MAX_RESPONSE_BYTES`.
 - Long-running operations support cancellation signals so interactive sessions do not wait indefinitely.
 - The current adapter does not stream model output; it returns a complete reply.
 - Token accounting is optional and comes from the provider’s response when available.
-
-[No sources needed since this section provides general guidance]
 
 ## Security Considerations
 PALEE treats the first network-capable component as a high-risk boundary:
@@ -374,11 +303,6 @@ PALEE treats the first network-capable component as a high-risk boundary:
 - **Credential safety:** Keys are read from environment, stdin, or prompts; positional arguments are refused; output is masked; file permissions and directory placement are enforced.
 - **Output safety:** Foreign text is redacted, control characters are removed, whitespace is normalized, and messages are truncated.
 - **Transport safety:** Every request is bounded by timeout, cancellation, and response size limits.
-
-**Section sources**
-- [ai-network-boundary.test.ts:1-114](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-network-boundary.test.ts#L1-L114)
-- [0027-ai-provider-boundary.md:1-97](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0027-ai-provider-boundary.md#L1-L97)
-- [provider.ts:201-450](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L201-L450)
 
 ## Troubleshooting Guide
 
@@ -399,11 +323,6 @@ PALEE treats the first network-capable component as a high-risk boundary:
 - A 500 response indicates a provider failure and is treated as an unexpected error.
 - A silent peer can hang indefinitely unless a timeout is applied.
 - A redirect is refused because following it could send the bearer token to an unapproved target.
-
-**Section sources**
-- [cli-config-test-connection.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-config-test-connection.test.ts#L1-L200)
-- [cli-config-provider-credentials.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-config-provider-credentials.test.ts#L1-L200)
-- [ai-provider-loopback.test.ts:1-131](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-provider-loopback.test.ts#L1-L131)
 
 ## Phase 2 Design Directions
 Phase 2 introduces AI capabilities carefully, guided by asymmetry: AI may narrow gates but never invent prerequisites.
@@ -460,13 +379,6 @@ flowchart TD
     SendResult --> SendPrompt
 ```
 
-**Diagram sources**
-- [ai_module_design.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/planning/ai_module_design.md#L1-L200)
-
-**Section sources**
-- [0028-phase-2-design-directions.md:1-65](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0028-phase-2-design-directions.md#L1-L65)
-- [ai_module_design.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/planning/ai_module_design.md#L1-L200)
-
 ## Configuration Examples
 
 ### Minimal Provider Configuration
@@ -492,11 +404,6 @@ On POSIX-like systems:
 On Windows:
 - The config directory should be inside the user profile roots.
 - An override exists for unusual but secured setups.
-
-**Section sources**
-- [config.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L200)
-- [cli-config-provider-credentials.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-config-provider-credentials.test.ts#L1-L200)
-- [0027-ai-provider-boundary.md:1-97](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0027-ai-provider-boundary.md#L1-L97)
 
 ## Conclusion
 PALEE’s AI integration is deliberately narrow. The current adapter provides a secure, testable bridge to OpenAI-compatible endpoints while keeping the rest of the system deterministic and offline. The contract between providers and the system is small, explicit, and observable through tests. Phase 2 plans expand capability through structured abstractions, bounded sessions, and asymmetric authority: AI helps understand and narrow learning state, but it does not own the core gating decisions. As PALEE evolves toward integrated AI assistance, these boundaries, contracts, and security guarantees will remain the foundation.

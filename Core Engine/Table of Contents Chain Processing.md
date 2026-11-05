@@ -56,18 +56,8 @@ graph TB
   TC --> AC
   TC --> T0
   AC --> T0
-  DG --> TC
+  TC --> DG
 ```
-
-**Diagram sources**
-- [toc-chain.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L1-L40)
-- [auto-chain.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L30)
-- [toc.ts:1-25](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/toc.ts#L1-L25)
-
-**Section sources**
-- [toc-chain.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L1-L40)
-- [auto-chain.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L30)
-- [toc.ts:1-25](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/toc.ts#L1-L25)
 
 ## Core Components
 | Component | Responsibility | Key Outputs |
@@ -79,13 +69,6 @@ graph TB
 | `discoverTocFiles` | Finds README/SUMMARY files eligible as enumeration sources | Ordered list of vault-relative paths |
 | `deriveTocEnumeration` | Reads eligible TOC documents and resolves links to real notes | `TocEnumeration` |
 | `assertBackwardEdges` / `assertAcyclicPlan` | Invariants checking for constructed TOC chains and merged plans | Throws on violations |
-
-**Section sources**
-- [toc-chain.ts:41-90](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L41-L90)
-- [toc-chain.ts:566-740](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L566-L740)
-- [toc-chain.ts:950-1130](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L950-L1130)
-- [toc.ts:60-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/toc.ts#L60-L120)
-- [toc.ts:180-262](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/toc.ts#L180-L262)
 
 ## Architecture Overview
 The full TOC-to-dependency transformation proceeds through these stages:
@@ -111,13 +94,6 @@ sequenceDiagram
   Engine-->>Graph: "predecessorOf + sourceOf"
   Graph-->>Graph: "Cycle detection over final depends_on graph"
 ```
-
-**Diagram sources**
-- [toc.ts:120-262](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/toc.ts#L120-L262)
-- [toc-chain.ts:566-740](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L566-L740)
-- [toc-chain.ts:950-1293](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L950-L1293)
-- [auto-chain.ts:201-430](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L201-L430)
-- [dependency.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L120)
 
 ## Detailed Component Analysis
 
@@ -161,16 +137,6 @@ flowchart TD
   ScanOpen --> End(["Return collected TocLink[]"])
 ```
 
-**Diagram sources**
-- [toc-chain.ts:90-210](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L90-L210)
-- [toc-chain.ts:210-565](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L210-L565)
-
-**Section sources**
-- [toc-chain.ts:90-210](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L90-L210)
-- [toc-chain.ts:210-565](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L210-L565)
-- [engine-toc-chain.test.ts:20-120](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-toc-chain.test.ts#L20-L120)
-- [engine-toc-chain.test.ts:496-700](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-toc-chain.test.ts#L496-L700)
-
 ### Destination Normalization
 After extracting a raw destination, the engine normalizes it before filesystem lookup:
 
@@ -199,13 +165,6 @@ flowchart TD
   Marks --> Fold["foldTocDestination(destination, tocDir)"]
   Fold --> Result["TocTargetCandidate"]
 ```
-
-**Diagram sources**
-- [toc-chain.ts:740-950](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L740-L950)
-
-**Section sources**
-- [toc-chain.ts:740-950](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L740-L950)
-- [engine-toc-chain.test.ts:700-800](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-toc-chain.test.ts#L700-L800)
 
 ### TOC Discovery and Resolution
 The storage module finds and reads repository-level enumerations:
@@ -243,14 +202,6 @@ flowchart TD
   Scope -->|Yes| Append["Append to documentOrder"]
 ```
 
-**Diagram sources**
-- [toc.ts:60-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/toc.ts#L60-L120)
-- [toc.ts:180-262](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/toc.ts#L180-L262)
-
-**Section sources**
-- [toc.ts:60-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/toc.ts#L60-L120)
-- [toc.ts:180-262](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/toc.ts#L180-L262)
-
 ### TOC Ranking Algorithm
 The TOC ranking algorithm determines precedence within a single directory’s author-enumerated list:
 
@@ -277,13 +228,6 @@ flowchart TD
   Predecessors --> Verify["assertBackwardEdges()"]
   Verify --> Plan["TocChainPlan"]
 ```
-
-**Diagram sources**
-- [toc-chain.ts:950-1130](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L950-L1130)
-
-**Section sources**
-- [toc-chain.ts:950-1130](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L950-L1130)
-- [engine-toc-chain.test.ts:800-950](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-toc-chain.test.ts#L800-L950)
 
 ### Numbered Tree Integration and Composition
 The TOC chain does not replace the numbered directory layout. Instead, the two systems compose under a tier strategy:
@@ -318,14 +262,6 @@ flowchart TD
   Finalize --> Done
 ```
 
-**Diagram sources**
-- [toc-chain.ts:1130-1293](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L1130-L1293)
-- [auto-chain.ts:201-430](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L201-L430)
-
-**Section sources**
-- [toc-chain.ts:1130-1293](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L1130-L1293)
-- [engine-toc-chain.test.ts:950-1248](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-toc-chain.test.ts#L950-L1248)
-
 ### Manual Prerequisite Declarations
 Manual prerequisites live outside the TOC pipeline but interact with it through the broader dependency graph:
 
@@ -359,14 +295,6 @@ classDiagram
   TieredChainPlan --> DependencyEngine : "merged input graph"
 ```
 
-**Diagram sources**
-- [dependency.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L120)
-- [toc-chain.ts:1130-1293](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L1130-L1293)
-
-**Section sources**
-- [dependency.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L120)
-- [toc-chain.ts:1130-1293](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L1130-L1293)
-
 ## Dependency Analysis
 The TOC chain participates in a layered dependency model:
 
@@ -384,25 +312,12 @@ graph LR
   Hygiene --> Composer
 ```
 
-**Diagram sources**
-- [toc-chain.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L1-L40)
-- [toc-chain.ts:566-1293](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L566-L1293)
-- [toc.ts:1-262](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/toc.ts#L1-L262)
-- [auto-chain.ts:1-430](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L430)
-- [dependency.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L120)
-
 Coupling observations:
 
 - The engine layer remains filesystem-free and consumes normalized path lists.
 - The storage layer owns vault traversal, file I/O, and existence checks.
 - Tier-0 hygiene controls which notes participate in chain construction.
 - The dependency engine validates the final graph rather than trusting any single planner.
-
-**Section sources**
-- [toc-chain.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L1-L40)
-- [toc.ts:1-262](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/toc.ts#L1-L262)
-- [auto-chain.ts:1-430](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L430)
-- [dependency.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L120)
 
 ## Performance Considerations
 The implementation is explicitly optimized for large repositories and pathological markdown:
@@ -423,13 +338,6 @@ Practical implications:
 - The linear growth tests assert that quadratically regressed scanners are caught deterministically by operation counts rather than wall-clock timing.
 - Graph algorithms are designed around strongly connected components and bounded sampling to avoid exponential explosion on large cyclic graphs.
 
-**Section sources**
-- [engine-toc-chain.test.ts:20-120](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-toc-chain.test.ts#L20-L120)
-- [engine-toc-chain.test.ts:120-200](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-toc-chain.test.ts#L120-L200)
-- [engine-toc-chain.test.ts:201-495](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-toc-chain.test.ts#L201-L495)
-- [toc.ts:25-60](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/toc.ts#L25-L60)
-- [dependency.ts:120-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L120-L200)
-
 ## Troubleshooting Guide
 
 ### Malformed TOC Entries
@@ -448,11 +356,6 @@ Common causes:
 | Link becomes `ambiguous` | Case-insensitive match resolves to multiple notes | Disambiguate by exact path |
 | Link becomes `outside-scope` | Target is outside the adopted scope | Adjust scope or move the note |
 
-**Section sources**
-- [toc-chain.ts:41-90](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L41-L90)
-- [toc.ts:25-60](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/toc.ts#L25-L60)
-- [toc.ts:180-262](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/toc.ts#L180-L262)
-
 ### Circular References
 There are two important failure modes:
 
@@ -466,11 +369,6 @@ Resolution steps:
 - Check whether a partial TOC enumeration re-parented a numbered head and closed a loop through unlisted numbered notes.
 - Prefer fixing manual `depends_on` declarations when the conflict involves explicit prerequisites.
 
-**Section sources**
-- [toc-chain.ts:1030-1130](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L1030-L1130)
-- [toc-chain.ts:1230-1293](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L1230-L1293)
-- [engine-toc-chain.test.ts:900-1043](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-toc-chain.test.ts#L900-L1043)
-
 ### Conflicts Between TOC-Derived and Explicit Dependencies
 TOC-derived edges represent inferred lesson order, while explicit `depends_on` declarations represent author-mandated prerequisites.
 
@@ -480,10 +378,6 @@ Guidance:
 - Provenance labels (`toc`, `numbered`, `tie`) help downstream gates decide whether to block learning progression.
 - When a TOC edge contradicts an explicit dependency, validate the graph at the dependency-engine level rather than assuming TOC parsing is authoritative.
 - Use `strict` mode when you want only numbered-tree structure and rely more heavily on explicit declarations.
-
-**Section sources**
-- [dependency.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L60)
-- [toc-chain.ts:1130-1293](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L1130-L1293)
 
 ### Examples of TOC-to-Dependency Transformation
 
@@ -522,10 +416,6 @@ Transformation:
 - Lesson 01 and 02 are inside the numbered tree.
 - C2 filtering prevents TOC from overriding their predecessor.
 - Numbered provenance wins.
-
-**Section sources**
-- [engine-toc-chain.test.ts:700-800](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-toc-chain.test.ts#L700-L800)
-- [engine-toc-chain.test.ts:950-1043](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-toc-chain.test.ts#L950-L1043)
 
 ## Conclusion
 The TOC chain processing system is a carefully bounded pipeline:

@@ -57,7 +57,7 @@ The validation subsystem is organized as:
 - **Framework contract**: shared types for issues, contexts, and rules.
 - **Collector**: builds one consistent snapshot of topics, notes, sessions, session index, and hot memory.
 - **Runner**: iterates registered rules in order and collects findings without filtering or short-circuiting.
-- **Rule implementations**: one file per rule, each with an identifier, severity, optional fixability, and `run(context)` implementation.
+- **Rule implementations**: 19 rules in 18 files under `src/validation/rules/` — `parse-frontmatter.ts` defines two rules (`parse-frontmatter` and `read-failure`). The directory also holds 3 shared helper modules that are not rules (`assessed-at.ts`, `review-dates.ts`, `diagnostic-value.ts`). Each rule has an identifier, a default severity, optional fixability, and a `run(context)` implementation.
 - **Shared predicates**: managed-note eligibility used consistently across several rules.
 
 ```mermaid
@@ -115,19 +115,6 @@ graph TB
   TopicId --> ManagedNote
 ```
 
-**Diagram sources**
-- [types.ts:1-161](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts#L1-L161)
-- [run-rules.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts#L1-L60)
-- [collect-vault.ts:1-147](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts#L1-L147)
-- [managed-note.ts:1-87](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/managed-note.ts#L1-L87)
-- [index.ts:1-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L1-L130)
-
-**Section sources**
-- [index.ts:1-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L1-L130)
-- [run-rules.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts#L1-L60)
-- [collect-vault.ts:1-147](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts#L1-L147)
-- [managed-note.ts:1-87](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/managed-note.ts#L1-L87)
-
 ## Core Components
 Before examining individual rules, it helps to understand the three shared components they all consume.
 
@@ -144,9 +131,6 @@ Every finding is a `ValidationIssue` with:
 | `sessionId` | Session ID when the finding relates to a session |
 | `field` | Frontmatter field when applicable |
 | `details` | Rule-specific structured payload for JSON reporting and repair dispatch |
-
-**Section sources**
-- [types.ts:38-110](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts#L38-L110)
 
 ### Shared Context Snapshot
 `ValidationContext` is built once by `collectVault`. It contains:
@@ -165,10 +149,6 @@ Every finding is a `ValidationIssue` with:
 
 Rules must never touch the filesystem directly. They inspect this read-only snapshot.
 
-**Section sources**
-- [types.ts:76-154](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts#L76-L154)
-- [collect-vault.ts:1-147](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts#L1-L147)
-
 ### Managed Note Eligibility
 Three rules need to agree on what counts as a PALEE-managed record. The shared predicate uses identity keys rather than guessing from schema markers:
 
@@ -180,9 +160,6 @@ Three rules need to agree on what counts as a PALEE-managed record. The shared p
 | `type: "session_index"` | Derived session index |
 
 A bare `palee_schema` marker alone is not enough to classify a note as a topic. This avoids false positives where schema-only notes were previously treated as malformed topic records.
-
-**Section sources**
-- [managed-note.ts:1-87](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/managed-note.ts#L1-L87)
 
 ### Rule Runner
 The runner executes every rule against the context in registration order. Findings are concatenated deterministically. A rule exception becomes an error-level issue attached to that rule’s identifier; it does not stop later rules.
@@ -200,12 +177,6 @@ flowchart TD
   Next -->|Yes| Iterate
   Next -->|No| End(["Return all issues in order"])
 ```
-
-**Diagram sources**
-- [run-rules.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts#L1-L60)
-
-**Section sources**
-- [run-rules.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts#L1-L60)
 
 ## Architecture Overview
 The canonical rule catalog is exported from the validation barrel and imported by the CLI. Its ordering is intentional:
@@ -241,12 +212,6 @@ flowchart LR
   HM --> VP["Safe Vault Paths"]
 ```
 
-**Diagram sources**
-- [index.ts:63-120](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L63-L120)
-
-**Section sources**
-- [index.ts:63-120](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L63-L120)
-
 ## Detailed Component Analysis
 
 ### Parsing and Schema Validation
@@ -263,12 +228,9 @@ flowchart LR
   - `details.parserMessage`: the original parse error
 - **Ordering rationale:** Runs first so other rules can skip unparseable notes and avoid double-reporting.
 
-**Section sources**
-- [parse-frontmatter.ts:1-78](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/parse-frontmatter.ts#L1-L78)
-- [index.ts:100-120](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L100-L120)
-
 #### read-failure
 - **Purpose:** Report files that could not be read during collection, including vault notes, session notes, and memory subsystem components.
+- **Location:** Defined as `readFailureRule` in `src/validation/rules/parse-frontmatter.ts`, in the same file as `parse-frontmatter`. There is no separate `read-failure.ts` — this is why the catalog lists 19 rules while the `rules/` directory contains only 18 rule files (plus the 3 shared helper modules named under Project Structure).
 - **Severity:** Warning.
 - **Repair capability:** None.
 - **Issue payload:**
@@ -277,10 +239,6 @@ flowchart LR
   - `message`: includes the path, error, and provisional-snapshot notice
   - `details.readError`: underlying read error
 - **Ordering rationale:** Also runs early because later rules may observe an incomplete snapshot; its warning signals provisional results.
-
-**Section sources**
-- [parse-frontmatter.ts:29-78](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/parse-frontmatter.ts#L29-L78)
-- [collect-vault.ts:84-147](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts#L84-L147)
 
 #### valid-managed-note-kind
 - **Purpose:** Classify every PALEE-managed note by its identity fields and warn when the kind cannot be determined.
@@ -298,10 +256,6 @@ flowchart LR
   - `details.indexMarker`: whether the note also declares `type: "session_index"`
 - **Ordering rationale:** Must run before schema and topic-ID rules so those rules know which notes are managed and which are user data.
 
-**Section sources**
-- [valid-managed-note-kind.ts:1-189](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-managed-note-kind.ts#L1-L189)
-- [managed-note.ts:1-87](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/managed-note.ts#L1-L87)
-
 #### valid-palee-schema
 - **Purpose:** Require a supported integer `palee_schema` version on every managed note. Phase 1 supports version 1.
 - **Detection logic:**
@@ -316,10 +270,6 @@ flowchart LR
   - `field`: `palee_schema`
   - `details.actual`: the stored value
 - **Ordering rationale:** Runs after kind classification but before topic identity checks.
-
-**Section sources**
-- [valid-palee-schema.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-palee-schema.ts#L1-L79)
-- [managed-note.ts:1-87](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/managed-note.ts#L1-L87)
 
 ### Topic Integrity
 
@@ -340,10 +290,6 @@ flowchart LR
   - `details.actual`: raw stored value
 - **Ordering rationale:** Runs after schema validation so managed notes are known, but before duplicate and dependency checks so malformed IDs are visible at source.
 
-**Section sources**
-- [valid-topic-id-format.ts:1-75](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-id-format.ts#L1-L75)
-- [managed-note.ts:33-87](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/managed-note.ts#L33-L87)
-
 #### valid-topic-status
 - **Purpose:** Ensure the stored status on topic notes is one of the four lifecycle values: `not_started`, `learning`, `paused`, `archived`.
 - **Detection logic:**
@@ -361,9 +307,6 @@ flowchart LR
   - `details.allowed`: allowed lifecycle values
 - **Ordering rationale:** Runs after topic identity checks because it operates on normalized topics.
 
-**Section sources**
-- [valid-topic-status.ts:1-62](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-status.ts#L1-L62)
-
 #### no-duplicate-topic-id
 - **Purpose:** Prevent two topic notes from sharing the same `palee_id`.
 - **Detection logic:** Groups normalized topics by ID and reports one finding per duplicated ID, listing all involved files.
@@ -376,33 +319,28 @@ flowchart LR
   - `details.files`: sorted list of affected paths
 - **Ordering rationale:** Runs after identity and status checks so the topic set is stable.
 
-**Section sources**
-- [no-duplicate-topic-id.ts:1-48](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-duplicate-topic-id.ts#L1-L48)
-
 ### Dependency Graph Validation
 
 #### valid-dependency-list
-- **Purpose:** Validate the raw shape of `depends_on` and the legacy `dependencies` alias before normalization.
+- **Purpose:** Validate the raw shape of `depends_on` and the legacy `dependencies` alias before normalization, plus the `depends_on_source` provenance label.
 - **Detection logic:**
   - Treats missing or null as an empty list.
   - Rejects non-array values.
   - Rejects non-string, null, or empty-string array items.
   - Rejects self-references.
   - Reports duplicate entries as warnings because normalization already deduplicates them.
-  - Emits an advisory warning when the legacy `dependencies` key is present.
+  - Emits an advisory warning when the legacy `dependencies` key is present, then validates the legacy value with the same shape contract as `depends_on`.
+  - Rejects an unrecognized `depends_on_source` value (must be `numbered`, `toc`, `declared`, or `tie`) as an error, because an unknown label fails closed in normalization and gates the topic.
   - Protects against circular YAML structures in diagnostic serialization.
-- **Severity:** Mixed. Shape and self-reference errors are errors; duplicate entries are warnings.
+- **Severity:** Error by default — the rule declares `severity: 'error'`, and `ValidationSeverity` itself has no "mixed" value (only `'error' | 'warning'`). The per-issue severity is authoritative for this rule: **errors** for a non-array value, non-string/null/empty-string items, self-references, malformed legacy-alias values, and an unrecognized `depends_on_source`; **warnings** for duplicate entries (normalization already dedupes them, so scheduling is unaffected) and for the mere presence of the legacy `dependencies` alias (migration advisory).
 - **Repair capability:** Manual. Only duplicate entries are structurally safe to remove; shape errors and self-references require human judgment.
 - **Issue payload:**
   - `ruleId`: `valid-dependency-list`
   - `file`: affected topic path
   - `topicId`: normalized topic ID
-  - `field`: `depends_on` or `dependencies`
+  - `field`: `depends_on`, `dependencies`, or `depends_on_source`
   - `details.actual`: display-safe representation of the offending value
 - **Ordering rationale:** Must run before missing-dependency and cycle rules so graph consumers receive clean, pre-normalized diagnostics.
-
-**Section sources**
-- [valid-dependency-list.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-dependency-list.ts#L1-L200)
 
 #### no-missing-dependency
 - **Purpose:** Detect dependencies that reference topic IDs not present in the vault.
@@ -414,9 +352,6 @@ flowchart LR
   - `topicId`: dependent topic
   - `details.missing`: referenced but missing topic ID
 - **Ordering rationale:** Runs after dependency-shape validation so malformed lists are diagnosed separately from dangling references.
-
-**Section sources**
-- [no-missing-dependency.ts:1-77](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-missing-dependency.ts#L1-L77)
 
 #### no-dependency-cycle
 - **Purpose:** Report every distinct dependency cycle in the topic graph.
@@ -430,9 +365,6 @@ flowchart LR
   - When enumeration is truncated, an additional finding indicates additional cycles may exist.
 - **Ordering rationale:** Runs after missing-dependency checks so cycle diagnostics follow structural dependency diagnostics.
 
-**Section sources**
-- [no-dependency-cycle.ts:1-74](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-dependency-cycle.ts#L1-L74)
-
 ### Assessment and Review Consistency
 
 #### valid-assessment-fields
@@ -441,7 +373,7 @@ flowchart LR
   - Checks `conceptual`, `practical`, `debug`, `feynman`.
   - Missing values pass under the documented default policy.
   - Present values must be finite numbers in `[0.0, 1.0]`.
-  - `assessed_at` must be null or a valid calendar date.
+  - `assessed_at` must be absent, null, or a real calendar date.
 - **Severity:** Error.
 - **Repair capability:** Manual.
 - **Issue payload:**
@@ -451,9 +383,6 @@ flowchart LR
   - `field`: assessed score field or `assessed_at`
   - `details.actual`: display-safe value
 - **Ordering rationale:** Runs before mastery consistency so malformed assessment data is diagnosed before comparing derived mastery.
-
-**Section sources**
-- [valid-assessment-fields.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L1-L79)
 
 #### valid-topic-mastery
 - **Purpose:** Detect drift between stored `topic_mastery` and the computed weighted assessment formula.
@@ -472,9 +401,6 @@ flowchart LR
   - `details.actual`: stored value
   - `details.expected`: computed value
 - **Ordering rationale:** Runs after assessment-field validation so malformed assessments do not produce spurious mastery warnings.
-
-**Section sources**
-- [valid-topic-mastery.ts:1-183](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-mastery.ts#L1-L183)
 
 #### valid-review-fields
 - **Purpose:** Validate raw SM-2 review state against the engine’s numeric and enum contracts.
@@ -495,9 +421,6 @@ flowchart LR
   - `details.actual`: JSON-safe representation
 - **Ordering rationale:** Runs before review-date validation so numeric/state defects are separated from temporal defects.
 
-**Section sources**
-- [valid-review-fields.ts:1-166](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-fields.ts#L1-L166)
-
 #### valid-review-dates
 - **Purpose:** Validate raw review date fields and their chronological relationship.
 - **Detection logic:**
@@ -513,9 +436,6 @@ flowchart LR
   - `field`: `last_reviewed_at`, `due_at`, or the inversion pair
   - `details.actual` or `details.due_at` / `details.last_reviewed_at`
 - **Ordering rationale:** Runs after review-field validation so date-only defects are isolated from numeric/state defects.
-
-**Section sources**
-- [valid-review-dates.ts:1-115](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-dates.ts#L1-L115)
 
 ### Session Management
 
@@ -538,9 +458,6 @@ flowchart LR
   - `details.actual`: parse error or relevant schema value
 - **Ordering rationale:** Runs before cross-reference and index rules so malformed sessions are diagnosed before being interpreted.
 
-**Section sources**
-- [valid-session-schema.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-session-schema.ts#L1-L200)
-
 #### no-session-unknown-topic
 - **Purpose:** Report session records referencing topic IDs not present in the vault.
 - **Detection logic:**
@@ -557,9 +474,6 @@ flowchart LR
   - `details.topicId`: missing topic ID
 - **Ordering rationale:** Runs after session schema validation so dangling references are only checked on well-shaped sessions.
 
-**Section sources**
-- [no-session-unknown-topic.ts:1-85](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-session-unknown-topic.ts#L1-L85)
-
 #### valid-session-index
 - **Purpose:** Validate `.palee/index.md` as a rebuildable derived view of confirmed sessions.
 - **Detection logic:**
@@ -575,9 +489,6 @@ flowchart LR
   - `file`: `.palee/index.md`
   - `details.parseError` or `details.missingSession`
 - **Ordering rationale:** Runs after session schema and unknown-topic checks so it validates the derived projection against established sessions.
-
-**Section sources**
-- [valid-session-index.ts:1-87](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-session-index.ts#L1-L87)
 
 ### System Health
 
@@ -599,9 +510,6 @@ flowchart LR
   - `details.actual`, `details.expected`, `details.wordCount`, `details.maxWords`, `details.missingSession`, or `details.missingTopic`
 - **Ordering rationale:** Runs after session and topic rules so reference checks can safely compare against complete sets.
 
-**Section sources**
-- [valid-hot-memory.ts:1-150](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-hot-memory.ts#L1-L150)
-
 #### safe-vault-paths
 - **Purpose:** Audit that every managed path resolves inside the configured vault.
 - **Detection logic:**
@@ -617,9 +525,6 @@ flowchart LR
   - `field`: `path`
   - `details.path`: escaped path
 - **Ordering rationale:** Runs last because it audits the entire collected snapshot’s path surface after all semantic rules have had a chance to report.
-
-**Section sources**
-- [safe-vault-paths.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/safe-vault-paths.ts#L1-L134)
 
 ## Dependency Analysis
 
@@ -664,14 +569,6 @@ sequenceDiagram
   Runner-->>CLI: Concatenated findings in deterministic order
 ```
 
-**Diagram sources**
-- [index.ts:63-120](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L63-L120)
-- [run-rules.ts:15-60](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts#L15-L60)
-
-**Section sources**
-- [index.ts:63-120](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L63-L120)
-- [run-rules.ts:15-60](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts#L15-L60)
-
 ### Why Ordering Matters
 - **Determinism:** The runner preserves rule order and sorts outputs within each rule by file, topic ID, or details.
 - **Diagnostic clarity:** Early rules explain why later data may be missing or malformed. For example, a malformed frontmatter finding explains why a schema or dependency check may not apply.
@@ -686,8 +583,6 @@ sequenceDiagram
 - **Bounded graph work:** Cycle enumeration is capped to prevent dense graphs from stalling validation.
 - **Sorted outputs:** Rules sort findings deterministically, which keeps large vault scans predictable even though sorting adds overhead.
 - **Provisional optimization:** Many rules skip work when parse errors, read errors, or schema-clean checks fail, reducing redundant diagnostics.
-
-[No sources needed since this section provides general guidance]
 
 ## Troubleshooting Guide
 
@@ -714,30 +609,11 @@ sequenceDiagram
 | Hot memory is malformed or oversized | `valid-hot-memory` | Relevant `details.*` | Rebuild hot memory |
 | Path escapes vault boundary | `safe-vault-paths` | `details.path` | Move the note inside the vault |
 
-**Section sources**
-- [parse-frontmatter.ts:10-78](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/parse-frontmatter.ts#L10-L78)
-- [valid-managed-note-kind.ts:30-189](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-managed-note-kind.ts#L30-L189)
-- [valid-palee-schema.ts:20-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-palee-schema.ts#L20-L79)
-- [valid-topic-id-format.ts:10-75](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-id-format.ts#L10-L75)
-- [no-duplicate-topic-id.ts:10-48](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-duplicate-topic-id.ts#L10-L48)
-- [valid-dependency-list.ts:10-200](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-dependency-list.ts#L10-L200)
-- [no-missing-dependency.ts:10-77](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-missing-dependency.ts#L10-L77)
-- [no-dependency-cycle.ts:10-74](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-dependency-cycle.ts#L10-L74)
-- [valid-assessment-fields.ts:10-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L10-L79)
-- [valid-topic-mastery.ts:10-183](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-mastery.ts#L10-L183)
-- [valid-review-fields.ts:10-166](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-fields.ts#L10-L166)
-- [valid-review-dates.ts:10-115](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-dates.ts#L10-L115)
-- [valid-session-schema.ts:10-200](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-session-schema.ts#L10-L200)
-- [no-session-unknown-topic.ts:10-85](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-session-unknown-topic.ts#L10-L85)
-- [valid-session-index.ts:10-87](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-session-index.ts#L10-L87)
-- [valid-hot-memory.ts:10-150](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-hot-memory.ts#L10-L150)
-- [safe-vault-paths.ts:10-134](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/safe-vault-paths.ts#L10-L134)
-
 ## Conclusion
 PALEE’s validation system separates concerns cleanly: one collector builds a single consistent snapshot, one runner executes rules in a fixed order, and each rule owns one aspect of vault integrity. The catalog balances strictness and resilience:
 
 - Errors gate commands for structural, identity, schema, cycle, and path-boundary problems.
 - Warnings protect operational quality without punishing transient read failures or derived-view staleness.
-- Safe repairs are limited to clearly reversible operations such as rebuilding derived views or correcting mastered values.
+- Safe repairs are limited to clearly reversible operations such as rebuilding derived views or correcting mastery values.
 - Manual repairs are required when authorship, ownership, or migration decisions are necessary.
 - Deterministic ordering ensures that repeated runs produce predictable diagnostics, helping users prioritize the most foundational problems first.

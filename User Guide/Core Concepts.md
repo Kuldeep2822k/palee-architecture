@@ -32,7 +32,7 @@
 9. [Conclusion](#conclusion)
 
 ## Introduction
-This section explains the foundational ideas you need to understand before using PALEE effectively. PALETTE treats your learning material as structured Markdown files enriched with YAML frontmatter, and it uses two complementary engines:
+This section explains the foundational ideas you need to understand before using PALEE effectively. PALEE treats your learning material as structured Markdown files enriched with YAML frontmatter, and it uses two complementary engines:
 
 - A **four-pillar mastery model** that measures conceptual understanding, practical application, debugging ability, and Feynman-style explanation.
 - An **SM-2 spaced repetition engine** that schedules reviews based on recall quality and perceived difficulty.
@@ -44,10 +44,6 @@ At a high level:
 - Metadata such as topic identity, prerequisites, mastery scores, and review state lives in YAML frontmatter.
 - The CLI commands read, validate, schedule, and update that metadata through atomic writes.
 - The engine logic is deterministic and separated from file I/O.
-
-**Section sources**
-- [docs/01-0-overview.md:12-35](https://github.com/Kuldeep2822k/cli/blob/main/docs/01-0-overview.md#L12-L35)
-- [README.md:1-100](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L1-L100)
 
 ## Project Structure
 The core concepts in this guide map directly to concrete parts of the repository:
@@ -72,18 +68,6 @@ flowchart TD
     CLI --> Review
 ```
 
-**Diagram sources**
-- [src/types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)
-- [src/cli/adopt.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L200)
-- [src/cli/review.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L200)
-- [src/engine/mastery.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L200)
-- [src/engine/sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-- [bin/palee.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L200)
-
-**Section sources**
-- [docs/01-0-overview.md:36-142](https://github.com/Kuldeep2822k/cli/blob/main/docs/01-0-overview.md#L36-L142)
-- [docs/05-1-topic-and-assessment-schema.md:1-171](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md#L1-L171)
-
 ## Core Components
 Before diving into algorithms, understand these five building blocks:
 
@@ -94,10 +78,6 @@ Before diving into algorithms, understand these five building blocks:
 5. **Prerequisite relationship**: A directed edge from a dependent topic to a prerequisite topic.
 
 A topic is not just content; it is content plus machine-readable metadata. That metadata lets PALEE compute what to study, when to review it, and whether prerequisites are satisfied.
-
-**Section sources**
-- [docs/05-1-topic-and-assessment-schema.md:12-45](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md#L12-L45)
-- [docs/adr/0004-four-pillar-pedagogical-mastery.md:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
 
 ## Architecture Overview
 The user-facing workflow follows a predictable path:
@@ -124,13 +104,6 @@ sequenceDiagram
     Review->>Vault: "Atomic write updated frontmatter"
     Vault-->>Learner: "Persisted progress and schedule"
 ```
-
-**Diagram sources**
-- [bin/palee.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L200)
-- [src/cli/adopt.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L200)
-- [src/cli/review.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L200)
-- [src/engine/mastery.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L200)
-- [src/engine/sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
 
 ## Detailed Component Analysis
 
@@ -186,17 +159,6 @@ graph TB
     Fundamentals --> Volumes
 ```
 
-**Diagram sources**
-- [examples/Docker Fundamentals.md:1-26](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Fundamentals.md#L1-L26)
-- [examples/Docker Networking.md:1-30](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Networking.md#L1-L30)
-- [examples/Docker Volumes.md:1-27](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Volumes.md#L1-L27)
-
-**Section sources**
-- [docs/05-1-topic-and-assessment-schema.md:12-171](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md#L12-L171)
-- [examples/Docker Fundamentals.md:1-26](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Fundamentals.md#L1-L26)
-- [examples/Docker Networking.md:1-30](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Networking.md#L1-L30)
-- [examples/Docker Volumes.md:1-27](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Volumes.md#L1-L27)
-
 ### The Four-Pillar Pedagogical Assessment Model
 PALEE does not measure mastery as a single scalar. Instead, it evaluates four dimensions:
 
@@ -234,16 +196,6 @@ flowchart TD
     Gate -->|"No"| Learning["Learning"]
 ```
 
-**Diagram sources**
-- [docs/adr/0004-four-pillar-pedagogical-mastery.md:12-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L12-L59)
-- [docs/03-1-sm2-spaced-repetition-algorithm.md:130-200](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L130-L200)
-- [src/engine/mastery.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L200)
-
-**Section sources**
-- [docs/adr/0004-four-pillar-pedagogical-mastery.md:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
-- [docs/03-1-sm2-spaced-repetition-algorithm.md:130-200](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L130-L200)
-- [docs/05-1-topic-and-assessment-schema.md:60-95](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md#L60-L95)
-
 ### SM-2 Spaced Repetition Algorithm
 The SM-2 engine determines **when** to review a topic, while the mastery engine determines **how well** you know it. They answer different questions.
 
@@ -262,8 +214,9 @@ When you record a review, you rate recall from 0 to 5:
 #### How Timing Is Calculated
 The algorithm maintains several state variables:
 
-- **Ease Factor**: A difficulty multiplier starting near 2.5, bounded below by 1.3.
+- **Ease Factor**: A difficulty multiplier starting at 2.5, bounded below by 1.3.
 - **Interval Days**: Calendar days until the next review.
+- **Interval Cap**: Intervals are capped at 36,500 days (`MAX_INTERVAL_DAYS`, INV-17), so a long review history cannot produce an unrepresentable due date.
 - **Repetition**: Count of consecutive successful reviews.
 - **Lapses**: Count of failed reviews after the topic was learned.
 - **Due Date**: The calendar date when the topic becomes due again.
@@ -296,20 +249,11 @@ flowchart TD
     Schedule --> Output(["Updated Review State"])
 ```
 
-**Diagram sources**
-- [docs/03-1-sm2-spaced-repetition-algorithm.md:24-120](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L24-L120)
-- [src/engine/sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-
 #### Common Misconceptions About Spaced Repetition
 - **Spaced repetition is not the same as mastery.** A topic can be due for review even if mastery is low, and a mastered topic can still be scheduled for maintenance review.
 - **Ease factor is not the same as difficulty label.** `difficulty` describes the topic’s intended complexity, while `ease_factor` adapts to your actual recall performance.
 - **An interval is not a fixed number of days forever.** It changes based on recall quality and previous repetition history.
 - **A lapse is not just a wrong answer.** In SM-2, a lapse usually resets repetition and returns the interval to 1 day, signaling that the memory trace needs reinforcement.
-
-**Section sources**
-- [docs/03-1-sm2-spaced-repetition-algorithm.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L1-L200)
-- [docs/05-1-topic-and-assessment-schema.md:96-171](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md#L96-L171)
-- [src/engine/sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
 
 ### Prerequisites and Directed Acyclic Graphs
 Prerequisites form a directed graph where edges point from a dependent topic toward its prerequisites. For example:
@@ -354,17 +298,6 @@ flowchart TD
     Gating --> Blocked["Blocked Until Prerequisites Met"]
 ```
 
-**Diagram sources**
-- [docs/adr/0012-declared-prerequisites.md:1-82](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0012-declared-prerequisites.md#L1-L82)
-- [examples/Docker Networking.md:1-30](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Networking.md#L1-L30)
-- [examples/Docker Volumes.md:1-27](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Volumes.md#L1-L27)
-
-**Section sources**
-- [docs/adr/0012-declared-prerequisites.md:1-82](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0012-declared-prerequisites.md#L1-L82)
-- [docs/05-1-topic-and-assessment-schema.md:30-45](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md#L30-L45)
-- [examples/Docker Networking.md:1-30](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Networking.md#L1-L30)
-- [examples/Docker Volumes.md:1-27](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Volumes.md#L1-L27)
-
 ### Practical Examples
 
 #### Example 1: Minimal Topic File
@@ -401,12 +334,6 @@ When you review a topic:
 2. PALEE updates SM-2 state: ease factor, interval, repetition, lapses, and due date.
 3. The next review date reflects your performance and previous repetition history.
 
-**Section sources**
-- [examples/Docker Fundamentals.md:1-26](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Fundamentals.md#L1-L26)
-- [examples/Docker Networking.md:1-30](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Networking.md#L1-L30)
-- [examples/Docker Volumes.md:1-27](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Volumes.md#L1-L27)
-- [docs/05-1-topic-and-assessment-schema.md:60-171](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md#L60-L171)
-
 ## Dependency Analysis
 At the code level, the core concepts depend on a small set of modules:
 
@@ -420,29 +347,11 @@ graph LR
     CLI --> ReviewCLI
 ```
 
-**Diagram sources**
-- [src/types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)
-- [src/cli/adopt.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L200)
-- [src/cli/review.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L200)
-- [src/engine/mastery.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L200)
-- [src/engine/sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-- [bin/palee.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L200)
-
-**Section sources**
-- [src/types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)
-- [src/cli/adopt.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L200)
-- [src/cli/review.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L200)
-- [src/engine/mastery.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L200)
-- [src/engine/sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-- [bin/palee.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L200)
-
 ## Performance Considerations
 - Keep prerequisite graphs small and acyclic. Long chains or cycles make recommendation and validation more expensive.
 - Avoid excessive prerequisite duplication. Each dependency adds graph traversal and gating checks.
 - Record reviews deliberately. Frequent reviews update frontmatter, which involves parsing, validation, and atomic writes.
 - Treat mastery and scheduling separately. Updating assessment pillars changes mastery; updating recall quality changes scheduling. Both affect recommendations, but through different mechanisms.
-
-[No sources needed since this section provides general guidance]
 
 ## Troubleshooting Guide
 
@@ -450,16 +359,11 @@ graph LR
 Possible causes:
 - Feynman score is zero or too low. Because Feynman is double-weighted, missing or weak articulation can prevent reaching the mastery gate.
 - Other pillars are low. Even with a strong Feynman score, poor conceptual, practical, or debug scores reduce overall mastery.
-- Assessment timestamps are missing. Check `assessed_at` and pillar values.
 
 Remedies:
 - Record meaningful Feynman scores after explaining the topic clearly.
 - Improve practical and debugging practice.
 - Reassess after meaningful study or implementation.
-
-**Section sources**
-- [docs/adr/0004-four-pillar-pedagogical-mastery.md:12-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L12-L59)
-- [docs/05-1-topic-and-assessment-schema.md:60-95](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md#L60-L95)
 
 ### A topic is due for review but I cannot study it
 Possible causes:
@@ -472,10 +376,6 @@ Remedies:
 - Review prerequisite declarations in frontmatter and recognized prerequisite sections.
 - Resolve missing or ambiguous references before expecting the gate to lift.
 
-**Section sources**
-- [docs/adr/0012-declared-prerequisites.md:1-82](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0012-declared-prerequisites.md#L1-L82)
-- [docs/05-1-topic-and-assessment-schema.md:30-45](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md#L30-L45)
-
 ### My review dates look unexpected
 Possible causes:
 - Recent recall quality was low, causing a lapse and interval reset.
@@ -487,12 +387,8 @@ Remedies:
 - Use earlier reviews to reinforce weaker topics.
 - Remember that SM-2 adapts to performance over time.
 
-**Section sources**
-- [docs/03-1-sm2-spaced-repetition-algorithm.md:24-120](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L24-L120)
-- [docs/05-1-topic-and-assessment-schema.md:96-171](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md#L96-L171)
-
 ## Conclusion
-PALEE’s core concepts rest on three ideas:
+PALEE’s core concepts rest on four ideas:
 
 1. **Topics are structured Markdown files with YAML frontmatter** that encode identity, prerequisites, mastery, and review state.
 2. **Mastery is multidimensional**, combining conceptual understanding, practical application, debugging ability, and Feynman-style explanation.
@@ -500,5 +396,3 @@ PALEE’s core concepts rest on three ideas:
 4. **Dependencies create a directed graph** that influences what you can study, independent of what is due for review.
 
 Understanding these ideas helps you interpret PALEE’s recommendations correctly, maintain healthy prerequisite graphs, and use spaced repetition as a tool for durable technical learning rather than short-term memorization.
-
-[No sources needed since this section summarizes without analyzing specific files]

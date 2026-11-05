@@ -3,7 +3,7 @@
 ::: details Referenced Files in This Document
 
 - [src/index.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/index.ts)
-- [bin/bin/palee.ts](https://github.com/Kuldeep2822k/cli/blob/main/bin/bin/palee.ts)
+- [bin/palee.ts](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts)
 - [src/cli/session.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts)
 - [src/cli/adopt.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts)
 - [src/cli/assess.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts)
@@ -42,9 +42,6 @@ This document explains PALEE's data flow patterns and state management across th
 
 PALEE is organized as a layered system: the CLI parses user input, the application layer performs pure business transformations, the engine computes spaced repetition and mastery, and the storage layer persists durable state under `.palee/` with atomic writes and locking.
 
-**Section sources**
-- [src/index.ts:1-27](https://github.com/Kuldeep2822k/cli/blob/main/src/index.ts#L1-L27)
-
 ## Project Structure
 At a high level, the repository separates concerns into four main areas:
 
@@ -71,26 +68,6 @@ graph TB
     Store --> Vault
 ```
 
-**Diagram sources**
-- [src/cli/session.ts:1-80](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L80)
-- [src/cli/assess.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L60)
-- [src/cli/review.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L40)
-- [src/application/record-assessment.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L40)
-- [src/application/record-review.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L30)
-- [src/engine/mastery.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L40)
-- [src/engine/sm2.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L30)
-- [src/storage/memory.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1-L40)
-- [src/storage/sessions.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L30)
-- [src/storage/atomic-write.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L30)
-
-**Section sources**
-- [src/index.ts:12-27](https://github.com/Kuldeep2822k/cli/blob/main/src/index.ts#L12-L27)
-- [src/cli/session.ts:1-80](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L80)
-- [src/cli/adopt.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L60)
-- [src/cli/assess.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L40)
-- [src/cli/review.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L40)
-- [src/cli/next.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L40)
-
 ## Core Components
 The core components form a pipeline:
 
@@ -108,13 +85,6 @@ Key responsibilities:
 | `assessCommand` | Topic query, pillar scores | Assessment update, mastery recomputation, plan availability diff | Updated note frontmatter with assessment fields |
 | `reviewCommand` | Topic query, quality rating | SM-2 transition, due-date computation, early-review warning | Updated SM-2 fields and next due date |
 | `nextCommand` | Current time, loaded topics | Due partitioning, prerequisite gating, status reporting | Next due topics or blocked explanation |
-
-**Section sources**
-- [src/cli/session.ts:201-350](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L201-L350)
-- [src/cli/adopt.ts:200-360](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L200-L360)
-- [src/cli/assess.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L120)
-- [src/cli/review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [src/cli/next.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L120)
 
 ## Architecture Overview
 The complete data path follows a consistent pattern:
@@ -142,13 +112,6 @@ sequenceDiagram
     Store-->>CLI: Result
     CLI-->>User: Human output or JSON result
 ```
-
-**Diagram sources**
-- [src/cli/assess.ts:60-140](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L60-L140)
-- [src/cli/review.ts:40-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L40-L141)
-- [src/application/record-assessment.ts:60-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L60-L134)
-- [src/application/record-review.ts:60-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L60-L116)
-- [src/storage/atomic-write.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L120)
 
 ## Detailed Component Analysis
 
@@ -186,12 +149,6 @@ flowchart TD
     WriteMarker --> End(["Session started"])
 ```
 
-**Diagram sources**
-- [src/cli/session.ts:201-450](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L201-L450)
-- [src/storage/memory.ts:100-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L100-L200)
-- [src/storage/memory.ts:430-550](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L430-L550)
-- [src/storage/sessions.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L120)
-
 #### Hot Memory Read Contract
 Hot memory reads classify their result rather than throwing for ordinary absence:
 
@@ -205,11 +162,6 @@ Hot memory reads classify their result rather than throwing for ordinary absence
 
 The active topic is derived only when `active_topic` is present, non-empty, and not `(none)`.
 
-**Section sources**
-- [src/storage/memory.ts:80-160](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L80-L160)
-- [src/storage/memory.ts:201-260](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L201-L260)
-- [src/cli/session.ts:201-350](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L201-L350)
-
 #### Draft Recovery
 Draft checkpoints are created under `.palee/sessions/DRAFT-S-*.md`. When `session start` detects them:
 
@@ -218,16 +170,8 @@ Draft checkpoints are created under `.palee/sessions/DRAFT-S-*.md`. When `sessio
 3. Each draft is processed through `recoverDraft`; unresolved drafts leave the command in an exit-usage state.
 4. Once all drafts are resolved, normal session startup proceeds.
 
-**Section sources**
-- [src/cli/session.ts:240-420](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L240-L420)
-- [src/storage/sessions.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L120)
-
 #### Active Session Marker
 The active-session marker is separate from hot memory. It records the current session ID, topic ID, and start time. On successful completion, the marker is cleared under the same target lock that protects concurrent writers, so clearing cannot race a live writer mid-rename.
-
-**Section sources**
-- [src/storage/memory.ts:480-550](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L480-L550)
-- [src/cli/session.ts:420-500](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L420-L500)
 
 ### Adoption Data Flow
 Adoption converts existing Markdown notes into PALEE-managed topics. It supports single-file and batch modes:
@@ -253,17 +197,8 @@ flowchart TD
     RollbackJournal --> End
 ```
 
-**Diagram sources**
-- [src/cli/adopt.ts:200-360](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L200-L360)
-- [src/cli/adopt.ts:360-531](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L360-L531)
-- [src/engine/mastery.ts:120-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L120-L200)
-
 #### Rollback Mechanism
 Batch adoption maintains a rollback journal of successfully written notes. If later writes fail, it restores each journaled note to its original content in reverse order. Each revert uses `atomicWrite` with an expected fingerprint and `expectExists: true`, so a concurrent external rewrite is detected rather than silently overwritten.
-
-**Section sources**
-- [src/cli/adopt.ts:120-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L120-L200)
-- [src/cli/adopt.ts:360-531](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L360-L531)
 
 ### Assessment and Mastery Transitions
 Assessment records a four-pillar evaluation: conceptual, practical, debug, and feynman. The application layer merges explicitly supplied pillar scores over stored values, recomputes mastery, and produces frontmatter updates.
@@ -274,25 +209,19 @@ Mastery is computed as a weighted formula where Feynman articulation is double-w
 flowchart TD
     Start(["Assess Command"]) --> ParsePillars["Parse and range-check pillar flags"]
     ParsePillars --> LoadTopics["Load topics and resolve topic"]
-    LoadTopics --> BuildAssessment["buildAssessmentUpdate(frontmatter, parsed, assessedAt)"]
+    LoadTopics --> ReRead["Re-read disk and compare fingerprint"]
+    ReRead --> BuildAssessment["buildAssessmentUpdate(frontmatter, parsed, assessedAt)"]
     BuildAssessment --> Mastery["computeTopicMastery(pillars)"]
     Mastery --> AvailabilityDiff["assessmentAvailabilityDiff(topics, id, old, new)"]
-    AvailabilityDiff --> CLIOutput["Print unlocked/blocked topics and mastery change"]
-    CLIOutput --> OCCWrite["Re-read disk, compare fingerprint, atomicWrite"]
-    OCCWrite --> End(["Assessment recorded"])
+    AvailabilityDiff --> OCCWrite["atomicWrite"]
+    OCCWrite --> CLIOutput["Print unlocked/blocked topics and mastery change"]
+    CLIOutput --> End(["Assessment recorded"])
 ```
 
-**Diagram sources**
-- [src/cli/assess.ts:60-140](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L60-L140)
-- [src/application/record-assessment.ts:60-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L60-L134)
-- [src/engine/mastery.ts:120-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L120-L200)
+On `--dry-run`, the print step occurs without the atomic write.
 
 #### Topic State Changes During Assessment
 Assessment changes do not directly set a topic status field. Instead, it changes `topic_mastery` and pillar values. Downstream consumers such as `palee plan` use mastery and dependency graphs to decide availability. A lowering assessment can make previously ready dependents unavailable, which is reported as newly blocked topics.
-
-**Section sources**
-- [src/cli/assess.ts:60-140](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L60-L140)
-- [src/application/record-assessment.ts:60-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L60-L134)
 
 ### Review and Scheduling Transitions
 Review records spaced repetition recall quality and updates SM-2 state: ease factor, interval days, repetition count, lapse count, last reviewed date, and next due date.
@@ -308,10 +237,6 @@ stateDiagram-v2
     Resetting --> Learning : "Next successful review"
     Mastered --> Mastered : "Future reviews continue intervals"
 ```
-
-**Diagram sources**
-- [src/engine/sm2.ts:120-220](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L120-L220)
-- [src/application/record-review.ts:60-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L60-L116)
 
 #### Review Data Flow
 ```mermaid
@@ -334,18 +259,8 @@ sequenceDiagram
     Store-->>CLI: success or conflict
 ```
 
-**Diagram sources**
-- [src/cli/review.ts:40-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L40-L141)
-- [src/application/record-review.ts:60-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L60-L116)
-- [src/engine/sm2.ts:120-220](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L120-L220)
-
 #### Early Reviews and Due Dates
-A review is considered early if the stored `due_at` is a calendar day earlier than the local review day. Early reviews are still recorded, but a warning is printed unless `--force` is passed. The due date is computed from the review timestamp plus the resulting interval.
-
-**Section sources**
-- [src/cli/review.ts:40-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L40-L141)
-- [src/application/record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [src/engine/sm2.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L120)
+A review is considered early if the local review day is earlier than the stored `due_at` calendar day — that is, `formatLocalDateOnly(reviewedAt) < currentDueAt`, where `currentDueAt` is the stored due day. Early reviews are still recorded, but a warning is printed unless `--force` is passed. The due date is computed from the review timestamp plus the resulting interval.
 
 ### Planning and Readiness Transitions
 `palee next` computes which topics are actionable today. A topic is actionable if it has never been reviewed or is due for review, and its prerequisites are satisfied.
@@ -367,10 +282,6 @@ flowchart TD
     NothingDue --> Output
 ```
 
-**Diagram sources**
-- [src/cli/next.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L120)
-- [src/application/get-next-topics.ts:60-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L60-L199)
-
 #### Prerequisite Gating
 A topic is blocked when:
 
@@ -379,10 +290,6 @@ A topic is blocked when:
 3. The dependency engine reports unmet prerequisites.
 
 Cyclic topics are quarantined before readiness decisions, so they are not silently withheld from `next` merely because ordering is undefined.
-
-**Section sources**
-- [src/cli/next.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L120)
-- [src/application/get-next-topics.ts:60-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L60-L199)
 
 ### Optimistic Concurrency Control
 OCC is implemented at the storage boundary. Every mutable operation follows this pattern:
@@ -418,18 +325,8 @@ flowchart TD
     DirFsync --> Done(["Operation durable"])
 ```
 
-**Diagram sources**
-- [src/cli/review.ts:70-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L70-L120)
-- [src/storage/atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
-- [src/storage/memory.ts:320-420](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L320-L420)
-
 #### Conflict Detection
 Conflict errors are recognized by both the error code and message prefixes. Callers can distinguish between OCC conflicts and other failures using `isConflictError`.
-
-**Section sources**
-- [src/cli/review.ts:70-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L70-L141)
-- [src/storage/atomic-write.ts:120-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L120-L200)
-- [src/storage/memory.ts:320-420](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L320-L420)
 
 ### Error Handling and Rollback Strategies
 Errors are categorized by intent and surface differently depending on whether the command is interactive, JSON-mode, or machine-driven:
@@ -443,12 +340,6 @@ Errors are categorized by intent and surface differently depending on whether th
 | Draft unresolved | Non-interactive draft checkpoint | Refuses to proceed with exit 2 |
 
 For batch adoption, partial failure triggers rollback of previously written notes. For SM-2 review, corrupted stored state prints a hint directing the user to `validate --fix`.
-
-**Section sources**
-- [src/cli/adopt.ts:120-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L120-L200)
-- [src/cli/review.ts:100-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L100-L141)
-- [src/cli/session.ts:201-240](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L201-L240)
-- [src/cli/next.ts:120-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L120-L200)
 
 ## Dependency Analysis
 The major dependency relationships are:
@@ -471,16 +362,6 @@ graph LR
     CLI_Adopt --> Storage_Atomic["storage/atomic-write.ts"]
 ```
 
-**Diagram sources**
-- [src/cli/session.ts:1-80](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L80)
-- [src/cli/assess.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L60)
-- [src/cli/review.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L40)
-- [src/cli/next.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L40)
-- [src/cli/adopt.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L60)
-- [src/application/record-assessment.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L40)
-- [src/application/record-review.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L40)
-- [src/application/get-next-topics.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L40)
-
 ### Coupling and Cohesion
 - CLI handlers are moderately coupled to storage loaders for reading vault state, but they delegate pure transformations to application functions.
 - Application functions are deliberately decoupled from filesystem, process, and Commander state.
@@ -490,20 +371,12 @@ graph LR
 ### Potential Circular Dependencies
 There is no evidence of circular imports among the analyzed modules. The direction of dependencies flows outward from CLI to application, then to engine and storage.
 
-**Section sources**
-- [src/cli/assess.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L60)
-- [src/cli/review.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L40)
-- [src/cli/next.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L40)
-- [src/application/get-next-topics.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L40)
-
 ## Performance Considerations
 - Hot memory limits its summary body to 250 words, reducing repeated scanning cost and keeping active context manageable.
 - Vault loading and session scanning are designed to tolerate malformed or unreadable files rather than aborting entire scans.
 - Atomic writes use temporary files and rename operations to avoid partial vault corruption.
 - SM-2 interval growth is capped at 36,500 days to prevent extremely far-future dates that could break date formatting.
 - Batch adoption stages writes and maintains a rollback journal to contain partial-batch costs.
-
-[No sources needed since this section provides general guidance]
 
 ## Troubleshooting Guide
 Common issues and their signals:
@@ -519,13 +392,5 @@ Common issues and their signals:
 | Invalid SM-2 state | Corrupted ease factor, interval, repetition, or lapses | Run `validate --fix` |
 | `nothing was adopted` | Source too large, unclosed frontmatter, or already adopted | Fix the note or remove duplicate identity |
 
-**Section sources**
-- [src/cli/assess.ts:100-140](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L100-L140)
-- [src/cli/review.ts:100-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L100-L141)
-- [src/cli/session.ts:201-240](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L201-L240)
-- [src/cli/adopt.ts:300-420](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L300-L420)
-
 ## Conclusion
 PALEE's data flow separates concerns cleanly: CLI handles interaction, application functions encode domain rules, engines implement mathematical and graph computations, and storage guarantees durable, contained, and concurrently safe vault mutations. The session lifecycle centers on a small hot-memory working state, a short-lived active-session marker, and durable session notes, with draft checkpoints providing crash recovery. Topic state evolves through adoption, assessment, review, and planning phases, with OCC preventing concurrent overwrites and rollback journals containing partial batch failures.
-
-[No sources needed since this section summarizes without analyzing specific files]

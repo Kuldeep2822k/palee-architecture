@@ -51,7 +51,7 @@ graph TB
 
     subgraph "Engine Layer"
         MASTERY["mastery.ts<br/>normalizeScore,<br/>computeTopicMastery,<br/>MASTERY_THRESHOLD"]
-        ENGINE_INDEX["engine index.ts<br/>Public subsystem exports"]
+        DEPENDENCY["dependency.ts<br/>getReadyTopics,<br/>quarantineCyclicTopics"]
     end
 
     subgraph "Storage Layer"
@@ -64,26 +64,10 @@ graph TB
 
     CLI --> APP
     APP --> MASTERY
-    APP --> ENGINE_INDEX
+    APP --> DEPENDENCY
     CLI --> ATOMIC
-    RULES --> CLI
+    RULES -. "inspects raw fields" .-> VaultNotes["Vault topic notes"]
 ```
-
-**Diagram sources**
-- [assess.ts:1-279](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L279)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
-- [valid-assessment-fields.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L1-L79)
-
-**Section sources**
-- [assess.ts:1-279](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L279)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
-- [valid-assessment-fields.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L1-L79)
 
 ## Core Components
 The assessment recording workflow is driven by three responsibilities:
@@ -92,16 +76,9 @@ The assessment recording workflow is driven by three responsibilities:
 |---|---|---|
 | CLI handler (`assess.ts`) | Accepts user input, resolves a single topic, validates CLI scores, reads fresh file state, builds an assessment update, previews or records it, and maps errors to exit codes. | Rejects missing pillars, non-scalar numeric strings, out-of-range values, missing topics, ambiguous matches, concurrent modifications, and storage conflicts. |
 | Application use case (`record-assessment.ts`) | Computes normalized pillar scores, previous and new mastery, frontmatter updates, and readiness delta for plan output. | Only writes pillars explicitly supplied by the user; refuses corrupt stored pillar values instead of clamping them into mastery. |
-| Engine primitives (`mastery.ts`, `index.ts`) | Defines the four-pillar model, normalization, weighted mastery formula, and readiness threshold. | Uses a 0.70 threshold; double-weights Feynman so ordinary pillars alone cannot reach mastery. |
+| Engine primitives (`mastery.ts`, `dependency.ts`) | Defines the four-pillar model, normalization, weighted mastery formula, readiness threshold, and readiness checks. | Uses a 0.70 threshold; double-weights Feynman so ordinary pillars alone cannot reach mastery. |
 | Storage primitive (`atomic-write.ts`) | Persists updated content atomically under vault containment and lock-based concurrency control. | Reclaims stale temp files, preserves destination mode, retries Windows contention, and reports conflict errors. |
 | Validation rule (`valid-assessment-fields.ts`) | Inspects raw on-disk assessment fields without applying runtime coercion. | Reports invalid pillar ranges and invalid `assessed_at` values as manual-fix issues. |
-
-**Section sources**
-- [assess.ts:1-279](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L279)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
-- [valid-assessment-fields.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L1-L79)
 
 ## Architecture Overview
 The complete assessment lifecycle has two execution paths: preview and recording.
@@ -111,7 +88,7 @@ sequenceDiagram
     participant User as "User"
     participant CLI as "assess.ts"
     participant App as "record-assessment.ts"
-    participant Engine as "mastery.ts / index.ts"
+    participant Engine as "mastery.ts / dependency.ts"
     participant Store as "atomic-write.ts"
 
     User->>CLI: "palee assess <topic> [--pillar N...]"
@@ -126,7 +103,7 @@ sequenceDiagram
     App->>Engine: computeTopicMastery(...)
     App-->>CLI: {scores, previousMastery, topicMastery, updates}
     CLI->>App: assessmentAvailabilityDiff(topics, id, previous, new)
-    CLI->>Engine: getReadyTopics(..., MASTERY_THRESHOLD)
+    App->>Engine: readyTopicIds(): getReadyTopics(..., MASTERY_THRESHOLD)
     alt dry-run
         CLI-->>User: Print assessment effect and preview message
     else record
@@ -135,12 +112,6 @@ sequenceDiagram
         CLI-->>User: Print recorded assessment effect
     end
 ```
-
-**Diagram sources**
-- [assess.ts:1-279](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L279)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
 
 ## Detailed Component Analysis
 
@@ -178,13 +149,6 @@ flowchart TD
     Persist --> Done(["Assessment recorded"])
 ```
 
-**Diagram sources**
-- [assess.ts:1-279](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L279)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-
-**Section sources**
-- [assess.ts:1-279](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L279)
-
 ### Schema Validation Against Raw Frontmatter
 The validation rule inspects the raw on-disk assessment shape rather than trusting normalized runtime values. This is important because normalization can coerce or clamp values, while schema validation exposes genuine vault corruption.
 
@@ -194,12 +158,9 @@ The validation rule inspects the raw on-disk assessment shape rather than trusti
 | `practical` | Missing, `null`, or finite number in `[0, 1]` | Reported as an error |
 | `debug` | Missing, `null`, or finite number in `[0, 1]` | Reported as an error |
 | `feynman` | Missing, `null`, or finite number in `[0, 1]` | Reported as an error |
-| `assessed_at` | `null` or a valid calendar date | Reported as an error if missing/null but malformed |
+| `assessed_at` | `null`, absent, or a real calendar date | Valid when missing or `null`; reported as an error only when present but not a real calendar date |
 
 Missing pillar fields are documented as defaulting to zero during adoption, so their absence is not treated as corruption. However, when present, both the type and range must be valid.
-
-**Section sources**
-- [valid-assessment-fields.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L1-L79)
 
 ### Score Normalization and Business Rules
 The assessment recording workflow distinguishes between:
@@ -236,19 +197,6 @@ flowchart TD
     FeynmanZero -->|No| Continue["Report below-threshold result"]
 ```
 
-**Diagram sources**
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [assess.ts:1-279](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L279)
-- [0004-four-pillar-pedagogical-mastery.md:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
-- [0021-assessment-surface.md:1-86](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0021-assessment-surface.md#L1-L86)
-
-**Section sources**
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [assess.ts:1-279](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L279)
-- [0004-four-pillar-pedagogical-mastery.md:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
-- [0021-assessment-surface.md:1-86](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0021-assessment-surface.md#L1-L86)
-
 ### Assessment Update Construction
 The application layer constructs an assessment update from existing frontmatter and explicitly supplied pillars.
 
@@ -274,13 +222,6 @@ flowchart TD
     Updates --> Result(["AssessmentUpdate"])
 ```
 
-**Diagram sources**
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-
-**Section sources**
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-
 ### Readiness State Transitions
 The assessment does not directly mutate a topic’s readiness state. Instead, it recomputes what `palee plan` would offer after the new mastery.
 
@@ -302,14 +243,6 @@ stateDiagram-v2
     NewlyBlocked --> [*]
     NoChange --> [*]
 ```
-
-**Diagram sources**
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
-
-**Section sources**
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
 
 ### Persistence and Atomicity
 Persistence is delegated to `atomicWrite`, which is the single write primitive for vault mutations. Its contract includes:
@@ -339,16 +272,6 @@ flowchart TD
     DirFlush --> Exit(["Success"])
 ```
 
-**Diagram sources**
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
-- [0014-atomic-write-durability-and-containment.md:1-79](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0014-atomic-write-durability-and-containment.md#L1-L79)
-- [0005-concurrency-storage-and-schema-migration.md:1-51](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0005-concurrency-storage-and-schema-migration.md#L1-L51)
-
-**Section sources**
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
-- [0014-atomic-write-durability-and-containment.md:1-79](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0014-atomic-write-durability-and-containment.md#L1-L79)
-- [0005-concurrency-storage-and-schema-migration.md:1-51](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0005-concurrency-storage-and-schema-migration.md#L1-L51)
-
 ## Dependency Analysis
 The assessment recording workflow depends on several subsystems:
 
@@ -356,7 +279,7 @@ The assessment recording workflow depends on several subsystems:
 graph LR
     AssessCLI["assess.ts"] --> RecordApp["record-assessment.ts"]
     RecordApp --> Mastery["mastery.ts"]
-    RecordApp --> EngineIndex["engine index.ts"]
+    RecordApp --> Dependency["dependency.ts"]
     AssessCLI --> AtomicWrite["atomic-write.ts"]
     AssessCLI --> StorageModule["storage module<br/>(load/update/frontmatter)"]
     AssessCLI --> Types["types.ts"]
@@ -366,25 +289,9 @@ graph LR
 - `assess.ts` owns CLI concerns: argument parsing, topic resolution, file I/O coordination, and output formatting.
 - `record-assessment.ts` owns pure assessment logic: merging stored and supplied pillars, computing mastery, and computing readiness deltas.
 - `mastery.ts` owns the four-pillar normalization and weighting contract.
-- `engine index.ts` exposes readiness functions and thresholds used by readiness reporting.
+- `dependency.ts` is imported directly by `record-assessment.ts`; readiness is computed via its private `readyTopicIds()` helper inside `assessmentAvailabilityDiff`, which quarantines cyclic topics and calls `getReadyTopics` with `MASTERY_THRESHOLD`. `assess.ts` never imports `engine/index` or calls `getReadyTopics` directly.
 - `atomic-write.ts` owns durability, containment, locking, and concurrency behavior.
 - `valid-assessment-fields.ts` is independent of runtime normalization and inspects raw on-disk fields.
-
-**Diagram sources**
-- [assess.ts:1-279](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L279)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
-- [valid-assessment-fields.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L1-L79)
-
-**Section sources**
-- [assess.ts:1-279](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L279)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
-- [valid-assessment-fields.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L1-L79)
 
 ## Performance Considerations
 - **Single-topic focus**: The CLI resolves exactly one topic and writes one note. Bulk assessment processing is not implemented by this command; callers should invoke it repeatedly per topic.
@@ -393,8 +300,6 @@ graph LR
 - **I/O-bound phase**: The dominant cost is loading topics, reading the target note twice, updating frontmatter, and performing an atomic write.
 - **Avoid unnecessary writes**: `--dry-run` performs all validation and effect computation without acquiring locks or writing bytes.
 - **Concurrency backoff**: Windows contention uses bounded exponential backoff with jitter to reduce thundering-herd effects.
-
-[No sources needed since this section provides general guidance]
 
 ## Troubleshooting Guide
 
@@ -414,24 +319,15 @@ graph LR
 ### Concurrency and Rollback Behavior
 - The CLI performs an additional TOCTOU fingerprint comparison before calling `atomicWrite`.
 - `atomicWrite` also performs OCC fingerprint comparison under lock.
-- If either step detects a conflict, the operation fails with an `ECONFLICT`-style error.
+- If either step detects a conflict, the operation fails with an `ECONFLICT` error.
 - There is no automatic retry loop in the CLI command itself; callers implementing bulk workflows should wrap invocations with retry logic keyed on conflict detection.
 - Stale temporary files left by crashed writers are reclaimed by `atomicWrite` under a bounded policy.
-
-**Section sources**
-- [assess.ts:1-279](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L279)
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
 
 ### Audit Trail and Data Integrity
 - `assessed_at` records when an assessment was recorded by `palee assess`.
 - It does not record which command wrote `topic_mastery`; other commands such as review, adopt, roadmap, and validation repair may also write mastery.
 - Raw validation is separate from runtime normalization, allowing detection of corrupted on-disk assessment fields.
 - Atomic writes provide durability and containment guarantees, but the final TOCTOU window between re-check and open is documented as unclosable from JavaScript.
-
-**Section sources**
-- [0021-assessment-surface.md:1-86](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0021-assessment-surface.md#L1-L86)
-- [valid-assessment-fields.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L1-L79)
-- [0014-atomic-write-durability-and-containment.md:1-79](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0014-atomic-write-durability-and-containment.md#L1-L79)
 
 ## Conclusion
 The assessment recording workflow is a carefully bounded pipeline:

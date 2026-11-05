@@ -50,14 +50,6 @@ graph TB
     Storage --> Drafts["DRAFT-S-*.md<br/>Checkpoint Drafts"]
 ```
 
-**Diagram sources**
-- [Session CLI Command Handler:1-150](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L150)
-- [Memory Manager Implementation:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1-L200)
-
-**Section sources**
-- [Session Memory Design:1-118](https://github.com/Kuldeep2822k/cli/blob/main/planning/memory_design.md#L1-L118)
-- [Session Memory Storage Documentation:1-146](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-4-session-memory-storage.md#L1-L146)
-
 ## Core Components
 
 ### Hot Memory Working State
@@ -69,12 +61,6 @@ Hot memory is the primary interface between the AI prompt context and the learne
 
 The constant defining the cap is exported for validation rules. Word truncation splits on whitespace and appends an ellipsis when the cap is exceeded.
 
-**Section sources**
-- [Memory Manager Implementation:24-43](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L24-L43)
-- [Memory Manager Implementation:102-168](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L102-L168)
-- [Memory Manager Implementation:448-506](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L448-L506)
-- [ADR-0007: Hot-Memory Read-State Contract:14-54](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0007-hot-memory-read-state-contract.md#L14-L54)
-
 ### Durable Session Notes
 Completed sessions are stored as individual Markdown notes under `.palee/sessions/`. Each note includes:
 - Schema version and stable session ID.
@@ -85,10 +71,6 @@ Completed sessions are stored as individual Markdown notes under `.palee/session
 
 Writes use optimistic concurrency control by computing a fingerprint of the target file when present. If another process creates or modifies the file concurrently, the write fails as a conflict rather than silently overwriting it.
 
-**Section sources**
-- [Memory Manager Implementation:200-285](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L200-L285)
-- [Session Memory Design:67-118](https://github.com/Kuldeep2822k/cli/blob/main/planning/memory_design.md#L67-L118)
-
 ### Derived Index
 The session index is regenerated from all confirmed sessions. It:
 - Scans `.palee/sessions/` in sorted filename order.
@@ -97,10 +79,6 @@ The session index is regenerated from all confirmed sessions. It:
 - Sorts confirmed sessions newest-first.
 - Emits a human-readable list with wikilinks.
 - Reports skipped unreadable or unsupported sessions so totals remain truthful.
-
-**Section sources**
-- [Memory Manager Implementation:628-749](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L628-L749)
-- [ADR-0019: Session-Memory Lifecycle and Staleness Clamps:40-53](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0019-session-memory-lifecycle.md#L40-L53)
 
 ### Draft Checkpoints and Recovery
 During a session, intermediate progress is persisted as draft checkpoints with IDs prefixed by `DRAFT-S-`. Drafts are not treated as confirmed history. Recovery supports four actions:
@@ -117,16 +95,8 @@ When saving, the system:
 5. Rebuilds derived views.
 6. Retires the draft last.
 
-**Section sources**
-- [Memory Manager Implementation:885-1006](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L885-L1006)
-- [Memory Manager Implementation:1006-1208](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1006-L1208)
-- [ADR-0019: Session-Memory Lifecycle and Staleness Clamps:14-39](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0019-session-memory-lifecycle.md#L14-L39)
-
 ### Active Session Marker
 An active session marker tracks which session is currently in progress. It is written when starting a session and cleared after successful completion. Clearing is lock-aware: if another writer holds the same target lock, the clear yields instead of failing, because a live writer is recreating the marker at that moment.
-
-**Section sources**
-- [Memory Manager Implementation:508-626](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L508-L626)
 
 ## Architecture Overview
 The architecture separates concerns between user interaction and persistent state management.
@@ -153,11 +123,6 @@ sequenceDiagram
     CLI-->>User: session started
 ```
 
-**Diagram sources**
-- [Session CLI Command Handler:200-480](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L200-L480)
-- [Memory Manager Implementation:750-884](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L750-L884)
-- [Memory Manager Implementation:448-506](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L448-L506)
-
 ## Detailed Component Analysis
 
 ### Hot Memory Lifecycle and Eviction Policy
@@ -175,16 +140,6 @@ flowchart TD
     BuildFrontmatter --> AtomicWrite["Atomic Write to hot.md"]
     AtomicWrite --> End(["Hot Memory Updated"])
 ```
-
-**Diagram sources**
-- [Memory Manager Implementation:448-506](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L448-L506)
-- [Memory Manager Implementation:336-383](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L336-L383)
-
-**Section sources**
-- [Memory Manager Implementation:336-383](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L336-L383)
-- [Memory Manager Implementation:448-506](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L448-L506)
-- [Memory Manager Implementation:750-884](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L750-L884)
-- [Session Memory Design:33-66](https://github.com/Kuldeep2822k/cli/blob/main/planning/memory_design.md#L33-L66)
 
 ### Session Creation Flow
 `palee session start` performs several responsibilities:
@@ -212,14 +167,6 @@ flowchart TD
     WriteMarker --> Success(["Session Started"])
 ```
 
-**Diagram sources**
-- [Session CLI Command Handler:200-480](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L200-L480)
-- [Memory Manager Implementation:750-884](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L750-L884)
-
-**Section sources**
-- [Session CLI Command Handler:200-480](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L200-L480)
-- [Session CLI Command Handler:147-174](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L147-L174)
-
 ### Session Completion Flow
 `palee session end` converts an active session into a durable record:
 1. Verify an active session exists.
@@ -240,14 +187,6 @@ flowchart TD
     DeleteDrafts --> RebuildViews["Rebuild Index and Hot Memory"]
     RebuildViews --> Complete(["Session Recorded"])
 ```
-
-**Diagram sources**
-- [Session CLI Command Handler:200-480](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L200-L480)
-- [Memory Manager Implementation:200-285](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L200-L285)
-
-**Section sources**
-- [Session CLI Command Handler:200-480](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L200-L480)
-- [Memory Manager Implementation:200-285](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L200-L285)
 
 ### Draft Recovery and Timestamp Clamping
 Draft recovery enforces strict timestamp policy:
@@ -279,14 +218,6 @@ flowchart TD
     RebuildViews --> RetireDraft["Retire Draft Last"]
 ```
 
-**Diagram sources**
-- [Memory Manager Implementation:1006-1208](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1006-L1208)
-- [ADR-0019: Session-Memory Lifecycle and Staleness Clamps:14-39](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0019-session-memory-lifecycle.md#L14-L39)
-
-**Section sources**
-- [Memory Manager Implementation:1006-1208](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1006-L1208)
-- [ADR-0019: Session-Memory Lifecycle and Staleness Clamps:14-39](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0019-session-memory-lifecycle.md#L14-L39)
-
 ### Derived View Rebuild
 `rebuildHotAndIndex` scans confirmed sessions and chooses the newest one by parsing `started_at`. Both derived views share the same eligibility predicate:
 - Must have a session ID.
@@ -304,24 +235,22 @@ flowchart TD
     Eligible -->|No| NextSession["Skip File"]
     Eligible -->|Yes| CompareTime["Compare Parsed Start Time"]
     CompareTime --> Newest{"Newest Confirmed Session?"}
-    Newest -->|Yes| TrackNewest["Track New Session"]
+    Newest -->|Yes| TrackNewest["Track Newest Session"]
     Newest -->|No| NextSession
-    TrackNewest --> HasActive{"Active Session Marker?"}
-    HasActive -->|Yes| DeriveFromActive["Derive Hot From Active Context"]
+    TrackNewest --> NextSession
+    NextSession --> MoreFiles{"More Files To Scan?"}
+    MoreFiles -->|Yes| ParseFrontmatter
+    MoreFiles -->|No| HasNewest{"Newest Confirmed Session Found?"}
+    HasNewest -->|Yes| DeriveFromBody["Use Newest Session Body As Hot Memory"]
+    HasNewest -->|No| HasActive{"Active Session Marker?"}
+    HasActive -->|Yes| DeriveFromActive["Derive Minimal Message From Active Context"]
     HasActive -->|No| DeriveDefault["Derive Default Hot Message"]
-    DeriveFromActive --> UpdateHot["Update Hot Memory"]
+    DeriveFromBody --> UpdateHot["Update Hot Memory"]
+    DeriveFromActive --> UpdateHot
     DeriveDefault --> UpdateHot
     UpdateHot --> RegenerateIndex["Regenerate Index"]
     RegenerateIndex --> Done(["Derived Views Rebuilt"])
 ```
-
-**Diagram sources**
-- [Memory Manager Implementation:750-884](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L750-L884)
-- [Memory Manager Implementation:628-749](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L628-L749)
-
-**Section sources**
-- [Memory Manager Implementation:750-884](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L750-L884)
-- [Memory Manager Implementation:628-749](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L628-L749)
 
 ## Dependency Analysis
 The session subsystem depends on several lower-level storage primitives:
@@ -341,14 +270,6 @@ graph TB
     StorageAPI --> EngineSchema["Engine Schema Version"]
 ```
 
-**Diagram sources**
-- [Memory Manager Implementation:1-23](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1-L23)
-- [Session CLI Command Handler:1-25](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L25)
-
-**Section sources**
-- [Memory Manager Implementation:1-23](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1-L23)
-- [Session CLI Command Handler:1-25](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L25)
-
 ## Performance Considerations
 - **Hot memory reads** are O(1) relative to session count because they read a single file.
 - **Hot memory writes** are O(1) plus the cost of atomic write contention handling.
@@ -358,8 +279,6 @@ graph TB
 - **Word truncation** is O(W) where W is the number of words in the hot-memory body.
 
 The 250-word cap keeps prompts small and predictable. The design intentionally avoids an ever-growing single log file; individual session notes are easier to search, migrate, inspect, and recover with Git.
-
-[No sources needed since this section provides general guidance]
 
 ## Troubleshooting Guide
 
@@ -372,10 +291,6 @@ Resolution:
 - The CLI rebuilds hot memory from the newest confirmed session.
 - If no confirmed session exists, it uses the active session marker or a default message.
 - Do not manually edit hot memory; treat it as derived.
-
-**Section sources**
-- [ADR-0007: Hot-Memory Read-State Contract:14-54](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0007-hot-memory-read-state-contract.md#L14-L54)
-- [Memory Manager Implementation:750-884](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L750-L884)
 
 ### Draft Recovery Prompts Appear
 Symptoms:
@@ -390,10 +305,6 @@ Resolution:
 - Ignore leaves it for later.
 - Resume retains the draft for continued study.
 
-**Section sources**
-- [Session CLI Command Handler:200-480](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L200-L480)
-- [Memory Manager Implementation:1006-1208](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1006-L1208)
-
 ### Duration Appears Incorrect After Crash Recovery
 Symptoms:
 - A recovered session shows a capped duration rather than the original abandoned time span.
@@ -406,10 +317,6 @@ Resolution:
 - This is intentional policy to avoid fabricated learning signals.
 - The clamp prioritizes accurate scheduling data over potentially inflated durations.
 
-**Section sources**
-- [ADR-0019: Session-Memory Lifecycle and Staleness Clamps:14-39](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0019-session-memory-lifecycle.md#L14-L39)
-- [Memory Manager Implementation:1006-L1080](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1006-L1080)
-
 ### Concurrent Writes Cause Conflicts
 Symptoms:
 - OCC conflict errors during session or hot-memory writes.
@@ -420,11 +327,6 @@ Resolution:
 - Draft checkpoint writes retry up to a bounded limit with jitter.
 - Hot memory and session writes use optimistic concurrency control to detect conflicts.
 
-**Section sources**
-- [Memory Manager Implementation:200-285](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L200-L285)
-- [Memory Manager Implementation:448-506](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L448-L506)
-- [Memory Manager Implementation:885-984](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L885-L984)
-
 ### Derived Views Become Out of Sync
 Symptoms:
 - `hot.md` references a session not listed in `index.md`.
@@ -433,10 +335,6 @@ Symptoms:
 Resolution:
 - Run a rebuild to regenerate both views from canonical session files.
 - Rebuild never deletes canonical session files; unreadable or unsupported sessions are counted and reported.
-
-**Section sources**
-- [Memory Manager Implementation:628-749](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L628-L749)
-- [ADR-0019: Session-Memory Lifecycle and Staleness Clamps:40-53](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0019-session-memory-lifecycle.md#L40-L53)
 
 ## Conclusion
 PALEE’s session memory system balances speed, durability, and consistency:

@@ -54,9 +54,11 @@ graph TB
     ParseFrontmatter["parse-frontmatter.ts"]
     NoDuplicateTopicId["no-duplicate-topic-id.ts"]
     ValidHotMemory["valid-hot-memory.ts"]
+    ValidManagedNoteKind["valid-managed-note-kind.ts"]
+    ValidPaleeSchema["valid-palee-schema.ts"]
+    ValidTopicIdFormat["valid-topic-id-format.ts"]
   end
 
-  Collect --> Runner
   Types --> Runner
   Types --> Collect
   Types --> Format
@@ -66,23 +68,10 @@ graph TB
   Barrel --> ParseFrontmatter
   Barrel --> NoDuplicateTopicId
   Barrel --> ValidHotMemory
-  ManagedNote --> ParseFrontmatter
-  ManagedNote --> NoDuplicateTopicId
-  ManagedNote --> ValidHotMemory
+  ManagedNote --> ValidManagedNoteKind
+  ManagedNote --> ValidPaleeSchema
+  ManagedNote --> ValidTopicIdFormat
 ```
-
-**Diagram sources**
-- [index.ts:1-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L1-L130)
-- [collect-vault.ts:1-147](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts#L1-L147)
-- [run-rules.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts#L1-L60)
-- [format.ts:1-180](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/format.ts#L1-L180)
-- [managed-note.ts:1-87](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/managed-note.ts#L1-L87)
-- [parse-frontmatter.ts:1-78](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/parse-frontmatter.ts#L1-L78)
-- [no-duplicate-topic-id.ts:1-48](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-duplicate-topic-id.ts#L1-L48)
-- [valid-hot-memory.ts:1-150](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-hot-memory.ts#L1-L150)
-
-**Section sources**
-- [index.ts:1-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L1-L130)
 
 ## Core Components
 The engine is built around three core concepts:
@@ -95,15 +84,10 @@ The engine is built around three core concepts:
 
 The runner executes every registered rule against the same context and concatenates all returned findings. It adds no severity filtering, no ranking policy, and no formatting. Formatters separate human-readable text from machine-readable JSON output.
 
-**Section sources**
-- [types.ts:1-161](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts#L1-L161)
-- [run-rules.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts#L1-L60)
-- [format.ts:1-180](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/format.ts#L1-L180)
-
 ## Architecture Overview
 The validation workflow is a pipeline:
 
-1. **Collect**: Build a single-snapshot `ValidationContext` by scanning notes, loading topics, reading sessions, reading the derived session index, and tolerantly reading hot memory.
+1. **Collect**: Build a single-snapshot `ValidationContext` by scanning notes, loading topics, reading the derived session index, reading sessions, and tolerantly reading hot memory. The session index is read before sessions to close a concurrent session-end interleaving window.
 2. **Run**: Execute every rule in registration order. Each rule receives the same context and returns its own list of findings.
 3. **Format**: Convert findings into human-readable output or machine-readable JSON. Callers decide exit codes and fix behavior.
 
@@ -127,11 +111,6 @@ sequenceDiagram
   Caller->>Formatter: format*(issues, counts)
   Formatter-->>Caller: Human text or JSON string
 ```
-
-**Diagram sources**
-- [collect-vault.ts:37-147](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts#L37-L147)
-- [run-rules.ts:20-56](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts#L20-L56)
-- [format.ts:40-180](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/format.ts#L40-L180)
 
 ## Detailed Component Analysis
 
@@ -163,13 +142,6 @@ flowchart TD
   Loop -->|No| Return["Return concatenated issues"]
 ```
 
-**Diagram sources**
-- [run-rules.ts:20-56](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts#L20-L56)
-
-**Section sources**
-- [run-rules.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts#L1-L60)
-- [validation-framework.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/validation-framework.test.ts#L1-L200)
-
 ### ValidationRule Interface Contract
 Every validation rule implements the `ValidationRule` interface:
 
@@ -186,9 +158,6 @@ Best practices derived from the contract:
 - Use `ruleId` consistently so formatters and fix engines can identify the source.
 - Keep `run` deterministic: given the same `ValidationContext`, it must return the same issues in the same order.
 - Do not mutate `context`; do not perform filesystem reads, writes, prompts, network requests, or console logging inside a rule.
-
-**Section sources**
-- [types.ts:107-161](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts#L107-L161)
 
 ### ValidationContext Structure
 `ValidationContext` is a read-only snapshot built once before rule execution. Its main responsibilities are:
@@ -244,13 +213,6 @@ classDiagram
   ValidationRule --> ValidationIssue : "returns"
 ```
 
-**Diagram sources**
-- [types.ts:43-161](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts#L43-L161)
-
-**Section sources**
-- [types.ts:43-161](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts#L43-L161)
-- [collect-vault.ts:1-147](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts#L1-L147)
-
 ### Vault Collection and Isolation from I/O
 `collectVault` builds the context in a single read pass:
 
@@ -277,12 +239,6 @@ flowchart TD
   ComputeFlags --> Return(["Return ValidationContext"])
 ```
 
-**Diagram sources**
-- [collect-vault.ts:37-147](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts#L37-L147)
-
-**Section sources**
-- [collect-vault.ts:1-147](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts#L1-L147)
-
 ### Output Formatting
 Formatters convert findings into two representations:
 
@@ -294,9 +250,6 @@ Key policies:
 - Warnings are additive in JSON and never affect `valid`.
 - Strict mode can mark a warnings-only run as gated without changing the meaning of `valid`.
 
-**Section sources**
-- [format.ts:1-180](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/format.ts#L1-L180)
-
 ### Built-in Rule Examples
 
 #### Parse-Frontmatter and Read-Failure Rules
@@ -306,16 +259,10 @@ These rules demonstrate two common patterns:
 
 Both are warnings and do not gate the exit code. They also illustrate deterministic sorting by file path.
 
-**Section sources**
-- [parse-frontmatter.ts:1-78](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/parse-frontmatter.ts#L1-L78)
-
 #### Duplicate Topic ID Rule
 This rule groups normalized topics by their `palee_id`, reports one error per duplicated ID, includes all affected file paths, and sorts results by topic ID for deterministic output.
 
 It shows how graph-like aggregation should remain pure and stable.
-
-**Section sources**
-- [no-duplicate-topic-id.ts:1-48](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-duplicate-topic-id.ts#L1-L48)
 
 #### Valid Hot Memory Rule
 This rule validates a rebuildable derived view:
@@ -325,9 +272,6 @@ This rule validates a rebuildable derived view:
 - Reference checks are skipped on incomplete snapshots to avoid speculative warnings.
 
 It demonstrates careful handling of provisional state and derived-view semantics.
-
-**Section sources**
-- [valid-hot-memory.ts:1-150](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-hot-memory.ts#L1-L150)
 
 ### Rule Catalog and Registration Order
 The barrel exports both individual rules and the canonical ordered catalog `VALIDATION_RULES`. The order is intentional:
@@ -340,9 +284,6 @@ The barrel exports both individual rules and the canonical ordered catalog `VALI
 
 Callers must use this catalog when they want the standard deterministic validation sequence.
 
-**Section sources**
-- [index.ts:1-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L1-L130)
-
 ### Managed Note Classification
 The managed-note helper centralizes identity-key logic used by multiple rules:
 - Identity keys mark PALEE-managed records.
@@ -351,9 +292,6 @@ The managed-note helper centralizes identity-key logic used by multiple rules:
 - A note marked only by schema is not treated as a clean topic note.
 
 This prevents different rules from disagreeing about whether a note is managed or a topic.
-
-**Section sources**
-- [managed-note.ts:1-87](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/managed-note.ts#L1-L87)
 
 ## Dependency Analysis
 
@@ -371,14 +309,8 @@ graph LR
   Index["index.ts"] --> Collect
   Index --> Runner
   Index --> Format
-  Rules["built-in rules"] --> Index
+  Index --> Rules["built-in rules"]
 ```
-
-**Diagram sources**
-- [collect-vault.ts:14-23](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts#L14-L23)
-- [run-rules.ts:12-15](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts#L12-L15)
-- [format.ts:11-12](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/format.ts#L11-L12)
-- [index.ts:20-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L20-L130)
 
 ### Coupling and Cohesion
 - `types.ts` is the shared contract layer and has no runtime dependencies on collectors, runners, or formatters.
@@ -393,20 +325,12 @@ graph LR
 - Sorting findings inconsistently breaks deterministic output.
 - Changing `VALIDATION_RULES` order changes diagnostic ordering and may break expectations downstream.
 
-**Section sources**
-- [run-rules.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts#L1-L60)
-- [collect-vault.ts:1-147](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts#L1-L147)
-- [format.ts:1-180](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/format.ts#L1-L180)
-- [index.ts:1-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L1-L130)
-
 ## Performance Considerations
 - Rule execution is linear in the number of rules and total findings: `O(rules × average_issues_per_rule)`.
 - Context construction dominates I/O cost because it performs one scan pass and loads topics from in-memory contents where possible.
 - Rules should avoid unnecessary repeated scans of `context.topics`, `context.sessions`, or `context.notes`; cache intermediate maps locally if needed.
 - Sorting should be limited to deterministic output requirements rather than broad full-array sorts.
 - Exception handling adds negligible overhead compared to rule computation but ensures one crashing rule does not prevent later rules from running.
-
-[No sources needed since this section provides general guidance]
 
 ## Troubleshooting Guide
 
@@ -415,14 +339,10 @@ When a rule throws, the runner converts it into one error finding:
 - `ruleId` is the throwing rule’s identifier.
 - `severity` is always `error`.
 - `message` names the rule and includes a safely extracted message.
-- `file`, `topicId`, and `sessionId` are left empty.
+- `file` and `topicId` are set to empty strings; `sessionId` is omitted.
 - `field` is set to `rule-execution`.
 
 This prevents a broken rule from hiding other findings.
-
-**Section sources**
-- [run-rules.ts:28-56](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts#L28-L56)
-- [validation-framework.test.ts:130-200](https://github.com/Kuldeep2822k/cli/blob/main/test/validation-framework.test.ts#L130-L200)
 
 ### A Rule Reports Too Many or Too Few Findings
 Check:
@@ -432,20 +352,12 @@ Check:
 - Whether it distinguishes between parse failures and read failures.
 - Whether it uses the rule’s own `ruleId` consistently.
 
-**Section sources**
-- [parse-frontmatter.ts:10-78](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/parse-frontmatter.ts#L10-L78)
-- [no-duplicate-topic-id.ts:10-48](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-duplicate-topic-id.ts#L10-L48)
-- [valid-hot-memory.ts:10-150](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-hot-memory.ts#L10-L150)
-
 ### JSON Output Shows Unexpected Gating Behavior
 Remember:
 - `valid` reflects whether there are zero errors.
 - Warnings do not make `valid` false.
 - In strict mode, a warnings-only run can still be marked as gated by warnings.
 - Legacy keys are preserved alongside new rule metadata.
-
-**Section sources**
-- [format.ts:11-180](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/format.ts#L11-L180)
 
 ### Best Practices for Writing Robust Validation Rules
 1. Treat the rule as a pure function of `ValidationContext`.
@@ -458,8 +370,6 @@ Remember:
 8. Keep locator fields precise: `file`, `topicId`, `sessionId`, and `field` help consumers locate problems.
 9. Prefer failing fast on invalid input to producing confusing findings.
 10. Add tests covering normal findings, edge cases, provisional snapshots, and exception safety.
-
-[No sources needed since this section summarizes established practices]
 
 ## Conclusion
 The PALEE validation rule execution engine is deliberately lean. It collects a single, consistent snapshot of vault state, executes pure rules in registration order, concatenates findings without short-circuiting, and converts unexpected exceptions into structured error findings. The `ValidationRule` and `ValidationContext` contracts define a clear boundary: rules inspect read-only data and return structured findings, while the runner, collector, and formatter handle orchestration, isolation, and presentation. Following the best practices above keeps rules deterministic, testable, and compatible with the broader PALEE validation and fix workflows.

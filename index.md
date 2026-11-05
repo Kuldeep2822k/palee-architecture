@@ -22,21 +22,21 @@ hero:
 features:
   - icon: 🧠
     title: Spaced Repetition & Pedagogical Mastery
-    details: Complete SuperMemo SM-2 interval expansion, ease factor deltas, and four-pillar mastery (Conceptual, Practical, Debug, and Feynman).
+    details: SuperMemo SM-2 interval expansion with PALEE's 36,500-day safety cap, ease factor deltas, and four-pillar mastery (Conceptual, Practical, Debug, and Feynman).
   - icon: 🕸️
     title: Dependency Graph & Auto-Chaining
     details: Acyclic prerequisite gating, TOC chain processing, and deterministic next-topic discovery across thousands of vault notes.
   - icon: 🛡️
     title: Atomic Durability & File Locking
-    details: Containment window isolation, temp-file UUID collision resistance, advisory locking with heartbeat monitoring, and crash recovery.
+    details: Containment window isolation, collision-resistant temp-file naming, advisory locking with heartbeat monitoring, and crash recovery.
   - icon: 🔍
     title: Single-Pass Validation Framework
     details: In-memory vault snapshot collection, deterministic rule execution engine, and automated repair planner (--fix).
   - icon: 🌐
     title: Isolated AI Provider Boundary
-    details: Phase 2 AI tutoring architecture strictly decoupled from the deterministic offline engine core.
+    details: Provider boundary for planned Phase 2 tutoring, strictly decoupled from the deterministic offline engine core.
   - icon: ⚡
-    title: High-Concurreny & Test Discipline
+    title: High-Concurrency & Test Discipline
     details: Property-based fuzzing, fault-injection harnesses, and strict E2E subprocess test isolation.
 ---
 
@@ -52,8 +52,8 @@ This site hosts the deep technical reference manual and architectural specificat
 1. **[Architecture Overview](/Architecture%20Overview/Architecture%20Overview)**: High-level layered architecture, security boundaries, and data flow.
 2. **[Core Engine](/Core%20Engine/Core%20Engine)**: SM-2 implementation, prerequisite auto-chaining, and mastery calculation.
 3. **[Storage System](/Storage%20System/Storage%20System)**: Markdown frontmatter parser, atomic file writes, locking, and session memory.
-4. **[Validation Framework](/Validation%20Framework/Validation%20Framework)**: Single-pass vault collector, rule engine, and self-healing repair plans.
+4. **[Validation Framework](/Validation%20Framework/Validation%20Framework)**: Single-pass vault collector, rule engine, and opt-in --fix repair plans.
 5. **[Application Layer](/Application%20Layer/Application%20Layer)**: Topic discovery, review workflows, and assessment tracking.
 6. **[Data Models & Types](/Data%20Models%20and%20Types/Data%20Models%20and%20Types)**: Canonical TypeScript schemas for topics, reviews, and sessions.
 7. **[Architecture Decision Records](/Architecture%20Decision%20Records/Architecture%20Decision%20Records)**: Synthesis of core engineering, pedagogical, and validation decisions.
-8. **[Testing & Workflow](/Testing%20Guide)**: Property fuzzing, concurrency stress testing, and CI/CD pipelines.
+8. **[Testing Guide](/Testing%20Guide)**: Property fuzzing, concurrency stress testing, and CI/CD pipelines.

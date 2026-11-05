@@ -57,20 +57,6 @@ graph TB
   MIGRATE --> ENGINE["Engine Predicates<br/>auto-chain / tier0-hygiene"]
 ```
 
-**Diagram sources**
-- [0008-validation-framework-decisions.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0008-validation-framework-decisions.md)
-- [validate.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts)
-- [migrate.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/migrate.ts)
-- [collect-vault.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts)
-- [index.ts (validation barrel)](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts)
-- [run-rules.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts)
-- [types.ts (validation types)](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts)
-
-**Section sources**
-- [0008-validation-framework-decisions.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0008-validation-framework-decisions.md)
-- [validate.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts)
-- [migrate.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/migrate.ts)
-
 ## Core Components
 PALEE’s integrity model rests on five implementation components:
 
@@ -89,13 +75,6 @@ Key architectural choices:
 - Warnings are non-blocking by default; `--strict` escalates them.
 - Fixability is metadata on each rule, not an implicit assumption.
 - Derived views (`hot.md`, `index.md`) are warnings because they are rebuildable projections.
-
-**Section sources**
-- [types.ts (validation types):1-161](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts#L1-L161)
-- [collect-vault.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts)
-- [run-rules.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts)
-- [index.ts (validation barrel)](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts)
-- [0008-validation-framework-decisions.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0008-validation-framework-decisions.md)
 
 ## Architecture Overview
 The validation pipeline separates collection, inspection, presentation, and repair.
@@ -127,18 +106,6 @@ sequenceDiagram
     end
     CLI-->>User: Human/JSON report + exit code
 ```
-
-**Diagram sources**
-- [validate.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts)
-- [collect-vault.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts)
-- [run-rules.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts)
-- [index.ts (validation barrel)](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts)
-
-**Section sources**
-- [validate.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts)
-- [collect-vault.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts)
-- [run-rules.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts)
-- [index.ts (validation barrel)](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts)
 
 ## Detailed Component Analysis
 
@@ -187,9 +154,6 @@ classDiagram
     ValidationRule --> ValidationIssue : "returns"
 ```
 
-**Diagram sources**
-- [types.ts (validation types):1-161](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts#L1-L161)
-
 Example rule families represented in the catalog:
 
 | Area | Example Rule Id | Purpose |
@@ -199,6 +163,7 @@ Example rule families represented in the catalog:
 | Managed entities | `valid-managed-note-kind` | Ensures managed notes have expected kinds |
 | Schema | `valid-palee-schema` | Validates PALEE-specific schema shape |
 | Identity | `valid-topic-id-format` | Enforces the tool’s topic ID format |
+| Schema | `valid-topic-status` | Topic status must be one of the four lifecycle values (`not_started`, `learning`, `paused`, `archived`) |
 | Graph structure | `no-duplicate-topic-id` | Detects duplicate identities |
 | Dependencies | `valid-dependency-list` | Validates dependency list shape |
 | Dependencies | `no-missing-dependency` | Warns by default; missing prerequisites become quarantined |
@@ -208,15 +173,10 @@ Example rule families represented in the catalog:
 | Review state | `valid-review-fields` | Detects invalid SM-2 review fields |
 | Review state | `valid-review-dates` | Validates review date consistency |
 | Sessions | `valid-session-schema` | Enforces stricter contract for session notes |
-| Sessions | `no-session-unknown-topic` | Detects references to unknown sessions |
+| Sessions | `no-session-unknown-topic` | Reports session records whose `topic_id` references a nonexistent topic |
 | Derived views | `valid-session-index` | Warns about stale `.palee/index.md` |
 | Derived views | `valid-hot-memory` | Warns about stale `.palee/hot.md` |
 | Safety | `safe-vault-paths` | Audits managed entity paths |
-
-**Section sources**
-- [index.ts (validation barrel):1-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L1-L130)
-- [types.ts (validation types):1-161](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts#L1-L161)
-- [0008-validation-framework-decisions.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0008-validation-framework-decisions.md)
 
 ### Identity Preservation Principles
 Identity preservation prevents imports from silently renaming user notes:
@@ -238,17 +198,11 @@ flowchart TD
     Chain --> End
 ```
 
-**Diagram sources**
-- [0015-identity-preservation.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0015-identity-preservation.md)
-
 Recovery guidance derived from this decision:
 
 - If a note has a numeric or array `palee_id`, edit the note to declare a valid string identity before re-running adoption.
 - If an importer reports both a declared and minted identity, point the entry at the note’s actual identity or move the note to a path where no identity conflict exists.
 - Do not try to guess an identity; the system treats guessing as the failure mode to avoid.
-
-**Section sources**
-- [0015-identity-preservation.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0015-identity-preservation.md)
 
 ### Frontmatter Byte Fidelity and Unicode Handling
 Two related defects were resolved by separating reader normalization from writer preservation:
@@ -265,17 +219,11 @@ flowchart TD
     Emit --> Output["Rewritten File<br/>Body Unchanged"]
 ```
 
-**Diagram sources**
-- [0016-frontmatter-fidelity-and-unicode-fold.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0016-frontmatter-fidelity-and-unicode-fold.md)
-
 Recovery guidance:
 
 - If a vault shows mixed line endings after a rewrite, inspect whether the command touched only one note; the untouched control proves the writer was responsible.
 - If an accented filename resolves inconsistently across systems, ensure link targets and stored names agree under NFC normalization.
 - Mixed-line-terminator files are considered corrupted and should be normalized outside PALEE.
-
-**Section sources**
-- [0016-frontmatter-fidelity-and-unicode-fold.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0016-frontmatter-fidelity-and-unicode-fold.md)
 
 ### Roadmap Import Safety
 Roadmap import is the only operation whose blast radius covers the whole graph. Its safety contract is “cycle detected means exit 3 and write nothing.”
@@ -309,17 +257,11 @@ sequenceDiagram
     end
 ```
 
-**Diagram sources**
-- [0017-roadmap-import-safety.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0017-roadmap-import-safety.md)
-
 Recovery guidance:
 
 - If a cycle appears after import, treat it as a violation of INV-46 and investigate whether a skipped or renamed topic changed the written plan.
 - Use dry-run to compare the previewed write plan with the committed vault state.
 - If a path boundary race is suspected, inspect symlinks and dangling links before retrying.
-
-**Section sources**
-- [0017-roadmap-import-safety.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0017-roadmap-import-safety.md)
 
 ### Adoption Contracts: Non-Destructive, Reversible, Honest
 Adoption writes PALEE state into user-owned notes, so its guarantees are stronger than ordinary reads:
@@ -347,17 +289,11 @@ flowchart TD
     Journal --> End(["Complete Or Undo"])
 ```
 
-**Diagram sources**
-- [0022-adoption-contracts.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0022-adoption-contracts.md)
-
 Recovery guidance:
 
 - If hand-authored prerequisites disappeared, check whether the invocation used `--depends-on`; passing it overrides the note.
 - If undo fails, inspect the rollback journal and fingerprint expectations — another process may have rewritten the note between adoption and undo.
 - Treat single-file adoption as intentional even if hygiene would normally exclude the note.
-
-**Section sources**
-- [0022-adoption-contracts.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0022-adoption-contracts.md)
 
 ### Migration Surface for Relabeling Ties
 Migration is the designated surface for repairing stored state that forward-only fixes cannot reach. The relabel-ties pass demotes specific stored tie edges back to advisory status without rewriting arbitrary user-authored dependencies.
@@ -388,19 +324,11 @@ flowchart TD
     Relabel --> Summary["Print And Count Outcomes"]
 ```
 
-**Diagram sources**
-- [0023-migrate-relabel-ties.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0023-migrate-relabel-ties.md)
-- [migrate.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/migrate.ts)
-
 Recovery scenarios:
 
 - A vault adopted before the `tie` label existed can be unlocked by running the migrate pass with the appropriate opt-in flag.
 - If a note remains gated after migration, inspect whether its stored edge steps over a surviving sibling or points at a different successor than the planner computed.
 - If the pass reports conflicts, rerun after confirming no other process holds locks or modifies the affected notes.
-
-**Section sources**
-- [0023-migrate-relabel-ties.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0023-migrate-relabel-ties.md)
-- [migrate.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/migrate.ts)
 
 ### Partial Pillar Eligibility for Mastery Repair
 Mastery repair is conservative about incomplete assessment data:
@@ -426,19 +354,11 @@ flowchart TD
     Clean --> End
 ```
 
-**Diagram sources**
-- [0035-validate-fix-partial-pillar-eligibility.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0035-validate-fix-partial-pillar-eligibility.md)
-- [validate.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts)
-
 Recovery guidance:
 
 - If a topic with three scored pillars remains locked, score the missing pillar rather than relying on automatic reweighting.
 - If `--fix` reports mastery repair drift, confirm the assessment pillars are complete and shaped before rerunning.
 - Remember that `assessed_at` is not updated by validation repair; it attests to an assessment recording, not a recomputation.
-
-**Section sources**
-- [0035-validate-fix-partial-pillar-eligibility.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0035-validate-fix-partial-pillar-eligibility.md)
-- [validate.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts)
 
 ## Dependency Analysis
 The integrity surface depends on layered contracts rather than monolithic checks:
@@ -457,14 +377,6 @@ graph LR
   Migrate["Migrate Command<br/>Tie Migration"] --> Engine["Engine Predicates<br/>Ordering + Hygiene"]
 ```
 
-**Diagram sources**
-- [types.ts (validation types)](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts)
-- [index.ts (validation barrel)](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts)
-- [collect-vault.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts)
-- [run-rules.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts)
-- [validate.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts)
-- [migrate.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/migrate.ts)
-
 Coupling observations:
 
 - Rules depend only on `ValidationContext`, keeping them testable and side-effect free.
@@ -472,11 +384,6 @@ Coupling observations:
 - Fixability is dual-gated by rule metadata and the repair registry; adding an implementation alone cannot start mutating vault data.
 - Migration delegates ordering and hygiene logic to engine predicates rather than restating them, reducing drift risk.
 - Roadmap import derives effective values once and calls that function from both validation and writeback passes.
-
-**Section sources**
-- [index.ts (validation barrel)](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts)
-- [validate.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts)
-- [migrate.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/migrate.ts)
 
 ## Performance Considerations
 The integrity design favors predictable correctness over speculative optimization:
@@ -488,11 +395,6 @@ The integrity design favors predictable correctness over speculative optimizatio
 - `--fix` re-collects from fresh disk state after repairs so the final report reflects actual remaining issues.
 
 Tradeoffs include duplicated shape checks between loader normalization and raw validation, which is accepted so pre-normalization corruption is visible rather than silently blessed.
-
-**Section sources**
-- [collect-vault.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts)
-- [run-rules.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts)
-- [0008-validation-framework-decisions.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0008-validation-framework-decisions.md)
 
 ## Troubleshooting Guide
 
@@ -525,13 +427,6 @@ Tradeoffs include duplicated shape checks between loader normalization and raw v
 ### Migration reports conflicts or stale entries
 - Conflicts usually mean another process modified the note between derivation and write.
 - Rerun after stabilizing the vault; the pass counts conflicts and leaves conflicted notes unchanged.
-
-**Section sources**
-- [0008-validation-framework-decisions.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0008-validation-framework-decisions.md)
-- [0017-roadmap-import-safety.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0017-roadmap-import-safety.md)
-- [0022-adoption-contracts.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0022-adoption-contracts.md)
-- [0023-migrate-relabel-ties.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0023-migrate-relabel-ties.md)
-- [0035-validate-fix-partial-pillar-eligibility.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0035-validate-fix-partial-pillar-eligibility.md)
 
 ## Conclusion
 PALEE’s data integrity model is built around conservative defaults and explicit mutation surfaces. Validation discovers problems without changing vault state; adoption and roadmap import refuse dangerous assumptions; migration provides a narrow route for backward compatibility; and `--fix` repairs only what is clearly safe or explicitly allowed. The result is a system that protects the vault from silent corruption while still supporting flexible content workflows, manual correction, and recovery procedures grounded in observable, deterministic behavior.
