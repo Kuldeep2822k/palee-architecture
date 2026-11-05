@@ -83,7 +83,7 @@ The roadmap command implements a safe, deterministic import pipeline:
 7. **Import**: writes managed frontmatter while preserving existing vault data according to explicit user intent.
 
 Key behaviors:
-- Explicit `[]` clears dependencies; omitted preserves existing dependencies; populated replaces them.
+- Explicit `[]` clears dependencies — but only without `--auto-chain`: under `--auto-chain`, a topic with no (or an empty) `depends_on` is treated as chainable and its `depends_on` is overwritten with a synthesized edge. Omitted preserves existing dependencies; populated replaces them.
 - Imported notes must be visible Markdown files under the vault boundary.
 - Existing notes with a conflicting declared `palee_id` are rejected to avoid silently retiring identities.
 - Oversized notes are refused consistently across read and write paths.
@@ -149,7 +149,7 @@ A roadmap defines one or more topics. Each topic carries:
 | `title` | string | Yes | Descriptive title written into the note. |
 | `path` | string | Yes | Vault-relative Markdown path where the note will be created or updated. |
 | `difficulty` | string | No | One of `beginner`, `intermediate`, `advanced`. Defaults to `intermediate` when not present. |
-| `depends_on` | array of strings | No | Prerequisite topic IDs. Omitted preserves existing dependencies; empty list clears them; populated replaces them. |
+| `depends_on` | array of strings | No | Prerequisite topic IDs. Omitted preserves existing dependencies; empty list clears them (only without `--auto-chain`; under `--auto-chain` an empty list is treated as chainable and overwritten with a synthesized edge); populated replaces them. |
 | `chained` | boolean | No | Marks a topic’s dependencies as final so auto-chaining skips it. |
 | `order` | number | No | Controls synthetic chaining order; topics with numbers sort before those without. |
 
@@ -198,8 +198,8 @@ When importing, the roadmap writes only the managed fields necessary to represen
 - `palee_id`: taken directly from the roadmap topic.
 - `title`: taken from the roadmap topic.
 - `difficulty`: roadmap value, existing vault value, or `intermediate`.
-- `depends_on`: explicit roadmap value wins; omitted preserves existing dependencies; empty list clears them.
-- Assessment pillars (`conceptual`, `practical`, `debug`, `feynman`) and SM2-related fields are passed through from existing vault frontmatter when absent from the roadmap.
+- `depends_on`: explicit roadmap value wins; omitted preserves existing dependencies; empty list clears them (only without `--auto-chain`; under `--auto-chain` an empty list is treated as chainable and overwritten with a synthesized edge).
+- Assessment pillars (`conceptual`, `practical`, `debug`, `feynman`) and SM-2-related fields are passed through from existing vault frontmatter when absent from the roadmap.
 - Missing pillar scores resolve to `undefined` rather than `0.0`, so an import does not mint assessment data unless the note already carries it.
 
 This design avoids accidental loss of review state and ensures that validation and writeback use identical rules.
@@ -301,11 +301,12 @@ Use `--dry-run` to preview changes without modifying the vault:
 - Writes zero bytes.
 
 ### Confirmation Prompts
-The roadmap command’s interface supports a `--yes` option through its typed options, but the documented handler emphasizes dry-run planning and explicit confirmation workflows. In practice:
+Without `--yes`, the confirmation contract depends on whether the run is interactive:
 
-- Without confirmation automation, users inspect the validation and dry-run output before approving changes.
-- With `--yes`, automated workflows can proceed after reviewing the dry-run plan.
-- For interactive approval, users should combine dry-run inspection with the intended confirmation flow defined by their environment.
+- **Non-interactive (non-TTY) run**: the command prints `Error: Non-interactive environment detected. Use --yes to confirm import.`, sets exit code Usage (2), and writes nothing.
+- **Interactive terminal (TTY) run**: the command prompts `Proceed? (y/N)` and aborts on anything but `y`.
+
+With `--yes`, the prompt is skipped (`Auto-confirmed via --yes.`) and the import proceeds. Use `--dry-run` to preview the validation results and the per-note plan without writing anything.
 
 ### Dashboard Metrics and Interpretation
 The dashboard summarizes:
@@ -405,7 +406,7 @@ Recommended workflow:
    - Use an empty list to clear dependencies explicitly.
    - Populate the list to replace dependencies with an explicit ordering.
 4. **Use `order` for sequencing**: Assign increasing integers when you want synthetic chaining; leave it out for topics that should keep file order or rely on manual dependencies.
-5. **Validate before importing**: Run the roadmap command without `--yes` to see validation results.
+5. **Validate before importing**: Run the roadmap command with `--dry-run` to see validation results without writing anything. (Running without `--yes` in a non-interactive environment is not a preview: it prints `Error: Non-interactive environment detected. Use --yes to confirm import.`, exits with code 2, and writes nothing.)
 6. **Preview with dry-run**: Use `--dry-run` to confirm create/update decisions and effective dependencies.
 7. **Approve and import**: Use `--yes` in automated pipelines after confirming the dry-run output.
 

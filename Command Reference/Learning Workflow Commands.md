@@ -115,7 +115,7 @@ sequenceDiagram
 ### `next`: Discovering Actionable Topics
 `next` answers “what should I study now?” by combining three signals:
 1. **SM-2 due state**: Topics whose stored `due_at` has elapsed, plus topics that have never been scheduled.
-2. **Prerequisite gating**: Topics whose dependencies are not yet mastered below the required threshold are withheld.
+2. **Prerequisite gating**: Topics whose prerequisites have not yet reached the mastery threshold are withheld.
 3. **Status filtering**: Archived topics are never presented as “next.”
 
 #### Topic discovery pipeline
