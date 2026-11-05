@@ -54,16 +54,6 @@ graph TB
     Tests --> Boundary["Network Boundary Test"]
 ```
 
-**Diagram sources**
-- [index.ts:1-11](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/index.ts#L1-L11)
-- [provider.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L1-L20)
-- [config.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L30)
-- [ai-network-boundary.test.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-network-boundary.test.ts#L1-L30)
-
-**Section sources**
-- [index.ts:1-11](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/index.ts#L1-L11)
-- [ai-network-boundary.test.ts:1-114](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-network-boundary.test.ts#L1-L114)
-
 ## Core Components
 The AI subsystem exposes three primary responsibilities:
 - A typed request/reply contract for chat turns.
@@ -78,10 +68,6 @@ Key exported types and values include:
 - `API_KEY_ENV`, `DEFAULT_MODEL`, `MAX_RESPONSE_BYTES`, `MAX_MESSAGE_CHARS`.
 
 The subsystem is intentionally not re-exported from the main library barrel, so importing PALEE as a library does not automatically introduce network behavior.
-
-**Section sources**
-- [index.ts:1-11](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/index.ts#L1-L11)
-- [provider.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L1-L120)
 
 ## Architecture Overview
 PALEE’s architecture separates concerns across layers:
@@ -120,15 +106,6 @@ graph TB
     AIEntry --> Provider
     Provider --> Types["Types Only"]
 ```
-
-**Diagram sources**
-- [config.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L30)
-- [index.ts:1-11](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/index.ts#L1-L11)
-- [provider.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L1-L20)
-
-**Section sources**
-- [0025-application-layer.md:1-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0025-application-layer.md#L1-L63)
-- [ai-network-boundary.test.ts:70-114](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-network-boundary.test.ts#L70-L114)
 
 ## Detailed Component Analysis
 
@@ -194,12 +171,6 @@ classDiagram
     ChatReply --> UsageCounts : "optional"
 ```
 
-**Diagram sources**
-- [provider.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L1-L120)
-
-**Section sources**
-- [provider.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L1-L120)
-
 ### Endpoint Normalization and Network Security
 Endpoint validation is the central security gate:
 - Only `http:` and `https:` are allowed.
@@ -225,13 +196,6 @@ flowchart TD
     CheckHTTP -->|No| CheckCredentials
     CheckCredentials --> Accept["Return validated URL"]
 ```
-
-**Diagram sources**
-- [provider.ts:201-450](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L201-L450)
-
-**Section sources**
-- [provider.ts:201-450](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L201-L450)
-- [0027-ai-provider-boundary.md:1-97](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0027-ai-provider-boundary.md#L1-L97)
 
 ### Request Flow and Error Classification
 A typical provider call follows this flow:
@@ -264,14 +228,6 @@ sequenceDiagram
     Provider-->>Caller: "ChatReply or ProviderError"
 ```
 
-**Diagram sources**
-- [provider.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L1-L200)
-- [ai-provider-loopback.test.ts:1-131](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-provider-loopback.test.ts#L1-L131)
-
-**Section sources**
-- [provider.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L1-L200)
-- [ai-provider-loopback.test.ts:1-131](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-provider-loopback.test.ts#L1-L131)
-
 ### Credential Management
 Credential handling spans CLI configuration and runtime resolution:
 - The stored API key is kept in the existing `config.json`.
@@ -295,14 +251,6 @@ flowchart TD
     Store --> Protect["Write with restricted mode and safe directory"]
     Protect --> Done(["Done"])
 ```
-
-**Diagram sources**
-- [config.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L200)
-- [cli-config-provider-credentials.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-config-provider-credentials.test.ts#L1-L200)
-
-**Section sources**
-- [config.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L200)
-- [cli-config-provider-credentials.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-config-provider-credentials.test.ts#L1-L200)
 
 ### Connection Testing
 `palee config test-connection` is the only command designed to reach the configured provider:
@@ -328,12 +276,6 @@ sequenceDiagram
     CLI-->>User: "Status, endpoint, key source, tokens"
 ```
 
-**Diagram sources**
-- [cli-config-test-connection.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-config-test-connection.test.ts#L1-L200)
-
-**Section sources**
-- [cli-config-test-connection.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-config-test-connection.test.ts#L1-L200)
-
 ## Dependency Analysis
 The AI layer depends only on shared types, not on CLI commands. The CLI depends on the AI layer for provider configuration and testing. The rest of the system remains offline.
 
@@ -346,24 +288,12 @@ graph LR
     Tests --> CLIConfigFile
 ```
 
-**Diagram sources**
-- [index.ts:1-11](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/index.ts#L1-L11)
-- [provider.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L1-L20)
-- [types.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L30)
-- [config.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L30)
-- [ai-network-boundary.test.ts:70-114](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-network-boundary.test.ts#L70-L114)
-
-**Section sources**
-- [ai-network-boundary.test.ts:70-114](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-network-boundary.test.ts#L70-L114)
-
 ## Performance Considerations
 - Each provider request has a default timeout to avoid hanging the CLI.
 - Response bodies are read incrementally and cancelled once they exceed `MAX_RESPONSE_BYTES`.
 - Long-running operations support cancellation signals so interactive sessions do not wait indefinitely.
 - The current adapter does not stream model output; it returns a complete reply.
 - Token accounting is optional and comes from the provider’s response when available.
-
-[No sources needed since this section provides general guidance]
 
 ## Security Considerations
 PALEE treats the first network-capable component as a high-risk boundary:
@@ -374,11 +304,6 @@ PALEE treats the first network-capable component as a high-risk boundary:
 - **Credential safety:** Keys are read from environment, stdin, or prompts; positional arguments are refused; output is masked; file permissions and directory placement are enforced.
 - **Output safety:** Foreign text is redacted, control characters are removed, whitespace is normalized, and messages are truncated.
 - **Transport safety:** Every request is bounded by timeout, cancellation, and response size limits.
-
-**Section sources**
-- [ai-network-boundary.test.ts:1-114](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-network-boundary.test.ts#L1-L114)
-- [0027-ai-provider-boundary.md:1-97](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0027-ai-provider-boundary.md#L1-L97)
-- [provider.ts:201-450](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L201-L450)
 
 ## Troubleshooting Guide
 
@@ -399,11 +324,6 @@ PALEE treats the first network-capable component as a high-risk boundary:
 - A 500 response indicates a provider failure and is treated as an unexpected error.
 - A silent peer can hang indefinitely unless a timeout is applied.
 - A redirect is refused because following it could send the bearer token to an unapproved target.
-
-**Section sources**
-- [cli-config-test-connection.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-config-test-connection.test.ts#L1-L200)
-- [cli-config-provider-credentials.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-config-provider-credentials.test.ts#L1-L200)
-- [ai-provider-loopback.test.ts:1-131](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-provider-loopback.test.ts#L1-L131)
 
 ## Phase 2 Design Directions
 Phase 2 introduces AI capabilities carefully, guided by asymmetry: AI may narrow gates but never invent prerequisites.
@@ -460,13 +380,6 @@ flowchart TD
     SendResult --> SendPrompt
 ```
 
-**Diagram sources**
-- [ai_module_design.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/planning/ai_module_design.md#L1-L200)
-
-**Section sources**
-- [0028-phase-2-design-directions.md:1-65](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0028-phase-2-design-directions.md#L1-L65)
-- [ai_module_design.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/planning/ai_module_design.md#L1-L200)
-
 ## Configuration Examples
 
 ### Minimal Provider Configuration
@@ -493,10 +406,26 @@ On Windows:
 - The config directory should be inside the user profile roots.
 - An override exists for unusual but secured setups.
 
-**Section sources**
-- [config.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L200)
-- [cli-config-provider-credentials.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-config-provider-credentials.test.ts#L1-L200)
-- [0027-ai-provider-boundary.md:1-97](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0027-ai-provider-boundary.md#L1-L97)
-
 ## Conclusion
 PALEE’s AI integration is deliberately narrow. The current adapter provides a secure, testable bridge to OpenAI-compatible endpoints while keeping the rest of the system deterministic and offline. The contract between providers and the system is small, explicit, and observable through tests. Phase 2 plans expand capability through structured abstractions, bounded sessions, and asymmetric authority: AI helps understand and narrow learning state, but it does not own the core gating decisions. As PALEE evolves toward integrated AI assistance, these boundaries, contracts, and security guarantees will remain the foundation.
+
+## References
+
+- [index.ts:1-11](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/index.ts#L1-L11)
+- [provider.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L1-L20)
+- [config.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L30)
+- [ai-network-boundary.test.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-network-boundary.test.ts#L1-L30)
+- [ai-network-boundary.test.ts:1-114](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-network-boundary.test.ts#L1-L114)
+- [provider.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L1-L120)
+- [0025-application-layer.md:1-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0025-application-layer.md#L1-L63)
+- [ai-network-boundary.test.ts:70-114](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-network-boundary.test.ts#L70-L114)
+- [provider.ts:201-450](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L201-L450)
+- [0027-ai-provider-boundary.md:1-97](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0027-ai-provider-boundary.md#L1-L97)
+- [provider.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L1-L200)
+- [ai-provider-loopback.test.ts:1-131](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-provider-loopback.test.ts#L1-L131)
+- [config.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L200)
+- [cli-config-provider-credentials.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-config-provider-credentials.test.ts#L1-L200)
+- [cli-config-test-connection.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-config-test-connection.test.ts#L1-L200)
+- [types.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L30)
+- [ai_module_design.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/planning/ai_module_design.md#L1-L200)
+- [0028-phase-2-design-directions.md:1-65](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0028-phase-2-design-directions.md#L1-L65)

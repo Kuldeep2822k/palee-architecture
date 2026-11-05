@@ -39,9 +39,6 @@ The application layer covers five responsibilities:
 - Assessment recording workflows that merge pillar scores, recompute mastery, and compute downstream availability changes.
 - Review recording workflows that transition SM-2 spaced repetition state, compute due dates, and update progress metrics.
 
-**Section sources**
-- [0025-application-layer.md:1-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0025-application-layer.md#L1-L63)
-
 ## Project Structure
 The application layer sits under `src/application/` and is consumed by CLI commands under `src/cli/`. It depends on domain algorithms in `src/engine/` and shared types in `src/types.ts`. Storage, locking, file I/O, and process handling remain outside this layer.
 
@@ -63,21 +60,6 @@ graph TB
     App_Review --> Types
 ```
 
-**Diagram sources**
-- [next.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L200)
-- [assess.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L200)
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [dependency.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L200)
-- [mastery.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L200)
-- [sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-- [types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)
-
-**Section sources**
-- [0025-application-layer.md:15-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0025-application-layer.md#L15-L63)
-
 ## Core Components
 | Application module | Responsibility | Pure contract | Main consumers |
 |---|---|---|---|
@@ -92,13 +74,6 @@ Key design properties:
 - CLI code owns side effects: loading topics, parsing frontmatter, locking, atomic writes, JSON output, and exit codes.
 - Domain thresholds are imported from the engine rather than duplicated.
 - Read models share one source of truth for due selection and prerequisite gating.
-
-**Section sources**
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
 
 ## Architecture Overview
 The application layer is intentionally thin around business rules. It does not own storage paths, lock acquisition, filesystem mutation, or process termination. Instead, it transforms loaded data into validated results and updates.
@@ -121,14 +96,6 @@ This flow preserves three separation boundaries:
 1. CLI handles user-facing policy, input shape, and process behavior.
 2. Application layer encapsulates scheduling, prerequisites, mastery aggregation, and state transitions.
 3. Engine layer provides pure algorithms and graph analysis.
-
-**Diagram sources**
-- [next.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L200)
-- [assess.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L200)
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
 
 ## Detailed Component Analysis
 
@@ -155,12 +122,6 @@ flowchart TD
     Due --> Return
     Skip --> Return
 ```
-
-**Diagram sources**
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-
-**Section sources**
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
 
 ### Next Topics Recommendation Engine
 The next-topic recommendation engine answers what a learner should study now. It composes due-topic partitioning with prerequisite gating:
@@ -196,14 +157,6 @@ flowchart TD
     Filter --> Result["Return dueTopics, totalTopics, blockedTopics"]
 ```
 
-**Diagram sources**
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [dependency.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L200)
-
-**Section sources**
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [dependency.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L200)
-
 ### Mastery Summary Computation
 The mastery summary aggregates mastery scores across all topics into three buckets:
 - **Mastered**: at or above the mastery threshold.
@@ -231,12 +184,6 @@ flowchart TD
     IncNew --> Next
     Next --> End(["Return { mastered, learning, new }"])
 ```
-
-**Diagram sources**
-- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
-
-**Section sources**
-- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
 
 ### Assessment Recording Workflow
 The assessment workflow records pillar scores, recomputes topic mastery, and reports how readiness changes.
@@ -281,31 +228,23 @@ sequenceDiagram
     CLI->>CLI: Print effect and persist via atomic write
 ```
 
-**Diagram sources**
-- [assess.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L200)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [mastery.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L200)
-
-**Section sources**
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [assess.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L200)
-- [mastery.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L200)
-
 ### Review Recording Workflow
 The review workflow advances spaced repetition state based on recall quality.
 
-Processing order:
-1. Validate the quality rating as an integer from 0 to 5.
-2. Resolve the target topic through the CLI’s topic resolution policy.
-3. Perform OCC read-reread fingerprint protection before writing.
-4. Parse fresh frontmatter.
-5. Coerce stored SM-2 fields, preserving literal zeros and refusing garbage.
-6. Run `processReview` to transition ease factor, interval, repetition, and lapse counters.
-7. Compute the next due date from review time and interval.
-8. Detect whether the review happened before the stored calendar-day due date.
-9. Resolve pillar-based mastery using `pillars-first` precedence.
-10. Carry forward only pillars already present in the note.
-11. Update last reviewed and due dates as local date strings.
+Processing order, with the owning layer named for each step. This matters because the steps are split across the boundary the Core Components table states: `record-review.ts` performs no I/O, OCC, or process handling itself, so the resolution, fingerprint, and write steps around the pure computation belong to its caller, the CLI.
+
+1. **CLI** (`reviewCommand` in `src/cli/review.ts`): validate the quality rating as an integer from 0 to 5.
+2. **CLI**: load the vault’s topics and resolve the target topic with `resolveTopicQuery` (`src/cli/topic-query.ts`), refusing missing or ambiguous matches. Topic resolution is a CLI policy, not something `record-review.ts` does.
+3. **CLI**: fingerprint the loaded note content with `computeFingerprint`, then re-read the note from disk and compare fingerprints — the OCC read-reread check. A mismatch aborts the review with an `ECONFLICT` error before any update is computed or written.
+4. **CLI**: parse the frontmatter from the freshly re-read content.
+5. **Application** (`buildReviewUpdate` in `src/application/record-review.ts`): coerce stored SM-2 fields, preserving literal zeros and refusing garbage.
+6. **Application → Engine**: run `processReview` to transition ease factor, interval, repetition, and lapse counters.
+7. **Application**: compute the next due date from review time and interval.
+8. **Application**: detect whether the review happened before the stored calendar-day due date.
+9. **Application → Engine**: resolve pillar-based mastery using `pillars-first` precedence.
+10. **Application**: carry forward only pillars already present in the note.
+11. **Application**: build the frontmatter updates — SM-2 state, mastery, last reviewed and due dates as local date strings — and return them. Nothing has been written yet.
+12. **CLI**: apply the updates to the re-read content and persist with `atomicWrite`, passing the fresh fingerprint so the write itself stays guarded.
 
 Downstream effects:
 - Spaced repetition intervals change according to SM-2.
@@ -333,16 +272,6 @@ sequenceDiagram
     Persistence-->>CLI: Success
 ```
 
-**Diagram sources**
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-
-**Section sources**
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-
 ### Use Case Orchestration Patterns
 Common orchestration patterns across the application layer:
 
@@ -359,11 +288,6 @@ These patterns make complex workflows composable:
 - `buildAssessmentUpdate` combines stored score reading, validation, mastery computation, and update generation.
 - `assessmentAvailabilityDiff` simulates readiness before and after a mastery change.
 - `buildReviewUpdate` combines SM-2 transition, due-date calculation, early-review detection, and pillar-aware mastery resolution.
-
-**Section sources**
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
 
 ## Dependency Analysis
 The application layer has clear inward dependencies and outward callers.
@@ -399,31 +323,12 @@ Potential risks:
 - Duplicating threshold logic could create inconsistent grading, gating, and reporting.
 - Over-sharpening policies into predicates could flatten deliberate command differences.
 
-**Diagram sources**
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [next.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L200)
-- [assess.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L200)
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [dependency.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L200)
-- [mastery.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L200)
-- [sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-- [types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)
-
-**Section sources**
-- [0025-application-layer.md:15-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0025-application-layer.md#L15-L63)
-
 ## Performance Considerations
 - Due partitioning and mastery bucketing are linear scans and scale directly with input size.
 - Next-topic recommendation adds graph traversal proportional to dependency edges; expensive operations like cycle quarantine are bounded by the engine’s decomposition and enumeration logic.
 - Review and assessment computations are constant-time relative to topic count; they operate on a single note’s frontmatter.
 - Keeping heavy work in the engine and application layers avoids repeated filesystem access from presentation logic.
-- The CLI remains responsible for caching, session memory, and concurrency concerns handled at higher layers.
-
-[No sources needed since this section provides general guidance]
+- The CLI layer — the layer above the application layer — owns the surrounding I/O concerns: loading topics, session state, and concurrency protection (the fingerprint check and the atomic write). Application and engine functions receive already-loaded data and stay free of caching, locking, and process concerns.
 
 ## Troubleshooting Guide
 Common issues and their application-layer behavior:
@@ -443,13 +348,22 @@ Recommended recovery steps:
 - Score the Feynman pillar if mastery cannot reach the threshold with ordinary pillars alone.
 - Use dry-run previews for assessments to see unlocking/blocking effects before committing changes.
 
-**Section sources**
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-
 ## Conclusion
 The PALEE application layer cleanly separates business logic from I/O and CLI concerns. It exposes pure use cases for due-topic discovery, next-topic recommendation, mastery summarization, assessment recording, and review recording. By composing due partitioning, prerequisite gating, SM-2 transitions, and pillar-based mastery, it supports complex workflows while remaining testable and reusable. The CLI retains responsibility for configuration, vault access, atomic writes, output formatting, and exit codes, preserving the architectural boundary defined in ADR-0025.
 
-[No sources needed since this section summarizes without analyzing specific files]
+## References
+
+- [0025-application-layer.md:1-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0025-application-layer.md#L1-L63)
+- [next.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L200)
+- [assess.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L200)
+- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
+- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
+- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
+- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
+- [dependency.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L200)
+- [mastery.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L200)
+- [sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
+- [types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)
+- [0025-application-layer.md:15-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0025-application-layer.md#L15-L63)
+- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
+- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)

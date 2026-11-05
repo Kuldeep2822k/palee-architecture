@@ -38,10 +38,6 @@ The system classifies every candidate `.md` path into one of three roles:
 
 Hygiene runs on every batch adoption, not only under automatic chaining. The exclusion decision narrows the candidate set; the `backbone`/`leaf` distinction matters when ordering notes into a chain.
 
-**Section sources**
-- [0010-tier0-hygiene-classification.md:1-72](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0010-tier0-hygiene-classification.md#L1-L72)
-- [tier0-hygiene.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L30)
-
 ## Project Structure
 The Tier 0 hygiene feature lives at the intersection of the engine layer, the validation framework, and the CLI command surface:
 
@@ -61,18 +57,7 @@ graph TB
     AutoChain --> CLI
 ```
 
-**Diagram sources**
-- [tier0-hygiene.ts:1-405](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L405)
-- [0010-tier0-hygiene-classification.md:1-72](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0010-tier0-hygiene-classification.md#L1-L72)
-- [0011-tiered-auto-chain.md:1-99](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0011-tiered-auto-chain.md#L1-L99)
-- [index.ts (validation barrel):1-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L1-L130)
-- [validate.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L1-L200)
-
 The engine layer is intentionally filesystem-free for classification. It consumes vault-relative paths and plain data so that Work Order C (TOC tier) can consume the same contract after rebasing.
-
-**Section sources**
-- [tier0-hygiene.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L30)
-- [engine-tier0-hygiene.test.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-tier0-hygiene.test.ts#L1-L40)
 
 ## Core Components
 The core implementation is concentrated in a single pure module:
@@ -115,12 +100,6 @@ flowchart TD
     Content -->|No| LeafDefault["Leaf"]
 ```
 
-**Diagram sources**
-- [tier0-hygiene.ts:201-405](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L201-L405)
-
-**Section sources**
-- [tier0-hygiene.ts:1-405](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L405)
-
 ## Architecture Overview
 Tier 0 hygiene is not itself a validation rule in the general-purpose validation framework. It is a dedicated classification pass consumed by batch adoption and auto-chain planning. The validation framework has its own separate rule catalog focused on frontmatter parsing, schema shape, topic identity, dependencies, assessments, mastery, sessions, memory, and path safety.
 
@@ -140,19 +119,7 @@ sequenceDiagram
     Validator-->>CLI: "issues, severity, fixability"
 ```
 
-**Diagram sources**
-- [tier0-hygiene.ts:201-405](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L201-L405)
-- [0011-tiered-auto-chain.md:1-99](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0011-tiered-auto-chain.md#L1-L99)
-- [index.ts (validation barrel):1-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L1-L130)
-- [run-rules.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts#L1-L60)
-- [validate.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L1-L200)
-
 The important boundary is that Tier 0 hygiene decides *scope and chaining eligibility*, while the validation framework decides *data integrity and fixability*. They cooperate through the CLI and planner, but they do not share the same rule registry.
-
-**Section sources**
-- [0010-tier0-hygiene-classification.md:1-72](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0010-tier0-hygiene-classification.md#L1-L72)
-- [index.ts (validation barrel):1-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L1-L130)
-- [run-rules.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts#L1-L60)
 
 ## Detailed Component Analysis
 
@@ -166,16 +133,12 @@ Tier 0 hygiene uses two remediation strategies rather than a generic error/warni
 | Name-based translation guess | B2: locale suffix on unnumbered non-generic name | `leaf` | Attach as a leaf; do not let it gate successors | Rename to remove locale suffix if it is not a translation, or mark explicitly |
 | Templates | B3: whole-token `template`/`templates` in stem or directory | `excluded` | Remove scaffolding from the chain | Rename to avoid whole-token match if the file is real content |
 | Phase subtrees | B4: non-final segment named `solution`, `solutions`, `your-work`, `start`, `sketch`, `answers` | `leaf` | Collapse subtree; attach notes without internal chaining | Restructure work products if they should participate in learning order |
+| Reporting | B6: per-rule hygiene report printed for every batch adoption | Batch-wide (not a per-note classification) | Print per-rule skip counts on the dry-run and confirmation screens — even when nothing survived filtering — plus backbone/leaf counts under `--auto-chain` | Adopt a note the report shows as wrongly skipped directly in single-file mode, which has no batch hygiene pass |
 | Invalid identifier | B7: truthy non-string `palee_id` | `leaf` with reason `invalid-palee-id` | Demote without rewriting frontmatter | Fix frontmatter so `palee_id` is a non-empty string |
 | Non-content sibling | B5 fails | `leaf` | Attach without gating | Add numbering or rename to a recognized content-doc pattern if it should be backbone |
 | Recognized content document | B5 passes | `backbone` | Allowed to gate the chain | Review whether the naming really expresses intended prerequisite structure |
 
 The failure direction is explicit: classification errs on the side of demotion, never promotion. A heuristic that cannot safely prove a note is a lesson does not become a chain head.
-
-**Section sources**
-- [tier0-hygiene.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L120)
-- [tier0-hygiene.ts:201-405](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L201-L405)
-- [0010-tier0-hygiene-classification.md:1-72](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0010-tier0-hygiene-classification.md#L1-L72)
 
 ### Hygiene Violation Examples and Fixes
 
@@ -191,16 +154,11 @@ The failure direction is explicit: classification errs on the side of demotion, 
 
 The test suite pins these behaviors precisely because they are heuristics about filenames and structure, not full semantic understanding of each note’s content.
 
-**Section sources**
-- [engine-tier0-hygiene.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-tier0-hygiene.test.ts#L1-L200)
-- [engine-tier0-hygiene.test.ts:201-L542](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-tier0-hygiene.test.ts#L201-L542)
-- [engine-tier0-empty-stem.test.ts:1-46](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-tier0-empty-stem.test.ts#L1-L46)
-
 ### Repair Workflow and Data Integrity
 Tier 0 hygiene itself does not rewrite frontmatter. Its repair contract is conservative:
 
 1. **Classification is pure.** It reads a path and optional `palee_id` and returns a decision.
-2. **Exclusions remove notes from batch scope.** They are reported with a counted reason.
+2. **Exclusions remove notes from batch scope.** They are reported with a counted reason: B6 requires every batch adoption to print the per-rule hygiene report on the dry-run and the confirmation screen — so what is reviewed is what is written — and to print it even when nothing survived filtering, so no skipped note goes unaccounted.
 3. **Demotions keep notes attached but prevent gating.** A leaf may still have a predecessor; it simply cannot become a predecessor of later chain nodes.
 4. **Invalid identifiers are not corrected automatically.** The classifier reports `invalid-palee-id`, but the note’s frontmatter remains untouched.
 5. **Vault mutation belongs to the higher-level repair pipeline.** The validation framework’s `--fix` mechanism separates permission (`fixable`) from capability (implemented repairer).
@@ -219,15 +177,6 @@ flowchart TD
     Chain --> Plan["Auto-chain planning"]
     Plan --> Output["Ordered paths and predecessors"]
 ```
-
-**Diagram sources**
-- [tier0-hygiene.ts:201-405](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L201-L405)
-- [engine-tier0-hygiene.test.ts:201-L542](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-tier0-hygiene.test.ts#L201-L542)
-
-**Section sources**
-- [tier0-hygiene.ts:201-405](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L201-L405)
-- [engine-tier0-hygiene.test.ts:201-L542](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-tier0-hygiene.test.ts#L201-L542)
-- [validate.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L1-L200)
 
 ### Relationship Between Hygiene Rules and the Validation Framework
 The validation framework has a different concern:
@@ -283,17 +232,6 @@ classDiagram
     ValidationRule --> ValidationContext : "reads"
 ```
 
-**Diagram sources**
-- [tier0-hygiene.ts:1-405](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L405)
-- [types.ts (validation types):1-161](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts#L1-L161)
-- [run-rules.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts#L1-L60)
-- [index.ts (validation barrel):1-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L1-L130)
-
-**Section sources**
-- [types.ts (validation types):1-161](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts#L1-L161)
-- [run-rules.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts#L1-L60)
-- [index.ts (validation barrel):1-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L1-L130)
-
 ## Dependency Analysis
 Tier 0 hygiene is designed to be low-coupling:
 
@@ -311,16 +249,7 @@ graph LR
     ValidatorRun --> CLI["validate.ts"]
 ```
 
-**Diagram sources**
-- [tier0-hygiene.ts:1-405](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L405)
-- [index.ts (validation barrel):1-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L1-L130)
-- [run-rules.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts#L1-L60)
-
 There is no circular dependency between hygiene classification and the auto-chain planner. The planner consumes classification results, while the hygiene module keeps its numeric prefix parser local.
-
-**Section sources**
-- [tier0-hygiene.ts:1-405](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L405)
-- [0011-tiered-auto-chain.md:1-99](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0011-tiered-auto-chain.md#L1-L99)
 
 ## Performance Considerations
 Scanning large vaults requires careful attention to how classification, scanning, and validation interact.
@@ -337,8 +266,6 @@ Key performance characteristics observed in the codebase:
 | Batch hygiene | Runs on every batch adoption | Ensures scope filtering is always applied, not opt-in |
 
 The architecture deliberately separates concerns so that expensive operations—such as vault walking, frontmatter parsing, session/memory reads, and derived view rebuilds—are owned by their respective layers, while Tier 0 hygiene stays lightweight.
-
-[No sources needed since this section provides general guidance]
 
 ## Troubleshooting Guide
 
@@ -365,11 +292,6 @@ Some violations require human judgment:
 
 The repair system enforces this boundary by requiring both rule metadata permission and an implemented repairer before mutating vault state.
 
-**Section sources**
-- [engine-tier0-hygiene.test.ts:1-L542](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-tier0-hygiene.test.ts#L1-L542)
-- [engine-tier0-empty-stem.test.ts:1-46](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-tier0-empty-stem.test.ts#L1-L46)
-- [validate.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L1-L200)
-
 ## Conclusion
 Tier 0 hygiene is a narrow but essential integrity gate. It prevents automated planners from treating repository structure, translations, templates, phase directories, and malformed identifiers as legitimate learning prerequisites. Its classification rules are heuristic, conservative, and deliberately separated from schema validation and vault mutation.
 
@@ -384,4 +306,20 @@ For maintainers, the practical takeaway is simple:
 
 Together, these layers preserve vault cleanliness while allowing automation to scale across large study repositories without inventing false dependencies.
 
-[No sources needed since this section summarizes without analyzing specific files]
+## References
+
+- [0010-tier0-hygiene-classification.md:1-72](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0010-tier0-hygiene-classification.md#L1-L72)
+- [tier0-hygiene.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L30)
+- [tier0-hygiene.ts:1-405](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L405)
+- [0011-tiered-auto-chain.md:1-99](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0011-tiered-auto-chain.md#L1-L99)
+- [index.ts (validation barrel):1-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L1-L130)
+- [validate.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L1-L200)
+- [engine-tier0-hygiene.test.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-tier0-hygiene.test.ts#L1-L40)
+- [tier0-hygiene.ts:201-405](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L201-L405)
+- [run-rules.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts#L1-L60)
+- [tier0-hygiene.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L120)
+- [engine-tier0-hygiene.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-tier0-hygiene.test.ts#L1-L200)
+- [engine-tier0-hygiene.test.ts:201-L542](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-tier0-hygiene.test.ts#L201-L542)
+- [engine-tier0-empty-stem.test.ts:1-46](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-tier0-empty-stem.test.ts#L1-L46)
+- [types.ts (validation types):1-161](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts#L1-L161)
+- [engine-tier0-hygiene.test.ts:1-L542](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-tier0-hygiene.test.ts#L1-L542)

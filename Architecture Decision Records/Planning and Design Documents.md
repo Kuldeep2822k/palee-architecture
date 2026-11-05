@@ -78,11 +78,6 @@ This document explains how PALEE’s planning and design artifacts guide the sys
 
 The planning documents are not implementation details themselves; they are contracts that determine which tests pass, which bugs count as regressions, and which new features preserve data safety.
 
-**Section sources**
-- [README.md](https://github.com/Kuldeep2822k/cli/blob/main/README.md)
-- [docs/01-0-overview.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/01-0-overview.md)
-- [docs/08-0-planning-and-design-documents.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/08-0-planning-and-design-documents.md)
-
 ## Project Structure
 PALEE organizes planning artifacts separately from runtime code. The repository contains:
 
@@ -110,17 +105,6 @@ graph TB
     Examples --> Source
 ```
 
-**Diagram sources**
-- [planning/invariants.md:1-76](https://github.com/Kuldeep2822k/cli/blob/main/planning/invariants.md#L1-L76)
-- [docs/08-0-planning-and-design-documents.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/08-0-planning-and-design-documents.md)
-- [src/index.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/index.ts)
-- [test/planning-invariant-ids.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/planning-invariant-ids.test.ts)
-
-**Section sources**
-- [docs/08-0-planning-and-design-documents.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/08-0-planning-and-design-documents.md)
-- [docs/08-1-phase-1-specification-and-invariants.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/08-1-phase-1-specification-and-invariants.md)
-- [docs/08-2-future-ai-module-and-phase-2-design.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/08-2-future-ai-module-and-phase-2-design.md)
-
 ## Core Planning Artifacts
 The planning directory is the primary design surface. Each artifact has a distinct responsibility.
 
@@ -138,10 +122,6 @@ The invariant blueprint converts architectural intent into executable test targe
 | Auto-Chain and Wikilinks | Tier-0 hygiene, tier composition, ownership labeling, honest refusal, synthesized edge safety, cycle-safe synthesis, summary reporting. |
 
 The invariant IDs are not decorative: tests assert their existence so future edits cannot silently drop or rename constraints.
-
-**Section sources**
-- [planning/invariants.md:1-76](https://github.com/Kuldeep2822k/cli/blob/main/planning/invariants.md#L1-L76)
-- [test/planning-invariant-ids.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/planning-invariant-ids.test.ts)
 
 ### Memory Design
 Session memory is designed around three guarantees:
@@ -181,12 +161,6 @@ flowchart TD
     KeepDraft --> Done
 ```
 
-**Diagram sources**
-- [planning/memory_design.md:1-118](https://github.com/Kuldeep2822k/cli/blob/main/planning/memory_design.md#L1-L118)
-
-**Section sources**
-- [planning/memory_design.md:1-118](https://github.com/Kuldeep2822k/cli/blob/main/planning/memory_design.md#L1-L118)
-
 ### Storage Architecture Plan
 The storage plan treats the connected Obsidian vault as the source of truth and all internal caches as disposable. Its main contracts are:
 
@@ -214,12 +188,6 @@ flowchart TD
     Rename --> Release["Release lock"]
 ```
 
-**Diagram sources**
-- [planning/storage_design.md:1-111](https://github.com/Kuldeep2822k/cli/blob/main/planning/storage_design.md#L1-L111)
-
-**Section sources**
-- [planning/storage_design.md:1-111](https://github.com/Kuldeep2822k/cli/blob/main/planning/storage_design.md#L1-L111)
-
 ### CLI Specification
 The CLI specification defines a layered system:
 
@@ -240,9 +208,6 @@ Important behavioral constraints include:
 - Assessment and review remain independent domains.
 - Global mastery is `null` when there are no active topics, never numeric zero.
 
-**Section sources**
-- [planning/palee_cli_spec.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/planning/palee_cli_spec.md#L1-L200)
-
 ### Roadmap Design
 Roadmap support has two modes:
 
@@ -252,9 +217,6 @@ Roadmap support has two modes:
 | Guided personalization | Planned | Multi-turn interview collects goal, current level, weekly hours, target date, practice style, and constraints before generating a schema-constrained proposal. |
 
 The guided proposal contract includes profile, ordered topics, dependencies, estimated effort, rationale, assumptions, and warnings. All changes flow through normal storage contracts; the AI never writes files directly.
-
-**Section sources**
-- [planning/roadmap_design.md:1-99](https://github.com/Kuldeep2822k/cli/blob/main/planning/roadmap_design.md#L1-L99)
 
 ### Example Workflows
 The example workflow document describes end-to-end scenarios:
@@ -267,9 +229,6 @@ The example workflow document describes end-to-end scenarios:
 6. Conduct Feynman testing and interactive tutoring (Phase 2).
 
 These examples are intentionally aspirational where Phase 2 is not yet implemented, and they help reviewers judge whether a new command matches the intended UX.
-
-**Section sources**
-- [planning/example_workflows.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/planning/example_workflows.md#L1-L200)
 
 ### AI Module Design Exploration
 The AI module is intentionally constrained:
@@ -308,13 +267,6 @@ sequenceDiagram
     Note over Session,Engine: Assessments and reviews require human confirmation
 ```
 
-**Diagram sources**
-- [planning/ai_module_design.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/planning/ai_module_design.md#L1-L200)
-- [src/ai/provider.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts)
-
-**Section sources**
-- [planning/ai_module_design.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/planning/ai_module_design.md#L1-L200)
-
 ### Phase 2 Gap Analysis
 The Phase 2 gaps document captures what was planned versus what was shipped at a specific review point. It also records decisions already made during implementation, showing how planning evolves with code.
 
@@ -324,9 +276,6 @@ Key observations include:
 - Batch adopt, guided roadmap, and AI-driven commands were identified as missing or incomplete.
 - Configuration behavior changed enough to warrant explicit verification against README examples.
 - The gap document serves as a living bridge between design intent and implementation reality.
-
-**Section sources**
-- [planning/PHASE_2_GAPS.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/planning/PHASE_2_GAPS.md#L1-L200)
 
 ## Architecture Overview
 At a high level, PALEE separates deterministic engine logic from optional AI behavior while keeping the Obsidian vault as the authoritative store.
@@ -379,22 +328,6 @@ graph TB
     CLI --> Provider
 ```
 
-**Diagram sources**
-- [planning/palee_cli_spec.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/planning/palee_cli_spec.md#L1-L200)
-- [planning/storage_design.md:1-111](https://github.com/Kuldeep2822k/cli/blob/main/planning/storage_design.md#L1-L111)
-- [planning/memory_design.md:1-118](https://github.com/Kuldeep2822k/cli/blob/main/planning/memory_design.md#L1-L118)
-- [src/application/record-assessment.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts)
-- [src/application/record-review.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts)
-- [src/application/get-next-topics.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts)
-- [src/engine/sm2.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts)
-- [src/engine/tier0-hygiene.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts)
-- [src/storage/frontmatter.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts)
-- [src/storage/atomic-write.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts)
-- [src/storage/lock.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts)
-- [src/storage/sessions.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts)
-- [src/storage/roadmap-parser.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/roadmap-parser.ts)
-- [src/ai/provider.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts)
-
 ## Detailed Component Analysis
 
 ### Invariants as Development Contracts
@@ -420,13 +353,6 @@ flowchart TD
     Decision -->|No| Proceed["Proceed with change"]
 ```
 
-**Diagram sources**
-- [planning/invariants.md:1-76](https://github.com/Kuldeep2822k/cli/blob/main/planning/invariants.md#L1-L76)
-- [test/planning-invariant-ids.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/planning-invariant-ids.test.ts)
-
-**Section sources**
-- [planning/invariants.md:1-76](https://github.com/Kuldeep2822k/cli/blob/main/planning/invariants.md#L1-L76)
-
 ### Storage Implementation Mapping
 The storage plan maps closely to several concrete modules:
 
@@ -441,14 +367,6 @@ The storage plan maps closely to several concrete modules:
 | Caching and fingerprint freshness | Storage cache and source-cap layers |
 
 The strongest design-to-code relationship here is atomicity: the plan forbids truncation fallbacks, requires temporary-file replacement, and demands conflict detection; the implementation must enforce those constraints in every mutation path.
-
-**Section sources**
-- [planning/storage_design.md:1-111](https://github.com/Kuldeep2822k/cli/blob/main/planning/storage_design.md#L1-L111)
-- [src/storage/frontmatter.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts)
-- [src/storage/atomic-write.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts)
-- [src/storage/lock.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts)
-- [src/storage/sessions.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts)
-- [src/storage/roadmap-parser.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/roadmap-parser.ts)
 
 ### CLI Implementation Mapping
 The CLI specification defines commands that should exist independently of AI. The actual command files in `src/cli/` show which parts are implemented and which are placeholders or later additions.
@@ -483,24 +401,6 @@ graph LR
     Index --> CliAssess["src/cli/assess.ts"]
 ```
 
-**Diagram sources**
-- [bin/palee.ts](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts)
-- [src/index.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/index.ts)
-- [src/cli/adopt.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts)
-- [src/cli/next.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts)
-- [src/cli/plan.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/plan.ts)
-- [src/cli/review.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts)
-- [src/cli/session.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts)
-- [src/cli/config.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts)
-- [src/cli/roadmap.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts)
-- [src/cli/validate.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts)
-- [src/cli/assess.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts)
-
-**Section sources**
-- [planning/palee_cli_spec.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/planning/palee_cli_spec.md#L1-L200)
-- [bin/palee.ts](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts)
-- [src/index.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/index.ts)
-
 ### Memory-to-Storage Flow
 The memory design flows into storage through session creation, draft checkpoints, and derived view regeneration. The critical contract is that confirmed sessions are more durable than derived views.
 
@@ -514,14 +414,6 @@ flowchart TD
     Index --> HotView["Regenerate hot.md"]
     Recover --> Hot
 ```
-
-**Diagram sources**
-- [planning/memory_design.md:1-118](https://github.com/Kuldeep2822k/cli/blob/main/planning/memory_design.md#L1-L118)
-- [src/storage/sessions.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts)
-
-**Section sources**
-- [planning/memory_design.md:1-118](https://github.com/Kuldeep2822k/cli/blob/main/planning/memory_design.md#L1-L118)
-- [src/storage/sessions.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts)
 
 ### Roadmap Import Flow
 Roadmap import is one of the clearest examples of planning driving implementation: the spec says import must be deterministic, validated before mutation, and confirmed by the learner. The roadmap parser extends this by supporting multiple input formats, including Markdown frontmatter and wikilink lists.
@@ -547,16 +439,6 @@ sequenceDiagram
         CLI-->>User: No changes made
     end
 ```
-
-**Diagram sources**
-- [planning/roadmap_design.md:1-99](https://github.com/Kuldeep2822k/cli/blob/main/planning/roadmap_design.md#L1-L99)
-- [src/cli/roadmap.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts)
-- [src/storage/roadmap-parser.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/roadmap-parser.ts)
-
-**Section sources**
-- [planning/roadmap_design.md:1-99](https://github.com/Kuldeep2822k/cli/blob/main/planning/roadmap_design.md#L1-L99)
-- [src/cli/roadmap.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts)
-- [src/storage/roadmap-parser.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/roadmap-parser.ts)
 
 ### AI Module Boundary
 The AI module design explicitly separates read-only context access from mutation execution. This prevents the LLM from directly updating SM-2 state, assessment values, or session records.
@@ -600,18 +482,6 @@ classDiagram
     AISessionManager --> MutationAPI : "confirmed mutations only"
 ```
 
-**Diagram sources**
-- [planning/ai_module_design.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/planning/ai_module_design.md#L1-L200)
-- [src/ai/provider.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts)
-- [src/application/record-assessment.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts)
-- [src/application/record-review.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts)
-
-**Section sources**
-- [planning/ai_module_design.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/planning/ai_module_design.md#L1-L200)
-- [src/ai/provider.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts)
-- [src/application/record-assessment.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts)
-- [src/application/record-review.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts)
-
 ## Dependency Analysis
 The planning documents form a layered dependency chain:
 
@@ -644,19 +514,6 @@ graph TD
 
 This shows that Phase 2 gaps depend on all other planning artifacts, while invariants and storage design are foundational. New features should first be checked against invariants, then mapped to storage and CLI contracts, and finally assessed for AI boundary compliance.
 
-**Diagram sources**
-- [planning/invariants.md:1-76](https://github.com/Kuldeep2822k/cli/blob/main/planning/invariants.md#L1-L76)
-- [planning/memory_design.md:1-118](https://github.com/Kuldeep2822k/cli/blob/main/planning/memory_design.md#L1-L118)
-- [planning/storage_design.md:1-111](https://github.com/Kuldeep2822k/cli/blob/main/planning/storage_design.md#L1-L111)
-- [planning/palee_cli_spec.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/planning/palee_cli_spec.md#L1-L200)
-- [planning/roadmap_design.md:1-99](https://github.com/Kuldeep2822k/cli/blob/main/planning/roadmap_design.md#L1-L99)
-- [planning/ai_module_design.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/planning/ai_module_design.md#L1-L200)
-- [planning/PHASE_2_GAPS.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/planning/PHASE_2_GAPS.md#L1-L200)
-
-**Section sources**
-- [planning/invariants.md:1-76](https://github.com/Kuldeep2822k/cli/blob/main/planning/invariants.md#L1-L76)
-- [planning/PHASE_2_GAPS.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/planning/PHASE_2_GAPS.md#L1-L200)
-
 ## Performance Considerations
 From the planning perspective, performance is not just speed; it is also bounded resource use and predictable failure behavior.
 
@@ -670,8 +527,6 @@ Key considerations:
 - **Retry policies**: Transient Windows lock failures are retried, but retries must not bypass conflict detection.
 
 These are not optimization goals alone; many are safety requirements. For example, unbounded AI context could cause prompt overflow, failed retries could overwrite vault files, and large vault scans could hang CI jobs.
-
-[No sources needed since this section provides general guidance]
 
 ## Troubleshooting Guide
 When diagnosing issues, start by matching symptoms to planning artifacts.
@@ -694,14 +549,6 @@ Practical troubleshooting steps:
 4. Prefer adding a failing test before changing implementation.
 5. If the gap document differs from current behavior, treat the gap document as a design snapshot, not the sole source of truth.
 
-**Section sources**
-- [planning/storage_design.md:1-111](https://github.com/Kuldeep2822k/cli/blob/main/planning/storage_design.md#L1-L111)
-- [planning/memory_design.md:1-118](https://github.com/Kuldeep2822k/cli/blob/main/planning/memory_design.md#L1-L118)
-- [planning/invariants.md:1-76](https://github.com/Kuldeep2822k/cli/blob/main/planning/invariants.md#L1-L76)
-- [planning/ai_module_design.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/planning/ai_module_design.md#L1-L200)
-- [planning/roadmap_design.md:1-99](https://github.com/Kuldeep2822k/cli/blob/main/planning/roadmap_design.md#L1-L99)
-- [planning/PHASE_2_GAPS.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/planning/PHASE_2_GAPS.md#L1-L200)
-
 ## Conclusion
 PALEE’s planning documents form a coherent contract surface:
 
@@ -715,4 +562,41 @@ PALEE’s planning documents form a coherent contract surface:
 
 The strongest signal for development priority is not feature visibility, but invariant coverage and data safety. When a new design touches storage, scheduling, AI, or session continuity, it should be traced back to its invariant, mapped to the relevant planning artifact, and verified against both tests and the Phase 2 gap list.
 
-[No sources needed since this section summarizes without analyzing specific files]
+## References
+
+- [README.md](https://github.com/Kuldeep2822k/cli/blob/main/README.md)
+- [docs/01-0-overview.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/01-0-overview.md)
+- [docs/08-0-planning-and-design-documents.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/08-0-planning-and-design-documents.md)
+- [planning/invariants.md:1-76](https://github.com/Kuldeep2822k/cli/blob/main/planning/invariants.md#L1-L76)
+- [src/index.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/index.ts)
+- [test/planning-invariant-ids.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/planning-invariant-ids.test.ts)
+- [docs/08-1-phase-1-specification-and-invariants.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/08-1-phase-1-specification-and-invariants.md)
+- [docs/08-2-future-ai-module-and-phase-2-design.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/08-2-future-ai-module-and-phase-2-design.md)
+- [planning/memory_design.md:1-118](https://github.com/Kuldeep2822k/cli/blob/main/planning/memory_design.md#L1-L118)
+- [planning/storage_design.md:1-111](https://github.com/Kuldeep2822k/cli/blob/main/planning/storage_design.md#L1-L111)
+- [planning/palee_cli_spec.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/planning/palee_cli_spec.md#L1-L200)
+- [planning/roadmap_design.md:1-99](https://github.com/Kuldeep2822k/cli/blob/main/planning/roadmap_design.md#L1-L99)
+- [planning/example_workflows.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/planning/example_workflows.md#L1-L200)
+- [planning/ai_module_design.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/planning/ai_module_design.md#L1-L200)
+- [src/ai/provider.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts)
+- [planning/PHASE_2_GAPS.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/planning/PHASE_2_GAPS.md#L1-L200)
+- [src/application/record-assessment.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts)
+- [src/application/record-review.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts)
+- [src/application/get-next-topics.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts)
+- [src/engine/sm2.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts)
+- [src/engine/tier0-hygiene.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts)
+- [src/storage/frontmatter.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts)
+- [src/storage/atomic-write.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts)
+- [src/storage/lock.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts)
+- [src/storage/sessions.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts)
+- [src/storage/roadmap-parser.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/roadmap-parser.ts)
+- [bin/palee.ts](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts)
+- [src/cli/adopt.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts)
+- [src/cli/next.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts)
+- [src/cli/plan.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/plan.ts)
+- [src/cli/review.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts)
+- [src/cli/session.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts)
+- [src/cli/config.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts)
+- [src/cli/roadmap.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts)
+- [src/cli/validate.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts)
+- [src/cli/assess.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts)

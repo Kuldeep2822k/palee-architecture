@@ -1,20 +1,5 @@
 # Testing Guide
 
-::: details Referenced Files in This Document
-
-- [package.json](https://github.com/Kuldeep2822k/cli/blob/main/package.json)
-- [.c8rc.json](https://github.com/Kuldeep2822k/cli/blob/main/.c8rc.json)
-- [.github/workflows/ci.yml](https://github.com/Kuldeep2822k/cli/blob/main/.github/workflows/ci.yml)
-- [test/palee-cli.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/palee-cli.ts)
-- [test/cli-spawn-env.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-spawn-env.ts)
-- [test/e2e/test-env.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/e2e/test-env.ts)
-- [test/engine-sm2.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts)
-- [test/property-fuzz.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/property-fuzz.test.ts)
-- [test/stress-concurrency.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/stress-concurrency.test.ts)
-- [test/fault-injection.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/fault-injection.test.ts)
-
-:::
-
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Project Structure](#project-structure)
@@ -25,6 +10,7 @@
 7. [Performance Considerations](#performance-considerations)
 8. [Troubleshooting Guide](#troubleshooting-guide)
 9. [Conclusion](#conclusion)
+10. [References](#references)
 
 ## Introduction
 This document explains the PALEE testing strategy and how to write, run, debug, and maintain tests across unit, integration, end-to-end, fuzz, and stress layers. The suite emphasizes deterministic behavior, property-based invariants, boundary condition coverage, concurrency safety, filesystem isolation, and strict CI quality gates.
@@ -35,6 +21,15 @@ Key principles:
 - Isolated filesystem fixtures so concurrent tests do not share state.
 - Explicit CLI launch policy that distinguishes between built artifacts and TypeScript sources under coverage.
 - Coverage thresholds enforced by c8 and changed-code diff gating on pull requests.
+
+The suite in numbers (full runs measured on 2026-11-03; thresholds and matrix read from `.c8rc.json` and `.github/workflows/ci.yml`):
+
+| Measure | Value |
+|---|---|
+| Full suite size | 2,227 tests in 318 suites, 0 failures (`npm test`, 2026-11-03) |
+| Coverage floors (c8, `check-coverage` on) | Lines 96%, statements 96%, functions 93%, branches 88% |
+| CI test matrix | Node 22.x and 24.x on Ubuntu, Windows, and macOS, plus Node 26.x on Ubuntu |
+| Changed-code gate | `diff-cover` on pull requests, fail under 50% |
 
 ## Project Structure
 Tests live under `test/` with a clear separation between fast unit-style suites, broader integration scenarios, and end-to-end CLI scenarios.
@@ -62,14 +57,6 @@ graph TB
   Utilities --> CLI
 ```
 
-**Diagram sources**
-- [package.json:20-45](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L20-L45)
-- [test/palee-cli.ts:1-104](https://github.com/Kuldeep2822k/cli/blob/main/test/palee-cli.ts#L1-L104)
-- [test/e2e/test-env.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/e2e/test-env.ts#L1-L200)
-
-**Section sources**
-- [package.json:20-45](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L20-L45)
-
 ## Core Components
 The testing system is built around three reusable utilities:
 
@@ -84,11 +71,6 @@ Important details:
 - Under c8 coverage, tests spawn the TypeScript entry through `--import tsx`, allowing coverage maps to merge across parent and children.
 - Every CLI invocation is bounded by a timeout so hung children fail deterministically rather than blocking workers.
 - E2E helpers set `PALEE_CONFIG_DIR` and `NODE_ENV=test` for every child process.
-
-**Section sources**
-- [test/palee-cli.ts:1-104](https://github.com/Kuldeep2822k/cli/blob/main/test/palee-cli.ts#L1-L104)
-- [test/cli-spawn-env.ts:1-48](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-spawn-env.ts#L1-L48)
-- [test/e2e/test-env.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/e2e/test-env.ts#L1-L200)
 
 ## Architecture Overview
 The test runner uses Node’s built-in test runner with TypeScript support via tsx. NPM scripts organize execution by scope: full tests, unit-focused tests, end-to-end tests, fuzz tests, and coverage runs.
@@ -113,21 +95,16 @@ flowchart TD
   ChildProcess --> FileSystem
 ```
 
-**Diagram sources**
-- [package.json:20-45](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L20-L45)
-- [test/palee-cli.ts:1-104](https://github.com/Kuldeep2822k/cli/blob/main/test/palee-cli.ts#L1-L104)
-- [test/cli-spawn-env.ts:1-48](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-spawn-env.ts#L1-L48)
+Execution paths (scripts as defined in `package.json`; test counts from full runs on 2026-11-03 and will drift as the suite grows):
 
-Execution paths:
-- Full suite: `npm test` builds once and runs all `test/**/*.test.ts` with four concurrent workers.
-- Unit suite: `npm run test:unit` selects storage, engine, types, and smoke tests.
-- Fast suite: `npm run test:fast` adds CLI, fault injection, fuzz, session, concurrency, timezone, and type tests.
-- End-to-end suite: `npm run test:e2e` runs only files under `test/e2e`.
-- Fuzz suite: `npm run test:fuzz` runs property fuzzing, stress concurrency, and challenger suites.
-- Coverage suite: `npm run test:coverage` wraps the full suite with c8 and enforces coverage floors.
-
-**Section sources**
-- [package.json:20-45](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L20-L45)
+| Script | Pretest build | What it runs | Tests (2026-11-03) |
+|---|---|---|---|
+| `npm test` | Yes | Every `test/**/*.test.ts` with four concurrent workers | 2,227 |
+| `npm run test:unit` | No | `test/storage-*.test.ts`, `test/engine-*.test.ts`, `test/types-*.test.ts`, and `test/smoke.test.ts` | 783 |
+| `npm run test:fast` | Yes | CLI, engine, storage, session, and types suites, plus smoke, fault injection, property fuzz, stress concurrency, and the timezone matrix | 1,564 |
+| `npm run test:e2e` | Yes | Only files under `test/e2e` (no concurrency cap) | 160 |
+| `npm run test:fuzz` | Yes | `property-fuzz`, `stress-concurrency`, and the `challenger1-*` suites | 31 |
+| `npm run test:coverage` | Yes | The full suite wrapped in c8; the run fails below the coverage floors (lines 96%, statements 96%, functions 93%, branches 88%) | 2,227 |
 
 ## Detailed Component Analysis
 
@@ -147,11 +124,6 @@ Guidelines:
 - Use fixtures created inside `before` or per-test setup rather than shared global state.
 - Keep end-to-end tests focused on CLI contracts and filesystem outcomes.
 - Put concurrency-sensitive logic in dedicated suites like `stress-concurrency.test.ts`.
-
-**Section sources**
-- [package.json:20-45](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L20-L45)
-- [test/stress-concurrency.test.ts:1-144](https://github.com/Kuldeep2822k/cli/blob/main/test/stress-concurrency.test.ts#L1-L144)
-- [test/fault-injection.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/fault-injection.test.ts#L1-L200)
 
 ### Test Execution Workflow
 ```mermaid
@@ -173,20 +145,10 @@ sequenceDiagram
   Runner-->>Dev: Pass or fail with diagnostics
 ```
 
-**Diagram sources**
-- [package.json:20-45](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L20-L45)
-- [test/palee-cli.ts:1-104](https://github.com/Kuldeep2822k/cli/blob/main/test/palee-cli.ts#L1-L104)
-- [test/e2e/test-env.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/e2e/test-env.ts#L1-L200)
-
 Key workflow rules:
-- Pretest hooks run `npm run build`, so most test commands require a prior build unless they explicitly target TypeScript sources under coverage.
+- Build hooks are per-script, not uniform: `test`, `test:fast`, `test:e2e`, `test:fuzz`, and `test:coverage` each have a `pretest*` hook that runs `npm run build` before the suite starts. `test:unit` is the exception — it has no pretest hook and runs directly against the TypeScript sources via tsx, so build first yourself if a suite it selects needs the built CLI (`test/palee-cli.ts` fails fast with a clear message when `dist/` is missing).
 - Coverage mode changes the launch path to include `--import tsx` and points at the source entry instead of the built artifact.
 - Interactive CLI tests use marker-driven input so prompts are answered in order.
-
-**Section sources**
-- [package.json:20-45](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L20-L45)
-- [test/palee-cli.ts:1-104](https://github.com/Kuldeep2822k/cli/blob/main/test/palee-cli.ts#L1-L104)
-- [test/e2e/test-env.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/e2e/test-env.ts#L1-L200)
 
 ### Test Utilities and Helpers
 
@@ -201,9 +163,6 @@ Design notes:
 - The module-level check prevents unrelated ENOENT failures from being mistaken for production bugs.
 - Coverage-aware launching avoids mixing two independent compilation lineages (tsc vs tsx), which would corrupt coverage maps.
 
-**Section sources**
-- [test/palee-cli.ts:1-104](https://github.com/Kuldeep2822k/cli/blob/main/test/palee-cli.ts#L1-L104)
-
 #### Spawn Environment (`test/cli-spawn-env.ts`)
 Responsibilities:
 - Provide `withoutCoverage(env)` to strip `NODE_V8_COVERAGE` from child environments.
@@ -212,9 +171,6 @@ Responsibilities:
 Design notes:
 - Removing coverage flags from spawned children keeps artifact checks honest and avoids merging incompatible coverage data.
 - The timeout value is deliberately aligned with the synchronous spawn helpers used elsewhere.
-
-**Section sources**
-- [test/cli-spawn-env.ts:1-48](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-spawn-env.ts#L1-L48)
 
 #### E2E Vault Environment (`test/e2e/test-env.ts`)
 Responsibilities:
@@ -228,9 +184,6 @@ Concurrency and isolation guarantees:
 - `runPalee` sets `PALEE_CONFIG_DIR` and `NODE_ENV=test`.
 - Interactive runs wait for expected prompt markers before sending input.
 - Cleanup swallows removal errors to avoid masking test failures with teardown noise.
-
-**Section sources**
-- [test/e2e/test-env.ts:1-356](https://github.com/Kuldeep2822k/cli/blob/main/test/e2e/test-env.ts#L1-L356)
 
 ### Property-Based and Fuzz Testing
 Property-based testing focuses on invariants rather than fixed inputs. The project uses this approach for pattern matching, difficulty normalization, SM-2 scheduling, and dependency graph algorithms.
@@ -250,17 +203,11 @@ flowchart TD
   Fail --> End(["End Fuzz Suite"])
 ```
 
-**Diagram sources**
-- [test/property-fuzz.test.ts:1-202](https://github.com/Kuldeep2822k/cli/blob/main/test/property-fuzz.test.ts#L1-L202)
-
 Key patterns:
 - **ReDoS probe:** Generate hundreds of random glob patterns, compile them, and assert evaluation stays below a time threshold.
 - **Total function invariant:** Ensure normalized difficulty always returns one of the allowed values for any arbitrary input.
 - **SM-2 invariants:** Verify ease-factor deltas are strictly bounded and monotonic, and repeated low-quality reviews cannot push the ease factor below its minimum.
 - **Graph invariants:** Generate deterministic pseudo-random graphs using a seeded generator and assert cycle detection and quarantine semantics.
-
-**Section sources**
-- [test/property-fuzz.test.ts:1-202](https://github.com/Kuldeep2822k/cli/blob/main/test/property-fuzz.test.ts#L1-L202)
 
 ### SM-2 Scheduler Testing
 The SM-2 test suite covers both precondition validation and algorithmic correctness.
@@ -278,19 +225,12 @@ flowchart TD
   DueDate --> Output(["Next Review State"])
 ```
 
-**Diagram sources**
-- [test/engine-sm2.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L1-L200)
-- [test/engine-sm2.test.ts:200-442](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L200-L442)
-
 Coverage highlights:
 - Boundary values for quality, ease factor, interval days, repetition, and lapses.
 - Corrupt stored scalar values that bypass ordinary range comparisons.
 - Safe-integer ceiling behavior for counts that could silently no-op.
 - Overflow defenses for computed intervals and rounded ease factors.
 - Calendar-day due-date computation and long-term cap behavior.
-
-**Section sources**
-- [test/engine-sm2.test.ts:1-442](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L1-L442)
 
 ### Concurrency and Filesystem Isolation
 Concurrency testing validates atomic writes, optimistic concurrency control, locking mutual exclusion, and cache consistency under load.
@@ -315,17 +255,11 @@ sequenceDiagram
   Suite->>Vault: Remove temp directory
 ```
 
-**Diagram sources**
-- [test/stress-concurrency.test.ts:1-144](https://github.com/Kuldeep2822k/cli/blob/main/test/stress-concurrency.test.ts#L1-L144)
-
 Isolation techniques:
 - `fs.mkdtempSync` creates a unique temporary directory per test suite.
 - `after` hooks remove directories recursively with force enabled.
 - Conflicting writes assert exactly one success and correct error classification.
 - Lock contention verifies strict mutual exclusion and eventual completion.
-
-**Section sources**
-- [test/stress-concurrency.test.ts:1-144](https://github.com/Kuldeep2822k/cli/blob/main/test/stress-concurrency.test.ts#L1-L144)
 
 ### Fault Injection and Adversarial Inputs
 Fault injection tests cover malformed frontmatter, loader tolerance, oversized documents, and defensive sanitization.
@@ -339,9 +273,6 @@ Key scenarios:
 - Out-of-range review statistics are clamped or sanitized according to domain rules.
 - Large pasted logs are declined without reading into memory.
 
-**Section sources**
-- [test/fault-injection.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/fault-injection.test.ts#L1-L200)
-
 ### Mock Implementations and External Dependencies
 External dependencies are handled through:
 - Spawning the real CLI rather than importing it directly, isolating process boundaries.
@@ -353,8 +284,6 @@ When mocking external systems is necessary:
 - Prefer replacing modules at the test boundary rather than mutating shared runtime state.
 - Keep mocks small and typed to the actual interface contract.
 - Validate that mocks preserve failure modes, not just happy paths.
-
-[No sources needed since this section provides general guidance derived from existing spawn and isolation patterns]
 
 ## Dependency Analysis
 The test layer depends on the production source through relative imports, while CLI tests depend on the test utilities for process launching and vault lifecycle.
@@ -374,45 +303,26 @@ graph LR
   N --> O["test/palee-cli.ts"]
 ```
 
-**Diagram sources**
-- [test/engine-sm2.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L1-L200)
-- [test/property-fuzz.test.ts:1-202](https://github.com/Kuldeep2822k/cli/blob/main/test/property-fuzz.test.ts#L1-L202)
-- [test/stress-concurrency.test.ts:1-144](https://github.com/Kuldeep2822k/cli/blob/main/test/stress-concurrency.test.ts#L1-L144)
-- [test/e2e/test-env.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/e2e/test-env.ts#L1-L200)
-- [test/palee-cli.ts:1-104](https://github.com/Kuldeep2822k/cli/blob/main/test/palee-cli.ts#L1-L104)
-
 Coupling observations:
 - Unit tests are tightly coupled to specific modules but remain small and deterministic.
 - End-to-end tests depend primarily on the CLI contract and filesystem state.
 - Shared test utilities reduce duplication across CLI and E2E suites.
 
-**Section sources**
-- [test/engine-sm2.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L1-L200)
-- [test/property-fuzz.test.ts:1-202](https://github.com/Kuldeep2822k/cli/blob/main/test/property-fuzz.test.ts#L1-L202)
-- [test/stress-concurrency.test.ts:1-144](https://github.com/Kuldeep2822k/cli/blob/main/test/stress-concurrency.test.ts#L1-L144)
-- [test/e2e/test-env.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/e2e/test-env.ts#L1-L200)
-- [test/palee-cli.ts:1-104](https://github.com/Kuldeep2822k/cli/blob/main/test/palee-cli.ts#L1-L104)
-
 ## Performance Considerations
 - Default test concurrency is four workers, balancing speed and resource usage.
-- Coverage runs increase memory limits because instrumentation adds overhead.
+- Coverage runs increase memory limits because instrumentation adds overhead: `test:coverage` raises the Node heap cap to 8 GB (`--max-old-space-size=8192`).
 - CLI spawning has a cold-start cost under tsx; coverage mode accepts this cost to produce accurate coverage maps.
 - Fuzz and stress suites should be grouped separately because they can be expensive.
 - Avoid global filesystem state; create and destroy per-suite directories.
 - Use deterministic seeds for randomized tests when reproducibility matters.
-
-**Section sources**
-- [package.json:20-45](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L20-L45)
-- [test/palee-cli.ts:1-104](https://github.com/Kuldeep2822k/cli/blob/main/test/palee-cli.ts#L1-L104)
-- [test/stress-concurrency.test.ts:1-144](https://github.com/Kuldeep2822k/cli/blob/main/test/stress-concurrency.test.ts#L1-L144)
 
 ## Troubleshooting Guide
 
 ### Common Failure Modes
 | Symptom | Likely Cause | Resolution |
 |---|---|---|
-| Missing built CLI error during import | Tests ran without building first | Run `npm run build` or use `npm test`, which triggers the pretest hook. |
-| Coverage function coverage drops unexpectedly | Mixed tsc and tsx compilation lineages | Keep coverage runs under `npm run test:coverage`; avoid mixing direct child spawns with different compilers. |
+| Missing built CLI error during import | Tests ran without building first | Run `npm run build` first, or use a script with a pretest hook such as `npm test` (`npm run test:unit` has no pretest hook). |
+| Function coverage drops unexpectedly | Mixed tsc and tsx compilation lineages | Keep coverage runs under `npm run test:coverage`; avoid mixing direct child spawns with different compilers. |
 | CLI child hangs indefinitely | Unbounded spawn without timeout | Wrap spawns with the exported timeout budget or use `runPalee` helpers. |
 | E2E tests affect each other | Shared vault or config directory | Use `createTestVault` and ensure cleanup runs. |
 | Flaky concurrency tests | Missing lock mutual-exclusion assertion or shared temp state | Add explicit mutual-exclusion checks and isolate per-test directories. |
@@ -425,22 +335,24 @@ Coupling observations:
 - Verify that `PALEE_CONFIG_DIR` points to the intended isolated directory.
 - Confirm the test vault contains expected `.palee` state files when diagnosing session or hot-memory issues.
 
-**Section sources**
-- [test/palee-cli.ts:1-104](https://github.com/Kuldeep2822k/cli/blob/main/test/palee-cli.ts#L1-L104)
-- [test/cli-spawn-env.ts:1-48](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-spawn-env.ts#L1-L48)
-- [test/e2e/test-env.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/e2e/test-env.ts#L1-L200)
-
 ## Conclusion
 PALEE’s test suite combines deterministic unit tests, filesystem-isolated integration tests, end-to-end CLI scenarios, property-based fuzz checks, and concurrency stress tests. The design prioritizes clarity, reproducibility, and strong invariants for scheduling and graph algorithms. Maintain this balance by keeping tests scoped, avoiding shared state, asserting error messages and edge cases explicitly, and using the provided CLI and vault utilities instead of ad-hoc spawning logic.
 
 Quality gates are enforced by:
 - NPM script organization separating fast, full, end-to-end, fuzz, and coverage runs.
-- c8 coverage thresholds requiring high statement, line, function, and branch coverage.
-- CI matrix testing across multiple Node versions and operating systems.
-- Changed-code coverage diff checks on pull requests.
+- c8 coverage thresholds with `check-coverage` on: at least 96% lines, 96% statements, 93% functions, and 88% branches.
+- CI matrix testing: Node 22.x and 24.x on Ubuntu, Windows, and macOS, plus Node 26.x on Ubuntu.
+- Changed-code coverage diff checks on pull requests (`diff-cover`, fail under 50%).
 - Separate smoke and installed-artifact verification.
 
-**Section sources**
+## References
 - [package.json:20-45](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L20-L45)
 - [.c8rc.json:1-12](https://github.com/Kuldeep2822k/cli/blob/main/.c8rc.json#L1-L12)
 - [.github/workflows/ci.yml:1-258](https://github.com/Kuldeep2822k/cli/blob/main/.github/workflows/ci.yml#L1-L258)
+- [test/palee-cli.ts:1-104](https://github.com/Kuldeep2822k/cli/blob/main/test/palee-cli.ts#L1-L104)
+- [test/cli-spawn-env.ts:1-48](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-spawn-env.ts#L1-L48)
+- [test/e2e/test-env.ts:1-356](https://github.com/Kuldeep2822k/cli/blob/main/test/e2e/test-env.ts#L1-L356)
+- [test/engine-sm2.test.ts:1-442](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L1-L442)
+- [test/property-fuzz.test.ts:1-202](https://github.com/Kuldeep2822k/cli/blob/main/test/property-fuzz.test.ts#L1-L202)
+- [test/stress-concurrency.test.ts:1-144](https://github.com/Kuldeep2822k/cli/blob/main/test/stress-concurrency.test.ts#L1-L144)
+- [test/fault-injection.test.ts:1-293](https://github.com/Kuldeep2822k/cli/blob/main/test/fault-injection.test.ts#L1-L293)

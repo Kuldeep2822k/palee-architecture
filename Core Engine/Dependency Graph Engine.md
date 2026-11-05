@@ -71,21 +71,6 @@ graph TB
   VNC --> D
 ```
 
-**Diagram sources**
-- [dependency.ts:1-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L1015)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)
-- [dependencies.ts:1-28](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/dependencies.ts#L1-L28)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [no-dependency-cycle.ts:1-74](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-dependency-cycle.ts#L1-L74)
-
-**Section sources**
-- [dependency.ts:1-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L1015)
-- [types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [no-dependency-cycle.ts:1-74](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-dependency-cycle.ts#L1-L74)
-
 ## Core Components
 The dependency engine exposes several public primitives:
 
@@ -103,12 +88,6 @@ The dependency engine exposes several public primitives:
 | `getTopicDependencies` | Reads canonical prerequisites | Returns the `depends_on` list, falling back to an empty array. |
 
 These functions operate on a `Map<string, TopicNode>` where each node carries a stable identifier, mastery score, status, and prerequisite list.
-
-**Section sources**
-- [dependency.ts:750-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L750-L1015)
-- [dependency.ts:200-750](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L200-L750)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)
 
 ## Architecture Overview
 At runtime, the dependency graph engine is not called directly by users. It is consumed by higher layers:
@@ -134,11 +113,6 @@ sequenceDiagram
   Engine-->>Validation: Cycle findings + truncation flag
 ```
 
-**Diagram sources**
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [dependency.ts:200-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L200-L1015)
-- [no-dependency-cycle.ts:1-74](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-dependency-cycle.ts#L1-L74)
-
 ## Detailed Component Analysis
 
 ### Graph Construction from Topic Metadata
@@ -163,18 +137,10 @@ flowchart TD
   Decompose --> Ready["Shared Read-Only Graph View"]
 ```
 
-**Diagram sources**
-- [dependency.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L200)
-
 Complexity:
 - Edge construction is O(D), where D is the total number of dependency references.
 - Sorting adjacency lists adds O(D log k) per node, where k is the average out-degree.
 - Memory usage is proportional to the number of unique resolvable edges plus topic metadata.
-
-**Section sources**
-- [dependency.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L200)
-- [dependencies.ts:1-28](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/dependencies.ts#L1-L28)
-- [types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)
 
 ### Cycle Detection Algorithms
 The engine provides two complementary approaches:
@@ -215,18 +181,11 @@ flowchart TD
   I --> J["Return Cycle List"]
 ```
 
-**Diagram sources**
-- [dependency.ts:200-750](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L200-L750)
-
 Complexity:
 - SCC detection is O(V + E).
 - Johnson-style enumeration is linear in the size of the residual graph per reported cycle.
 - Output sorting is O(C log C), where C is the number of enumerated cycles.
 - Worst-case cycle count is exponential in SCC size, which is why bounded enumeration exists.
-
-**Section sources**
-- [dependency.ts:200-750](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L200-L750)
-- [engine-dependency.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-dependency.test.ts#L1-L200)
 
 ### Topological Ordering and Scheduling Decisions
 The engine does not expose a generic topological sort function. Instead, it provides domain-specific ordering and readiness behavior:
@@ -257,17 +216,10 @@ flowchart TD
   Done --> Ready
 ```
 
-**Diagram sources**
-- [dependency.ts:750-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L750-L1015)
-
 Complexity:
 - Reading prerequisites is O(D).
 - Filtering ready topics is O(T + D), where T is the number of topics.
 - Sorting ready topics is O(T log T).
-
-**Section sources**
-- [dependency.ts:750-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L750-L1015)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
 
 ### Relationship Between Dependencies and Scheduling
 The dependency graph engine integrates with the scheduling pipeline through the next-topics use case:
@@ -296,14 +248,6 @@ sequenceDiagram
   App-->>App: Return actionable + blocked
 ```
 
-**Diagram sources**
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [dependency.ts:750-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L750-L1015)
-
-**Section sources**
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-
 ### Recommendation Pipeline Integration
 The recommendation pipeline uses two distinct concerns:
 
@@ -321,10 +265,6 @@ graph LR
   Scheduler --> NextCommand["Next / Plan Commands"]
   Validator --> ValidateCommand["Validate Command"]
 ```
-
-**Diagram sources**
-- [dependency.ts:1-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L1015)
-- [no-dependency-cycle.ts:1-74](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-dependency-cycle.ts#L1-L74)
 
 [No additional section sources needed here since this diagram summarizes existing integration points already cited above.]
 
@@ -372,13 +312,6 @@ classDiagram
   CycleValidationRule --> DependencyEngine : "calls"
 ```
 
-**Diagram sources**
-- [dependency.ts:1-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L1015)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [no-dependency-cycle.ts:1-74](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-dependency-cycle.ts#L1-L74)
-- [types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)
-
 ### Coupling and Cohesion
 - High cohesion: All graph algorithms live in `dependency.ts`.
 - Low coupling to storage: The engine consumes normalized topic objects rather than parsing files.
@@ -390,12 +323,6 @@ classDiagram
 - `mastery.ts`: Provides the default mastery threshold and scoring helpers.
 - `types.ts`: Defines topic nodes, validation results, and advisory-source helpers.
 - `storage/dependencies.ts`: Normalizes legacy dependency aliases before the engine sees them.
-
-**Section sources**
-- [dependency.ts:1-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L1015)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)
-- [dependencies.ts:1-28](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/dependencies.ts#L1-L28)
 
 ## Performance Considerations
 
@@ -427,11 +354,6 @@ classDiagram
 - Keep `depends_on` lists small and free of duplicates; the engine deduplicates, but smaller inputs reduce traversal cost.
 - Avoid rebuilding the same graph repeatedly; reuse shared decompositions where possible.
 
-**Section sources**
-- [dependency.ts:200-750](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L200-L750)
-- [dependency.ts:750-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L750-L1015)
-- [engine-dependency.test.ts:200-520](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-dependency.test.ts#L200-L520)
-
 ## Troubleshooting Guide
 
 ### Common Issues
@@ -460,10 +382,6 @@ classDiagram
 - Quarantine correctness unaffected by truncated samples.
 - Large ring performance remains linear after the single cycle.
 
-**Section sources**
-- [engine-dependency.test.ts:1-520](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-dependency.test.ts#L1-L520)
-- [no-dependency-cycle.ts:1-74](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-dependency-cycle.ts#L1-L74)
-
 ## Conclusion
 The dependency graph engine is a focused, stack-safe component that turns topic metadata into a verifiable prerequisite structure. Its strengths are:
 
@@ -474,3 +392,20 @@ The dependency graph engine is a focused, stack-safe component that turns topic 
 - Clear integration with scheduling and validation layers.
 
 For large vaults, the recommended pattern is to treat cycle enumeration as potentially expensive, use bounded APIs for user-facing operations, rely on SCC membership for quarantine, and keep readiness checks separate from traversal-heavy cycle discovery.
+
+## References
+
+- [dependency.ts:1-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L1015)
+- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
+- [types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)
+- [dependencies.ts:1-28](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/dependencies.ts#L1-L28)
+- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
+- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
+- [no-dependency-cycle.ts:1-74](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-dependency-cycle.ts#L1-L74)
+- [dependency.ts:750-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L750-L1015)
+- [dependency.ts:200-750](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L200-L750)
+- [dependency.ts:200-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L200-L1015)
+- [dependency.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L200)
+- [engine-dependency.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-dependency.test.ts#L1-L200)
+- [engine-dependency.test.ts:200-520](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-dependency.test.ts#L200-L520)
+- [engine-dependency.test.ts:1-520](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-dependency.test.ts#L1-L520)

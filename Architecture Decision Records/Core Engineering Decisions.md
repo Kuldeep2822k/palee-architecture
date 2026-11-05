@@ -39,9 +39,6 @@ PALEE is a deterministic, Spaced-Repetition (SM-2) and directed acyclic graph st
 
 This document explains how those pieces fit together, what trade-offs were chosen between consistency and performance, how the design evolved from Phase 1 into its current form, and how concurrent access to an Obsidian vault remains safe and predictable.
 
-**Section sources**
-- [README.md:1-314](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L1-L314)
-
 ## Project Structure
 The relevant code lives in two layers:
 
@@ -81,19 +78,6 @@ graph TB
   Mem --> Cont
 ```
 
-**Diagram sources**
-- [index.ts:1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
-- [sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-- [frontmatter.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L200)
-- [lock.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L1-L200)
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
-- [containment.ts:1-185](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts#L1-L185)
-- [memory.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1-L200)
-- [cache.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/cache.ts#L1-L200)
-
-**Section sources**
-- [index.ts:1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
-
 ## Core Components
 PALEE’s storage architecture is built around five cooperating components:
 
@@ -106,14 +90,6 @@ PALEE’s storage architecture is built around five cooperating components:
 | Session memory and hot memory | Persists sessions, index, active topic, and derived working memory | Derived state is rebuilt from durable sessions; schema contract enforced | Hot memory is capped at 250 words |
 
 These components are exposed through the storage facade so CLI commands never call raw filesystem operations directly.
-
-**Section sources**
-- [sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-- [frontmatter.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L200)
-- [lock.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L1-L200)
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
-- [memory.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1-L200)
-- [index.ts:1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
 
 ## Architecture Overview
 At runtime, PALEE reads topics from an Obsidian vault, computes next topics using SM-2 and prerequisites, then persists reviews, assessments, sessions, and derived views under `.palee`. All mutations go through `atomicWrite`, which enforces containment, locks the target, validates the file content via SHA-256, writes atomically, and retries transient Windows conflicts. Reads go through loaders and caches that distinguish unsettled files, oversized notes, non-topic files, and stale entries.
@@ -144,13 +120,6 @@ sequenceDiagram
   Writer->>FS: Best-effort directory fsync
   Writer-->>CLI: Success or ECONFLICT
 ```
-
-**Diagram sources**
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
-- [lock.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L1-L200)
-- [containment.ts:1-185](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts#L1-L185)
-- [cache.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/cache.ts#L1-L200)
-- [sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
 
 ## Detailed Component Analysis
 
@@ -183,13 +152,6 @@ flowchart TD
   DueDate --> End(["Bounded Review State"])
 ```
 
-**Diagram sources**
-- [sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-
-**Section sources**
-- [0001-supermemo-sm2-algorithm.md:1-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L1-L63)
-- [sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-
 ### Non-Destructive YAML Frontmatter via Concrete Syntax Tree
 PALEE stores metadata in Markdown frontmatter so Obsidian plugins and Dataview continue to work. Instead of string replacement or full object serialization, the implementation parses the YAML frontmatter into a `Document` and modifies only managed keys. This preserves comments, indentation, unknown properties, block scalars, and exact body text.
 
@@ -209,13 +171,6 @@ flowchart TD
   Serialize --> RestoreEOL["Restore original line endings"]
   RestoreEOL --> Reassemble["Reattach BOM, fence, updated YAML, and unchanged body"]
 ```
-
-**Diagram sources**
-- [frontmatter.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L200)
-
-**Section sources**
-- [0003-concrete-syntax-tree-yaml-frontmatter.md:1-51](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0003-concrete-syntax-tree-yaml-frontmatter.md#L1-L51)
-- [frontmatter.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L200)
 
 ### Atomic File Locking with Optimistic Concurrency Control
 Concurrency control has two layers:
@@ -252,16 +207,6 @@ sequenceDiagram
   Note over Writer,FS: Lock held during OCC read, temp write, fsync, rename, and directory fsync
 ```
 
-**Diagram sources**
-- [lock.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L1-L200)
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
-- [0002-atomic-file-locking-and-occ.md:1-56](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0002-atomic-file-locking-and-occ.md#L1-L56)
-
-**Section sources**
-- [0002-atomic-file-locking-and-occ.md:1-56](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0002-atomic-file-locking-and-occ.md#L1-L56)
-- [lock.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L1-L200)
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
-
 ### Storage Layer Isolation and Public Facade
 Phase 1 closed leaks where CLI handlers called `fs.unlinkSync` and `fs.mkdirSync` directly. All persistence now goes through `src/storage/index.ts`, which re-exports vault walking, frontmatter mutation, locking, atomic writing, caching, and session memory helpers. This isolates raw filesystem behavior from command logic and centralizes safety checks such as vault containment and session cleanup.
 
@@ -269,10 +214,6 @@ Trade-offs:
 - **Consistency:** Path traversal and symlink escapes are rejected consistently.
 - **Performance:** Small indirection cost versus direct filesystem calls.
 - **Maintainability:** One boundary owns vault policy instead of duplicating it across CLI commands.
-
-**Section sources**
-- [0006-phase-1-concurrency-resilience-and-storage-isolation.md:1-87](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0006-phase-1-concurrency-resilience-and-storage-isolation.md#L1-L87)
-- [index.ts:1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
 
 ### Hot Memory Read-State Contract
 `.palee/hot.md` is a derived working-memory view. Its read accessor classifies the file into exactly five states:
@@ -306,14 +247,6 @@ flowchart TD
   Schema -->|Yes| Ok["State: ok"]
 ```
 
-**Diagram sources**
-- [memory.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1-L200)
-- [0007-hot-memory-read-state-contract.md:1-54](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0007-hot-memory-read-state-contract.md#L1-L54)
-
-**Section sources**
-- [0007-hot-memory-read-state-contract.md:1-54](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0007-hot-memory-read-state-contract.md#L1-L54)
-- [memory.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1-L200)
-
 ### Atomic Write Durability and Vault Containment
 `atomicWrite` is the single write primitive for all vault mutations. It asserts containment first, acquires a lock, performs OCC, reclaims stale temporary files belonging to the target, writes to a unique temp file, preserves permission mode, flushes, renames, and best-effort flushes the containing directory.
 
@@ -328,11 +261,6 @@ Trade-offs:
 - **Consistency:** Crash resilience, containment, and OCC are stronger than earlier claims in the module docstring.
 - **Performance:** Extra syscalls for containment checks, fingerprinting, and directory fsync.
 - **Residual gap:** One syscall between re-check and open is documented but not closable from JavaScript.
-
-**Section sources**
-- [0014-atomic-write-durability-and-containment.md:1-79](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0014-atomic-write-durability-and-containment.md#L1-L79)
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
-- [containment.ts:1-185](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts#L1-L185)
 
 ### Caching Strategies and Read Path Hardening
 The read path separates concerns:
@@ -367,14 +295,6 @@ flowchart TD
   Result -->|No| Parse
 ```
 
-**Diagram sources**
-- [cache.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/cache.ts#L1-L200)
-- [0018-read-path-caching-and-locking.md:1-78](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0018-read-path-caching-and-locking.md#L1-L78)
-
-**Section sources**
-- [0018-read-path-caching-and-locking.md:1-78](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0018-read-path-caching-and-locking.md#L1-L78)
-- [cache.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/cache.ts#L1-L200)
-
 ### Bounded Lock Acquisition
 A previous bug made an `ENOTEMPTY` response spin at 100% CPU because an unremovable entry caused unconditional loop continuation. The fix introduces:
 
@@ -389,10 +309,6 @@ Trade-offs:
 - **Performance:** Up to ~300 ms of parked waiting before the precise conflict is thrown.
 - **Compatibility:** Some existing `EPERM`/`EBUSY` behavior is intentionally pinned by tests and recorded as a follow-up.
 
-**Section sources**
-- [0036-bounded-lock-acquisition.md:1-91](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0036-bounded-lock-acquisition.md#L1-L91)
-- [lock.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L1-L200)
-
 ### Evolution from Phase 1 to Current Design
 Phase 1 focused on closing storage-boundary leaks, eliminating review TOCTOU windows, making roadmap ingestion fault-tolerant, recording true session durations, and removing nondeterministic test bypasses. Later rounds hardened atomic writes, containment, hot-memory reading, read caching, lock liveness, lock acquisition bounds, and temporary-file reclamation.
 
@@ -405,13 +321,6 @@ Phase 1 focused on closing storage-boundary leaks, eliminating review TOCTOU win
 | Post-Phase 1 | Hot memory read contract was implicit | Define five-state classification and accessor boundary |
 | Post-Phase 1 | Stale lock spins and slow recovery | Add liveness probe, bounded retries, and structured conflict errors |
 | Post-Phase 1 | Scan cost and same-second staleness | Separate negative cache, fingerprint fallback, and source cap |
-
-**Section sources**
-- [0006-phase-1-concurrency-resilience-and-storage-isolation.md:1-87](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0006-phase-1-concurrency-resilience-and-storage-isolation.md#L1-L87)
-- [0014-atomic-write-durability-and-containment.md:1-79](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0014-atomic-write-durability-and-containment.md#L1-L79)
-- [0007-hot-memory-read-state-contract.md:1-54](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0007-hot-memory-read-state-contract.md#L1-L54)
-- [0018-read-path-caching-and-locking.md:1-78](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0018-read-path-caching-and-locking.md#L1-L78)
-- [0036-bounded-lock-acquisition.md:1-91](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0036-bounded-lock-acquisition.md#L1-L91)
 
 ### How These Patterns Work Together in Practice
 A typical concurrent review illustrates the full chain:
@@ -442,12 +351,6 @@ sequenceDiagram
   Store-->>CLI: Success or ECONFLICT
 ```
 
-**Diagram sources**
-- [sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-- [memory.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1-L200)
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
-- [0006-phase-1-concurrency-resilience-and-storage-isolation.md:1-87](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0006-phase-1-concurrency-resilience-and-storage-isolation.md#L1-L87)
-
 ## Dependency Analysis
 The storage subsystem follows a layered dependency pattern:
 
@@ -473,14 +376,6 @@ Potential risks:
 - Circular imports would weaken the facade contract; the current structure keeps dependencies directional.
 - External tools modifying the vault concurrently must cooperate through PALEE locks or filesystem compare-and-replace semantics, otherwise OCC will reject the write.
 
-**Diagram sources**
-- [index.ts:1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
-- [memory.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1-L200)
-
-**Section sources**
-- [index.ts:1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
-
 ## Performance Considerations
 PALEE balances consistency against practical performance in several places:
 
@@ -500,8 +395,6 @@ Recommended practices:
 - Treat `ECONFLICT` as retryable; treat containment errors as terminal configuration issues.
 - Do not assume hot memory is authoritative when its schema is invalid.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 Common failure modes and their meanings:
 
@@ -515,15 +408,27 @@ Common failure modes and their meanings:
 | Hot memory is ignored by session start | Unsupported or corrupt schema | Allow session start to rebuild from confirmed sessions |
 | Temporary `.tmp.<pid>.<hex>` files remain | Process killed before rename or cleanup | `atomicWrite` reclaims stale temps owned by dead processes after the age floor |
 
-**Section sources**
-- [0006-phase-1-concurrency-resilience-and-storage-isolation.md:1-87](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0006-phase-1-concurrency-resilience-and-storage-isolation.md#L1-L87)
-- [0014-atomic-write-durability-and-containment.md:1-79](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0014-atomic-write-durability-and-containment.md#L1-L79)
-- [0018-read-path-caching-and-locking.md:1-78](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0018-read-path-caching-and-locking.md#L1-L78)
-- [0036-bounded-lock-acquisition.md:1-91](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0036-bounded-lock-acquisition.md#L1-L91)
-
 ## Conclusion
 PALEE’s storage architecture chooses strong local consistency over maximum throughput. SM-2 provides deterministic scheduling without external dependencies. Concrete syntax tree frontmatter editing preserves user-authored Markdown. Atomic writes with optimistic concurrency control and cross-process locking protect against partial writes, lost updates, and crashes. Vault containment prevents accidental or malicious escape. Hot memory is a clearly bounded derived view. Caching accelerates scans while preserving correctness on platforms with coarse timestamps. Bounded lock acquisition replaces a busy-spin hazard with a measurable, diagnosable conflict.
 
 Together, these decisions enable concurrent access to Obsidian vaults while keeping the vault itself the single source of truth. The main ongoing trade-off is latency under contention: users editing or syncing the same notes concurrently may see retryable conflicts, but the system avoids silent corruption and indefinite hangs.
 
-[No sources needed since this section summarizes without analyzing specific files]
+## References
+
+- [README.md:1-314](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L1-L314)
+- [index.ts:1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
+- [sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
+- [frontmatter.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L200)
+- [lock.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L1-L200)
+- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
+- [containment.ts:1-185](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts#L1-L185)
+- [memory.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1-L200)
+- [cache.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/cache.ts#L1-L200)
+- [0001-supermemo-sm2-algorithm.md:1-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L1-L63)
+- [0003-concrete-syntax-tree-yaml-frontmatter.md:1-51](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0003-concrete-syntax-tree-yaml-frontmatter.md#L1-L51)
+- [0002-atomic-file-locking-and-occ.md:1-56](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0002-atomic-file-locking-and-occ.md#L1-L56)
+- [0006-phase-1-concurrency-resilience-and-storage-isolation.md:1-87](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0006-phase-1-concurrency-resilience-and-storage-isolation.md#L1-L87)
+- [0007-hot-memory-read-state-contract.md:1-54](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0007-hot-memory-read-state-contract.md#L1-L54)
+- [0014-atomic-write-durability-and-containment.md:1-79](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0014-atomic-write-durability-and-containment.md#L1-L79)
+- [0018-read-path-caching-and-locking.md:1-78](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0018-read-path-caching-and-locking.md#L1-L78)
+- [0036-bounded-lock-acquisition.md:1-91](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0036-bounded-lock-acquisition.md#L1-L91)

@@ -45,18 +45,6 @@ graph TB
   Memory --> Containment["Vault Containment"]
 ```
 
-**Diagram sources**
-- [session.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L60)
-- [memory.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1-L40)
-- [sessions.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L40)
-- [types.ts:200-350](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L200-L350)
-
-**Section sources**
-- [types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)
-- [memory.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1-L60)
-- [sessions.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L40)
-- [session.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L60)
-
 ## Core Components
 PALEE distinguishes between two closely related concepts:
 
@@ -66,10 +54,6 @@ PALEE distinguishes between two closely related concepts:
 | `SessionRecord` | Frontmatter schema written into `.palee/sessions/*.md` files | Same core fields as `Session`, plus `status`, `ended_at`, optional `duration_minutes` | Durable Markdown note |
 
 The most important distinction is that `Session` is a domain shape used while processing sessions, whereas `SessionRecord` is the on-disk contract for session notes. Drafts and completed sessions share the base fields but differ in `status` and `ended_at`.
-
-**Section sources**
-- [types.ts:120-220](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L120-L220)
-- [types.ts:200-350](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L200-L350)
 
 ## Architecture Overview
 The session architecture has four cooperating pieces:
@@ -139,10 +123,6 @@ classDiagram
   DraftSessionRecord --|> BaseSessionRecord
 ```
 
-**Diagram sources**
-- [types.ts:120-220](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L120-L220)
-- [types.ts:200-350](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L200-L350)
-
 ## Detailed Component Analysis
 
 ### Discriminated Union Hierarchy: `BaseSession`, `CompletedSession`, `DraftSession`
@@ -177,12 +157,6 @@ flowchart TD
   Base --> Draft["DraftSession<br/>status='draft'<br/>ended_at=null"]
 ```
 
-**Diagram sources**
-- [types.ts:120-220](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L120-L220)
-
-**Section sources**
-- [types.ts:120-220](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L120-L220)
-
 ### Persisted File Schemas: `BaseSessionRecord`, `CompletedSessionRecord`, `DraftSessionRecord`
 The persisted schema mirrors the in-memory hierarchy but is intentionally separate because frontmatter parsing and validation can tolerate missing or malformed values.
 
@@ -206,13 +180,6 @@ flowchart TD
   RecordBase["BaseSessionRecord"] --> CompletedRecord["CompletedSessionRecord<br/>optional duration_minutes"]
   RecordBase --> DraftRecord["DraftSessionRecord<br/>ended_at=null"]
 ```
-
-**Diagram sources**
-- [types.ts:200-350](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L200-L350)
-
-**Section sources**
-- [types.ts:200-350](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L200-L350)
-- [0019-session-memory-lifecycle.md:1-71](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0019-session-memory-lifecycle.md#L1-L71)
 
 ### Hot Memory: `HotMemoryData`
 `HotMemoryData` represents `.palee/hot.md`, the derived working-memory view. It is not canonical history; canonical history lives under `.palee/sessions/`.
@@ -246,16 +213,6 @@ stateDiagram-v2
   SchemaInvalid --> Ok : "valid schema v1"
 ```
 
-**Diagram sources**
-- [memory.ts:40-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L40-L120)
-- [0007-hot-memory-read-state-contract.md:1-54](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0007-hot-memory-read-state-contract.md#L1-L54)
-
-**Section sources**
-- [types.ts:200-300](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L200-L300)
-- [memory.ts:40-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L40-L120)
-- [0007-hot-memory-read-state-contract.md:1-54](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0007-hot-memory-read-state-contract.md#L1-L54)
-- [04-4-session-memory-storage.md:1-146](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-4-session-memory-storage.md#L1-L146)
-
 ### Active Session Data: `ActiveSessionData`
 `ActiveSessionData` is distinct from `HotMemoryData`. It represents the process-local state for a session currently in progress, including its own `session_id`, `topic_id`, `started_at`, and `updated_at`. This separates the durable working-memory view from the transient in-memory session being edited.
 
@@ -266,9 +223,6 @@ stateDiagram-v2
 | `topic_id` | Topic associated with the active session |
 | `started_at` | When the active session began |
 | `updated_at` | When the active session metadata was last refreshed |
-
-**Section sources**
-- [types.ts:200-300](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L200-L300)
 
 ### Draft Recovery Actions: `DraftRecoveryAction`
 When unfinished draft sessions are detected, PALEE supports four recovery choices:
@@ -289,14 +243,6 @@ flowchart TD
   Choice -->|ignore| Ignore["Leave draft unchanged"]
 ```
 
-**Diagram sources**
-- [types.ts:200-350](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L200-L350)
-- [04-4-session-memory-storage.md:90-146](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-4-session-memory-storage.md#L90-L146)
-
-**Section sources**
-- [types.ts:200-350](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L200-L350)
-- [04-4-session-memory-storage.md:90-146](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-4-session-memory-storage.md#L90-L146)
-
 ### Session ID Formats and Timestamp Rules
 | Kind | Format | Example description |
 |---|---|---|
@@ -310,12 +256,6 @@ Additional rules:
 - Filenames, not frontmatter, are the primary classification signal for whether a file is a draft or confirmed session.
 - `started_at` is ISO 8601. Legacy files may omit it, so consumers must tolerate nullability even though current writers emit it.
 - During recovery and session completion, timestamps older than 24 hours are clamped to a floor to avoid reporting phantom study duration. A clock-skew band accepts timestamps within 60 seconds of now; more than 60 seconds in the future is clamped to now.
-
-**Section sources**
-- [types.ts:120-220](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L120-L220)
-- [types.ts:200-350](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L200-L350)
-- [04-4-session-memory-storage.md:30-80](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-4-session-memory-storage.md#L30-L80)
-- [0019-session-memory-lifecycle.md:20-45](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0019-session-memory-lifecycle.md#L20-L45)
 
 ### Session Creation Flow
 A typical creation flow involves:
@@ -344,16 +284,6 @@ sequenceDiagram
   Hot-->>User: "working memory refreshed"
 ```
 
-**Diagram sources**
-- [session.ts:60-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L60-L120)
-- [memory.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1-L60)
-- [04-4-session-memory-storage.md:60-120](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-4-session-memory-storage.md#L60-L120)
-
-**Section sources**
-- [session.ts:60-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L60-L120)
-- [memory.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1-L60)
-- [04-4-session-memory-storage.md:60-120](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-4-session-memory-storage.md#L60-L120)
-
 ### Checkpointing During Long Sessions
 For long sessions, drafts act as checkpoints:
 
@@ -376,14 +306,6 @@ sequenceDiagram
   Memory->>Vault: "delete draft"
   Memory->>Hot: "rebuild hot.md and index.md"
 ```
-
-**Diagram sources**
-- [memory.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1-L60)
-- [04-4-session-memory-storage.md:90-146](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-4-session-memory-storage.md#L90-L146)
-
-**Section sources**
-- [04-4-session-memory-storage.md:90-146](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-4-session-memory-storage.md#L90-L146)
-- [draft-recovery-transaction.test.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/test/draft-recovery-transaction.test.ts#L1-L120)
 
 ### Completion Recording and Duration Handling
 When a session ends:
@@ -415,14 +337,6 @@ flowchart TD
   Retire --> Rebuild["Rebuild index and hot memory"]
 ```
 
-**Diagram sources**
-- [0019-session-memory-lifecycle.md:20-45](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0019-session-memory-lifecycle.md#L20-L45)
-- [04-4-session-memory-storage.md:60-120](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-4-session-memory-storage.md#L60-L120)
-
-**Section sources**
-- [0019-session-memory-lifecycle.md:20-45](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0019-session-memory-lifecycle.md#L20-L45)
-- [04-4-session-memory-storage.md:60-120](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-4-session-memory-storage.md#L60-L120)
-
 ### Relationship Between Sessions and Hot Memory
 Sessions and hot memory serve different purposes:
 
@@ -438,16 +352,6 @@ graph LR
   History --> Hot[".palee/hot.md"]
   Hot --> CLI["CLI reads active_topic"]
 ```
-
-**Diagram sources**
-- [memory.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1-L60)
-- [sessions.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L40)
-- [04-4-session-memory-storage.md:1-60](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-4-session-memory-storage.md#L1-L60)
-
-**Section sources**
-- [memory.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1-L60)
-- [sessions.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L40)
-- [04-4-session-memory-storage.md:1-60](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-4-session-memory-storage.md#L1-L60)
 
 ## Dependency Analysis
 The session subsystem has clear layering:
@@ -467,25 +371,11 @@ graph TB
   Sessions --> CLI
 ```
 
-**Diagram sources**
-- [types.ts:120-350](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L120-L350)
-- [memory.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1-L60)
-- [sessions.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L40)
-- [session.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L60)
-
-**Section sources**
-- [types.ts:120-350](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L120-L350)
-- [memory.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1-L60)
-- [sessions.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L40)
-- [session.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L60)
-
 ## Performance Considerations
 - Hot memory body text is capped at 250 words to keep AI prompts efficient.
 - Session scanning sorts filenames deterministically, making scans predictable regardless of OS readdir order.
 - Tolerant loaders preserve malformed session entries instead of failing the entire vault scan, reducing validation cost when one note is corrupt.
 - Derived views (`hot.md`, `index.md`) are rebuilt only when necessary, avoiding unnecessary filesystem mutations.
-
-[No sources needed since this section provides general guidance]
 
 ## Troubleshooting Guide
 
@@ -493,10 +383,6 @@ graph TB
 - If a session note cannot be read (locked, deleted concurrently) or parsed, the loader retains the entry with a read or parse error rather than silently dropping it.
 - Validation rules report the defect while allowing the rest of the vault to be scanned.
 - Rebuilds count unreadable sessions rather than hiding them, so totals remain truthful.
-
-**Section sources**
-- [sessions.ts:40-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L40-L120)
-- [0019-session-memory-lifecycle.md:45-71](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0019-session-memory-lifecycle.md#L45-L71)
 
 ### Draft Recovery Failures
 Draft recovery is not a single atomic filesystem transaction. It consists of multiple locked operations: writing the canonical session, retiring the draft, and rebuilding derived views. If a step fails:
@@ -515,13 +401,6 @@ flowchart TD
   Rebuild --> Success["Recovery complete"]
 ```
 
-**Diagram sources**
-- [draft-recovery-transaction.test.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/test/draft-recovery-transaction.test.ts#L1-L120)
-- [04-4-session-memory-storage.md:90-146](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-4-session-memory-storage.md#L90-L146)
-
-**Section sources**
-- [draft-recovery-transaction.test.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/test/draft-recovery-transaction.test.ts#L1-L120)
-
 ### Hot Memory Classification Issues
 If `.palee/hot.md` is missing, corrupt, or carries an unsupported schema:
 
@@ -531,11 +410,30 @@ If `.palee/hot.md` is missing, corrupt, or carries an unsupported schema:
 - `no-frontmatter`: no usable frontmatter block.
 - `session start` may rebuild invalid or missing hot memory from confirmed sessions.
 
-**Section sources**
-- [0007-hot-memory-read-state-contract.md:1-54](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0007-hot-memory-read-state-contract.md#L1-L54)
-- [memory.ts:40-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L40-L120)
-
 ## Conclusion
 PALEE's session model separates in-memory domain state from durable frontmatter records. `BaseSession` extends into `CompletedSession` and `DraftSession`, while `BaseSessionRecord` extends into `CompletedSessionRecord` and `DraftSessionRecord`. Hot memory provides a fast, derived working view, while session files provide canonical history. Draft recovery supports resume, save, discard, and ignore, with strict timestamp clamping and robust error handling. Durability is provided by atomic writes, locking, containment checks, and deterministic rebuild policies, while isolation is enforced per vault path.
 
-[No sources needed since this section summarizes without analyzing specific files]
+## References
+
+- [session.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L60)
+- [memory.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1-L40)
+- [sessions.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L40)
+- [types.ts:200-350](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L200-L350)
+- [types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)
+- [memory.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1-L60)
+- [types.ts:120-220](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L120-L220)
+- [0019-session-memory-lifecycle.md:1-71](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0019-session-memory-lifecycle.md#L1-L71)
+- [memory.ts:40-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L40-L120)
+- [0007-hot-memory-read-state-contract.md:1-54](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0007-hot-memory-read-state-contract.md#L1-L54)
+- [types.ts:200-300](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L200-L300)
+- [04-4-session-memory-storage.md:1-146](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-4-session-memory-storage.md#L1-L146)
+- [04-4-session-memory-storage.md:90-146](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-4-session-memory-storage.md#L90-L146)
+- [04-4-session-memory-storage.md:30-80](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-4-session-memory-storage.md#L30-L80)
+- [0019-session-memory-lifecycle.md:20-45](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0019-session-memory-lifecycle.md#L20-L45)
+- [session.ts:60-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L60-L120)
+- [04-4-session-memory-storage.md:60-120](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-4-session-memory-storage.md#L60-L120)
+- [draft-recovery-transaction.test.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/test/draft-recovery-transaction.test.ts#L1-L120)
+- [04-4-session-memory-storage.md:1-60](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-4-session-memory-storage.md#L1-L60)
+- [types.ts:120-350](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L120-L350)
+- [sessions.ts:40-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L40-L120)
+- [0019-session-memory-lifecycle.md:45-71](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0019-session-memory-lifecycle.md#L45-L71)

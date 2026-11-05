@@ -1,20 +1,5 @@
 # Source Cap and Pattern Matching
 
-::: details Referenced Files in This Document
-
-- [source-cap.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/source-cap.ts)
-- [pattern-matcher.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/pattern-matcher.ts)
-- [note-title.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/note-title.ts)
-- [scanner.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts)
-- [loader.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts)
-- [adopt.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts)
-- [roadmap.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts)
-- [storage-source-cap.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-source-cap.test.ts)
-- [storage-pattern-matcher.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-pattern-matcher.test.ts)
-- [storage-note-title.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-note-title.test.ts)
-
-:::
-
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Project Structure](#project-structure)
@@ -25,6 +10,7 @@
 7. [Performance Considerations](#performance-considerations)
 8. [Troubleshooting Guide](#troubleshooting-guide)
 9. [Conclusion](#conclusion)
+10. [References](#references)
 
 ## Introduction
 This document explains the source capacity limiting and pattern matching subsystems that protect PALEE’s storage and CLI pipelines from resource exhaustion, unsafe writes, and expensive or incorrect file selection. It focuses on three tightly coupled areas:
@@ -61,31 +47,12 @@ graph TB
   Loader --> SourceCap
 ```
 
-**Diagram sources**
-- [adopt.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L100)
-- [roadmap.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L1-L100)
-- [scanner.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L1-L40)
-- [loader.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L60)
-- [source-cap.ts:1-109](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/source-cap.ts#L1-L109)
-- [pattern-matcher.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/pattern-matcher.ts#L1-L40)
-- [note-title.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/note-title.ts#L1-L30)
-
-**Section sources**
-- [source-cap.ts:1-109](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/source-cap.ts#L1-L109)
-- [pattern-matcher.ts:1-628](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/pattern-matcher.ts#L1-L628)
-- [note-title.ts:1-91](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/note-title.ts#L1-L91)
-
 ## Core Components
 - **Source cap module** defines a 512 KiB read ceiling, diagnostics for oversized files, and two-sided checks for both disk size and UTF-8 write result size.
 - **Pattern matcher module** provides glob compilation for validation, linear dynamic-programming path matching, inclusion/exclusion evaluation, tag extraction, hierarchical tag matching, and per-pattern match tallies.
 - **Note title resolver** extracts a display title using frontmatter, first H1 heading after removing comments and fenced code blocks, filename stem, or an `Untitled` fallback.
 
 These components are consumed by scanners, loaders, and adopt/roadmap commands to prevent memory pressure, avoid writing unreadable notes, select files predictably, and mint stable titles.
-
-**Section sources**
-- [source-cap.ts:1-109](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/source-cap.ts#L1-L109)
-- [pattern-matcher.ts:1-628](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/pattern-matcher.ts#L1-L628)
-- [note-title.ts:1-91](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/note-title.ts#L1-L91)
 
 ## Architecture Overview
 The subsystems form a defensive boundary around vault I/O and CLI operations.
@@ -113,15 +80,6 @@ sequenceDiagram
   CLI->>SourceCap: "noteContentExceedsReadCap(writtenContent)"
   SourceCap-->>CLI: "write-safe / oversized-write diagnostic"
 ```
-
-**Diagram sources**
-- [scanner.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L1-L40)
-- [loader.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L60)
-- [source-cap.ts:1-109](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/source-cap.ts#L1-L109)
-- [pattern-matcher.ts:1-628](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/pattern-matcher.ts#L1-L628)
-- [note-title.ts:1-91](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/note-title.ts#L1-L91)
-- [adopt.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L100)
-- [roadmap.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L1-L100)
 
 ## Detailed Component Analysis
 
@@ -158,24 +116,11 @@ flowchart TD
   Process --> End(["Continue pipeline"])
 ```
 
-**Diagram sources**
-- [source-cap.ts:40-85](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/source-cap.ts#L40-L85)
-- [scanner.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L1-L40)
-- [loader.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L60)
-
 #### Integration Points
 - **Scanner**: Uses the shared ceiling and diagnostic when scanning vault notes.
 - **Loader**: Imports the ceiling constant and participates in bounded topic loading.
 - **Adopt command**: Applies both read-side and write-side guards, including pre-write checks for managed frontmatter growth.
 - **Roadmap import**: Reuses the same cap functions for imported roadmap topics.
-
-**Section sources**
-- [source-cap.ts:1-109](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/source-cap.ts#L1-L109)
-- [scanner.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L1-L40)
-- [loader.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L60)
-- [adopt.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L100)
-- [roadmap.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L1-L100)
-- [storage-source-cap.test.ts:1-96](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-source-cap.test.ts#L1-L96)
 
 ### Pattern Matching Engine
 The pattern matcher supports CLI include/exclude/tag filters with a documented glob dialect and safe performance guarantees.
@@ -222,9 +167,6 @@ flowchart TD
   Done -->|No| ReturnFalse["Return false"]
 ```
 
-**Diagram sources**
-- [pattern-matcher.ts:201-420](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/pattern-matcher.ts#L201-L420)
-
 #### Tag Matching
 - Tags are extracted from arrays, comma/space-delimited strings, or null/undefined values.
 - Leading `#` markers are stripped and tags are lowercased.
@@ -242,16 +184,9 @@ flowchart TD
   Match -->|No| TDone["Return false"]
 ```
 
-**Diagram sources**
-- [pattern-matcher.ts:420-628](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/pattern-matcher.ts#L420-L628)
-
 #### Validation and Accounting
 - `validatePattern` compiles patterns through a validation regex builder and throws descriptive errors for invalid expressions.
 - `tallyPatterns` counts matches per distinct normalized pattern, enabling diagnostic reporting rather than only aggregate pass/fail results.
-
-**Section sources**
-- [pattern-matcher.ts:1-628](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/pattern-matcher.ts#L1-L628)
-- [storage-pattern-matcher.test.ts:1-184](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-pattern-matcher.test.ts#L1-L184)
 
 ### Note Title Resolution and Normalization
 Title resolution follows a deterministic priority order.
@@ -288,13 +223,6 @@ flowchart TD
   FileFallback -->|No| ReturnUntitled["Return 'Untitled'"]
 ```
 
-**Diagram sources**
-- [note-title.ts:1-91](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/note-title.ts#L1-L91)
-
-**Section sources**
-- [note-title.ts:1-91](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/note-title.ts#L1-L91)
-- [storage-note-title.test.ts:1-31](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-note-title.test.ts#L1-L31)
-
 ## Dependency Analysis
 The subsystems have clear boundaries and limited coupling.
 
@@ -311,14 +239,6 @@ graph LR
   NoteTitle --> AutoChain["engine/auto-chain.ts"]
 ```
 
-**Diagram sources**
-- [scanner.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L1-L40)
-- [loader.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L60)
-- [adopt.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L100)
-- [roadmap.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L1-L100)
-- [pattern-matcher.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/pattern-matcher.ts#L1-L40)
-- [note-title.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/note-title.ts#L1-L30)
-
 ### Coupling and Cohesion
 - **Source cap** is a leaf utility with no internal dependencies beyond Node.js buffers and exported constants.
 - **Pattern matcher** depends on vault walker identity folding and exports public matching APIs.
@@ -329,12 +249,6 @@ graph LR
 - File system reads and sizes flow through scanner/loader into the source cap.
 - Pattern matching operates on already-scoped paths returned by higher-level walk logic.
 - Title resolution may be called during single-file adoption and batch adoption when minting titles.
-
-**Section sources**
-- [pattern-matcher.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/pattern-matcher.ts#L1-L40)
-- [note-title.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/note-title.ts#L1-L30)
-- [adopt.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L100)
-- [roadmap.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L1-L100)
 
 ## Performance Considerations
 
@@ -359,8 +273,6 @@ graph LR
 - Use `tallyPatterns` for diagnostic reporting when investigating slow or broad include/exclude filters.
 - Keep glob patterns specific to reduce unnecessary comparisons across thousands of vault paths.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 
 ### Notes Are Skipped During Scanning
@@ -371,20 +283,12 @@ graph LR
 - Inspect the scan diagnostic for “Oversized source” and the stated ceiling.
 - Reduce the note size or split it into smaller notes.
 
-**Section sources**
-- [source-cap.ts:1-109](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/source-cap.ts#L1-L109)
-- [storage-source-cap.test.ts:1-96](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-source-cap.test.ts#L1-L96)
-
 ### Adoption Succeeds but the Topic Disappears Later
 **Symptoms**: Adoption reports success, but subsequent scans do not load the topic.  
 **Likely cause**: Managed frontmatter increased the note past the read ceiling.  
 **What to check**:
 - Use the oversized write diagnostic to confirm the resulting UTF-8 size would exceed the ceiling.
 - Avoid adding excessive metadata that pushes the final note over 512 KiB.
-
-**Section sources**
-- [source-cap.ts:60-109](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/source-cap.ts#L60-L109)
-- [storage-source-cap.test.ts:1-96](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-source-cap.test.ts#L1-L96)
 
 ### Include or Exclude Filters Do Not Match Expected Files
 **Symptoms**: Files are unexpectedly included or excluded.  
@@ -400,10 +304,6 @@ graph LR
 - Use `tallyPatterns` to see how many paths each pattern matched.
 - Ensure accents and Unicode forms are consistent across the vault and configuration.
 
-**Section sources**
-- [pattern-matcher.ts:201-420](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/pattern-matcher.ts#L201-L420)
-- [storage-pattern-matcher.test.ts:1-184](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-pattern-matcher.test.ts#L1-L184)
-
 ### Tag Filters Do Not Match Hierarchical Tags
 **Symptoms**: A tag filter like `cloud` or `domain/cloud` does not select expected notes.  
 **Likely causes**:
@@ -415,10 +315,6 @@ graph LR
 - Normalize tags by removing leading `#` and lowercasing.
 - Use exact, prefix, suffix, or infix segment matches intentionally.
 - Validate the note’s frontmatter tags shape.
-
-**Section sources**
-- [pattern-matcher.ts:420-628](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/pattern-matcher.ts#L420-L628)
-- [storage-pattern-matcher.test.ts:1-184](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-pattern-matcher.test.ts#L1-L184)
 
 ### Minted Titles Are Unexpected
 **Symptoms**: A note’s displayed title comes from a code example, filename, or `Untitled`.  
@@ -434,10 +330,6 @@ graph LR
 - Close all code fences.
 - Provide a meaningful filename stem as a reliable fallback.
 
-**Section sources**
-- [note-title.ts:1-91](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/note-title.ts#L1-L91)
-- [storage-note-title.test.ts:1-31](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-note-title.test.ts#L1-L31)
-
 ## Conclusion
 PALEE’s source cap, pattern matching, and note title resolution subsystems work together to keep vault processing safe, predictable, and efficient:
 
@@ -447,4 +339,31 @@ PALEE’s source cap, pattern matching, and note title resolution subsystems wor
 
 For large vaults, prefer precise patterns, pre-scanned file lists, and explicit frontmatter titles. When diagnosing problems, consult the size diagnostics, per-pattern tallies, and title-resolution fallback order.
 
-[No sources needed since this section summarizes without analyzing specific files]
+## References
+
+- [source-cap.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/source-cap.ts)
+- [pattern-matcher.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/pattern-matcher.ts)
+- [note-title.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/note-title.ts)
+- [scanner.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts)
+- [loader.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts)
+- [adopt.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts)
+- [roadmap.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts)
+- [storage-source-cap.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-source-cap.test.ts)
+- [storage-pattern-matcher.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-pattern-matcher.test.ts)
+- [storage-note-title.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-note-title.test.ts)
+- [adopt.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L100)
+- [roadmap.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L1-L100)
+- [scanner.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L1-L40)
+- [loader.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L60)
+- [source-cap.ts:1-109](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/source-cap.ts#L1-L109)
+- [pattern-matcher.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/pattern-matcher.ts#L1-L40)
+- [note-title.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/note-title.ts#L1-L30)
+- [pattern-matcher.ts:1-628](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/pattern-matcher.ts#L1-L628)
+- [note-title.ts:1-91](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/note-title.ts#L1-L91)
+- [source-cap.ts:40-85](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/source-cap.ts#L40-L85)
+- [storage-source-cap.test.ts:1-96](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-source-cap.test.ts#L1-L96)
+- [pattern-matcher.ts:201-420](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/pattern-matcher.ts#L201-L420)
+- [pattern-matcher.ts:420-628](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/pattern-matcher.ts#L420-L628)
+- [storage-pattern-matcher.test.ts:1-184](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-pattern-matcher.test.ts#L1-L184)
+- [storage-note-title.test.ts:1-31](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-note-title.test.ts#L1-L31)
+- [source-cap.ts:60-109](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/source-cap.ts#L60-L109)

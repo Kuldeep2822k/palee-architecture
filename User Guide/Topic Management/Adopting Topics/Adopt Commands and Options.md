@@ -13,7 +13,7 @@
 - [wikilink.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/wikilink.ts)
 - [atomic-write.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/atomic-write.ts)
 - [exit-codes.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/src/cli/exit-codes.ts)
-- [02-1-topic-management-commands.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/docs/02-1-topic-management-commands.md)
+- [02-1-topic-management-commands.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/02-1-topic-management-commands.md)
 
 :::
 
@@ -47,30 +47,6 @@ graph TB
     Wikilink["Wikilink parser<br/>src/src/storage/wikilink.ts"] --> PrereqText
 ```
 
-**Diagram sources**
-- [adopt.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/cli/adopt.ts#L1-L200)
-- [adopt-undo.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/cli/adopt-undo.ts#L1-L200)
-- [scanner.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/scanner.ts#L1-L200)
-- [vault-walker.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/vault-walker.ts#L1-L200)
-- [pattern-matcher.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/pattern-matcher.ts#L1-L200)
-- [frontmatter.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/frontmatter.ts#L1-L200)
-- [topic-id.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/engine/topic-id.ts#L1-L200)
-- [prereq-text.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/engine/prereq-text.ts#L1-L200)
-- [wikilink.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/wikilink.ts#L1-L200)
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/atomic-write.ts#L1-L200)
-
-**Section sources**
-- [adopt.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/cli/adopt.ts#L1-L200)
-- [scanner.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/scanner.ts#L1-L200)
-- [vault-walker.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/vault-walker.ts#L1-L200)
-- [pattern-matcher.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/pattern-matcher.ts#L1-L200)
-- [frontmatter.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/frontmatter.ts#L1-L200)
-- [topic-id.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/engine/topic-id.ts#L1-L200)
-- [prereq-text.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/engine/prereq-text.ts#L1-L200)
-- [wikilink.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/wikilink.ts#L1-L200)
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/atomic-write.ts#L1-L200)
-- [adopt-undo.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/cli/adopt-undo.ts#L1-L200)
-
 ## Core Components
 - **CLI adopt entry point**: Parses user options, validates inputs, selects target files, runs adoption per file, aggregates results, and prints status information.
 - **CLI adopt undo**: Locates a matching prior adoption session and restores files to their pre-adoption content.
@@ -80,16 +56,6 @@ graph TB
 - **Prerequisite text extractor**: Reads wikilinks from note content and resolves referenced prerequisite titles.
 - **Atomic writer**: Writes updated note content safely using temporary files and rename semantics.
 - **Exit code definitions**: Maps operational outcomes to stable process exit codes.
-
-**Section sources**
-- [adopt.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/cli/adopt.ts#L1-L200)
-- [adopt-undo.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/cli/adopt-undo.ts#L1-L200)
-- [scanner.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/scanner.ts#L1-L200)
-- [frontmatter.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/frontmatter.ts#L1-L200)
-- [topic-id.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/engine/topic-id.ts#L1-L200)
-- [prereq-text.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/engine/prereq-text.ts#L1-L200)
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/atomic-write.ts#L1-L200)
-- [exit-codes.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/cli/exit-codes.ts#L1-L200)
 
 ## Architecture Overview
 The adoption workflow follows a predictable pipeline:
@@ -124,16 +90,6 @@ sequenceDiagram
     CLI-->>User: summary, formatted output, exit code
 ```
 
-**Diagram sources**
-- [adopt.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/cli/adopt.ts#L1-L200)
-- [vault-walker.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/vault-walker.ts#L1-L200)
-- [scanner.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/scanner.ts#L1-L200)
-- [pattern-matcher.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/pattern-matcher.ts#L1-L200)
-- [frontmatter.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/frontmatter.ts#L1-L200)
-- [topic-id.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/engine/topic-id.ts#L1-L200)
-- [prereq-text.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/engine/prereq-text.ts#L1-L200)
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/atomic-write.ts#L1-L200)
-
 ## Detailed Component Analysis
 
 ### CLI adopt Command and Options
@@ -151,10 +107,6 @@ The adopt command exposes the following behavior:
 | Output formatting flags | Controls result presentation | Supports human-readable summaries, machine-parseable structures, and log verbosity. |
 
 The command validates that at least one selection mechanism is present, such as positional file arguments, `--pattern`, or directory-style paths. When multiple mechanisms are supplied, they are combined according to the implementation’s precedence rules.
-
-**Section sources**
-- [adopt.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/cli/adopt.ts#L1-L200)
-- [02-1-topic-management-commands.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/docs/docs/02-1-topic-management-commands.md#L1-L200)
 
 ### Adoption Workflow Logic
 Adoption proceeds through these stages:
@@ -182,18 +134,6 @@ flowchart TD
     Aggregate --> Exit(["Exit with summary and status code"])
 ```
 
-**Diagram sources**
-- [adopt.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/cli/adopt.ts#L1-L200)
-- [scanner.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/scanner.ts#L1-L200)
-- [pattern-matcher.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/pattern-matcher.ts#L1-L200)
-- [frontmatter.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/frontmatter.ts#L1-L200)
-- [topic-id.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/engine/topic-id.ts#L1-L200)
-- [prereq-text.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/engine/prereq-text.ts#L1-L200)
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/atomic-write.ts#L1-L200)
-
-**Section sources**
-- [adopt.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/cli/adopt.ts#L1-L200)
-
 ### Vault Scanning and Glob Filtering
 The scanner relies on the vault walker to enumerate candidate files and then applies the user-provided glob pattern. The pattern matcher normalizes paths before comparison so that Windows and POSIX-style separators behave consistently.
 
@@ -213,16 +153,6 @@ flowchart TD
     Exclude --> Result["Final candidate set"]
 ```
 
-**Diagram sources**
-- [vault-walker.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/vault-walker.ts#L1-L200)
-- [scanner.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/scanner.ts#L1-L200)
-- [pattern-matcher.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/pattern-matcher.ts#L1-L200)
-
-**Section sources**
-- [vault-walker.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/vault-walker.ts#L1-L200)
-- [scanner.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/scanner.ts#L1-L200)
-- [pattern-matcher.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/pattern-matcher.ts#L1-L200)
-
 ### YAML Frontmatter Parsing and Validation
 The frontmatter layer reads YAML metadata and exposes fields used by adoption:
 - `topic_id`: Optional explicit topic identifier.
@@ -231,19 +161,12 @@ The frontmatter layer reads YAML metadata and exposes fields used by adoption:
 
 Parsing failures are reported per file rather than aborting the entire batch, allowing partial runs to complete while surfacing malformed notes.
 
-**Section sources**
-- [frontmatter.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/frontmatter.ts#L1-L200)
-
 ### Topic ID Generation and Validation
 Topic IDs are central to Palee’s identity model. The topic ID component supports two modes:
 - **Automatic generation**: Derives a stable topic ID from the note’s filename stem and vault-relative path.
 - **Explicit assignment**: Uses `--topic-id` when supplied.
 
 When automatic generation is active, existing `topic_id` values are validated against the expected contract. If `--force` is provided, conflicting but resolvable metadata may be overwritten; otherwise, the command skips or fails the affected file depending on severity.
-
-**Section sources**
-- [topic-id.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/engine/topic-id.ts#L1-L200)
-- [adopt.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/cli/adopt.ts#L1-L200)
 
 ### Prerequisite Text Extraction from Wikilinks
 When `--prereq-text` is enabled, the engine reads note content and parses wikilinks. For each linked target:
@@ -263,14 +186,6 @@ flowchart TD
     BuildEntry --> Merge["Merge into frontmatter"]
 ```
 
-**Diagram sources**
-- [wikilink.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/wikilink.ts#L1-L200)
-- [prereq-text.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/engine/prereq-text.ts#L1-L200)
-
-**Section sources**
-- [wikilink.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/wikilink.ts#L1-L200)
-- [prereq-text.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/engine/prereq-text.ts#L1-L200)
-
 ### Atomic File Updates
 All adopted changes go through the atomic writer. Instead of overwriting files directly, it:
 1. Creates a temporary file in a safe location.
@@ -280,9 +195,6 @@ All adopted changes go through the atomic writer. Instead of overwriting files d
 
 This design reduces corruption risk when adoption is interrupted or encounters I/O errors.
 
-**Section sources**
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/atomic-write.ts#L1-L200)
-
 ### Adopt Undo
 `palee adopt undo` looks for a prior adoption session associated with the current vault and restores files to their pre-adoption state. It should be used when:
 - An adoption run produced incorrect metadata.
@@ -291,9 +203,6 @@ This design reduces corruption risk when adoption is interrupted or encounters I
 
 Undo requires a valid session record; otherwise, it reports that no recovery data is available.
 
-**Section sources**
-- [adopt-undo.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/cli/adopt-undo.ts#L1-L200)
-
 ### Integration with Topic Query System
 Conditional adoption can be driven by existing topic state. Before adopting a file, the CLI may query the topic store to determine whether:
 - A topic with the same identifier already exists.
@@ -301,9 +210,6 @@ Conditional adoption can be driven by existing topic state. Before adopting a fi
 - Conditional rules permit proceeding.
 
 This integration prevents accidental overwrites and supports workflows where only new or eligible notes should be adopted.
-
-**Section sources**
-- [adopt.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/cli/adopt.ts#L1-L200)
 
 ## Dependency Analysis
 
@@ -319,28 +225,6 @@ graph LR
     VaultWalker["vault-walker.ts"] --> Scanner
 ```
 
-**Diagram sources**
-- [adopt.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/cli/adopt.ts#L1-L200)
-- [scanner.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/scanner.ts#L1-L200)
-- [pattern-matcher.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/pattern-matcher.ts#L1-L200)
-- [frontmatter.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/frontmatter.ts#L1-L200)
-- [topic-id.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/engine/topic-id.ts#L1-L200)
-- [prereq-text.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/engine/prereq-text.ts#L1-L200)
-- [wikilink.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/wikilink.ts#L1-L200)
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/atomic-write.ts#L1-L200)
-- [vault-walker.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/vault-walker.ts#L1-L200)
-
-**Section sources**
-- [adopt.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/cli/adopt.ts#L1-L200)
-- [scanner.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/scanner.ts#L1-L200)
-- [pattern-matcher.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/pattern-matcher.ts#L1-L200)
-- [frontmatter.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/frontmatter.ts#L1-L200)
-- [topic-id.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/engine/topic-id.ts#L1-L200)
-- [prereq-text.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/engine/prereq-text.ts#L1-L200)
-- [wikilink.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/wikilink.ts#L1-L200)
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/atomic-write.ts#L1-L200)
-- [vault-walker.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/vault-walker.ts#L1-L200)
-
 ## Performance Considerations
 Large vaults with thousands of files require careful use of selection options:
 
@@ -351,8 +235,6 @@ Large vaults with thousands of files require careful use of selection options:
 - **Expect linear scanning cost**: Vault traversal is proportional to discovered files; pattern filtering reduces downstream work.
 - **Watch memory usage**: Very large batches keep many parsed notes in memory until completion; consider splitting across runs.
 - **Atomic writes add I/O overhead**: Each successful adoption performs a write-and-rename operation.
-
-[No sources needed since this section provides general guidance]
 
 ## Troubleshooting Guide
 
@@ -376,9 +258,6 @@ Adopt-related commands map outcomes to exit codes defined in the exit-code modul
 
 Consult the exit-code definitions for exact numeric mappings and consult the command output for the human-readable reason.
 
-**Section sources**
-- [exit-codes.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/cli/exit-codes.ts#L1-L200)
-
 ### Recovery Procedures
 1. **Stop further changes**: Avoid running additional adoptions until the cause is understood.
 2. **Inspect per-file results**: Look for parse errors, validation failures, or write failures.
@@ -387,9 +266,20 @@ Consult the exit-code definitions for exact numeric mappings and consult the com
 5. **Rerun narrowly**: Limit the next attempt to the affected directory or file.
 6. **Validate afterward**: Run Palee validation commands to confirm schema integrity.
 
-**Section sources**
-- [adopt-undo.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/cli/adopt-undo.ts#L1-L200)
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/atomic-write.ts#L1-L200)
-
 ## Conclusion
 The `palee adopt` command is a controlled, vault-aware tool for converting notes into managed Palee topics. It combines glob-based scanning, YAML frontmatter parsing, robust topic ID handling, optional prerequisite extraction, and atomic file updates into a predictable workflow. By using `--pattern`, `--exclude`, `--topic-id`, `--status`, `--prereq-text`, `--dry-run`, and `--force` deliberately, users can safely adopt single files or large batches. When problems occur, undo, narrow retries, and validation provide reliable recovery paths.
+
+## References
+
+- [adopt.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/cli/adopt.ts#L1-L200)
+- [adopt-undo.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/cli/adopt-undo.ts#L1-L200)
+- [scanner.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/scanner.ts#L1-L200)
+- [vault-walker.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/vault-walker.ts#L1-L200)
+- [pattern-matcher.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/pattern-matcher.ts#L1-L200)
+- [frontmatter.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/frontmatter.ts#L1-L200)
+- [topic-id.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/engine/topic-id.ts#L1-L200)
+- [prereq-text.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/engine/prereq-text.ts#L1-L200)
+- [wikilink.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/wikilink.ts#L1-L200)
+- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/atomic-write.ts#L1-L200)
+- [exit-codes.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/cli/exit-codes.ts#L1-L200)
+- [02-1-topic-management-commands.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/docs/02-1-topic-management-commands.md#L1-L200)

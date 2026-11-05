@@ -70,20 +70,6 @@ graph TB
     DC --> T
 ```
 
-**Diagram sources**
-- [roadmap.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L1-L200)
-- [dashboard.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L200)
-- [roadmap-parser.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/roadmap-parser.ts#L1-L200)
-- [auto-chain.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L200)
-- [wikilink.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L1-L200)
-- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
-- [types.ts:793-931](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L793-L931)
-
-**Section sources**
-- [roadmap.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L1-L200)
-- [dashboard.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L200)
-- [types.ts:793-931](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L793-L931)
-
 ## Core Components
 ### Roadmap Command
 The roadmap command implements a safe, deterministic import pipeline:
@@ -102,11 +88,6 @@ Key behaviors:
 - Existing notes with a conflicting declared `palee_id` are rejected to avoid silently retiring identities.
 - Oversized notes are refused consistently across read and write paths.
 
-**Section sources**
-- [roadmap.ts:201-533](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L201-L533)
-- [roadmap.ts:534-842](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L534-L842)
-- [types.ts:843-931](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L843-L931)
-
 ### Dashboard Command
 The dashboard command produces a learning summary over the vault’s loaded topics:
 
@@ -117,10 +98,6 @@ The dashboard command produces a learning summary over the vault’s loaded topi
 - Groups topics by beginner, intermediate, and advanced difficulty.
 - Determines the next actionable topic using the same gating logic as `next`/`plan`.
 - Renders either a human-readable text table or a structured JSON object.
-
-**Section sources**
-- [dashboard.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L200)
-- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
 
 ## Architecture Overview
 The roadmap command composes several layers to ensure safety and determinism.
@@ -161,12 +138,6 @@ sequenceDiagram
     end
 ```
 
-**Diagram sources**
-- [roadmap.ts:201-842](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L201-L842)
-- [roadmap-parser.ts:1-270](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/roadmap-parser.ts#L1-L270)
-- [wikilink.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L1-L200)
-- [auto-chain.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L200)
-
 ## Detailed Component Analysis
 
 ### Roadmap File Structure and Topic Model
@@ -183,10 +154,6 @@ A roadmap defines one or more topics. Each topic carries:
 | `order` | number | No | Controls synthetic chaining order; topics with numbers sort before those without. |
 
 The roadmap file itself contains a `topics` array.
-
-**Section sources**
-- [types.ts:908-931](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L908-L931)
-- [roadmap.ts:843-861](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L843-L861)
 
 ### Import Formats and Parsing Rules
 The parser tries four formats in this priority:
@@ -225,13 +192,6 @@ flowchart TD
     CheckWiki -->|No| Fallback["Error: missing topics array"]
 ```
 
-**Diagram sources**
-- [roadmap-parser.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/roadmap-parser.ts#L1-L200)
-- [roadmap-parser.ts:201-270](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/roadmap-parser.ts#L201-L270)
-
-**Section sources**
-- [roadmap-parser.ts:1-270](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/roadmap-parser.ts#L1-L270)
-
 ### Frontmatter Processing and Field Resolution
 When importing, the roadmap writes only the managed fields necessary to represent the learner’s intent. The single source of truth for field resolution is a helper that derives effective frontmatter values:
 
@@ -243,10 +203,6 @@ When importing, the roadmap writes only the managed fields necessary to represen
 - Missing pillar scores resolve to `undefined` rather than `0.0`, so an import does not mint assessment data unless the note already carries it.
 
 This design avoids accidental loss of review state and ensures that validation and writeback use identical rules.
-
-**Section sources**
-- [roadmap.ts:201-333](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L201-L333)
-- [roadmap.ts:793-842](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L793-L842)
 
 ### Wikilink Resolution
 For the wikilink roadmap format, each `[[target]]` is resolved against the vault:
@@ -274,12 +230,6 @@ flowchart TD
     Size -->|Too large| Rejected
     Size -->|OK| Final["Return resolved note"]
 ```
-
-**Diagram sources**
-- [wikilink.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L1-L200)
-
-**Section sources**
-- [wikilink.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L1-L200)
 
 ### Auto-Chaining with `--auto-chain`
 Auto-chaining is available for non-wikilink roadmap formats. It chains topics by their `order` field:
@@ -311,12 +261,6 @@ flowchart TD
     Next --> End(["Return synthesized and skipped edges"])
 ```
 
-**Diagram sources**
-- [roadmap.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L1-L200)
-
-**Section sources**
-- [roadmap.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L1-L200)
-
 ### Ordering by Number Fields
 Two ordering concepts exist:
 
@@ -324,10 +268,6 @@ Two ordering concepts exist:
 2. **Lesson numbering in vault structure**: used by the auto-chain planner when deriving chains from directory/file names. Numeric prefixes such as `01-foundations` are parsed strictly: they require 1–3 digits followed by a separator or end-of-name, rejecting year-like strings such as `2024-recap` and word-like strings such as `3d-printing`.
 
 The lesson planner groups notes by parent directory, sorts directories segment by segment, and creates backward-pointing edges so every note depends on its predecessor. This construction is acyclic by design, but callers still run cycle detection because pre-existing vault cycles may already exist.
-
-**Section sources**
-- [auto-chain.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L200)
-- [auto-chain.ts:201-450](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L201-L450)
 
 ### Dependency Resolution and Validation
 The roadmap command builds a topic graph from:
@@ -350,9 +290,6 @@ Validation includes:
 
 If any validation rule fails, the command prints all errors and exits with a validation error code; no files are written.
 
-**Section sources**
-- [roadmap.ts:534-842](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L534-L842)
-
 ### Dry-Run Planning
 Use `--dry-run` to preview changes without modifying the vault:
 
@@ -363,19 +300,12 @@ Use `--dry-run` to preview changes without modifying the vault:
 - Returns successfully if the plan is valid; returns a validation error if the real import would fail.
 - Writes zero bytes.
 
-**Section sources**
-- [roadmap.ts:534-842](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L534-L842)
-
 ### Confirmation Prompts
 The roadmap command’s interface supports a `--yes` option through its typed options, but the documented handler emphasizes dry-run planning and explicit confirmation workflows. In practice:
 
 - Without confirmation automation, users inspect the validation and dry-run output before approving changes.
 - With `--yes`, automated workflows can proceed after reviewing the dry-run plan.
 - For interactive approval, users should combine dry-run inspection with the intended confirmation flow defined by their environment.
-
-**Section sources**
-- [types.ts:843-861](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L843-L861)
-- [roadmap.ts:534-842](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L534-L842)
 
 ### Dashboard Metrics and Interpretation
 The dashboard summarizes:
@@ -408,14 +338,6 @@ flowchart TD
     Render -->|Text| TextOut["Human-readable dashboard"]
 ```
 
-**Diagram sources**
-- [dashboard.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L200)
-- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
-
-**Section sources**
-- [dashboard.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L200)
-- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
-
 ## Dependency Analysis
 The following diagram shows how the roadmap command depends on supporting modules.
 
@@ -431,27 +353,12 @@ graph LR
     DC --> T
 ```
 
-**Diagram sources**
-- [roadmap.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L1-L200)
-- [dashboard.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L200)
-- [roadmap-parser.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/roadmap-parser.ts#L1-L200)
-- [wikilink.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L1-L200)
-- [auto-chain.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L200)
-- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
-- [types.ts:793-931](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L793-L931)
-
-**Section sources**
-- [roadmap.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L1-L200)
-- [dashboard.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L200)
-
 ## Performance Considerations
 - **Oversized notes**: Both reading and writing paths enforce a read-cap guard, refusing oversized notes consistently. This prevents memory exhaustion and keeps import behavior predictable.
 - **Cycle enumeration limit**: Cycle detection reports truncation after a bounded number of cycles, helping avoid unbounded traversal while still surfacing enough information to diagnose loops.
 - **Single-source-of-truth derivation**: Field resolution is centralized so validation and writeback do not diverge, reducing redundant computation and debugging complexity.
 - **Indexing for wikilink resolution**: A folded basename index is built once per resolution pass, avoiding repeated filesystem scans.
 - **Archived-topic filtering**: Dashboard metrics exclude archived topics from derived figures, keeping analytics aligned with active learning scope.
-
-[No sources needed since this section provides general guidance]
 
 ## Troubleshooting Guide
 
@@ -474,10 +381,6 @@ graph LR
 | Wikilink ambiguous | Multiple notes share the same folded basename. | Disambiguate by renaming notes or linking to a unique path. |
 | Dry-run says nothing was written | Dry-run intentionally never modifies files. | Inspect the printed plan and run the real import only after approval. |
 
-**Section sources**
-- [roadmap.ts:201-842](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L201-L842)
-- [wikilink.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L1-L200)
-
 ### Interpreting Dashboard Outputs
 
 | Dashboard Observation | Interpretation |
@@ -488,10 +391,6 @@ graph LR
 | `next_review` is null | No actionable non-archived topic is currently recommended by prerequisite gating. |
 | Archived topics appear in totals but not percentages | Archived notes are counted for completeness but excluded from active progress metrics. |
 | Difficulty breakdown shows many unmatured advanced topics | Advanced topics may need prerequisite work or additional review. |
-
-**Section sources**
-- [dashboard.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L200)
-- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
 
 ### Creating Roadmaps from Existing Note Collections
 
@@ -527,11 +426,29 @@ Create a Markdown file with `palee_roadmap: true` and define one or more `## Tra
 #### Example 3: Use `--auto-chain` with Existing Notes
 Provide a roadmap where some topics omit `depends_on`. Enable `--auto-chain` so PALEE synthesizes a chain based on `order` and existing vault structure. Review warnings about skipped edges that would close cycles.
 
-[No sources needed since this section provides general guidance]
-
 ## Conclusion
 PALEE’s roadmap command provides a safe, validated pathway for importing structured learning plans. It supports multiple input formats, preserves existing vault state according to explicit user intent, detects dangerous configuration early, and offers dry-run previews before committing changes. Its wikilink support integrates naturally with Markdown-based knowledge bases, while auto-chaining helps learners establish deterministic learning sequences.
 
 The dashboard command complements planning by turning stored mastery and scheduling data into actionable analytics. It distinguishes mastered, learning, and new topics, highlights due reviews, breaks down progress by difficulty, and surfaces the next recommended topic. Together, these commands enable learners to plan carefully, import safely, and interpret progress clearly.
 
-[No sources needed since this section summarizes without analyzing specific files]
+## References
+
+- [roadmap.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L1-L200)
+- [dashboard.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L200)
+- [roadmap-parser.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/roadmap-parser.ts#L1-L200)
+- [auto-chain.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L200)
+- [wikilink.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L1-L200)
+- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
+- [types.ts:793-931](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L793-L931)
+- [roadmap.ts:201-533](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L201-L533)
+- [roadmap.ts:534-842](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L534-L842)
+- [types.ts:843-931](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L843-L931)
+- [roadmap.ts:201-842](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L201-L842)
+- [roadmap-parser.ts:1-270](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/roadmap-parser.ts#L1-L270)
+- [types.ts:908-931](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L908-L931)
+- [roadmap.ts:843-861](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L843-L861)
+- [roadmap-parser.ts:201-270](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/roadmap-parser.ts#L201-L270)
+- [roadmap.ts:201-333](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L201-L333)
+- [roadmap.ts:793-842](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L793-L842)
+- [auto-chain.ts:201-450](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L201-L450)
+- [types.ts:843-861](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L843-L861)

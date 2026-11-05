@@ -60,19 +60,6 @@ graph TB
   ADR30 --> WFTEST
 ```
 
-**Diagram sources**
-- [ADR-0026: Test Discipline — Falsifiability Over Ceremony:1-79](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0026-test-discipline.md#L1-L79)
-- [ADR-0029: Test-Time CLI Launch Policy:1-97](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0029-test-cli-launch-policy.md#L1-L97)
-- [ADR-0030: Installed-Artifact CI Evidence:1-66](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0030-installed-artifact-ci-evidence.md#L1-L66)
-- [ADR-0031: Documentation Truth — Current-State Docs, Labeled History:1-67](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0031-documentation-truth.md#L1-L67)
-- [Smoke Script for Installed Artifacts:1-87](https://github.com/Kuldeep2822k/cli/blob/main/scripts/smoke-installed.js#L1-L87)
-- [CI Workflow Matrix Parity Test:1-187](https://github.com/Kuldeep2822k/cli/blob/main/test/ci-workflow-matrix.test.ts#L1-L187)
-
-**Section sources**
-- [ADR-0026: Test Discipline — Falsifiability Over Ceremony:1-79](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0026-test-discipline.md#L1-L79)
-- [ADR-0030: Installed-Artifact CI Evidence:1-66](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0030-installed-artifact-ci-evidence.md#L1-L66)
-- [ADR-0031: Documentation Truth — Current-State Docs, Labeled History:1-67](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0031-documentation-truth.md#L1-L67)
-
 ## Core Components
 PALEE’s development process can be understood as four interacting components:
 
@@ -82,12 +69,6 @@ PALEE’s development process can be understood as four interacting components:
 | CLI launch policy | Ensure tests exercise the same runtime and lifecycle they would under normal or coverage execution | No unbounded child process; no PATH-resolved `node` divergence | Shared helpers, per-spawn timeout, tsx vs dist lineage choice |
 | Installed artifact evidence | Prove the installed package works end-to-end | One real command after global install on every platform | `palee next --json` against an empty isolated vault |
 | Documentation truth | Keep prose readable and correct without losing design history | Current-state docs + labeled history | Source-backed numbers, Phase 2 caveats, dated architecture snapshots |
-
-**Section sources**
-- [ADR-0026: Test Discipline — Falsifiability Over Ceremony:10-79](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0026-test-discipline.md#L10-L79)
-- [ADR-0029: Test-Time CLI Launch Policy:1-97](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0029-test-cli-launch-policy.md#L1-L97)
-- [ADR-0030: Installed-Artifact CI Evidence:1-66](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0030-installed-artifact-ci-evidence.md#L1-L66)
-- [ADR-0031: Documentation Truth — Current-State Docs, Labeled History:1-67](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0031-documentation-truth.md#L1-L67)
 
 ## Architecture Overview
 The development pipeline ties test philosophy to CI and documentation maintenance through concrete files:
@@ -111,13 +92,6 @@ sequenceDiagram
   CI->>Guard: Parse workflows and smoke script usage
   Guard-->>CI: Assert matrix parity, ordering, existence
 ```
-
-**Diagram sources**
-- [ADR-0026: Test Discipline — Falsifiability Over Ceremony:10-79](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0026-test-discipline.md#L10-L79)
-- [ADR-0029: Test-Time CLI Launch Policy:1-97](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0029-test-cli-launch-policy.md#L1-L97)
-- [ADR-0030: Installed-Artifact CI Evidence:1-66](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0030-installed-artifact-ci-evidence.md#L1-L66)
-- [Smoke Script for Installed Artifacts:1-87](https://github.com/Kuldeep2822k/cli/blob/main/scripts/smoke-installed.js#L1-L87)
-- [CI Workflow Matrix Parity Test:1-187](https://github.com/Kuldeep2822k/cli/blob/main/test/ci-workflow-matrix.test.ts#L1-L187)
 
 ## Detailed Component Analysis
 
@@ -153,12 +127,6 @@ flowchart TD
   NegativeControl --> End
 ```
 
-**Diagram sources**
-- [ADR-0026: Test Discipline — Falsifiability Over Ceremony:10-79](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0026-test-discipline.md#L10-L79)
-
-**Section sources**
-- [ADR-0026: Test Discipline — Falsifiability Over Ceremony:1-79](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0026-test-discipline.md#L1-L79)
-
 ### Test-Time CLI Launch Policy
 PALEE’s tests launch CLI children through shared helpers so that subprocesses use the same runtime, environment layering, and bounded timeouts as intended. During coverage runs, children use the TypeScript sources through `tsx`; normal runs use the prebuilt distribution entry. This distinction exists because merging coverage reports from two different transform lineages caused function attribution loss that lowered reported function coverage below the threshold.
 
@@ -181,12 +149,6 @@ flowchart TD
   Dist --> Timeout
   Timeout --> Result["Exit code, stdout, stderr"]
 ```
-
-**Diagram sources**
-- [ADR-0029: Test-Time CLI Launch Policy:1-97](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0029-test-cli-launch-policy.md#L1-L97)
-
-**Section sources**
-- [ADR-0029: Test-Time CLI Launch Policy:1-97](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0029-test-cli-launch-policy.md#L1-L97)
 
 ### Installed-Artifact CI Evidence
 Two CI jobs install the real package and check it: the pre-merge `smoke-install` job packs the tarball and installs it globally, and the release job repeats similar checks against the published package. The earlier flag probes (`--version`, `--help`) proved only that the shim resolved; they did not reach config loading, vault reading, JSON emission, or dependency interoperation.
@@ -221,16 +183,6 @@ sequenceDiagram
   WF->>WF: Assert smoke steps, order, and script existence
 ```
 
-**Diagram sources**
-- [ADR-0030: Installed-Artifact CI Evidence:1-66](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0030-installed-artifact-ci-evidence.md#L1-L66)
-- [Smoke Script for Installed Artifacts:1-87](https://github.com/Kuldeep2822k/cli/blob/main/scripts/smoke-installed.js#L1-L87)
-- [CI Workflow Matrix Parity Test:1-187](https://github.com/Kuldeep2822k/cli/blob/main/test/ci-workflow-matrix.test.ts#L1-L187)
-
-**Section sources**
-- [ADR-0030: Installed-Artifact CI Evidence:1-66](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0030-installed-artifact-ci-evidence.md#L1-L66)
-- [Smoke Script for Installed Artifacts:1-87](https://github.com/Kuldeep2822k/cli/blob/main/scripts/smoke-installed.js#L1-L87)
-- [CI Workflow Matrix Parity Test:1-187](https://github.com/Kuldeep2822k/cli/blob/main/test/ci-workflow-matrix.test.ts#L1-L187)
-
 ### Documentation Truth: Current-State Docs, Labeled History
 After auditing command invocations and documentation, PALEE adopted a split between current-user documentation and historical design records.
 
@@ -263,12 +215,6 @@ flowchart TD
   Snapshot -->|No| Update["Update stale statements<br/>not mislabel as current"]
 ```
 
-**Diagram sources**
-- [ADR-0031: Documentation Truth — Current-State Docs, Labeled History:1-67](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0031-documentation-truth.md#L1-L67)
-
-**Section sources**
-- [ADR-0031: Documentation Truth — Current-State Docs, Labeled History:1-67](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0031-documentation-truth.md#L1-L67)
-
 ### Conceptual Overview
 At a higher level, these decisions form a feedback loop:
 
@@ -286,8 +232,6 @@ flowchart LR
   Docs --> Review["Code and test review"]
   Review --> Tests
 ```
-
-[No sources needed since this diagram shows conceptual workflow, not actual code structure]
 
 ## Dependency Analysis
 The guiding decisions depend on several concrete files:
@@ -314,20 +258,6 @@ graph TB
   WFTest --> Smoke
 ```
 
-**Diagram sources**
-- [ADR-0026: Test Discipline — Falsifiability Over Ceremony:1-79](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0026-test-discipline.md#L1-L79)
-- [ADR-0029: Test-Time CLI Launch Policy:1-97](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0029-test-cli-launch-policy.md#L1-L97)
-- [ADR-0030: Installed-Artifact CI Evidence:1-66](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0030-installed-artifact-ci-evidence.md#L1-L66)
-- [ADR-0031: Documentation Truth — Current-State Docs, Labeled History:1-67](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0031-documentation-truth.md#L1-L67)
-- [Smoke Script for Installed Artifacts:1-87](https://github.com/Kuldeep2822k/cli/blob/main/scripts/smoke-installed.js#L1-L87)
-- [CI Workflow Matrix Parity Test:1-187](https://github.com/Kuldeep2822k/cli/blob/main/test/ci-workflow-matrix.test.ts#L1-L187)
-
-**Section sources**
-- [ADR-0026: Test Discipline — Falsifiability Over Ceremony:1-79](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0026-test-discipline.md#L1-L79)
-- [ADR-0029: Test-Time CLI Launch Policy:1-97](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0029-test-cli-launch-policy.md#L1-L97)
-- [ADR-0030: Installed-Artifact CI Evidence:1-66](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0030-installed-artifact-ci-evidence.md#L1-L66)
-- [ADR-0031: Documentation Truth — Current-State Docs, Labeled History:1-67](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0031-documentation-truth.md#L1-L67)
-
 ## Performance Considerations
 PALEE’s testing performance choices are intentional tradeoffs:
 
@@ -337,48 +267,38 @@ PALEE’s testing performance choices are intentional tradeoffs:
 - **Coverage children pay a per-spawn cold-start cost through `tsx`.** This was measured and retained because switching to the compiled distribution collapsed function coverage due to merged transform lineages.
 - **Installed artifact smoke adds a small global-install and command-execution cost**, but it proves a materially stronger claim than flag-only probes.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 
 ### A test looks like a guard but never fails
 Use the neutralization method: remove or neutralize the deciding predicate and run the suite. If the suite remains green, the guard is dead. Either add a fixture that makes it fail or delete it. Do not widen bounds or silence the issue.
 
-**Section sources**
-- [ADR-0026: Test Discipline — Falsifiability Over Ceremony:10-40](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0026-test-discipline.md#L10-L40)
-
 ### A complexity test flakes on CI
 Replace wall-clock thresholds with an equal-work comparison in the same process. Compare traversal counts or operation counts over synthetic inputs so the result depends on algorithmic behavior, not runner load.
-
-**Section sources**
-- [ADR-0026: Test Discipline — Falsifiability Over Ceremony:25-40](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0026-test-discipline.md#L25-L40)
 
 ### Expected-value tests pass even after changing the formula
 Do not derive expected values through the implementation under test. Compute them independently using the documented formula or specification.
 
-**Section sources**
-- [ADR-0026: Test Discipline — Falsifiability Over Ceremony:40-50](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0026-test-discipline.md#L40-L50)
-
 ### A CLI child hangs in CI
 Ensure it goes through the shared launcher helpers, which provide per-call timeouts and capture stdout/stderr. Unbounded direct spawns should be migrated to the bounded path; new direct spawns are checked by a shrinking allow-list guard.
-
-**Section sources**
-- [ADR-0029: Test-Time CLI Launch Policy:1-97](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0029-test-cli-launch-policy.md#L1-L97)
 
 ### Installed smoke passes locally but fails on CI
 Check whether the smoke step installs the artifact, clears loader overrides, runs after checkout, and invokes `scripts/smoke-installed.js` after `palee --help`. The workflow matrix test asserts these ordering and existence requirements.
 
-**Section sources**
-- [ADR-0030: Installed-Artifact CI Evidence:1-66](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0030-installed-artifact-ci-evidence.md#L1-L66)
-- [CI Workflow Matrix Parity Test:1-187](https://github.com/Kuldeep2822k/cli/blob/main/test/ci-workflow-matrix.test.ts#L1-L187)
-
 ### Documentation disagrees with configuration or commands
 If a number has a source of truth, quote it exactly. If there is no source of truth, remove or replace it. If a command is unimplemented, label it as Phase 2 or future design. If generated evidence cannot be reproduced, date-stamp it and state that the generator is not in the repository.
-
-**Section sources**
-- [ADR-0031: Documentation Truth — Current-State Docs, Labeled History:1-67](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0031-documentation-truth.md#L1-L67)
 
 ## Conclusion
 PALEE’s development and testing decisions are unified by a single concern: evidence must prove something that can fail. Tests must be falsifiable, CI must prove the installed package, and documentation must distinguish current claims from labeled history. These standards make the repository easier to review, maintain, and extend because they turn ambiguity into explicit, auditable contracts rather than relying on ceremony, green suites, or unstated assumptions.
 
-[No sources needed since this section summarizes without analyzing specific files]
+## References
+
+- [ADR-0026: Test Discipline — Falsifiability Over Ceremony:1-79](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0026-test-discipline.md#L1-L79)
+- [ADR-0029: Test-Time CLI Launch Policy:1-97](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0029-test-cli-launch-policy.md#L1-L97)
+- [ADR-0030: Installed-Artifact CI Evidence:1-66](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0030-installed-artifact-ci-evidence.md#L1-L66)
+- [ADR-0031: Documentation Truth — Current-State Docs, Labeled History:1-67](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0031-documentation-truth.md#L1-L67)
+- [Smoke Script for Installed Artifacts:1-87](https://github.com/Kuldeep2822k/cli/blob/main/scripts/smoke-installed.js#L1-L87)
+- [CI Workflow Matrix Parity Test:1-187](https://github.com/Kuldeep2822k/cli/blob/main/test/ci-workflow-matrix.test.ts#L1-L187)
+- [ADR-0026: Test Discipline — Falsifiability Over Ceremony:10-79](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0026-test-discipline.md#L10-L79)
+- [ADR-0026: Test Discipline — Falsifiability Over Ceremony:10-40](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0026-test-discipline.md#L10-L40)
+- [ADR-0026: Test Discipline — Falsifiability Over Ceremony:25-40](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0026-test-discipline.md#L25-L40)
+- [ADR-0026: Test Discipline — Falsifiability Over Ceremony:40-50](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0026-test-discipline.md#L40-L50)

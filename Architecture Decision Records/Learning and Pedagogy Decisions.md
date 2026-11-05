@@ -63,19 +63,6 @@ graph TB
     MasteryEngine --> Readiness
 ```
 
-**Diagram sources**
-- [ADR-0004: Four-Pillar Pedagogical Assessment Model:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
-- [ADR-0009: The Gating Model — What May Lock a Note:1-85](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0009-gating-model-depends-on-source.md#L1-L85)
-- [ADR-0020: Readiness and Scheduling Contracts:1-68](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0020-readiness-and-scheduling-contracts.md#L1-L68)
-- [Mastery Engine:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L200)
-- [Next Topics Use Case:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [Record Assessment Use Case:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-
-**Section sources**
-- [ADR-0004: Four-Pillar Pedagogical Assessment Model:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
-- [ADR-0009: The Gating Model — What May Lock a Note:1-85](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0009-gating-model-depends-on-source.md#L1-L85)
-- [ADR-0020: Readiness and Scheduling Contracts:1-68](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0020-readiness-and-scheduling-contracts.md#L1-L68)
-
 ## Core Components
 PAL EE’s learning model has five interconnected pillars:
 
@@ -96,17 +83,6 @@ flowchart TD
     Policy -->|warn| Advisory["Shown but not blocking"]
     Policy -->|hide| Hidden["Ranks and cycle-checks only"]
 ```
-
-**Diagram sources**
-- [ADR-0004: Four-Pillar Pedagogical Assessment Model:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
-- [ADR-0009: The Gating Model — What May Lock a Note:1-85](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0009-gating-model-depends-on-source.md#L1-L85)
-- [ADR-0013: Per-Edge Blocking Policy and OR-Groups:1-75](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0013-per-edge-blocking-policy.md#L1-L75)
-- [Mastery Engine:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L200)
-
-**Section sources**
-- [ADR-0004: Four-Pillar Pedagogical Assessment Model:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
-- [ADR-0009: The Gating Model — What May Lock a Note:1-85](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0009-gating-model-depends-on-source.md#L1-L85)
-- [ADR-0013: Per-Edge Blocking Policy and OR-Groups:1-75](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0013-per-edge-blocking-policy.md#L1-L75)
 
 ## Architecture Overview
 At a high level, PAL EE separates three concerns that must not drift:
@@ -136,12 +112,6 @@ sequenceDiagram
     Graph-->>Scheduler: "Due vs blocked"
     Scheduler-->>Learner: "Actionable topics"
 ```
-
-**Diagram sources**
-- [Record Assessment Use Case:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [Mastery Engine:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L200)
-- [Next Topics Use Case:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [ADR-0020: Readiness and Scheduling Contracts:1-68](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0020-readiness-and-scheduling-contracts.md#L1-L68)
 
 ## Detailed Component Analysis
 
@@ -175,14 +145,6 @@ flowchart TD
     Threshold -->|No| NotMastered["Not mastered"]
 ```
 
-**Diagram sources**
-- [ADR-0004: Four-Pillar Pedagogical Assessment Model:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
-- [Mastery Engine:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L200)
-
-**Section sources**
-- [ADR-0004: Four-Pillar Pedagogical Assessment Model:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
-- [Mastery Engine:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L200)
-
 ### Assessment Surface and Readiness Contract
 Until `palee assess` was added, no command could raise `topic_mastery` from user-entered pillar scores. Review drove SM-2 spacing but did not collect the four pillars, so mapping review quality onto mastery would have redefined the assessment model. `assess` closed this surface with strict contracts:
 
@@ -204,18 +166,6 @@ flowchart TD
     ReadySet --> Delta["Compute unlocked vs newly blocked"]
     Delta --> Output["Report effect or actionable topics"]
 ```
-
-**Diagram sources**
-- [ADR-0021: The Assessment Surface:1-86](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0021-assessment-surface.md#L1-L86)
-- [ADR-0020: Readiness and Scheduling Contracts:1-68](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0020-readiness-and-scheduling-contracts.md#L1-L68)
-- [Record Assessment Use Case:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [Next Topics Use Case:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-
-**Section sources**
-- [ADR-0021: The Assessment Surface:1-86](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0021-assessment-surface.md#L1-L86)
-- [ADR-0020: Readiness and Scheduling Contracts:1-68](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0020-readiness-and-scheduling-contracts.md#L1-L68)
-- [Record Assessment Use Case:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [Next Topics Use Case:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
 
 ### Tier-0 Hygiene Classification for Batch Adoption
 Automatic adoption originally treated every Markdown file as a potential lesson, producing false edges such as translation copies, repo meta files, and README variants becoming first-class topics. Tier-0 hygiene runs before planning on batch adoption and answers one pure question per vault-relative path: is this note a backbone, leaf, or excluded?
@@ -248,14 +198,6 @@ flowchart TD
     ContentCheck -->|No| Leaf
 ```
 
-**Diagram sources**
-- [ADR-0010: Tier-0 Hygiene Classification for Batch Adoption:1-72](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0010-tier0-hygiene-classification.md#L1-L72)
-- [Tier-0 Hygiene Predicates:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L200)
-
-**Section sources**
-- [ADR-0010: Tier-0 Hygiene Classification for Batch Adoption:1-72](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0010-tier0-hygiene-classification.md#L1-L72)
-- [Tier-0 Hygiene Predicates:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L200)
-
 ### Tiered Auto-Chaining: Strict vs Full
 Only three things may gate: the learner’s own list, the numbered tree, and the note’s own declaration. Auto-chaining combines the numbered tree with optional repository enumeration through two tiers:
 
@@ -283,14 +225,6 @@ flowchart LR
     Replace --> Merge
 ```
 
-**Diagram sources**
-- [ADR-0011: Tiered Auto-Chain — strict | full:1-99](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0011-tiered-auto-chain.md#L1-L99)
-- [Auto-Chain Engine:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L200)
-
-**Section sources**
-- [ADR-0011: Tiered Auto-Chain — strict | full:1-99](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0011-tiered-auto-chain.md#L1-L99)
-- [Auto-Chain Engine:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L200)
-
 ### Declared Prerequisites
 A note may state its own prerequisites under headings such as “Prerequisites,” “Requirements,” “Requires,” “Required knowledge,” or “Depends on.” Unlike enumeration order, these links are the author’s chosen name for the thing they need, so they gate.
 
@@ -315,14 +249,6 @@ flowchart TD
     Resolve -->|No| Count["Count missing or ambiguous"]
 ```
 
-**Diagram sources**
-- [ADR-0012: Declared Prerequisites — Reading a Note's Own Text:1-82](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0012-declared-prerequisites.md#L1-L82)
-- [Declared Prerequisites Scanner:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L200)
-
-**Section sources**
-- [ADR-0012: Declared Prerequisites — Reading a Note's Own Text:1-82](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0012-declared-prerequisites.md#L1-L82)
-- [Declared Prerequisites Scanner:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L200)
-
 ### Per-Edge Blocking Policy and OR-Groups
 The current v0.6.x model stamps one `depends_on_source` label per note. That works for a homogeneous list but breaks when sources mix: a hand-edited prerequisite on an advisory-labelled note becomes silently advisory, and enumerated and declared text can land on the same note with conflicting policies.
 
@@ -345,12 +271,6 @@ flowchart TD
     Policy --> Hide["hide → rank and cycle-check only"]
 ```
 
-**Diagram sources**
-- [ADR-0013: Per-Edge Blocking Policy and OR-Groups:1-75](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0013-per-edge-blocking-policy.md#L1-L75)
-
-**Section sources**
-- [ADR-0013: Per-Edge Blocking Policy and OR-Groups:1-75](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0013-per-edge-blocking-policy.md#L1-L75)
-
 ### How Spaced Repetition and Prerequisites Coexist
 SM-2 handles temporal scheduling: when a topic is due, how often it should recur, and how its ease factor evolves. Prerequisites handle conceptual ordering: whether a topic is allowed to appear as actionable study material.
 
@@ -365,12 +285,6 @@ stateDiagram-v2
     Studying --> Mastered : "topic_mastery ≥ 0.70"
     Mastered --> Due : "SM-2 interval expires"
 ```
-
-**Diagram sources**
-- [ADR-0004: Four-Pillar Pedagogical Assessment Model:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
-- [ADR-0020: Readiness and Scheduling Contracts:1-68](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0020-readiness-and-scheduling-contracts.md#L1-L68)
-
-[No sources needed since this diagram shows conceptual workflow, not actual code structure]
 
 ## Dependency Analysis
 The learning pipeline has clear boundaries between measurement, policy, and scheduling:
@@ -390,15 +304,6 @@ graph TB
     Readiness --> Plan["palee plan"]
 ```
 
-**Diagram sources**
-- [Mastery Engine:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L200)
-- [ADR-0009: The Gating Model — What May Lock a Note:1-85](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0009-gating-model-depends-on-source.md#L1-L85)
-- [Next Topics Use Case:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-
-**Section sources**
-- [ADR-0009: The Gating Model — What May Lock a Note:1-85](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0009-gating-model-depends-on-source.md#L1-L85)
-- [Next Topics Use Case:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-
 ## Performance Considerations
 PAL EE’s learning decisions trade computational work for correctness:
 
@@ -407,8 +312,6 @@ PAL EE’s learning decisions trade computational work for correctness:
 - **Readiness is shared**: `next` and `plan` use the same prerequisite gate instead of duplicating logic.
 - **Cycle quarantine happens once per readiness computation**, skipping both passes when the vault has no edges.
 - **Per-edge blocking is proposed for future mixed-source notes**, but the current per-note label avoids premature complexity while documenting the exact failure mode it prevents.
-
-[No sources needed since this section provides general guidance]
 
 ## Troubleshooting Guide
 
@@ -422,12 +325,6 @@ PAL EE’s learning decisions trade computational work for correctness:
 | `palee assess` refuses a stored score | Stored pillar value is not a number in `[0,1]` | Repair the field with `palee validate` or pass the flag explicitly |
 | A prerequisites section declares nothing | Heading mismatch, fenced markup, task list, negation, reversal, or disjunction | Ensure the heading matches exactly and the item is an unambiguous link |
 
-**Section sources**
-- [ADR-0020: Readiness and Scheduling Contracts:1-68](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0020-readiness-and-scheduling-contracts.md#L1-L68)
-- [ADR-0021: The Assessment Surface:1-86](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0021-assessment-surface.md#L1-L86)
-- [ADR-0010: Tier-0 Hygiene Classification for Batch Adoption:1-72](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0010-tier0-hygiene-classification.md#L1-L72)
-- [ADR-0012: Declared Prerequisites — Reading a Note's Own Text:1-82](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0012-declared-prerequisites.md#L1-L82)
-
 ## Conclusion
 PAL EE’s pedagogical architecture is designed to keep learning evidence-based:
 
@@ -439,3 +336,20 @@ PAL EE’s pedagogical architecture is designed to keep learning evidence-based:
 - SM-2 schedules timing; prerequisite gates decide permission.
 
 Together, these decisions make spaced repetition useful for long-term retention while preserving prerequisite relationships that reflect real learning dependencies rather than filesystem artifacts.
+
+## References
+
+- [ADR-0004: Four-Pillar Pedagogical Assessment Model:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
+- [ADR-0009: The Gating Model — What May Lock a Note:1-85](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0009-gating-model-depends-on-source.md#L1-L85)
+- [ADR-0020: Readiness and Scheduling Contracts:1-68](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0020-readiness-and-scheduling-contracts.md#L1-L68)
+- [Mastery Engine:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L200)
+- [Next Topics Use Case:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
+- [Record Assessment Use Case:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
+- [ADR-0013: Per-Edge Blocking Policy and OR-Groups:1-75](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0013-per-edge-blocking-policy.md#L1-L75)
+- [ADR-0021: The Assessment Surface:1-86](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0021-assessment-surface.md#L1-L86)
+- [ADR-0010: Tier-0 Hygiene Classification for Batch Adoption:1-72](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0010-tier0-hygiene-classification.md#L1-L72)
+- [Tier-0 Hygiene Predicates:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L200)
+- [ADR-0011: Tiered Auto-Chain — strict | full:1-99](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0011-tiered-auto-chain.md#L1-L99)
+- [Auto-Chain Engine:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L200)
+- [ADR-0012: Declared Prerequisites — Reading a Note's Own Text:1-82](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0012-declared-prerequisites.md#L1-L82)
+- [Declared Prerequisites Scanner:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L200)
