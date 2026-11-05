@@ -66,7 +66,6 @@ graph TB
     Loader --> ValidationFields
     Loader --> ValidationMastery
     RecordAssessment --> Engine
-    RecordAssessment --> Frontmatter
     ExampleNote --> Frontmatter
 ```
 
@@ -135,11 +134,11 @@ classDiagram
         +number palee_schema
         +string palee_id
         +string topic
-        +string track
-        +string status
+        +string? track
+        +'not_started'|'learning'|'paused'|'archived' status
         +Difficulty difficulty
-        +string[] dependencies
-        +string[] depends_on
+        +string[]? dependencies
+        +string[]? depends_on
         +Assessment assessment
         +Review review
     }

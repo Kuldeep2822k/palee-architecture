@@ -49,8 +49,6 @@ graph TB
   Scheduler["Next-topic / plan<br/>due partition + sorting"]
 
   Types --> Loader
-  Loader --> Engine
-  Validator --> Loader
   Engine --> Application
   Application --> Scheduler
 ```
@@ -64,7 +62,7 @@ The `Review` interface defines the canonical SM-2 scheduling state attached to a
 |---|---|---|---|
 | `interval_days` | `number` | Current scheduled interval in days until the next review. | Must be finite and at least 1. The engine caps computed intervals at 36,500 days (about 100 years). |
 | `repetition` | `number` | Number of consecutive successful reviews since the last lapse. | Must be a non-negative integer. Resets to 0 after a failed review. |
-| `ease_factor` | `number` | SM-2 easiness multiplier controlling future interval growth. | Minimum 1.3; initial default 2.5. Rounded to four decimal places. |
+| `ease_factor` | `number` | SM-2 ease factor controlling future interval growth. | Minimum 1.3; initial default 2.5. Rounded to four decimal places. |
 | `lapses` | `number` | Cumulative count of failed reviews after the item was previously learned. | Non-negative integer. Increments only when `repetition > 0`. |
 | `last_quality` | `number \| null` | Quality rating submitted during the last review session. | Integer 0–5, or `null` when no review has been recorded. |
 | `last_reviewed_at` | `string \| null` | Timestamp of the last completed review. | ISO 8601 string or `null`. Written as a local date-only string by the application layer. |
@@ -104,7 +102,7 @@ classDiagram
 The SM-2 engine implements the core state transition and scheduling logic.
 
 #### Quality Rating Scale
-Quality ratings map to specific easiness-factor deltas:
+Quality ratings map to specific ease factor deltas:
 
 | Quality | Meaning | Ease Factor Delta | Interval Effect |
 |---|---|---:|---|
@@ -155,11 +153,11 @@ flowchart TD
   SetSix --> EaseFactor
   FailBranch --> EaseFactor
   EaseFactor["Compute delta from quality<br/>Add delta to ease_factor<br/>Round to 4 decimals<br/>Clamp ease_factor to ≥ 1.3"]
-  EaseFactor --> ComputeDue["Advance local calendar days<br/>from reviewedAt by interval_days"]
-  ComputeDue --> CapCheck{"interval > 36,500 days?"}
+  EaseFactor --> CapCheck{"interval > 36,500 days?"}
   CapCheck -->|Yes| Cap["Cap interval at 36,500 days"]
-  CapCheck -->|No| ReturnState["Return updated Review fields"]
-  Cap --> ReturnState
+  CapCheck -->|No| ComputeDue["Advance local calendar days<br/>from reviewedAt by interval_days"]
+  Cap --> ComputeDue
+  ComputeDue --> ReturnState["Return updated Review fields"]
 ```
 
 ### Record Review Use Case
@@ -213,8 +211,6 @@ graph LR
   Plan["Plan Command<br/>due list + blocked topics"]
 
   Frontmatter --> Loader
-  Loader --> SM2
-  Validator --> Loader
   SM2 --> ReviewUseCase
   ReviewUseCase --> NextTopics
   NextTopics --> Plan
@@ -294,7 +290,7 @@ Initial state:
 After a successful review with quality 4:
 - `repetition = 1`
 - `interval_days = 1`
-- `ease_factor` increases slightly
+- `ease_factor` unchanged at 2.5 (quality 4 has a delta of 0)
 - `lapses = 0`
 - `last_quality = 4`
 - `due_at = today + 1 local day`
@@ -395,11 +391,8 @@ graph TD
   Types --> SM2
   Types --> RecordReview
   Types --> DueTopics
-  Loader --> SM2
-  Validator --> Loader
   SM2 --> RecordReview
   DueTopics --> GetNextTopics
-  RecordReview --> GetNextTopics
 ```
 
 ## Performance Considerations
