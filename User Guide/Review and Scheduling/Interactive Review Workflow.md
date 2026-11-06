@@ -57,20 +57,6 @@ graph TB
   SessionLayer["Session memory<br/>src/storage/sessions.ts"] -. "session continuity" .-> CLI
 ```
 
-**Diagram sources**
-- [src/cli/review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [src/application/record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [src/engine/sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-- [src/engine/mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [src/storage/sessions.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L200)
-
-**Section sources**
-- [src/cli/review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [src/application/record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [src/engine/sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-- [src/engine/mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [src/storage/sessions.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L200)
-
 ## Core Components
 This section summarizes the components that implement the review workflow and their contracts.
 
@@ -81,13 +67,6 @@ This section summarizes the components that implement the review workflow and th
 | `processReview` | Canonical SM-2 transition | Current SM-2 fields, integer quality 0–5 | New `ease_factor`, `interval_days`, `repetition`, `lapses`, `last_quality` | Throws when quality or any stored field violates its precondition |
 | `computeTopicMastery` / `resolveTopicMastery` | Four-pillar mastery computation | Conceptual, practical, debug, Feynman scores; existing mastery; precedence mode | Normalized mastery value between 0.0 and 1.0 | Normalizes and clamps input; returns 0 when no meaningful pillars are present |
 | Session loader | Reads canonical sessions, drafts, index, and hot memory | Vault path | `LoadedSession[]`, session index read, hot-memory classification | Read failures are reported rather than silently dropped |
-
-**Section sources**
-- [src/cli/review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [src/application/record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [src/engine/sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-- [src/engine/mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [src/storage/sessions.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L200)
 
 ## Architecture Overview
 The review process is layered so that I/O, validation, scheduling math, and user feedback stay separable.
@@ -114,12 +93,6 @@ sequenceDiagram
   C->>V: "Atomic write updated frontmatter"
   C-->>U: "Review result, schedule changes, warnings"
 ```
-
-**Diagram sources**
-- [src/cli/review.ts:20-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L20-L141)
-- [src/application/record-review.ts:68-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L68-L116)
-- [src/engine/sm2.ts:95-245](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L95-L245)
-- [src/engine/mastery.ts:145-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L145-L229)
 
 ## Detailed Component Analysis
 
@@ -171,13 +144,6 @@ flowchart TD
   OccConflict --> End
 ```
 
-**Diagram sources**
-- [src/cli/review.ts:20-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L20-L141)
-
-**Section sources**
-- [src/cli/review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [test/cli-review-early.test.ts:1-150](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-review-early.test.ts#L1-L150)
-
 ### Application-Layer Review Update
 `buildReviewUpdate` is the pure boundary between CLI I/O and scheduling math. Its responsibilities include:
 
@@ -211,14 +177,6 @@ flowchart TD
   NoEarly --> Return
 ```
 
-**Diagram sources**
-- [src/application/record-review.ts:39-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L39-L116)
-- [src/engine/mastery.ts:145-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L145-L229)
-
-**Section sources**
-- [src/application/record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [test/application-record-review.test.ts:1-83](https://github.com/Kuldeep2822k/cli/blob/main/test/application-record-review.test.ts#L1-L83)
-
 ### SM-2 Scheduling State Updates
 The SM-2 engine implements SuperMemo-2 scheduling with strong preconditions and bounded growth:
 
@@ -249,13 +207,6 @@ flowchart TD
   Cap --> Return(["Return new SM-2 state"])
   KeepInterval --> Return
 ```
-
-**Diagram sources**
-- [src/engine/sm2.ts:95-245](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L95-L245)
-
-**Section sources**
-- [src/engine/sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-- [docs/adr/0001-supermemo-sm2-algorithm.md:1-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L1-L63)
 
 ### Four-Pillar Pedagogical Assessment Model
 PALEE models mastery across four dimensions:
@@ -292,15 +243,6 @@ flowchart TD
   Threshold -->|No| NotMastered["Topic not mastered"]
 ```
 
-**Diagram sources**
-- [src/engine/mastery.ts:1-144](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L144)
-- [docs/adr/0004-four-pillar-pedagogical-mastery.md:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
-
-**Section sources**
-- [src/engine/mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [docs/adr/0004-four-pillar-pedagogical-mastery.md:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
-- [docs/adr/0021-assessment-surface.md:1-86](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0021-assessment-surface.md#L1-L86)
-
 ### Session Continuity and Draft Recovery
 The review command updates a topic note directly, while session data lives separately under `.palee/sessions/`. Session continuity is important for tracking study sessions independently of individual topic reviews.
 
@@ -320,16 +262,6 @@ stateDiagram-v2
   RebuiltHot --> ActiveSession : "new session start"
 ```
 
-**Diagram sources**
-- [src/storage/sessions.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L200)
-- [docs/adr/0019-session-memory-lifecycle.md:1-71](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0019-session-memory-lifecycle.md#L1-L71)
-- [docs/adr/0007-hot-memory-read-state-contract.md:1-54](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0007-hot-memory-read-state-contract.md#L1-L54)
-
-**Section sources**
-- [src/storage/sessions.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L200)
-- [docs/adr/0019-session-memory-lifecycle.md:1-71](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0019-session-memory-lifecycle.md#L1-L71)
-- [docs/adr/0007-hot-memory-read-state-contract.md:1-54](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0007-hot-memory-read-state-contract.md#L1-L54)
-
 ### Batch Review Capability
 The repository exposes one review operation per invocation: a single topic query and a single quality rating. There is no dedicated batch review subcommand in the reviewed source files.
 
@@ -340,8 +272,6 @@ Practical batching approaches available from the current design:
 - **Per-topic concurrency control**: because each review performs an OCC-safe re-read and atomic write, concurrent automation should serialize per-topic writes to avoid lock conflicts.
 
 The design favors explicit, auditable interactions per topic rather than hidden bulk mutation.
-
-[No sources needed since this section synthesizes behavior from the reviewed CLI interface]
 
 ### Typical Review Sessions
 
@@ -369,12 +299,6 @@ The design favors explicit, auditable interactions per topic rather than hidden 
 
 These behaviors are validated by the CLI early-review tests and the application-layer review tests.
 
-**Section sources**
-- [test/cli-review-early.test.ts:1-150](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-review-early.test.ts#L1-L150)
-- [test/application-record-review.test.ts:1-83](https://github.com/Kuldeep2822k/cli/blob/main/test/application-record-review.test.ts#L1-L83)
-- [src/cli/review.ts:20-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L20-L141)
-- [src/application/record-review.ts:39-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L39-L116)
-
 ## Dependency Analysis
 The review pipeline depends on well-defined boundaries:
 
@@ -388,12 +312,6 @@ graph LR
   Mastery --> Validation
   ReviewCLI --> Types["Shared types"]
 ```
-
-**Diagram sources**
-- [src/cli/review.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L20)
-- [src/application/record-review.ts:1-38](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L38)
-- [src/engine/sm2.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L20)
-- [src/engine/mastery.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L20)
 
 Coupling characteristics:
 
@@ -409,12 +327,6 @@ Potential risks:
 - Corrupted stored SM-2 fields cause explicit validation errors rather than silent clamping.
 - Mistaking review quality for mastery can lead to incorrect expectations about prerequisite gating.
 
-**Section sources**
-- [src/cli/review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [src/application/record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [src/engine/sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-- [src/engine/mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-
 ## Performance Considerations
 - Review is lightweight: it loads topics, parses frontmatter, computes deterministic scheduling, and performs one atomic write.
 - The SM-2 algorithm uses constant-time arithmetic per review.
@@ -427,8 +339,6 @@ Recommended practices:
 - Avoid running many concurrent reviews on the same topic; serialize per-topic writes.
 - Prefer exact topic identifiers where possible to reduce fuzzy resolution overhead.
 - Keep pillar assessments consistent; review preserves existing pillars but does not fix them.
-
-[No sources needed since this section provides general guidance]
 
 ## Troubleshooting Guide
 
@@ -462,12 +372,30 @@ Recommended practices:
 3. **Correct assessment data**: use the assessment command to provide missing pillar scores; review alone cannot raise mastery from recall quality.
 4. **Restore session continuity**: if session data is incomplete or corrupt, rely on the session subsystem’s rebuild behavior, which counts unreadable sessions and retains canonical history.
 
-**Section sources**
-- [src/cli/review.ts:20-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L20-L141)
-- [src/engine/sm2.ts:95-245](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L95-L245)
-- [src/engine/mastery.ts:1-144](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L144)
-- [docs/adr/0021-assessment-surface.md:1-86](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0021-assessment-surface.md#L1-L86)
-- [docs/adr/0019-session-memory-lifecycle.md:1-71](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0019-session-memory-lifecycle.md#L1-L71)
-
 ## Conclusion
 PALEE’s interactive review workflow is deliberately focused: it turns a self-reported recall rating into durable scheduling state and a refreshed mastery score without inventing assessment data. The four-pillar model ensures that true mastery requires conceptual, practical, debugging, and articulation competence, with Feynman’s double weight emphasizing clear explanation. The review command protects learners through strict validation, OCC-safe writes, explicit error messages, and early-review warnings. Session continuity and atomic storage keep the broader learning progression reliable, while the assessment surface remains the proper place to adjust mastery-driven prerequisite gating.
+
+## References
+
+- [src/cli/review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
+- [src/application/record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
+- [src/engine/sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
+- [src/engine/mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
+- [src/storage/sessions.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L200)
+- [src/cli/review.ts:20-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L20-L141)
+- [src/application/record-review.ts:68-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L68-L116)
+- [src/engine/sm2.ts:95-245](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L95-L245)
+- [src/engine/mastery.ts:145-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L145-L229)
+- [test/cli-review-early.test.ts:1-150](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-review-early.test.ts#L1-L150)
+- [src/application/record-review.ts:39-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L39-L116)
+- [test/application-record-review.test.ts:1-83](https://github.com/Kuldeep2822k/cli/blob/main/test/application-record-review.test.ts#L1-L83)
+- [docs/adr/0001-supermemo-sm2-algorithm.md:1-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L1-L63)
+- [src/engine/mastery.ts:1-144](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L144)
+- [docs/adr/0004-four-pillar-pedagogical-mastery.md:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
+- [docs/adr/0021-assessment-surface.md:1-86](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0021-assessment-surface.md#L1-L86)
+- [docs/adr/0019-session-memory-lifecycle.md:1-71](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0019-session-memory-lifecycle.md#L1-L71)
+- [docs/adr/0007-hot-memory-read-state-contract.md:1-54](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0007-hot-memory-read-state-contract.md#L1-L54)
+- [src/cli/review.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L20)
+- [src/application/record-review.ts:1-38](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L38)
+- [src/engine/sm2.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L20)
+- [src/engine/mastery.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L20)

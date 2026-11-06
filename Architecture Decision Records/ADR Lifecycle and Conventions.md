@@ -149,8 +149,6 @@ flowchart TD
     OtherDoc --> Maintain
 ```
 
-[No sources needed since this diagram shows conceptual workflow, not actual code structure]
-
 ## Detailed Component Analysis
 
 ### ADR Lifecycle States
@@ -407,8 +405,6 @@ Poorly maintained ADRs can hurt performance by:
 - Forgetting to update the index.
 - Referencing implementation paths that become stale.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 
 ### Symptom: An ADR feels outdated
@@ -489,4 +485,3 @@ For contributors, the most important practices are:
 
 For maintainers, ADRs serve as the project’s architectural memory. They should be reviewed carefully, updated deliberately, and treated as evidence when code, tests, or user-facing behavior evolve.
 
-[No sources needed since this section summarizes without analyzing specific files]

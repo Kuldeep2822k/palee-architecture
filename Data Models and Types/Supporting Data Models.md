@@ -633,8 +633,6 @@ Key relationships:
 - `DependsOnSource` reduces gating overhead by marking purely advisory edges as non-blocking.
 - Roadmap parsing returns early once a supported format succeeds, avoiding unnecessary downstream work.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 Common issues and their model-based signals:
 
@@ -662,4 +660,3 @@ Common issues and their model-based signals:
 ## Conclusion
 PALEE's supporting data models separate concerns cleanly: domain aggregates like `Progress`, low-level I/O contracts like `FrontmatterResult` and `CacheEntry<T>`, scanning diagnostics via `ScannedNote`, concurrency metadata through `LockData` and `NodeError`, traversal configuration via `WalkOptions`, dependency validation through `ValidationError` and `ValidationResult`, provenance control through `DependsOnSource`, and external curriculum ingestion through `RoadmapTopic`, `RoadmapFile`, and `ResolvedTopicUpdates`. Together, they allow PALEE to scan vaults safely, validate graphs deterministically, schedule learning reliably, and import curriculum without mutating existing topic state unintentionally.
 
-[No sources needed since this section summarizes without analyzing specific files]

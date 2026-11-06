@@ -75,22 +75,6 @@ graph TB
   RECORD_REVIEW --> SM2
 ```
 
-**Diagram sources**
-- [next.ts:1-227](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L227)
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [plan.ts:1-273](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/plan.ts#L1-L273)
-- [progress.ts:1-316](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L316)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-
-**Section sources**
-- [next.ts:1-227](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L227)
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [plan.ts:1-273](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/plan.ts#L1-L273)
-- [progress.ts:1-316](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L316)
-
 ## Core Components
 | Command | Primary purpose | Key inputs | Main outputs | Important options |
 |---|---|---|---|---|
@@ -100,12 +84,6 @@ graph TB
 | `progress` | Summarize mastery, repetitions, lapses, and difficulty breakdowns | Vault, optional topic filter | Global metrics or single-topic profile | `--topic`, `--json` |
 
 These commands are deterministic at their core: they read vault state, apply SM-2 and dependency rules, and write only when explicitly requested by `review`.
-
-**Section sources**
-- [next.ts:1-227](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L227)
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [plan.ts:1-273](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/plan.ts#L1-L273)
-- [progress.ts:1-316](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L316)
 
 ## Architecture Overview
 The learning workflow moves from user input through validation, scheduling, prerequisite checks, and finally output or persistence.
@@ -132,14 +110,6 @@ sequenceDiagram
   end
 ```
 
-**Diagram sources**
-- [next.ts:1-227](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L227)
-- [plan.ts:1-273](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/plan.ts#L1-L273)
-- [progress.ts:1-316](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L316)
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-
 ## Detailed Component Analysis
 
 ### `next`: Discovering Actionable Topics
@@ -165,20 +135,12 @@ flowchart TD
   Nothing --> Output
 ```
 
-**Diagram sources**
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [next.ts:1-227](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L227)
-
 #### Prerequisite gating
 A topic is blocked when it is active, not yet mastered, and its prerequisites are unsatisfied. The gate uses the same dependency predicate as the planning layer so that `next`, `plan`, and dashboard views stay consistent.
 
 - Missing prerequisites are reported as dangling references.
 - Unmastered prerequisites show the current mastery versus the required threshold.
 - Cyclic topics are quarantined and are not treated as ordinary blocked topics; their scheduling state remains real even if their learning order is undefined.
-
-**Section sources**
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
 
 #### Due date calculation
 Due dates come from the note’s stored `due_at`:
@@ -187,9 +149,6 @@ Due dates come from the note’s stored `due_at`:
 - A future due date means the topic is not yet actionable.
 
 The application layer normalizes raw values into local calendar-aware dates and partitions them into “never reviewed” and “elapsed review” sets.
-
-**Section sources**
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
 
 #### `--all` option
 Without `--all`, `next` reports the single most important actionable topic. With `--all`, it lists every actionable topic, ordered with never-reviewed topics first and then by oldest due date. In JSON mode, `--all` exposes the full `due_topics` array instead of just the first `next`.
@@ -204,10 +163,6 @@ In JSON mode, `next` can return:
 - `blocked`: Topics that are actionable but withheld because prerequisites are unmet.
 
 Each topic includes identifiers, title, path, due date, mastery, repetition, and sometimes difficulty or status depending on context.
-
-**Section sources**
-- [next.ts:1-227](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L227)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
 
 ### `review`: Recording Recall Quality
 `review` records a spaced-repetition recall quality rating between 0 and 5 and updates the note’s SM-2 state.
@@ -266,16 +221,6 @@ sequenceDiagram
   end
 ```
 
-**Diagram sources**
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-
-**Section sources**
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-
 ### `plan`: Daily Study Planning
 `plan` builds a daily view of what you should do today:
 - **Reviews due**: Topics whose SM-2 schedule says they are due, plus topics that have never been scheduled.
@@ -311,14 +256,6 @@ flowchart TD
   BlockGate --> PlanJSON
 ```
 
-**Diagram sources**
-- [plan.ts:1-273](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/plan.ts#L1-L273)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-
-**Section sources**
-- [plan.ts:1-273](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/plan.ts#L1-L273)
-
 ### `progress`: Mastery Tracking and Summary Statistics
 `progress` reports learning progress either globally or for one specific topic.
 
@@ -347,10 +284,6 @@ Ambiguous or missing topic queries produce a usage error rather than silently pi
 - The mastery threshold separates “mastered” from “learning.”
 - Archived topics are excluded from global averages and category counts.
 
-**Section sources**
-- [progress.ts:1-316](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L316)
-- [palee_cli_spec.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/planning/palee_cli_spec.md#L1-L200)
-
 ## Dependency Analysis
 The commands share reusable components rather than duplicating logic.
 
@@ -366,25 +299,10 @@ graph LR
   USE_GET_NEXT --> USE_DUE
 ```
 
-**Diagram sources**
-- [next.ts:1-227](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L227)
-- [plan.ts:1-273](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/plan.ts#L1-L273)
-- [progress.ts:1-316](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L316)
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-
 Key relationships:
 - `next` and `plan` both rely on the prerequisite gate and due-partitioning logic to avoid contradictory recommendations.
 - `review` delegates SM-2 state transitions to `record-review`, which delegates arithmetic and date computation to `sm2`.
 - `progress` summarizes mastery using the same threshold used elsewhere for gating and classification.
-
-**Section sources**
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
 
 ## Performance Considerations
 - All three read-only commands load the full topic set once and apply in-memory filters and sorting.
@@ -392,8 +310,6 @@ Key relationships:
 - `plan` quarantines cyclic dependencies before computing readiness, preventing undefined ordering from affecting the ready-to-learn list.
 - `review` performs a second disk read and fingerprint comparison before writing, protecting against concurrent edits at the cost of extra I/O.
 - JSON output avoids ANSI control codes and spinners, making it suitable for automation and CI-like environments.
-
-[No sources needed since this section provides general guidance]
 
 ## Troubleshooting Guide
 
@@ -406,30 +322,14 @@ Possible reasons:
 
 Use `next --json` to inspect `status`, `blocked`, and `due_topics`. Use `plan` to see why a topic is blocked and whether it appears in “Reviews Due,” “Ready to Learn,” or “Blocked by prerequisites.”
 
-**Section sources**
-- [next.ts:1-227](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L227)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [plan.ts:1-273](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/plan.ts#L1-L273)
-
 ### Why did `review` warn about an early review?
 A review recorded before the stored `due_at` is still saved, but the warning indicates that the interval is being compounded off-schedule. If you intentionally want to record the early review without the notice, pass `--force`. Do not use `--force` to hide data problems.
-
-**Section sources**
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
 
 ### How do I recover invalid SM-2 state?
 If the note contains corrupted SM-2 fields such as invalid ease factors, intervals, repetitions, or lapses, the CLI detects the corruption and suggests running the validator repair path.
 
-**Section sources**
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-
 ### Why does `progress --topic` refuse ambiguous matches?
 Ambiguity is treated as a usage error because reporting the wrong topic’s progress is worse than refusing to guess. Provide a more specific ID or title substring.
-
-**Section sources**
-- [progress.ts:1-316](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L316)
 
 ## Conclusion
 PALEE’s learning workflow commands form a coherent loop:
@@ -439,8 +339,6 @@ PALEE’s learning workflow commands form a coherent loop:
 - `progress` measures mastery, repetitions, lapses, and difficulty-level trends.
 
 Together, they turn spaced repetition and prerequisite-aware learning into a repeatable daily routine. For reliable scheduling, always record honest recall quality, resolve prerequisite blocks before expecting new topics, and interpret progress metrics in terms of mastery thresholds rather than counting review events alone.
-
-[No sources needed since this section summarizes without analyzing specific files]
 
 ## Appendices
 
@@ -480,15 +378,8 @@ Together, they turn spaced repetition and prerequisite-aware learning into a rep
 #### How does SM-2 decide when to review again?
 After a successful review (quality 3–5), the repetition counter increases and the interval grows according to previous interval and ease factor. After a failed review (quality 0–2), repetition resets and the interval resets to one day. The ease factor adjusts upward for strong performance and downward for weaker performance, with a floor of 1.3.
 
-**Section sources**
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-
 #### What happens if I review too soon?
 The review is recorded and the schedule is updated, but the system warns that the note was reviewed early. Repeated early reviews can distort spacing because intervals compound before the intended baseline.
-
-**Section sources**
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
 
 #### How should I interpret progress numbers?
 - `mastery` reflects assessment-based understanding, not recall frequency.
@@ -497,6 +388,14 @@ The review is recorded and the schedule is updated, but the system warns that th
 - Global averages exclude archived topics.
 - Mastery status is based on a fixed threshold, not a vague scale.
 
-**Section sources**
+## References
+
+- [next.ts:1-227](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L227)
+- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
+- [plan.ts:1-273](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/plan.ts#L1-L273)
 - [progress.ts:1-316](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L316)
+- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
+- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
+- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
+- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
 - [palee_cli_spec.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/planning/palee_cli_spec.md#L1-L200)

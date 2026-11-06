@@ -524,8 +524,6 @@ The auto-chaining system emphasizes predictable, bounded performance:
 
 These properties matter especially for large READMEs, generated indexes, and curricula with many notes.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 Use these checks when auto-discovery behaves unexpectedly:
 
@@ -552,4 +550,3 @@ The auto-chaining system is designed around trust signals:
 
 Its parsing rules favor safety over completeness. Hedged prerequisites, ambiguous names, unsafe paths, and invalid graphs are rejected rather than guessed. This makes auto-discovery reliable for automated workflows while keeping learners from being silently locked out by weak signals.
 
-[No sources needed since this section summarizes without analyzing specific files]
