@@ -111,7 +111,7 @@ For successful reviews (`q >= 3`), the next interval depends on the repetition c
 
 - Repetition 1: 1 day
 - Repetition 2: 6 days
-- Repetition 3 and later: `Math.round(previous_interval × ease_factor)`, using the ease factor stored before this review's ΔEF update is applied, as canonical SM-2 prescribes
+- Repetition 3 and later: `Math.round(previous_interval × ease_factor)`, using the ease factor stored before this review's ΔEF update is applied (canonical SM-2 applies the updated ease factor here — a deliberate deviation)
 
 For failed reviews (`q < 3`):
 
