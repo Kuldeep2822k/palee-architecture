@@ -79,7 +79,7 @@ The test runner uses Node’s built-in test runner with TypeScript support via t
 flowchart TD
   Dev["Developer"]
   NPM["NPM Scripts"]
-  Runner["Node Test Runner<br/>--test --test-concurrency=4"]
+  Runner["Node Test Runner<br/>--test (--test-concurrency=4 on full/coverage runs only)"]
   TSX["tsx Loader"]
   BuiltCLI["Built CLI<br/>dist/bin/palee.js"]
   TSSource["TypeScript CLI Source<br/>bin/palee.ts"]
@@ -104,7 +104,7 @@ Execution paths (scripts as defined in `package.json`; test counts from full run
 | `npm run test:fast` | Yes | CLI, engine, storage, session, and types suites, plus smoke, fault injection, property fuzz, stress concurrency, and the timezone matrix | 1,564 |
 | `npm run test:e2e` | Yes | Only files under `test/e2e` (no concurrency cap) | 160 |
 | `npm run test:fuzz` | Yes | `property-fuzz`, `stress-concurrency`, and the `challenger1-*` suites | 31 |
-| `npm run test:coverage` | Yes | The full suite wrapped in c8; the run fails below the coverage floors (lines 96%, statements 96%, functions 93%, branches 88%) | 2,227 |
+| `npm run test:coverage` | Yes | The full suite wrapped in c8; the run fails below the coverage floors (lines 96%, statements 96%, functions 93%, branches 88%) | 2,227 (same glob as npm test) |
 
 ## Detailed Component Analysis
 
@@ -116,7 +116,7 @@ The repository separates tests by fidelity and cost:
 | Unit tests | `test/*.test.ts` | Pure functions, engine logic, storage parsing, validation rules, small CLI interactions. | `engine-sm2.test.ts`, `storage-frontmatter.test.ts`, `validation-rules.test.ts` |
 | Integration tests | `test/*.test.ts` | Multi-module interactions, file system behavior, lock contention, loader/scanner pipelines. | `stress-concurrency.test.ts`, `cli-adopt-batch.test.ts` |
 | End-to-end tests | `test/e2e/*.test.ts` | Real CLI launches against isolated vaults and configs. | `tier1-feature-coverage.test.ts`, `tier2-boundary-corner.test.ts` |
-| Fuzz and property tests | `test/property-fuzz.test.ts`, `test/challenger*.test.ts` | Randomized inputs, ReDoS probes, mathematical invariants, graph cycle invariants. | Pattern matcher fuzz, SM-2 monotonicity, cycle detection invariants |
+| Fuzz and property tests | `test/property-fuzz.test.ts`, `test/stress-concurrency.test.ts`, `test/challenger*.test.ts` | Randomized inputs, ReDoS probes, mathematical invariants, graph cycle invariants. | Pattern matcher fuzz, SM-2 monotonicity, cycle detection invariants |
 | Smoke and infrastructure tests | `test/smoke.test.ts`, `test/package-publish-guard.test.ts`, `test/ci-workflow-matrix.test.ts` | Build output, package metadata, CI matrix expectations. | Global binary smoke, tarball verification |
 
 Guidelines:
@@ -138,7 +138,7 @@ sequenceDiagram
   Dev->>NPM: Run npm test / test:unit / test:e2e / test:fuzz
   NPM->>Runner: node --import tsx --test ...
   Runner->>Helper: Import launcher exports
-  Helper->>Helper: Assert dist built when needed
+  Note over Helper: Assert dist built when needed
   Runner->>Child: spawn(process.execPath, PALEE_ARGV + args)
   Child->>FS: Read/write vault, locks, sessions
   Child-->>Runner: status, stdout, stderr
@@ -309,7 +309,7 @@ Coupling observations:
 - Shared test utilities reduce duplication across CLI and E2E suites.
 
 ## Performance Considerations
-- Default test concurrency is four workers, balancing speed and resource usage.
+- Test concurrency is capped at four workers only on the full (`npm test`) and coverage (`npm run test:coverage`) runs, balancing speed and resource usage; scoped scripts (e.g. `test:unit`) run uncapped.
 - Coverage runs increase memory limits because instrumentation adds overhead: `test:coverage` raises the Node heap cap to 8 GB (`--max-old-space-size=8192`).
 - CLI spawning has a cold-start cost under tsx; coverage mode accepts this cost to produce accurate coverage maps.
 - Fuzz and stress suites should be grouped separately because they can be expensive.
