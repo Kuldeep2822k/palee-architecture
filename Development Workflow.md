@@ -549,27 +549,3 @@ Resolution:
 
 ## Conclusion
 PALEE’s development workflow centers on strict TypeScript compilation, comprehensive ESLint rules, broad cross-platform testing, and deterministic release automation. Contributors should treat `npm run check`, the full test suite, and the packaged artifact verification as mandatory pre-commit gates. Changes that affect architecture, CLI contracts, or user-facing behavior should be accompanied by documentation updates and, where appropriate, ADRs. Releases are driven by versioned tags and validated by CI and release workflows before publication to npm and attachment to GitHub Releases.
-
-## References
-
-- [package.json:15-61](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L15-L61)
-- [tsconfig.json:1-24](https://github.com/Kuldeep2822k/cli/blob/main/tsconfig.json#L1-L24)
-- [.github/workflows/ci.yml:1-120](https://github.com/Kuldeep2822k/cli/blob/main/.github/workflows/ci.yml#L1-L120)
-- [.github/workflows/release.yml:1-80](https://github.com/Kuldeep2822k/cli/blob/main/.github/workflows/release.yml#L1-L80)
-- [.github/workflows/deploy-docs.yml:1-71](https://github.com/Kuldeep2822k/cli/blob/main/.github/workflows/deploy-docs.yml#L1-L71)
-- [package.json:1-85](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L1-L85)
-- [agent.md:1-75](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L1-L75)
-- [package.json:29-61](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L29-L61)
-- [package.json:63-85](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L63-L85)
-- [agent.md:76-92](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L76-L92)
-- [eslint.config.mjs:1-127](https://github.com/Kuldeep2822k/cli/blob/main/eslint.config.mjs#L1-L127)
-- [.github/workflows/ci.yml:1-200](https://github.com/Kuldeep2822k/cli/blob/main/.github/workflows/ci.yml#L1-L200)
-- [.github/workflows/skylos.yml:1-42](https://github.com/Kuldeep2822k/cli/blob/main/.github/workflows/skylos.yml#L1-L42)
-- [.github/workflows/release.yml:1-251](https://github.com/Kuldeep2822k/cli/blob/main/.github/workflows/release.yml#L1-L251)
-- [scripts/pack-package.js](https://github.com/Kuldeep2822k/cli/blob/main/scripts/pack-package.js)
-- [scripts/verify-tarball.js](https://github.com/Kuldeep2822k/cli/blob/main/scripts/verify-tarball.js)
-- [package.json:1-28](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L1-L28)
-- [agent.md:30-75](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L30-L75)
-- [.c8rc.json:1-12](https://github.com/Kuldeep2822k/cli/blob/main/.c8rc.json#L1-L12)
-- [package.json:45-61](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L45-L61)
-- [docs/adr/README.md:1-62](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/README.md#L1-L62)

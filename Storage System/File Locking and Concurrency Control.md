@@ -1,5 +1,14 @@
 # File Locking and Concurrency Control
 
+::: details Referenced Files in This Document
+
+- [src/storage/lock.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts)
+- [test/storage-lock.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-lock.test.ts)
+- [test/storage-lock-heartbeat-loss.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-lock-heartbeat-loss.test.ts)
+- [docs/04-2-file-locking.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-2-file-locking.md)
+
+:::
+
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Project Structure](#project-structure)
@@ -10,7 +19,6 @@
 7. [Performance Considerations](#performance-considerations)
 8. [Troubleshooting Guide](#troubleshooting-guide)
 9. [Conclusion](#conclusion)
-10. [References](#references)
 
 ## Introduction
 This document explains the file locking mechanism used by the project to provide cross-process concurrency control for vault resources. The implementation avoids race conditions through atomic directory creation, session-specific lock records, a periodic heartbeat, and stale-lock recovery with quarantine semantics. It also documents lock acquisition bounds, contention handling, timeout behavior, platform differences, retry strategies, debugging techniques, and practical usage patterns.
@@ -308,34 +316,3 @@ Coupling and cohesion:
 
 ## Conclusion
 The file locking subsystem provides robust cross-process mutual exclusion for vault notes through atomic directory creation, deterministic path hashing, quarantine-based stale recovery, and a heartbeat-driven lease model. Its design emphasizes bounded execution, clear conflict signaling, platform-aware behavior, and observability of ownership loss. Callers should treat `ECONFLICT` as contention, implement bounded retries with jitter, reload state after retries, and check `lock.lockLost` during long-held operations to avoid writing under a reclaimed lease.
-
-## References
-
-- [src/storage/lock.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts)
-- [test/storage-lock.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-lock.test.ts)
-- [test/storage-lock-heartbeat-loss.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-lock-heartbeat-loss.test.ts)
-- [docs/04-2-file-locking.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-2-file-locking.md)
-- [src/storage/lock.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L1-L40)
-- [src/storage/lock.ts:201-260](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L201-L260)
-- [test/storage-lock.test.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-lock.test.ts#L1-L40)
-- [test/storage-lock-heartbeat-loss.test.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-lock-heartbeat-loss.test.ts#L1-L30)
-- [docs/04-2-file-locking.md:1-25](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-2-file-locking.md#L1-L25)
-- [src/storage/lock.ts:41-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L41-L120)
-- [src/storage/lock.ts:501-865](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L501-L865)
-- [src/storage/lock.ts:866-956](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L866-L956)
-- [docs/04-2-file-locking.md:15-40](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-2-file-locking.md#L15-L40)
-- [docs/04-2-file-locking.md:42-140](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-2-file-locking.md#L42-L140)
-- [src/storage/lock.ts:261-340](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L261-L340)
-- [docs/04-2-file-locking.md:108-140](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-2-file-locking.md#L108-L140)
-- [src/storage/lock.ts:740-780](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L740-L780)
-- [test/storage-lock-heartbeat-loss.test.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-lock-heartbeat-loss.test.ts#L1-L120)
-- [src/storage/lock.ts:341-420](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L341-L420)
-- [docs/04-2-file-locking.md:68-76](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-2-file-locking.md#L68-L76)
-- [src/storage/lock.ts:121-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L121-L200)
-- [src/storage/lock.ts:261-420](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L261-L420)
-- [src/storage/lock.ts:421-500](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L421-L500)
-- [docs/04-2-file-locking.md:42-107](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-2-file-locking.md#L42-L107)
-- [test/storage-lock.test.ts:520-600](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-lock.test.ts#L520-L600)
-- [test/storage-lock.test.ts:201-590](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-lock.test.ts#L201-L590)
-- [test/storage-lock-heartbeat-loss.test.ts:120-300](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-lock-heartbeat-loss.test.ts#L120-L300)
-- [docs/04-2-file-locking.md:141-206](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-2-file-locking.md#L141-L206)

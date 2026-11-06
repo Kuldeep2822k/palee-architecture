@@ -338,20 +338,3 @@ PALEE’s pedagogical architecture is designed to keep learning evidence-based:
 - SM-2 schedules timing; prerequisite gates decide permission.
 
 Together, these decisions make spaced repetition useful for long-term retention while preserving prerequisite relationships that reflect real learning dependencies rather than filesystem artifacts.
-
-## References
-
-- [ADR-0004: Four-Pillar Pedagogical Assessment Model:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
-- [ADR-0009: The Gating Model — What May Lock a Note:1-85](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0009-gating-model-depends-on-source.md#L1-L85)
-- [ADR-0020: Readiness and Scheduling Contracts:1-68](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0020-readiness-and-scheduling-contracts.md#L1-L68)
-- [Mastery Engine:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L200)
-- [Next Topics Use Case:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [Record Assessment Use Case:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [ADR-0013: Per-Edge Blocking Policy and OR-Groups:1-75](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0013-per-edge-blocking-policy.md#L1-L75)
-- [ADR-0021: The Assessment Surface:1-86](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0021-assessment-surface.md#L1-L86)
-- [ADR-0010: Tier-0 Hygiene Classification for Batch Adoption:1-72](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0010-tier0-hygiene-classification.md#L1-L72)
-- [Tier-0 Hygiene Predicates:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L200)
-- [ADR-0011: Tiered Auto-Chain — strict | full:1-99](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0011-tiered-auto-chain.md#L1-L99)
-- [Auto-Chain Engine:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L200)
-- [ADR-0012: Declared Prerequisites — Reading a Note's Own Text:1-82](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0012-declared-prerequisites.md#L1-L82)
-- [Declared Prerequisites Scanner:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L200)

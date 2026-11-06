@@ -289,18 +289,3 @@ Consult the exit-code definitions for exact numeric mappings and consult the com
 
 ## Conclusion
 The `palee adopt` command is a controlled, vault-aware tool for converting notes into managed PALEE topics. It combines batch scanning with `--include`, `--exclude`, and `--tag` filters, YAML frontmatter parsing, timestamp-plus-random topic ID minting, declared-prerequisite extraction, Tier-0 hygiene on every batch scan, and atomic file updates into a predictable workflow. By using `--all`, `--difficulty`, `--depends-on`, `--include`, `--exclude`, `--tag`, `--dry-run`, `--verbose`, `--auto-chain`, `--chain-tier`, `-y`/`--yes`, `--undo`, and `--drop-title` deliberately, users can safely adopt single files or large batches. When problems occur, `palee adopt --undo`, narrow retries, and validation provide reliable recovery paths.
-
-## References
-
-- [adopt.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L200)
-- [adopt-undo.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts#L1-L200)
-- [scanner.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L1-L200)
-- [vault-walker.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/vault-walker.ts#L1-L200)
-- [pattern-matcher.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/pattern-matcher.ts#L1-L200)
-- [frontmatter.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L200)
-- [topic-id.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L1-L200)
-- [prereq-text.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L200)
-- [wikilink.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L1-L200)
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
-- [exit-codes.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts#L1-L200)
-- [02-1-topic-management-commands.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/docs/02-1-topic-management-commands.md#L1-L200)

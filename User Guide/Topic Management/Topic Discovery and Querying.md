@@ -402,29 +402,3 @@ PALEE’s topic discovery system separates user-facing query resolution, pure sc
 - Generate progress reports by inspecting mastery, status, due dates, and prerequisite satisfaction.
 
 For large vaults, the most important optimization principle is to reuse precomputed topic graphs, avoid redundant scans, and prefer bounded algorithms where cycle enumeration could otherwise grow exponentially. Proper indexing by `palee_id`, careful use of advisory edges, and clear distinction between due-date actionability and prerequisite readiness together produce reliable, predictable discovery behavior.
-
-## References
-
-- [topic-query.ts:1-97](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/topic-query.ts#L1-L97)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [dependency.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L200)
-- [index.ts:41-50](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L41-L50)
-- [mastery.ts:19-19](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L19-L19)
-- [types.ts:624-684](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L624-L684)
-- [topic-query.ts:28-97](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/topic-query.ts#L28-L97)
-- [due-topics.ts:13-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L13-L58)
-- [get-next-topics.ts:20-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L20-L199)
-- [dependency.ts:930-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L930-L1015)
-- [due-topics.ts:35-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L35-L58)
-- [dependency.ts:601-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L601-L1015)
-- [get-next-topics.ts:150-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L150-L199)
-- [get-next-topics.ts:60-149](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L60-L149)
-- [types.ts:657-657](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L657-L657)
-- [get-next-topics.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L30)
-- [due-topics.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L20)
-- [topic-query.ts:1-15](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/topic-query.ts#L1-L15)
-- [dependency.ts:201-588](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L201-L588)
-- [get-next-topics.ts:60-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L60-L199)
-- [types.ts:684-684](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L684-L684)
-- [types.ts:644-655](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L644-L655)

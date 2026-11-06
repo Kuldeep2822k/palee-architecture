@@ -407,24 +407,3 @@ On Windows:
 
 ## Conclusion
 PALEE’s AI integration is deliberately narrow. The current adapter provides a secure, testable bridge to OpenAI-compatible endpoints while keeping the rest of the system deterministic and offline. The contract between providers and the system is small, explicit, and observable through tests. Phase 2 plans expand capability through structured abstractions, bounded sessions, and asymmetric authority: AI helps understand and narrow learning state, but it does not own the core gating decisions. As PALEE evolves toward integrated AI assistance, these boundaries, contracts, and security guarantees will remain the foundation.
-
-## References
-
-- [index.ts:1-11](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/index.ts#L1-L11)
-- [provider.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L1-L20)
-- [config.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L30)
-- [ai-network-boundary.test.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-network-boundary.test.ts#L1-L30)
-- [ai-network-boundary.test.ts:1-114](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-network-boundary.test.ts#L1-L114)
-- [provider.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L1-L120)
-- [0025-application-layer.md:1-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0025-application-layer.md#L1-L63)
-- [ai-network-boundary.test.ts:70-114](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-network-boundary.test.ts#L70-L114)
-- [provider.ts:201-450](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L201-L450)
-- [0027-ai-provider-boundary.md:1-97](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0027-ai-provider-boundary.md#L1-L97)
-- [provider.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L1-L200)
-- [ai-provider-loopback.test.ts:1-131](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-provider-loopback.test.ts#L1-L131)
-- [config.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L200)
-- [cli-config-provider-credentials.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-config-provider-credentials.test.ts#L1-L200)
-- [cli-config-test-connection.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-config-test-connection.test.ts#L1-L200)
-- [types.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L30)
-- [ai_module_design.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/planning/ai_module_design.md#L1-L200)
-- [0028-phase-2-design-directions.md:1-65](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0028-phase-2-design-directions.md#L1-L65)

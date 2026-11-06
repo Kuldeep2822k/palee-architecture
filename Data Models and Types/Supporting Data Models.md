@@ -510,38 +510,3 @@ Common issues and their model-based signals:
 
 ## Conclusion
 PALEE's supporting data models separate concerns cleanly: domain aggregates like `Progress`, low-level I/O contracts like `FrontmatterResult` and `CacheEntry<T>`, scanning diagnostics via `ScannedNote`, concurrency metadata through `LockData` and `NodeError`, traversal configuration via `WalkOptions`, dependency validation through `ValidationError` and `ValidationResult`, provenance control through `DependsOnSource`, and external curriculum ingestion through `RoadmapTopic`, `RoadmapFile`, and `ResolvedTopicUpdates`. Together, they allow PALEE to scan vaults safely, validate graphs deterministically, schedule learning reliably, and import curriculum without mutating existing topic state unintentionally.
-
-## References
-
-- [types.ts:59-80](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L59-L80)
-- [types.ts:438-500](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L438-L500)
-- [types.ts:515-635](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L515-L635)
-- [types.ts:908-985](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L908-L985)
-- [progress.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L60)
-- [scanner.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L1-L40)
-- [cache.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/cache.ts#L1-L40)
-- [lock.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L1-L40)
-- [vault-walker.ts:1-35](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/vault-walker.ts#L1-L35)
-- [dependency.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L20)
-- [roadmap-parser.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/roadmap-parser.ts#L1-L30)
-- [progress.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L120)
-- [types.ts:987-1001](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L987-L1001)
-- [lock.ts:320-360](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L320-L360)
-- [scanner.ts:250-327](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L250-L327)
-- [roadmap-parser.ts:140-210](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/roadmap-parser.ts#L140-L210)
-- [types.ts:465-500](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L465-L500)
-- [types.ts:412-437](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L412-L437)
-- [cache.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/cache.ts#L1-L120)
-- [cache.ts:201-273](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/cache.ts#L201-L273)
-- [types.ts:355-385](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L355-L385)
-- [lock.ts:201-360](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L201-L360)
-- [lock.ts:201-400](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L201-L400)
-- [types.ts:478-486](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L478-L486)
-- [vault-walker.ts:60-140](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/vault-walker.ts#L60-L140)
-- [vault-walker.ts:60-220](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/vault-walker.ts#L60-L220)
-- [types.ts:515-565](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L515-L565)
-- [types.ts:584-635](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L584-L635)
-- [roadmap-parser.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/roadmap-parser.ts#L1-L40)
-- [roadmap-parser.ts:201-270](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/roadmap-parser.ts#L201-L270)
-- [types.ts:260-340](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L260-L340)
-- [lock.ts:320-400](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L320-L400)

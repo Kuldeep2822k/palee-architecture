@@ -431,25 +431,3 @@ Provide a roadmap where some topics omit `depends_on`. Enable `--auto-chain` so 
 PALEE’s roadmap command provides a safe, validated pathway for importing structured learning plans. It supports multiple input formats, preserves existing vault state according to explicit user intent, detects dangerous configuration early, and offers dry-run previews before committing changes. Its wikilink support integrates naturally with Markdown-based knowledge bases, while auto-chaining helps learners establish deterministic learning sequences.
 
 The dashboard command complements planning by turning stored mastery and scheduling data into actionable analytics. It distinguishes mastered, learning, and new topics, highlights due reviews, breaks down progress by difficulty, and surfaces the next recommended topic. Together, these commands enable learners to plan carefully, import safely, and interpret progress clearly.
-
-## References
-
-- [roadmap.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L1-L200)
-- [dashboard.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L200)
-- [roadmap-parser.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/roadmap-parser.ts#L1-L200)
-- [auto-chain.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L200)
-- [wikilink.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L1-L200)
-- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
-- [types.ts:793-931](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L793-L931)
-- [roadmap.ts:201-533](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L201-L533)
-- [roadmap.ts:534-842](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L534-L842)
-- [types.ts:843-931](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L843-L931)
-- [roadmap.ts:201-842](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L201-L842)
-- [roadmap-parser.ts:1-270](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/roadmap-parser.ts#L1-L270)
-- [types.ts:908-931](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L908-L931)
-- [roadmap.ts:843-861](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L843-L861)
-- [roadmap-parser.ts:201-270](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/roadmap-parser.ts#L201-L270)
-- [roadmap.ts:201-333](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L201-L333)
-- [roadmap.ts:793-842](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L793-L842)
-- [auto-chain.ts:201-450](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L201-L450)
-- [types.ts:843-861](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L843-L861)
