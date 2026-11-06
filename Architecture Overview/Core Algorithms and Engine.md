@@ -101,10 +101,8 @@ This section summarizes each algorithm’s inputs, outputs, invariants, and role
 ### Auto-Chaining Engine
 - **Purpose:** Infer prerequisite chains from vault structure without filesystem access.
 - **Inputs:** Vault-relative paths, basenames, directory hierarchy, optional repository enumeration, and hygiene classification.
-- **Ordering rules:**
-  - Numeric prefixes first (`01-foundations`).
-  - Phase keywords second (`deep-dive`, `lab`, `exam`).
-  - Remaining names third, with stable case-insensitive then case-sensitive ordering.
+- **Ordering rules (operative, shipped path):** `src/cli/adopt.ts` calls `planAutoChainWithHygiene`, whose Tier-0 comparator ranks: README-class first, then numeric prefixes (`01-foundations`), then phase keywords (`deep-dive`, `lab`, `exam`), then other names (stable case-insensitive then case-sensitive ordering), with homework (`assignment`/`quiz`/`solution`) last.
+  - The bare `planAutoChain` comparator (unfiltered) ranks only three ways: numeric -> phase -> alphabetical.
 - **Hygiene integration:** Uses `classifyNoteForChain` so only eligible backbone or leaf notes participate in planning.
 
 ### Tier-0 Hygiene Classifier
@@ -178,9 +176,9 @@ $$I(n) = \begin{cases} 1 & n = 1 \\ 6 & n = 2 \\ \text{clamp}\big(\text{round}(I
 
 Failure branch ($q < 3$):
 
+- `lapses ← lapses + 1` only if `repetition > 0` (checked against the pre-reset repetition value)
 - `repetition ← 0`
 - `interval_days ← 1`
-- `lapses ← lapses + 1` only if `repetition > 0`
 
 Success branch ($q \ge 3$):
 
@@ -304,11 +302,15 @@ Auto-chaining infers ordered prerequisites from vault layout rather than guessin
 - Explicit separation between inferred and author-authored edges.
 
 #### Lesson Ranking
-Basenames are ranked as follows:
+Basenames are ranked as follows in the operative Tier-0 ordering used by `planAutoChainWithHygiene` (the shipped path via `src/cli/adopt.ts`):
 
-1. Numeric prefix: `01-foundations`, `02-linux/01-processes`.
-2. Phase keyword: `deep-dive`, `lab`, `exam`.
-3. Everything else: stable alphabetical tiebreak.
+1. README-class first.
+2. Numeric prefix: `01-foundations`, `02-linux/01-processes`.
+3. Phase keyword: `deep-dive`, `lab`, `exam`.
+4. Everything else: stable alphabetical tiebreak.
+5. Homework (`assignment`, `quiz`, `solution`) last.
+
+The bare `planAutoChain` comparator (unfiltered) uses only the 3-rank version: numeric -> phase -> alphabetical.
 
 #### Directory Ordering
 Directories are compared segment by segment. Numbered segments dominate unnumbered ones, ancestors sort before descendants, and ties fall back to segment name.
@@ -347,7 +349,7 @@ flowchart TD
 |---|---|---|
 | B1 | Repo-meta basename stems | Excluded |
 | B2 | Locale-suffixed generic docs or structural translation segment | Excluded or demoted to leaf |
-| B3 | Template token in stem or directory segment | Excluded or demoted |
+| B3 | Template token in stem or directory segment | Excluded |
 | B4 | Phase subtree segment | Subtree becomes leaves |
 | B5 | README-class, numeric prefix, or content-doc prefix | Backbone eligible |
 | B7 | Invalid `palee_id` | Demoted to leaf |
