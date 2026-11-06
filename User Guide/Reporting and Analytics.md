@@ -66,24 +66,6 @@ graph TB
     Tests --> MasterySummary
 ```
 
-**Diagram sources**
-- [dashboard.ts:1-217](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L217)
-- [progress.ts:1-316](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L316)
-- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [due-topics.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts)
-- [get-next-topics.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts)
-- [loader.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts)
-- [02-3-reporting-commands.md:1-435](https://github.com/Kuldeep2822k/cli/blob/main/docs/02-3-reporting-commands.md#L1-L435)
-- [cli-json-output.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-json-output.test.ts#L1-L200)
-
-**Section sources**
-- [dashboard.ts:1-217](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L217)
-- [progress.ts:1-316](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L316)
-- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [02-3-reporting-commands.md:1-435](https://github.com/Kuldeep2822k/cli/blob/main/docs/02-3-reporting-commands.md#L1-L435)
-
 ## Core Components
 
 ### Dashboard Command
@@ -103,11 +85,6 @@ Key behaviors documented by implementation:
 - `next_review` is the first non-archived topic from the prerequisite-gated actionable set returned by the next-topic use case.
 - Empty vaults emit consistent JSON fields even when there is no data.
 
-**Section sources**
-- [dashboard.ts:1-217](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L217)
-- [02-3-reporting-commands.md:1-435](https://github.com/Kuldeep2822k/cli/blob/main/docs/02-3-reporting-commands.md#L1-L435)
-- [cli-json-output.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-json-output.test.ts#L1-L200)
-
 ### Mastery Summary and Four-Pillar Model
 Mastery summary logic is intentionally pure and reusable:
 
@@ -121,11 +98,6 @@ Mastery summary logic is intentionally pure and reusable:
 
 The underlying four-pillar model computes an overall topic mastery score from frontmatter assessment values. Pillars are normalized before calculation, and the formula emphasizes conceptual understanding, practical application, debugging ability, and especially Feynman articulation.
 
-**Section sources**
-- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [application-mastery-summary.test.ts:1-27](https://github.com/Kuldeep2822k/cli/blob/main/test/application-mastery-summary.test.ts#L1-L27)
-
 ### Progress Command
 The `palee progress` command provides deeper analytics:
 
@@ -133,10 +105,6 @@ The `palee progress` command provides deeper analytics:
 - Topic-specific mode surfaces SRS metadata for one note, including mastery, difficulty, repetitions, lapses, assessed date, and last reviewed date.
 - It reuses the same mastery bucketing logic as the dashboard.
 - It handles missing or ambiguous topic queries with structured errors in JSON mode.
-
-**Section sources**
-- [progress.ts:1-316](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L316)
-- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
 
 ## Architecture Overview
 
@@ -164,13 +132,6 @@ sequenceDiagram
     CLI->>Output: "Render text or JSON"
 ```
 
-**Diagram sources**
-- [dashboard.ts:1-217](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L217)
-- [loader.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts)
-- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
-- [due-topics.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts)
-- [get-next-topics.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts)
-
 ## Detailed Component Analysis
 
 ### Dashboard Metrics and Their Meaning
@@ -194,10 +155,6 @@ The dashboard’s `reviews_due` is intentionally a review-backlog metric. It cou
 #### Why Archived Topics Are Excluded From Derived Figures
 Archived topics are removed from mastery aggregation and difficulty breakdowns. This avoids inflating or diluting learning metrics with content no longer actively maintained.
 
-**Section sources**
-- [dashboard.ts:1-217](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L217)
-- [02-3-reporting-commands.md:1-435](https://github.com/Kuldeep2822k/cli/blob/main/docs/02-3-reporting-commands.md#L1-L435)
-
 ### Mastery Calculation Flow
 
 ```mermaid
@@ -215,19 +172,11 @@ flowchart TD
     Bucket --> End(["Return Summary Counts"])
 ```
 
-**Diagram sources**
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
-
 #### Interpreting Mastery Scores
 - A score near `0.0` means little or no recorded assessment.
 - A score between `0.0` and `0.70` means partial mastery; these topics are “learning.”
 - A score at or above `0.70` means mastery; these topics satisfy prerequisite gates and count as “mastered.”
 - Because the Feynman pillar is weighted more heavily, strong articulation can raise overall mastery even when other pillars are moderate.
-
-**Section sources**
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [application-mastery-summary.test.ts:1-27](https://github.com/Kuldeep2822k/cli/blob/main/test/application-mastery-summary.test.ts#L1-L27)
 
 ### Output Formats
 
@@ -252,10 +201,6 @@ Use `--json` or set the environment variable to enable machine-readable output. 
 
 Errors in JSON mode are emitted to standard error as structured objects rather than plain text.
 
-**Section sources**
-- [dashboard.ts:1-217](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L217)
-- [cli-json-output.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-json-output.test.ts#L1-L200)
-
 ### Custom Reports for Time Periods, Categories, and Thresholds
 
 #### Built-in Capabilities
@@ -275,11 +220,6 @@ For custom time windows, topic categories, or alternative thresholds:
 4. Aggregate or export the filtered results for external visualization.
 
 This approach keeps PALEE’s canonical calculations intact while giving you flexibility for custom analytics.
-
-**Section sources**
-- [dashboard.ts:1-217](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L217)
-- [progress.ts:1-316](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L316)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
 
 ### Practical Reporting Scenarios
 
@@ -320,8 +260,6 @@ Stalls often appear as:
 - High `reviews_due` combined with low new mastery gains.
 - `next_review` pointing repeatedly to the same topic, which may indicate excessive difficulty or missing prerequisites.
 
-[No sources needed since this section synthesizes interpretation guidance without analyzing specific code lines]
-
 ## Dependency Analysis
 
 ```mermaid
@@ -337,16 +275,6 @@ graph LR
     Tests --> Progress
 ```
 
-**Diagram sources**
-- [dashboard.ts:1-217](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L217)
-- [progress.ts:1-316](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L316)
-- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
-- [due-topics.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts)
-- [get-next-topics.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts)
-- [loader.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [cli-json-output.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-json-output.test.ts#L1-L200)
-
 ### Coupling and Cohesion
 - The dashboard command depends on multiple services but remains focused on orchestration and presentation.
 - Mastery bucketing is isolated in a pure module, improving testability and reuse.
@@ -358,11 +286,6 @@ graph LR
 - Standard error for structured JSON errors.
 - Exit codes for configuration and usage failures.
 - Timestamps and ISO-like date strings for downstream processing.
-
-**Section sources**
-- [dashboard.ts:1-217](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L217)
-- [progress.ts:1-316](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L316)
-- [cli-json-output.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-json-output.test.ts#L1-L200)
 
 ## Performance Considerations
 
@@ -380,8 +303,6 @@ When generating reports for large vaults:
 - Filter locally after receiving JSON instead of invoking PALEE repeatedly.
 - Use the difficulty breakdown to prioritize scanning or remediation rather than inspecting every topic manually.
 - Keep archived topics separated conceptually so they do not distort performance-related metrics.
-
-[No sources needed since this section provides general guidance]
 
 ## Troubleshooting Guide
 
@@ -401,11 +322,6 @@ When generating reports for large vaults:
 - Usage errors, such as missing or ambiguous topic queries, set a non-zero exit code.
 - Unexpected runtime exceptions use a distinct error exit code path.
 
-**Section sources**
-- [dashboard.ts:1-217](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L217)
-- [progress.ts:1-316](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L316)
-- [cli-json-output.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-json-output.test.ts#L1-L200)
-
 ## Conclusion
 PALEE’s reporting and analytics center on two complementary views:
 
@@ -413,3 +329,16 @@ PALEE’s reporting and analytics center on two complementary views:
 - The **mastery summary logic** provides a consistent, threshold-based classification of topics across the four-pillar model.
 
 For most automation needs, use `palee dashboard --json` and `palee progress --json`. For deep dives, combine JSON exports with local filtering to build weekly reviews, gap analyses, and long-term learning trend reports. Keep archived topics out of active metrics, distinguish review backlog from actionable topics, and rely on the canonical mastery threshold for consistent interpretations.
+
+## References
+
+- [dashboard.ts:1-217](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L217)
+- [progress.ts:1-316](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L316)
+- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
+- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
+- [due-topics.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts)
+- [get-next-topics.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts)
+- [loader.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts)
+- [02-3-reporting-commands.md:1-435](https://github.com/Kuldeep2822k/cli/blob/main/docs/02-3-reporting-commands.md#L1-L435)
+- [cli-json-output.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-json-output.test.ts#L1-L200)
+- [application-mastery-summary.test.ts:1-27](https://github.com/Kuldeep2822k/cli/blob/main/test/application-mastery-summary.test.ts#L1-L27)

@@ -584,8 +584,6 @@ sequenceDiagram
 - **Sorted outputs:** Rules sort findings deterministically, which keeps large vault scans predictable even though sorting adds overhead.
 - **Provisional optimization:** Many rules skip work when parse errors, read errors, or schema-clean checks fail, reducing redundant diagnostics.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 
 ### Common Diagnostic Patterns

@@ -330,8 +330,6 @@ graph LR
 - Sorting should be limited to deterministic output requirements rather than broad full-array sorts.
 - Exception handling adds negligible overhead compared to rule computation but ensures one crashing rule does not prevent later rules from running.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 
 ### A Rule Throws an Unexpected Exception
@@ -370,8 +368,6 @@ Remember:
 8. Keep locator fields precise: `file`, `topicId`, `sessionId`, and `field` help consumers locate problems.
 9. Prefer failing fast on invalid input to producing confusing findings.
 10. Add tests covering normal findings, edge cases, provisional snapshots, and exception safety.
-
-[No sources needed since this section summarizes established practices]
 
 ## Conclusion
 The PALEE validation rule execution engine is deliberately lean. It collects a single, consistent snapshot of vault state, executes pure rules in registration order, concatenates findings without short-circuiting, and converts unexpected exceptions into structured error findings. The `ValidationRule` and `ValidationContext` contracts define a clear boundary: rules inspect read-only data and return structured findings, while the runner, collector, and formatter handle orchestration, isolation, and presentation. Following the best practices above keeps rules deterministic, testable, and compatible with the broader PALEE validation and fix workflows.

@@ -389,8 +389,6 @@ Optimization opportunities:
 - For very large graphs, prefer bounded or incremental graph operations where supported by the engine.
 - Keep topic cache warm across related commands to reduce repeated vault scanning.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 
 ### Missing or Corrupted Due Dates

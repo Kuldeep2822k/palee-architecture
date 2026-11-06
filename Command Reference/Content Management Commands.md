@@ -58,20 +58,6 @@ graph TB
     C --> T
 ```
 
-**Diagram sources**
-- [adopt.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L20)
-- [assess.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L20)
-- [config.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L20)
-- [mastery.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L20)
-- [record-assessment.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L20)
-- [pattern-matcher.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/pattern-matcher.ts#L1-L20)
-- [types.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L20)
-
-**Section sources**
-- [adopt.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L20)
-- [assess.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L20)
-- [config.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L20)
-
 ## Core Components
 
 ### Adopt Command
@@ -98,12 +84,6 @@ Key behaviors:
 - Declared prerequisites from note text can replace inferred edges when present.
 - The command uses optimistic concurrency control and a rollback journal during batch writes.
 
-**Section sources**
-- [adopt.ts:201-280](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L201-L280)
-- [adopt.ts:280-420](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L280-L420)
-- [adopt.ts:420-531](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L420-L531)
-- [adopt.ts:600-905](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L600-L905)
-
 ### Assess Command
 The assess command records a four-pillar pedagogical assessment for a topic. The pillars are:
 - Conceptual understanding.
@@ -126,12 +106,6 @@ Key behaviors:
 - Concurrent modification of the target note is detected as an OCC conflict.
 - `--dry-run` previews changes without writing.
 - `--force` suppresses the lowering warning but does not change what is recorded.
-
-**Section sources**
-- [assess.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L120)
-- [assess.ts:120-279](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L120-L279)
-- [mastery.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L120)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
 
 ### Config Command
 The config command manages PALEE's persistent configuration. Supported actions are:
@@ -156,11 +130,6 @@ Key behaviors:
 - On Windows, storing a key outside the user profile is refused unless overridden.
 - Changing the provider base URL while a key is configured may require explicit confirmation or `--keep-key`.
 - `--json` returns structured output for every action.
-
-**Section sources**
-- [config.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L120)
-- [config.ts:201-612](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L201-L612)
-- [config.ts:612-766](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L612-L766)
 
 ## Architecture Overview
 
@@ -190,11 +159,6 @@ sequenceDiagram
     end
     CLI-->>User: Human-readable or JSON result
 ```
-
-**Diagram sources**
-- [adopt.ts:201-531](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L201-L531)
-- [assess.ts:120-279](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L120-L279)
-- [config.ts:201-766](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L201-L766)
 
 ## Detailed Component Analysis
 
@@ -313,16 +277,6 @@ flowchart TD
     ToAdopt --> Confirm
 ```
 
-**Diagram sources**
-- [adopt.ts:201-531](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L201-L531)
-- [adopt.ts:600-905](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L600-L905)
-
-**Section sources**
-- [adopt.ts:201-531](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L201-L531)
-- [adopt.ts:600-905](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L600-L905)
-- [pattern-matcher.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/pattern-matcher.ts#L1-L120)
-- [types.ts:60-120](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L60-L120)
-
 ### Assess Command: Four-Pillar Assessment System
 
 #### Pillars and Mastery Formula
@@ -370,16 +324,6 @@ sequenceDiagram
     end
 ```
 
-**Diagram sources**
-- [assess.ts:120-279](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L120-L279)
-- [record-assessment.ts:60-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L60-L134)
-- [mastery.ts:80-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L80-L200)
-
-**Section sources**
-- [assess.ts:1-279](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L279)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [mastery.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L200)
-
 ### Config Command: Actions, Environment Variables, and JSON Output
 
 #### Configuration Actions
@@ -423,14 +367,6 @@ flowchart TD
     Action -->|unknown| Unknown["List valid actions<br/>Exit usage"]
 ```
 
-**Diagram sources**
-- [config.ts:201-766](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L201-L766)
-
-**Section sources**
-- [config.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L200)
-- [config.ts:201-612](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L201-L612)
-- [config.ts:612-766](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L612-L766)
-
 ## Dependency Analysis
 
 ```mermaid
@@ -443,15 +379,6 @@ graph LR
     CLI_Config["config.ts"] --> Types
 ```
 
-**Diagram sources**
-- [adopt.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L20)
-- [assess.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L20)
-- [config.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L20)
-- [mastery.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L20)
-- [record-assessment.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L20)
-- [pattern-matcher.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/pattern-matcher.ts#L1-L20)
-- [types.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L20)
-
 ### Coupling and Cohesion
 - The CLI layer remains thin: it parses options, resolves vaults, and delegates domain logic.
 - Mastery calculation is centralized in the engine.
@@ -463,11 +390,6 @@ graph LR
 - The AI provider integration is consulted by `test-connection` and referenced indirectly by config actions.
 - Node.js built-in modules handle paths, OS home directories, crypto, and readline.
 
-**Section sources**
-- [adopt.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L20)
-- [assess.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L20)
-- [config.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L20)
-
 ## Performance Considerations
 - Batch adoption reads each candidate once and avoids repeated parsing by carrying frontmatter state through the scan loop.
 - Pattern validation happens early to fail fast on invalid globs.
@@ -475,8 +397,6 @@ graph LR
 - Large notes are rejected before adoption to avoid minting identities onto files that other commands will refuse.
 - Atomic writes minimize corruption risk and enable reliable rollback.
 - Pattern compilation collapses redundant `**/` bands to reduce backtracking risk.
-
-[No sources needed since this section provides general guidance]
 
 ## Troubleshooting Guide
 
@@ -508,11 +428,6 @@ graph LR
 - **Origin retargeting with stored key**: Confirm explicitly or unset the key before changing the base URL.
 - **Test connection failure**: Check provider settings, network access, and API key source.
 
-**Section sources**
-- [adopt.ts:201-531](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L201-L531)
-- [assess.ts:1-279](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L279)
-- [config.ts:201-766](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L201-L766)
-
 ## Conclusion
 PALAE's content management commands provide a disciplined workflow for turning existing notes into managed learning topics, recording structured assessments, and maintaining secure configuration. The adopt command balances flexibility with safety through validation, hygiene rules, atomic writes, and rollback. The assess command ties pedagogical mastery to prerequisite gating using a clear four-pillar model. The config command centralizes provider and vault settings while protecting secrets and exposing machine-readable output for automation.
 
@@ -523,4 +438,32 @@ For reliable workflows:
 - Keep configuration inside safe directories and avoid embedding secrets in command history.
 - Treat mastery as a gate: raise it with all relevant pillars, especially Feynman, when prerequisite gates remain closed.
 
-[No sources needed since this section summarizes without analyzing specific files]
+## References
+
+- [adopt.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L20)
+- [assess.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L20)
+- [config.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L20)
+- [mastery.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L20)
+- [record-assessment.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L20)
+- [pattern-matcher.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/pattern-matcher.ts#L1-L20)
+- [types.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L20)
+- [adopt.ts:201-280](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L201-L280)
+- [adopt.ts:280-420](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L280-L420)
+- [adopt.ts:420-531](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L420-L531)
+- [adopt.ts:600-905](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L600-L905)
+- [assess.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L120)
+- [assess.ts:120-279](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L120-L279)
+- [mastery.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L120)
+- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
+- [config.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L120)
+- [config.ts:201-612](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L201-L612)
+- [config.ts:612-766](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L612-L766)
+- [adopt.ts:201-531](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L201-L531)
+- [config.ts:201-766](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L201-L766)
+- [pattern-matcher.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/pattern-matcher.ts#L1-L120)
+- [types.ts:60-120](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L60-L120)
+- [record-assessment.ts:60-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L60-L134)
+- [mastery.ts:80-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L80-L200)
+- [assess.ts:1-279](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L279)
+- [mastery.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L200)
+- [config.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L200)

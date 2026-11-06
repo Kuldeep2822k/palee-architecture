@@ -370,8 +370,6 @@ stateDiagram-v2
 - [ADR-0004: Four-Pillar Pedagogical Assessment Model:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
 - [ADR-0020: Readiness and Scheduling Contracts:1-68](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0020-readiness-and-scheduling-contracts.md#L1-L68)
 
-[No sources needed since this diagram shows conceptual workflow, not actual code structure]
-
 ## Dependency Analysis
 The learning pipeline has clear boundaries between measurement, policy, and scheduling:
 
@@ -407,8 +405,6 @@ PAL EE’s learning decisions trade computational work for correctness:
 - **Readiness is shared**: `next` and `plan` use the same prerequisite gate instead of duplicating logic.
 - **Cycle quarantine happens once per readiness computation**, skipping both passes when the vault has no edges.
 - **Per-edge blocking is proposed for future mixed-source notes**, but the current per-note label avoids premature complexity while documenting the exact failure mode it prevents.
-
-[No sources needed since this section provides general guidance]
 
 ## Troubleshooting Guide
 

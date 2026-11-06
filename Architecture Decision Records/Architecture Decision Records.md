@@ -525,8 +525,6 @@ Recommendations:
 - Preserve the unsettled horizon when changing cache assumptions.
 - Do not bypass locks or fingerprint checks for performance shortcuts.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 Common issues and their decision-backed resolutions:
 
@@ -558,8 +556,6 @@ Future considerations include:
 - Extending validation rules carefully and updating barrel census tests consistently.
 - Expanding AI capabilities within the existing provider boundary and assessment-surface contracts.
 - Continuing to treat planning documents, ADRs, invariants, and tests as a single verification loop.
-
-[No sources needed since this section summarizes without analyzing specific files]
 
 ## Appendices
 

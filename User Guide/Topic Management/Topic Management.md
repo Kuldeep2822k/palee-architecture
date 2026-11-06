@@ -61,22 +61,6 @@ graph TB
   D --> E
 ```
 
-**Diagram sources**
-- [adopt.ts:201-531](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L201-L531)
-- [assess.ts:1-279](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L279)
-- [topic-query.ts:1-97](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/topic-query.ts#L1-L97)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [prereq-text.ts:1-317](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L317)
-- [scanner.ts:1-327](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L1-L327)
-
-**Section sources**
-- [adopt.ts:201-531](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L201-L531)
-- [assess.ts:1-279](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L279)
-- [topic-query.ts:1-97](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/topic-query.ts#L1-L97)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [prereq-text.ts:1-317](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L317)
-- [scanner.ts:1-327](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L1-L327)
-
 ## Core Components
 
 ### Adopt Command
@@ -98,9 +82,6 @@ Key behaviors include:
 - The command preserves hand-written `depends_on` unless overridden explicitly.
 - Batch mode uses optimistic concurrency control and rollback journals for safety.
 
-**Section sources**
-- [adopt.ts:201-531](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L201-L531)
-
 ### Assess Command
 The assess command records pillar scores for an existing topic and recomputes mastery. Pillars are:
 - Conceptual
@@ -118,10 +99,6 @@ Important properties:
 - Concurrent modifications are detected using file fingerprints.
 - The report names topics newly offered or blocked by `palee plan`.
 
-**Section sources**
-- [assess.ts:1-279](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L279)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-
 ### Topic Query Resolution
 Topic queries support three forms:
 1. Exact `palee_id`.
@@ -135,9 +112,6 @@ Resolution order:
 
 Ambiguity is surfaced to the caller rather than silently picking the first candidate.
 
-**Section sources**
-- [topic-query.ts:1-97](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/topic-query.ts#L1-L97)
-
 ### Prerequisite Text Extraction
 PALEE reads a note’s own declared prerequisites from sections whose headings match conventional patterns such as “Prerequisites”, “Requirements”, or similar phrases. Within those sections:
 - Wikilinks and markdown links become prerequisite references.
@@ -148,9 +122,6 @@ PALEE reads a note’s own declared prerequisites from sections whose headings m
 
 Extracted references are later resolved against an index; missing or ambiguous targets are skipped rather than failing the whole adoption run.
 
-**Section sources**
-- [prereq-text.ts:1-317](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L317)
-
 ### Vault Scanning and Frontmatter Diagnostics
 The scanner walks vault content and reports per-file frontmatter outcomes. It:
 - Uses stat-first size checks to avoid reading oversized documents.
@@ -159,9 +130,6 @@ The scanner walks vault content and reports per-file frontmatter outcomes. It:
 - Detects body content accidentally parsed as frontmatter.
 - Detects opening `---` fences with no closing fence.
 - Sorts results deterministically by relative path.
-
-**Section sources**
-- [scanner.ts:1-327](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L1-L327)
 
 ## Architecture Overview
 
@@ -183,11 +151,6 @@ sequenceDiagram
     Storage-->>CLI_Adopt: "success or error"
     CLI_Adopt-->>User: "adoption result"
 ```
-
-**Diagram sources**
-- [adopt.ts:201-531](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L201-L531)
-- [scanner.ts:1-327](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L1-L327)
-- [prereq-text.ts:1-317](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L317)
 
 ```mermaid
 sequenceDiagram
@@ -211,11 +174,6 @@ sequenceDiagram
       CLI_Assess-->>User: "recorded assessment and effect"
     end
 ```
-
-**Diagram sources**
-- [assess.ts:1-279](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L279)
-- [topic-query.ts:1-97](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/topic-query.ts#L1-L97)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
 
 ## Detailed Component Analysis
 
@@ -245,9 +203,6 @@ flowchart TD
     Preview --> End
 ```
 
-**Diagram sources**
-- [adopt.ts:201-531](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L201-L531)
-
 #### Batch Adoption Flow
 Batch adoption scans a target directory or the entire vault, applies filters, prints a preview, optionally asks for confirmation, and then adopts eligible notes. Important details:
 - `--include`, `--exclude`, and `--tag` are validated early.
@@ -255,10 +210,6 @@ Batch adoption scans a target directory or the entire vault, applies filters, pr
 - Tier-0 hygiene can skip template-like or navigation-only notes.
 - `--auto-chain` synthesizes dependency edges from numbering or TOC structure.
 - Rollback journals restore partially adopted notes if later steps fail.
-
-**Section sources**
-- [adopt.ts:201-531](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L201-L531)
-- [cli-adopt-batch.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-batch.test.ts#L1-L200)
 
 ### Assess Workflow
 Assessment computes mastery from pillar scores and updates the note only after validation and concurrency checks.
@@ -281,10 +232,6 @@ flowchart TD
     UpdateFM --> Report(["Print recorded assessment effect"])
 ```
 
-**Diagram sources**
-- [assess.ts:1-279](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L279)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-
 ### Prerequisite Chain Logic
 Declared prerequisites are intentionally strict:
 - Only explicit links under recognized heading sections count.
@@ -304,10 +251,6 @@ flowchart TD
     Outcome -->|Yes| Edge["Add gated dependency edge"]
 ```
 
-**Diagram sources**
-- [prereq-text.ts:1-317](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L317)
-- [cli-adopt-prereq-text.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-prereq-text.test.ts#L1-L200)
-
 ## Dependency Analysis
 
 ```mermaid
@@ -319,22 +262,6 @@ graph LR
   Record --> Prereq
 ```
 
-**Diagram sources**
-- [adopt.ts:201-531](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L201-L531)
-- [assess.ts:1-279](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L279)
-- [topic-query.ts:1-97](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/topic-query.ts#L1-L97)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [prereq-text.ts:1-317](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L317)
-- [scanner.ts:1-327](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L1-L327)
-
-**Section sources**
-- [adopt.ts:201-531](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L201-L531)
-- [assess.ts:1-279](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L279)
-- [topic-query.ts:1-97](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/topic-query.ts#L1-L97)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [prereq-text.ts:1-317](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L317)
-- [scanner.ts:1-327](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L1-L327)
-
 ## Performance Considerations
 For large vaults:
 - Prefer targeted adoption directories instead of `--all` when possible.
@@ -343,8 +270,6 @@ For large vaults:
 - Avoid unnecessary re-writes by confirming that a note already has `palee_id` before attempting adoption.
 - Keep notes under the source read cap so the scanner does not repeatedly reject oversized files.
 - Batch operations benefit from deterministic scanning order and size prechecks.
-
-[No sources needed since this section provides general guidance]
 
 ## Troubleshooting Guide
 
@@ -357,9 +282,6 @@ Resolution:
 - If it was imported incorrectly, repair the frontmatter using validation tools before retrying.
 - Do not manually edit `palee_id` without understanding identity preservation.
 
-**Section sources**
-- [adopt.ts:201-531](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L201-L531)
-
 ### Missing Dependencies
 Symptoms:
 - Warnings about `--depends-on` IDs matching no adopted topic.
@@ -370,9 +292,6 @@ Resolution:
 - Correct malformed dependency IDs so they follow the expected format.
 - Adopt dependent topics before or alongside their prerequisites.
 - Use `palee validate` to inspect graph integrity.
-
-**Section sources**
-- [adopt.ts:201-531](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L201-L531)
 
 ### Malformed Frontmatter
 Symptoms:
@@ -386,10 +305,6 @@ Resolution:
 - Remove body content that leaks into the frontmatter region.
 - Use scanner diagnostics to identify problematic files before bulk adoption.
 
-**Section sources**
-- [scanner.ts:1-327](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L1-L327)
-- [adopt.ts:201-531](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L201-L531)
-
 ### Ambiguous Topic Queries
 Symptoms:
 - Assess or other commands report multiple matching topics.
@@ -399,9 +314,6 @@ Resolution:
 - Use a more specific title substring.
 - Use the exact vault-relative path printed by PALEE output.
 
-**Section sources**
-- [topic-query.ts:1-97](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/topic-query.ts#L1-L97)
-
 ### Dry-Run Behavior
 Expected behavior:
 - `palee adopt --dry-run` prints what would change without modifying files.
@@ -409,10 +321,6 @@ Expected behavior:
 
 Common mistake:
 - Expecting dry-run to commit changes. It does not.
-
-**Section sources**
-- [adopt.ts:201-531](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L201-L531)
-- [assess.ts:1-279](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L279)
 
 ## Best Practices
 
@@ -443,18 +351,11 @@ Common mistake:
 5. Run adoption with `-y` or interactive confirmation.
 6. Verify results with planning and validation commands.
 
-**Section sources**
-- [cli-adopt-batch.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-batch.test.ts#L1-L200)
-
 #### Set Up Learning Paths with Prerequisites
 1. Author clear “Prerequisites” sections linking earlier lessons.
 2. Adopt notes so each becomes a managed topic.
 3. Confirm that dependent notes remain off the ready list until prerequisites are mastered.
 4. Use `palee plan` to verify available next steps.
-
-**Section sources**
-- [cli-adopt-prereq-text.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-prereq-text.test.ts#L1-L200)
-- [prereq-text.ts:1-317](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L317)
 
 #### Bulk Update Topic Metadata
 1. Use `palee assess` to record pillar scores across topics.
@@ -462,9 +363,16 @@ Common mistake:
 3. Record assessments with `--force` only when intentionally lowering mastery.
 4. Re-run planning to confirm unlocked or newly blocked topics.
 
-**Section sources**
-- [assess.ts:1-279](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L279)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-
 ## Conclusion
 Topic management in PALEE combines careful file scanning, robust frontmatter handling, explicit prerequisite modeling, and mastery-driven planning. The adopt command turns existing notes into managed topics while preserving author intent, and the assess command ties pedagogical mastery to scheduling and readiness. For large vaults, disciplined filtering, safe dry-runs, and clear prerequisite documentation produce predictable, maintainable learning graphs.
+
+## References
+
+- [adopt.ts:201-531](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L201-L531)
+- [assess.ts:1-279](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L279)
+- [topic-query.ts:1-97](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/topic-query.ts#L1-L97)
+- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
+- [prereq-text.ts:1-317](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L317)
+- [scanner.ts:1-327](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L1-L327)
+- [cli-adopt-batch.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-batch.test.ts#L1-L200)
+- [cli-adopt-prereq-text.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-prereq-text.test.ts#L1-L200)
