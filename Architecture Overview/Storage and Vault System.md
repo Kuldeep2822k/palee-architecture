@@ -436,8 +436,6 @@ Coupling observations:
 - **Atomic rename:** Renaming replaces the destination inode, avoiding partial writes and expensive rollback structures.
 - **Bounded retries:** Lock acquisition and Windows transient errors use bounded retry budgets to prevent hangs.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 
 ### Retryable Concurrency Conflicts
@@ -501,8 +499,6 @@ If the cache serves stale data or grows too large:
 
 ## Conclusion
 PALAE's storage layer is built around safety, consistency, and predictable performance. Vault traversal excludes unsafe and irrelevant paths, the scanner tolerates malformed notes without failing the whole scan, and the frontmatter layer preserves user formatting while enabling precise updates. Atomic writes combine containment checks, file locks, OCC fingerprints, temporary files, and durability flushing to ensure that vault data remains consistent even under concurrent or interrupted operations. The lock manager handles stale holders and platform differences, while the file cache and negative cache keep repeated loads efficient. Together, these components provide a secure, observable, and performant foundation for managing PALEE topics inside an Obsidian vault.
-
-[No sources needed since this section summarizes without analyzing specific files]
 
 ## References
 

@@ -394,8 +394,6 @@ graph LR
 - **Avoid unnecessary writes**: `--dry-run` performs all validation and effect computation without acquiring locks or writing bytes.
 - **Concurrency backoff**: Windows contention uses bounded exponential backoff with jitter to reduce thundering-herd effects.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 
 ### Common Errors and Resolutions

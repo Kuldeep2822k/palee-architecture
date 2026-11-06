@@ -361,8 +361,6 @@ Coupling and cohesion:
 - **Heartbeat cost**: Touching timestamps is inexpensive compared to rewriting files, reducing disk churn.
 - **Contention profile**: Under heavy contention, the system favors predictable termination over aggressive spinning, surfacing conflicts once budgets are exhausted.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 
 ### Common Symptoms and Causes
@@ -396,4 +394,3 @@ Coupling and cohesion:
 ## Conclusion
 The file locking subsystem provides robust cross-process mutual exclusion for vault notes through atomic directory creation, deterministic path hashing, quarantine-based stale recovery, and a heartbeat-driven lease model. Its design emphasizes bounded execution, clear conflict signaling, platform-aware behavior, and observability of ownership loss. Callers should treat `ECONFLICT` as contention, implement bounded retries with jitter, reload state after retries, and check `lock.lockLost` during long-held operations to avoid writing under a reclaimed lease.
 
-[No sources needed since this section summarizes without analyzing specific files]

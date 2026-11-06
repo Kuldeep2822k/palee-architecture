@@ -464,8 +464,6 @@ Memory management guidance:
   - Bounding cache size and clearing it between heavy operations.
 - Distributed or multi-process scenarios should treat the cache as process-local and coordinate invalidation through durable state or explicit coordination.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 
 ### Common Walker Errors
@@ -516,4 +514,3 @@ The vault walker and scanner form a disciplined boundary between the filesystem 
 
 For enterprise-scale vaults, the most important operational advice is to minimize redundant walks, avoid unnecessary symlink traversal, keep scanner output deterministic, and manage cache lifetime explicitly. Error handling is designed to be resilient: missing files, permission problems, malformed YAML, and filesystem anomalies produce actionable diagnostics rather than abrupt failures.
 
-[No sources needed since this section summarizes without analyzing specific files]

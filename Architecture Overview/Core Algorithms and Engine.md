@@ -416,8 +416,6 @@ graph LR
 - **Pathological cycle counts:** Bounded enumeration with a truncation flag protects interactive commands.
 - **Large repository enumerations:** TOC scanning uses bracket-balance tables to avoid quadratic rescans on malformed markdown.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 
 ### SM-2 Issues
@@ -469,8 +467,6 @@ PALEE’s core engine is a composition of small, deterministic algorithms with c
 - Tier-0 hygiene keeps repository noise out of the curriculum graph.
 
 Together, they transform Markdown notes, assessment scores, and review history into safe, reproducible learning recommendations.
-
-[No sources needed since this section summarizes without analyzing specific files]
 
 ## Appendices
 

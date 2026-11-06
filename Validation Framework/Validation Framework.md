@@ -500,8 +500,6 @@ Optimization opportunities observed in the codebase:
 - Incremental validation could track file hashes and only rerun rules whose inputs changed, but this is not currently implemented.
 - Some rules perform repeated Set or Map construction per topic; these are generally low-cost compared to I/O, but very large vaults could benefit from profiling.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 
 ### Exit Codes and Severity Policy
@@ -561,8 +559,6 @@ The PALEE validation framework replaces ad-hoc CLI checks with a structured, det
 - The CLI owns workflow, reporting, and exit codes.
 
 Extending the framework means implementing a pure rule, registering it in the canonical catalog, exporting it through the barrel, and optionally providing a repair implementation when the rule declares a fixable finding.
-
-[No sources needed since this section summarizes without analyzing specific files]
 
 ## Appendices
 
