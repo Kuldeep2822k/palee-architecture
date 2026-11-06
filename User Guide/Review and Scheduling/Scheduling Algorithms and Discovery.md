@@ -63,22 +63,6 @@ graph TB
   GetNext --> Vault
 ```
 
-**Diagram sources**
-- [next.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L100)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [dependency.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L120)
-- [mastery.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L60)
-- [sm2.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L120)
-
-**Section sources**
-- [next.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L100)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [dependency.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L120)
-- [mastery.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L60)
-- [sm2.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L120)
-
 ## Core Components
 
 ### SM-2 Spaced Repetition Engine
@@ -108,13 +92,6 @@ Important safety properties include:
 - Date computation uses local calendar days instead of UTC millisecond arithmetic, avoiding daylight saving ambiguity.
 - Extreme inputs such as strings, booleans, NaN, Infinity, negative counts, fractional counts, and safe-integer boundary values are rejected with field-specific diagnostics.
 
-**Section sources**
-- [sm2.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L120)
-- [sm2.ts:121-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L121-L200)
-- [sm2.ts:201-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L201-L306)
-- [engine-sm2.test.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L1-L120)
-- [engine-sm2.test.ts:201-442](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L201-L442)
-
 ### Topic Discovery and Readiness Gate
 The discovery layer answers one question: which topics should the learner study now?
 
@@ -138,12 +115,6 @@ Before being returned, candidates pass the prerequisite gate:
 
 The result includes both actionable topics and blocked topics with human-readable waiting-on reasons.
 
-**Section sources**
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [mastery.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L60)
-- [application-get-next-topics.test.ts:1-77](https://github.com/Kuldeep2822k/cli/blob/main/test/application-get-next-topics.test.ts#L1-L77)
-
 ### CLI Integration for `palee next`
 The CLI command loads configuration, validates the vault path, loads topics, calls the application layer, filters out archived topics, and outputs either human-readable text or machine-readable JSON.
 
@@ -165,11 +136,6 @@ Command-line parameters affecting scheduling behavior:
 | Vault configuration | Determines which vault is scanned |
 
 The command does not itself compute intervals; it reads already-scheduled review state and lets the engine update it during assessments.
-
-**Section sources**
-- [next.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L200)
-- [next.ts:201-227](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L201-L227)
-- [cli-next-plan-prerequisite-gating.test.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-next-plan-prerequisite-gating.test.ts#L1-L120)
 
 ## Architecture Overview
 The end-to-end flow for discovering the next topic is:
@@ -195,13 +161,6 @@ sequenceDiagram
     CLI-->>User: Next topic or blocked explanation
 ```
 
-**Diagram sources**
-- [next.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L100)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [dependency.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L120)
-- [mastery.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L60)
-
 ## Detailed Component Analysis
 
 ### SM-2 Review Processing Flow
@@ -223,10 +182,6 @@ flowchart TD
   CapInterval --> Return(["Return updated review state"])
 ```
 
-**Diagram sources**
-- [sm2.ts:60-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L60-L200)
-- [sm2.ts:201-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L201-L306)
-
 #### Example Scenarios
 
 | Scenario | Inputs | Output Behavior |
@@ -239,12 +194,6 @@ flowchart TD
 | Corrupt stored value | String or boolean in `interval_days` | Throws with a field-specific diagnostic instead of writing NaN |
 
 These scenarios are validated by tests covering integer bounds, type safety, overflow protection, cap saturation, and calendar-day due-date computation.
-
-**Section sources**
-- [sm2.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L120)
-- [sm2.ts:121-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L121-L306)
-- [engine-sm2.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L1-L200)
-- [engine-sm2.test.ts:201-442](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L201-L442)
 
 ### Topic Discovery and Priority Ordering
 Discovery combines due-state classification with prerequisite gating.
@@ -261,11 +210,6 @@ flowchart TD
   FilterArchived --> Result["Return actionable and blocked topics"]
 ```
 
-**Diagram sources**
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [dependency.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L120)
-
 #### Due-Date Calculation Rules
 - Valid past or present due dates are eligible as “due.”
 - Future due dates are not actionable.
@@ -280,11 +224,6 @@ flowchart TD
 - Advisory edges and missing references are handled by the dependency predicate.
 - Cyclic topics are not hidden by the gate; their scheduling semantics are undefined and are surfaced separately.
 
-**Section sources**
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [cli-next-plan-prerequisite-gating.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-next-plan-prerequisite-gating.test.ts#L1-L200)
-
 ### Mastery Influence on Scheduling
 Mastery affects scheduling indirectly through prerequisite gating, not directly through SM-2 intervals.
 
@@ -295,10 +234,6 @@ Mastery affects scheduling indirectly through prerequisite gating, not directly 
 - The SM-2 engine continues to adjust intervals independently based on review quality, ease factor, and repetition history.
 
 This separation means mastery controls *access* to dependent topics, while SM-2 controls *timing* of repeated exposure to the same topic.
-
-**Section sources**
-- [mastery.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L60)
-- [get-next-topics.ts:80-160](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L80-L160)
 
 ### CLI Contract and Parameters
 The `next` command is the learner-facing entry point for discovery.
@@ -312,11 +247,6 @@ The `next` command is the learner-facing entry point for discovery.
 | Empty vault | Shows onboarding guidance | Empty result with zero totals |
 
 The JSON contract includes additive keys for gating state, preserving backward compatibility while exposing whether the system is ready, blocked, or quiet.
-
-**Section sources**
-- [next.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L200)
-- [next.ts:201-227](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L201-L227)
-- [cli-next-plan-prerequisite-gating.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-next-plan-prerequisite-gating.test.ts#L1-L200)
 
 ## Dependency Analysis
 The scheduling subsystem has clear directional dependencies:
@@ -342,20 +272,6 @@ Coupling characteristics:
 - External integration points include vault loading, frontmatter parsing, session recording, and CLI configuration.
 
 Potential circular risks are avoided by keeping scheduling math in the engine, decision logic in the application layer, and presentation in the CLI.
-
-**Diagram sources**
-- [next.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L100)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [dependency.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L120)
-- [mastery.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L60)
-- [sm2.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L120)
-
-**Section sources**
-- [next.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L100)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [dependency.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L120)
-- [sm2.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L120)
 
 ## Performance Considerations
 
@@ -390,11 +306,6 @@ For large vaults, the bottleneck is usually the dependency graph analysis, espec
 
 These choices make the system suitable for thousands of topics, provided the vault’s dependency graph is not extremely dense with many overlapping cycles.
 
-**Section sources**
-- [dependency.ts:120-450](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L120-L450)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-
 ## Troubleshooting Guide
 
 ### Common Scheduling Issues
@@ -424,15 +335,6 @@ These choices make the system suitable for thousands of topics, provided the vau
 | Overflowing interval or ease factor | Computed non-finite values throw rather than persisting invalid state |
 | Safe-integer boundary repetition or lapse | Explicitly checked to prevent silent no-op increments |
 
-**Section sources**
-- [sm2.ts:60-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L60-L306)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [dependency.ts:1-450](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L450)
-- [engine-sm2.test.ts:1-442](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L1-L442)
-- [application-get-next-topics.test.ts:1-77](https://github.com/Kuldeep2822k/cli/blob/main/test/application-get-next-topics.test.ts#L1-L77)
-- [cli-next-plan-prerequisite-gating.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-next-plan-prerequisite-gating.test.ts#L1-L200)
-
 ## Conclusion
 PALEE’s scheduling system separates concerns cleanly:
 
@@ -442,3 +344,30 @@ PALEE’s scheduling system separates concerns cleanly:
 - Mastery gates access to dependent topics, while SM-2 governs how often the same topic recurs.
 
 Together, these components ensure that learners see manageable, logically ordered topics, understand why some topics are unavailable, and receive increasingly spaced reviews as mastery improves.
+
+## References
+
+- [next.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L100)
+- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
+- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
+- [dependency.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L120)
+- [mastery.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L60)
+- [sm2.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L120)
+- [sm2.ts:121-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L121-L200)
+- [sm2.ts:201-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L201-L306)
+- [engine-sm2.test.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L1-L120)
+- [engine-sm2.test.ts:201-442](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L201-L442)
+- [application-get-next-topics.test.ts:1-77](https://github.com/Kuldeep2822k/cli/blob/main/test/application-get-next-topics.test.ts#L1-L77)
+- [next.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L200)
+- [next.ts:201-227](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L201-L227)
+- [cli-next-plan-prerequisite-gating.test.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-next-plan-prerequisite-gating.test.ts#L1-L120)
+- [sm2.ts:60-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L60-L200)
+- [sm2.ts:121-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L121-L306)
+- [engine-sm2.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L1-L200)
+- [cli-next-plan-prerequisite-gating.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-next-plan-prerequisite-gating.test.ts#L1-L200)
+- [get-next-topics.ts:80-160](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L80-L160)
+- [dependency.ts:120-450](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L120-L450)
+- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
+- [sm2.ts:60-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L60-L306)
+- [dependency.ts:1-450](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L450)
+- [engine-sm2.test.ts:1-442](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L1-L442)

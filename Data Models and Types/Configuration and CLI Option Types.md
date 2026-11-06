@@ -631,8 +631,6 @@ These configuration and option choices primarily affect correctness and safety r
 - `--dry-run` avoids writes but may still scan and validate the same scope as a real operation.
 - `--fix` and `--relabel-ties` can perform many atomic writes across the vault; preview with `--dry-run` first.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 Common validation and configuration problems:
 
@@ -679,4 +677,3 @@ For safe operation:
 - Use `--dry-run` before destructive operations like `adopt --undo`, `roadmap --auto-chain`, `validate --fix`, or `migrate --relabel-ties`.
 - Treat exit code `2` as a user-input problem and exit code `5` as an unexpected failure worth investigating.
 
-[No sources needed since this section summarizes without analyzing specific files]

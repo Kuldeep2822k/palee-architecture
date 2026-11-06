@@ -351,8 +351,6 @@ Recommended recovery steps:
 ## Conclusion
 The PALEE application layer cleanly separates business logic from I/O and CLI concerns. It exposes pure use cases for due-topic discovery, next-topic recommendation, mastery summarization, assessment recording, and review recording. By composing due partitioning, prerequisite gating, SM-2 transitions, and pillar-based mastery, it supports complex workflows while remaining testable and reusable. The CLI retains responsibility for configuration, vault access, atomic writes, output formatting, and exit codes, preserving the architectural boundary defined in ADR-0025.
 
-[No sources needed since this section summarizes without analyzing specific files]
-
 ## References
 
 - [0025-application-layer.md:1-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0025-application-layer.md#L1-L63)

@@ -298,8 +298,6 @@ For high-frequency review scenarios, the implementation already separates cheap 
 
 Optimization opportunities should focus on batching multiple reviews into fewer storage reads/writes at the CLI or caller level, while keeping the engine and application layers pure and single-topic focused.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 
 ### Invalid Recall Quality
@@ -335,8 +333,6 @@ The review recording workflow cleanly separates concerns:
 - Shared types define the persistent review contract.
 
 This separation makes it possible to verify SM-2 behavior independently of file system behavior, protect durable state from concurrent modification, recover gracefully from corrupted notes, and maintain consistent progress tracking across spaced repetition intervals and mastery calculations.
-
-[No sources needed since this section summarizes without analyzing specific files]
 
 ## References
 

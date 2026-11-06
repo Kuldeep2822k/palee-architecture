@@ -364,8 +364,6 @@ For large-scale scheduling operations across many topics:
 - Be cautious with precomputed intervals near `Number.MAX_VALUE`; the engine rejects non-finite results rather than silently corrupting them.
 - Use the exported `MAX_INTERVAL_DAYS` constant in tests and integration logic to keep behavior consistent with the implementation.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 
 ### Common Error Messages and Causes
@@ -400,8 +398,6 @@ For large-scale scheduling operations across many topics:
 
 ## Conclusion
 The SM-2 implementation follows the canonical SuperMemo algorithm with clear safety boundaries. It separates pure scheduling math from I/O, validates untrusted stored state aggressively, caps intervals at a 100-year policy limit, and handles calendar dates safely across local timezones. Its tests cover normal transitions, edge cases, numeric safety, interval saturation, and date range protection. Together with the mastery system, SM-2 provides a robust foundation for adaptive, long-term retention in a Markdown-based learning workflow.
-
-[No sources needed since this section summarizes without analyzing specific files]
 
 ## Appendices
 

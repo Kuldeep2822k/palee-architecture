@@ -311,8 +311,6 @@ For large topic collections:
 
 The separation between engine computation and application bucketing makes it easy to cache engine results independently of bucket thresholds.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 
 ### Symptom: A topic with missing pillars is unexpectedly classified as zero mastery
@@ -362,8 +360,6 @@ Use the test cases for `summarizeMastery` to confirm boundary behavior.
 - Avoid loading full files when only frontmatter is needed.
 - Batch report generation instead of calling summary functions repeatedly for every UI render.
 
-[No sources needed since this section provides general guidance]
-
 ## Conclusion
 The mastery summary computation cleanly separates concerns:
 
@@ -373,8 +369,6 @@ The mastery summary computation cleanly separates concerns:
 - **Architectural decisions** ensure that missing pillars are not mistaken for zero scores, and that the Feynman dimension receives its intended emphasis.
 
 Together, these pieces provide reliable mastery metrics, meaningful progress indicators, and predictable behavior for edge cases such as partial assessments, empty assessments, and large topic collections.
-
-[No sources needed since this section summarizes without analyzing specific files]
 
 ## References
 
