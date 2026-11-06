@@ -297,7 +297,7 @@ flowchart TD
 ```
 
 #### Assessments and Mastery
-- `valid-assessment-fields`: Validates pillar scores as finite numbers in `[0.0, 1.0]` and `assessed_at` as null or a valid date.
+- `valid-assessment-fields`: Validates pillar scores as finite numbers in `[0.0, 1.0]` and `assessed_at` as null, absent, or a valid date.
 - `valid-topic-mastery`: Recomputes mastery from all four pillars and compares it to stored `topic_mastery`. Topics with absent or malformed pillar data are skipped.
 
 ADR-0035 clarifies that absent pillars mean “no data,” not zero. A topic with partial pillar data is skipped by both the rule and the repair path.
