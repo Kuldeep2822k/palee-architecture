@@ -151,7 +151,7 @@ Connection handling is centralized around three stages:
    - Rejects embedded userinfo, query strings, and fragments in the base URL.
 
 3. **Transport execution**
-   - Uses an injected transport by default, falling back to global `fetch`.
+   - Uses global `fetch` as the default transport; an injected transport is the override.
    - Sets `redirect: 'error'` so bearer tokens are never forwarded to a redirect target.
    - Applies a per-request timeout and supports caller cancellation.
    - Reads responses incrementally up to a byte limit.
@@ -259,8 +259,7 @@ graph LR
     CLI --> Engine
     CLI --> Storage
     CLI --> Validation
-    Engine -. depends on .-> Storage
-    Storage --> Validation
+    Validation --> Storage
 ```
 
 Important constraints enforced by tests:

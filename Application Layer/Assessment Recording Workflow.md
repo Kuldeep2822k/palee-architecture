@@ -51,7 +51,7 @@ graph TB
 
     subgraph "Engine Layer"
         MASTERY["mastery.ts<br/>normalizeScore,<br/>computeTopicMastery,<br/>MASTERY_THRESHOLD"]
-        ENGINE_INDEX["engine index.ts<br/>Public subsystem exports"]
+        DEPENDENCY["dependency.ts<br/>getReadyTopics,<br/>quarantineCyclicTopics"]
     end
 
     subgraph "Storage Layer"
@@ -64,9 +64,9 @@ graph TB
 
     CLI --> APP
     APP --> MASTERY
-    APP --> ENGINE_INDEX
+    APP --> DEPENDENCY
     CLI --> ATOMIC
-    RULES --> CLI
+    RULES -. "inspects raw fields" .-> VaultNotes["Vault topic notes"]
 ```
 
 ## Core Components
@@ -76,7 +76,7 @@ The assessment recording workflow is driven by three responsibilities:
 |---|---|---|
 | CLI handler (`assess.ts`) | Accepts user input, resolves a single topic, validates CLI scores, reads fresh file state, builds an assessment update, previews or records it, and maps errors to exit codes. | Rejects missing pillars, non-scalar numeric strings, out-of-range values, missing topics, ambiguous matches, concurrent modifications, and storage conflicts. |
 | Application use case (`record-assessment.ts`) | Computes normalized pillar scores, previous and new mastery, frontmatter updates, and readiness delta for plan output. | Only writes pillars explicitly supplied by the user; refuses corrupt stored pillar values instead of clamping them into mastery. |
-| Engine primitives (`mastery.ts`, `index.ts`) | Defines the four-pillar model, normalization, weighted mastery formula, and readiness threshold. | Uses a 0.70 threshold; double-weights Feynman so ordinary pillars alone cannot reach mastery. |
+| Engine primitives (`mastery.ts`, `dependency.ts`) | Defines the four-pillar model, normalization, weighted mastery formula, readiness threshold, and readiness checks. | Uses a 0.70 threshold; double-weights Feynman so ordinary pillars alone cannot reach mastery. |
 | Storage primitive (`atomic-write.ts`) | Persists updated content atomically under vault containment and lock-based concurrency control. | Reclaims stale temp files, preserves destination mode, retries Windows contention, and reports conflict errors. |
 | Validation rule (`valid-assessment-fields.ts`) | Inspects raw on-disk assessment fields without applying runtime coercion. | Reports invalid pillar ranges and invalid `assessed_at` values as manual-fix issues. |
 
@@ -88,7 +88,7 @@ sequenceDiagram
     participant User as "User"
     participant CLI as "assess.ts"
     participant App as "record-assessment.ts"
-    participant Engine as "mastery.ts / index.ts"
+    participant Engine as "mastery.ts / dependency.ts"
     participant Store as "atomic-write.ts"
 
     User->>CLI: "palee assess <topic> [--pillar N...]"
@@ -103,7 +103,7 @@ sequenceDiagram
     App->>Engine: computeTopicMastery(...)
     App-->>CLI: {scores, previousMastery, topicMastery, updates}
     CLI->>App: assessmentAvailabilityDiff(topics, id, previous, new)
-    CLI->>Engine: getReadyTopics(..., MASTERY_THRESHOLD)
+    App->>Engine: readyTopicIds(): getReadyTopics(..., MASTERY_THRESHOLD)
     alt dry-run
         CLI-->>User: Print assessment effect and preview message
     else record
@@ -158,7 +158,7 @@ The validation rule inspects the raw on-disk assessment shape rather than trusti
 | `practical` | Missing, `null`, or finite number in `[0, 1]` | Reported as an error |
 | `debug` | Missing, `null`, or finite number in `[0, 1]` | Reported as an error |
 | `feynman` | Missing, `null`, or finite number in `[0, 1]` | Reported as an error |
-| `assessed_at` | `null` or a valid calendar date | Reported as an error if missing/null but malformed |
+| `assessed_at` | `null`, absent, or a real calendar date | Valid when missing or `null`; reported as an error only when present but not a real calendar date |
 
 Missing pillar fields are documented as defaulting to zero during adoption, so their absence is not treated as corruption. However, when present, both the type and range must be valid.
 
@@ -279,7 +279,7 @@ The assessment recording workflow depends on several subsystems:
 graph LR
     AssessCLI["assess.ts"] --> RecordApp["record-assessment.ts"]
     RecordApp --> Mastery["mastery.ts"]
-    RecordApp --> EngineIndex["engine index.ts"]
+    RecordApp --> Dependency["dependency.ts"]
     AssessCLI --> AtomicWrite["atomic-write.ts"]
     AssessCLI --> StorageModule["storage module<br/>(load/update/frontmatter)"]
     AssessCLI --> Types["types.ts"]
@@ -289,7 +289,7 @@ graph LR
 - `assess.ts` owns CLI concerns: argument parsing, topic resolution, file I/O coordination, and output formatting.
 - `record-assessment.ts` owns pure assessment logic: merging stored and supplied pillars, computing mastery, and computing readiness deltas.
 - `mastery.ts` owns the four-pillar normalization and weighting contract.
-- `engine index.ts` exposes readiness functions and thresholds used by readiness reporting.
+- `dependency.ts` is imported directly by `record-assessment.ts`; readiness is computed via its private `readyTopicIds()` helper inside `assessmentAvailabilityDiff`, which quarantines cyclic topics and calls `getReadyTopics` with `MASTERY_THRESHOLD`. `assess.ts` never imports `engine/index` or calls `getReadyTopics` directly.
 - `atomic-write.ts` owns durability, containment, locking, and concurrency behavior.
 - `valid-assessment-fields.ts` is independent of runtime normalization and inspects raw on-disk fields.
 
@@ -319,7 +319,7 @@ graph LR
 ### Concurrency and Rollback Behavior
 - The CLI performs an additional TOCTOU fingerprint comparison before calling `atomicWrite`.
 - `atomicWrite` also performs OCC fingerprint comparison under lock.
-- If either step detects a conflict, the operation fails with an `ECONFLICT`-style error.
+- If either step detects a conflict, the operation fails with an `ECONFLICT` error.
 - There is no automatic retry loop in the CLI command itself; callers implementing bulk workflows should wrap invocations with retry logic keyed on conflict detection.
 - Stale temporary files left by crashed writers are reclaimed by `atomicWrite` under a bounded policy.
 

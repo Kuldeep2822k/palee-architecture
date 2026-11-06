@@ -191,7 +191,7 @@ Validation rules operate on raw frontmatter values and expose real vault defects
 |---|---|---|
 | `valid-palee-schema` | `palee_schema` | Managed notes must declare the supported integer schema version |
 | `valid-topic-status` | `status` | Present values must be one of the four lifecycle strings |
-| `valid-assessment-fields` | `conceptual`, `practical`, `debug`, `feynman`, `assessed_at` | Scores must be finite numbers in `[0.0, 1.0]`; `assessed_at` must be null or a valid date |
+| `valid-assessment-fields` | `conceptual`, `practical`, `debug`, `feynman`, `assessed_at` | Scores must be finite numbers in `[0.0, 1.0]`; `assessed_at` must be null, absent, or a valid date |
 | `valid-review-fields` | `ease_factor`, `interval_days`, `repetition`, `lapses`, `last_quality` | Enforces SM-2 engine bounds and integer constraints |
 
 Additional policy sources:

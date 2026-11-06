@@ -27,7 +27,7 @@
 This document explains the review recording workflow used by the application when a user submits a spaced repetition recall rating for a topic. The workflow spans three layers:
 
 - **CLI layer**: parses and validates the user’s input, locates the target topic, protects against concurrent modifications, and persists durable state.
-- **Application layer**: performs pure SM-2 scheduling calculations, computes updated mastery, and produces a frontmatter update payload without performing I/O.
+- **Application layer**: orchestrates engine functions (`processReview`, `computeDueDate`), computes updated mastery, and produces a frontmatter update payload without performing I/O.
 - **Engine layer**: implements the SuperMemo-2 algorithm, calendar-based due date computation, and robust numeric validation.
 
 The design deliberately separates stateless calculation from file system operations so that the core scheduling logic can be tested deterministically while the CLI handles concurrency, durability, user feedback, and error recovery.
@@ -67,7 +67,7 @@ The workflow is centered around one application function and one engine function
 
 | Function | Location | Purpose |
 |---|---|---|
-| `buildReviewUpdate` | `src/application/record-review.ts` | Reads current frontmatter, applies SM-2, computes mastery, and returns an immutable set of updates plus display state |
+| `buildReviewUpdate` | `src/application/record-review.ts` | Receives a parsed frontmatter map (performs no I/O), applies SM-2, computes mastery, and returns a plain `Record` of updates plus display state |
 | `processReview` | `src/engine/sm2.ts` | Calculates new SM-2 state from current state and quality rating |
 | `computeDueDate` | `src/engine/sm2.ts` | Advances local calendar days to produce the next due date |
 | `resolveTopicMastery` / `carriedPillarScores` | `src/engine/mastery.ts` | Computes weighted mastery and preserves only present pillar scores |
@@ -136,7 +136,7 @@ The CLI command is the entry point for user interaction. Its responsibilities in
 
 5. **Durable persistence**
    - Builds updated content through the storage helper.
-   - Writes atomically using the original fresh fingerprint.
+   - Writes atomically using the fresh fingerprint taken from the re-read.
 
 6. **User feedback and recovery**
    - Prints success details, including new ease factor, interval, repetitions, and due date.
@@ -250,7 +250,7 @@ Mastery integration ensures that review updates do not fabricate assessment data
 - Only pillar keys actually present in the frontmatter are carried forward.
 - Carried pillar values are normalized to `[0.0, 1.0]`.
 - `topic_mastery` is computed using the weighted formula with conceptual, practical, debug, and twice-weighted feynman scores.
-- In review mode, `pillars-first` precedence means any present pillar triggers a recompute; absent pillars remain absent.
+- In review mode, `pillars-first` precedence means a recompute only when a normalized pillar is greater than zero; a present-but-zero pillar falls back to the existing stored mastery, and absent pillars remain absent.
 
 This prevents the common defect where a review writes zero pillar scores even though the learner never supplied them, which would make the note appear assessed but zeroed and could pin mastery incorrectly.
 
@@ -261,8 +261,8 @@ The shared `Review` type defines the scheduled repetition state persisted alongs
 |---|---|
 | `interval_days` | Next spacing interval in days |
 | `repetition` | Consecutive successful review count |
-| `ease_factor` | Adjusted easiness factor controlling future interval growth |
-| `lapses` | Cumulative failures after initial mastery |
+| `ease_factor` | Adjusted ease factor controlling future interval growth |
+| `lapses` | Cumulative failed reviews that ended a run of at least one successful repetition |
 | `last_quality` | Most recent recall quality |
 | `last_reviewed_at` | Local date stamp of last review |
 | `due_at` | Local date string indicating next due time |
@@ -322,7 +322,7 @@ Recommended recovery:
 When a review occurs before the stored `due_at`, the application marks the outcome as early. The CLI still records the review and exits successfully, but prints a warning unless `--force` is provided. This prevents schedule drift while allowing intentional early practice.
 
 ### Missing Pillar Scores Are Not Fabricated
-If a note lacks pillar scores, the review update must not write zeros. The test suite asserts that absent pillars remain absent and that mastery remains zero when no pillars exist.
+If a note lacks pillar scores, the review update must not write zeros. The test suite asserts that absent pillars remain absent and that mastery remains zero when no pillars exist and no existing valid `topic_mastery` is present; when an existing valid `topic_mastery` is present, it is returned.
 
 ## Conclusion
 The review recording workflow cleanly separates concerns:

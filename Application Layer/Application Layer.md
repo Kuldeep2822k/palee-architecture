@@ -235,14 +235,14 @@ Processing order, with the owning layer named for each step. This matters becaus
 
 1. **CLI** (`reviewCommand` in `src/cli/review.ts`): validate the quality rating as an integer from 0 to 5.
 2. **CLI**: load the vault’s topics and resolve the target topic with `resolveTopicQuery` (`src/cli/topic-query.ts`), refusing missing or ambiguous matches. Topic resolution is a CLI policy, not something `record-review.ts` does.
-3. **CLI**: fingerprint the loaded note content with `computeFingerprint`, then re-read the note from disk and compare fingerprints — the OCC read-reread check. A mismatch aborts the review with an `ECONFLICT` error before any update is computed or written.
+3. **CLI**: fingerprint the loaded note content with `computeFingerprint`, then re-read the note from disk and compare fingerprints — the OCC read-reread check. A mismatch aborts the review with an `ECONFLICT` error before any update is computed or written, as does a note deleted between load and re-read.
 4. **CLI**: parse the frontmatter from the freshly re-read content.
-5. **Application** (`buildReviewUpdate` in `src/application/record-review.ts`): coerce stored SM-2 fields, preserving literal zeros and refusing garbage.
-6. **Application → Engine**: run `processReview` to transition ease factor, interval, repetition, and lapse counters.
-7. **Application**: compute the next due date from review time and interval.
+5. **Application** (`buildReviewUpdate` in `src/application/record-review.ts`): coerce stored SM-2 fields, preserving literal zeros.
+6. **Application → Engine**: run `processReview` to transition ease factor, interval, repetition, and lapse counters — `processReview`'s precondition block refuses garbage, naming the field and value it rejected (ADR-0021).
+7. **Application → Engine**: compute the next due date with `computeDueDate` from review time and interval.
 8. **Application**: detect whether the review happened before the stored calendar-day due date.
 9. **Application → Engine**: resolve pillar-based mastery using `pillars-first` precedence.
-10. **Application**: carry forward only pillars already present in the note.
+10. **Application → Engine**: carry forward only pillars already present in the note with `carriedPillarScores`.
 11. **Application**: build the frontmatter updates — SM-2 state, mastery, last reviewed and due dates as local date strings — and return them. Nothing has been written yet.
 12. **CLI**: apply the updates to the re-read content and persist with `atomicWrite`, passing the fresh fingerprint so the write itself stays guarded.
 
