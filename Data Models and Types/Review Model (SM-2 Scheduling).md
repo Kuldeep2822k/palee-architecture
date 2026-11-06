@@ -409,8 +409,6 @@ graph TD
 - Due-date comparison and partitioning operate on normalized dates and are linear in the number of candidate topics.
 - Validation inspects raw frontmatter fields once per topic to surface corruption without mutating it.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 
 ### Corrupted Numeric Fields

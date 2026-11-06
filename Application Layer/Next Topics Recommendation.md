@@ -420,8 +420,6 @@ Recommendations for further optimization:
 - Use topic-version timestamps or content hashes to invalidate caches safely.
 - Bound memory usage for very large vaults by processing topics in batches when constructing adjacency maps.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 
 ### Common Recommendation Issues

@@ -438,8 +438,6 @@ Security controls add deliberate overhead, but they are bounded and targeted:
 
 These costs are tradeoffs for correctness, durability, and resistance to malicious or malformed input.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 
 ### Destination Resolves Outside the Vault

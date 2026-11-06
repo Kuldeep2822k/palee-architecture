@@ -63,17 +63,6 @@ graph TB
   Commander --> UpdateCmd["update command"]
 ```
 
-**Diagram sources**
-- [bin/palee.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L20)
-- [bin/palee.ts:60-240](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L60-L240)
-- [bin/palee.ts:240-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L240-L389)
-
-**Section sources**
-- [bin/palee.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L20)
-- [bin/palee.ts:40-70](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L40-L70)
-- [bin/palee.ts:60-240](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L60-L240)
-- [bin/palee.ts:240-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L240-L389)
-
 ## Core Components
 - **Command registration**: Every command is declared through Commander’s `.command()` API. Commands declare their descriptions, positional arguments, options, and optional post-help text.
 - **Help system**: Commander renders `palee --help` and `palee <command> --help`. The entry point adds global environment documentation after all commands, and some commands add extra help text after their own help.
@@ -82,12 +71,6 @@ graph TB
 - **Update notification**: After a command runs successfully, the CLI may print a new-version notice on stderr. This is suppressed when stdout is piped, when `--json` is requested, when the command fails, or when `PALEE_NO_UPDATE_CHECK` is set.
 - **Fatal error handling**: Unhandled rejections and exceptions are reported through a shared reporter that sets `process.exitCode = Unexpected (5)` and emits either JSON, a stack trace under `PALEE_DEBUG`, or a plain message.
 - **Commander usage-error mapping**: Unknown commands, unknown options, and missing arguments are converted to `Usage (2)` rather than leaving Commander’s default exit code.
-
-**Section sources**
-- [bin/palee.ts:40-70](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L40-L70)
-- [bin/palee.ts:60-240](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L60-L240)
-- [bin/palee.ts:240-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L240-L389)
-- [src/cli/program-name.ts:1-91](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/program-name.ts#L1-L91)
 
 ## Architecture Overview
 The CLI follows a layered pattern:
@@ -114,10 +97,6 @@ flowchart TD
   Entry --> Fatal["Fatal backstops<br/>unhandledRejection / uncaughtException"]
   Fatal --> ExitContract
 ```
-
-**Diagram sources**
-- [bin/palee.ts:240-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L240-L389)
-- [src/cli/exit-codes.ts:1-65](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts#L1-L65)
 
 ## Detailed Component Analysis
 
@@ -155,14 +134,6 @@ sequenceDiagram
     Handler-->>Entry: Set process.exitCode if needed
 ```
 
-**Diagram sources**
-- [bin/palee.ts:240-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L240-L389)
-
-**Section sources**
-- [bin/palee.ts:40-70](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L40-L70)
-- [bin/palee.ts:60-240](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L60-L240)
-- [bin/palee.ts:240-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L240-L389)
-
 ### Program Name Derivation
 The CLI derives its displayed name from the invoked script path rather than hardcoding `palee`. This matters when:
 - The binary is installed under another name, such as `palee-test`.
@@ -187,13 +158,6 @@ flowchart TD
   Strip --> Return["Return derived name"]
   Keep --> Return
 ```
-
-**Diagram sources**
-- [src/cli/program-name.ts:1-91](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/program-name.ts#L1-L91)
-
-**Section sources**
-- [src/cli/program-name.ts:1-91](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/program-name.ts#L1-L91)
-- [bin/palee.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L20)
 
 ### Exit Code Contract
 The documented CLI exit code contract is centralized in `ExitCode`:
@@ -230,15 +194,6 @@ flowchart TD
   Provider -->|Other or none| Code5["Exit 5 - Unexpected"]
 ```
 
-**Diagram sources**
-- [src/cli/exit-codes.ts:1-65](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts#L1-L65)
-- [src/storage/index.ts:1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
-
-**Section sources**
-- [src/cli/exit-codes.ts:1-65](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts#L1-L65)
-- [docs/adr/0024-exit-codes-and-error-contract.md:1-75](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0024-exit-codes-and-error-contract.md#L1-L75)
-- [src/storage/index.ts:1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
-
 ### JSON Output Mode
 JSON output is machine-readable and intended for automation. It is enabled by:
 - Passing `--json` to a command that declares the option.
@@ -266,14 +221,6 @@ flowchart TD
   HumanOnly --> HumanResult["Human-readable report"]
 ```
 
-**Diagram sources**
-- [src/cli/onboarding.ts:1-164](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/onboarding.ts#L1-L164)
-- [bin/palee.ts:240-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L240-L389)
-
-**Section sources**
-- [src/cli/onboarding.ts:1-164](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/onboarding.ts#L1-L164)
-- [bin/palee.ts:240-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L240-L389)
-
 ### Environment Variables
 | Variable | Effect | Notes |
 |---|---|---|
@@ -281,11 +228,6 @@ flowchart TD
 | `PALEE_JSON` | Enables JSON output when set to `1` or `true`. | Only affects commands that declare `--json`. Piping alone does not switch to JSON. |
 | `PALEE_DEBUG` | Prints raw stack traces for fatal errors. | Any non-empty value except `"0"` enables it. It applies to the fatal error path. |
 | `PALEE_NO_UPDATE_CHECK` | Silences the automatic new-version notice. | Any non-empty value other than `"0"` disables it. Nothing is printed after failed commands, when stdout is piped, when `--json` is requested, when the check fails, or when this variable is set. |
-
-**Section sources**
-- [bin/palee.ts:40-70](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L40-L70)
-- [bin/palee.ts:240-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L240-L389)
-- [src/cli/onboarding.ts:1-164](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/onboarding.ts#L1-L164)
 
 ### Vault Path Resolution and Configuration File Locations
 Configuration resolution:
@@ -315,14 +257,6 @@ flowchart TD
   Exists -->|Yes| Ready["Vault ready"]
 ```
 
-**Diagram sources**
-- [src/cli/config.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L200)
-- [src/cli/onboarding.ts:1-164](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/onboarding.ts#L1-L164)
-
-**Section sources**
-- [src/cli/config.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L200)
-- [src/cli/onboarding.ts:1-164](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/onboarding.ts#L1-L164)
-
 ### Update Check Behavior
 The automatic update check:
 - Runs after a command completes successfully.
@@ -332,10 +266,6 @@ The automatic update check:
 - Times out quickly for automatic checks.
 - Skips when stdout is piped, when `--json` is requested, when the command fails, or when `PALEE_NO_UPDATE_CHECK` is set.
 - Never opens network sockets itself; only npm is spawned.
-
-**Section sources**
-- [bin/palee.ts:240-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L240-L389)
-- [src/cli/update-check.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update-check.ts#L1-L200)
 
 ## Dependency Analysis
 The CLI depends on Commander for argument parsing and command routing. Internal dependencies include:
@@ -355,31 +285,12 @@ graph LR
   Onboarding --> ProgramName
 ```
 
-**Diagram sources**
-- [bin/palee.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L20)
-- [bin/palee.ts:240-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L240-L389)
-- [src/cli/exit-codes.ts:1-65](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts#L1-L65)
-- [src/cli/onboarding.ts:1-164](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/onboarding.ts#L1-L164)
-- [src/cli/program-name.ts:1-91](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/program-name.ts#L1-L91)
-- [src/storage/index.ts:1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
-- [src/cli/update-check.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update-check.ts#L1-L200)
-
-**Section sources**
-- [bin/palee.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L20)
-- [src/cli/exit-codes.ts:1-65](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts#L1-L65)
-- [src/cli/onboarding.ts:1-164](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/onboarding.ts#L1-L164)
-- [src/cli/program-name.ts:1-91](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/program-name.ts#L1-L91)
-- [src/storage/index.ts:1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
-- [src/cli/update-check.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update-check.ts#L1-L200)
-
 ## Performance Considerations
 - The CLI avoids unnecessary network calls. Update checks delegate to npm and cache results for 24 hours.
 - Automatic update notices are suppressed in non-interactive and automated contexts.
 - JSON output is opt-in, keeping human-readable output fast and predictable.
 - Fatal error reporting uses `process.exitCode` instead of `process.exit` so pending async writes can drain.
 - Commander usage errors are converted early, avoiding expensive command execution.
-
-[No sources needed since this section provides general guidance]
 
 ## Troubleshooting Guide
 
@@ -485,15 +396,8 @@ Example workflows:
   palee next --json
   ```
 
-**Section sources**
-- [bin/palee.ts:240-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L240-L389)
-- [src/cli/onboarding.ts:1-164](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/onboarding.ts#L1-L164)
-- [src/cli/exit-codes.ts:1-65](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts#L1-L65)
-
 ## Conclusion
 The PALEE CLI is a consistent, scriptable interface over the PALEE engine. Its Commander-based architecture separates command registration, shared CLI utilities, centralized exit code mapping, and storage-level error classification. The documented exit codes, opt-in JSON mode, explicit environment variables, and deterministic vault path resolution make it suitable for both interactive learning and automated pipelines. For reliable automation, always specify `--json` for commands that support it, inspect exit codes, isolate configuration with `PALEE_CONFIG_DIR`, and suppress update noise with `PALEE_NO_UPDATE_CHECK`.
-
-[No sources needed since this section summarizes without analyzing specific files]
 
 ## Appendices
 
@@ -507,6 +411,16 @@ The PALEE CLI is a consistent, scriptable interface over the PALEE engine. Its C
 
 Commands that do not declare `--json` include `review`, `adopt`, `assess`, `roadmap`, `migrate`, and `update`. Their success output remains human-readable even when `PALEE_JSON` is set.
 
-**Section sources**
+## References
+
+- [bin/palee.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L20)
 - [bin/palee.ts:60-240](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L60-L240)
+- [bin/palee.ts:240-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L240-L389)
+- [bin/palee.ts:40-70](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L40-L70)
+- [src/cli/program-name.ts:1-91](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/program-name.ts#L1-L91)
+- [src/cli/exit-codes.ts:1-65](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts#L1-L65)
+- [src/storage/index.ts:1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
+- [docs/adr/0024-exit-codes-and-error-contract.md:1-75](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0024-exit-codes-and-error-contract.md#L1-L75)
 - [src/cli/onboarding.ts:1-164](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/onboarding.ts#L1-L164)
+- [src/cli/config.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L200)
+- [src/cli/update-check.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update-check.ts#L1-L200)

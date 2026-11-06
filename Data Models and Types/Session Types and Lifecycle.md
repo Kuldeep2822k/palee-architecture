@@ -377,8 +377,6 @@ graph TB
 - Tolerant loaders preserve malformed session entries instead of failing the entire vault scan, reducing validation cost when one note is corrupt.
 - Derived views (`hot.md`, `index.md`) are rebuilt only when necessary, avoiding unnecessary filesystem mutations.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 
 ### Unreadable or Corrupt Session Notes
@@ -414,8 +412,6 @@ If `.palee/hot.md` is missing, corrupt, or carries an unsupported schema:
 
 ## Conclusion
 PALEE's session model separates in-memory domain state from durable frontmatter records. `BaseSession` extends into `CompletedSession` and `DraftSession`, while `BaseSessionRecord` extends into `CompletedSessionRecord` and `DraftSessionRecord`. Hot memory provides a fast, derived working view, while session files provide canonical history. Draft recovery supports resume, save, discard, and ignore, with strict timestamp clamping and robust error handling. Durability is provided by atomic writes, locking, containment checks, and deterministic rebuild policies, while isolation is enforced per vault path.
-
-[No sources needed since this section summarizes without analyzing specific files]
 
 ## References
 

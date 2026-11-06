@@ -40,10 +40,6 @@ This document is the complete command reference for the PALEE CLI, a Node.js-bas
 
 The executable is exposed as `palee` through the package’s `bin` entry.
 
-**Section sources**
-- [package.json:1-20](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L1-L20)
-- [bin/palee.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L30)
-
 ## Project Structure
 The CLI entry point registers all commands, configures global behavior (help text, update notifications, fatal error reporting), and delegates to per-command handlers under `src/cli`.
 
@@ -66,14 +62,6 @@ graph TB
   Entry --> Onboarding["JSON mode and vault validation helpers"]
 ```
 
-**Diagram sources**
-- [bin/palee.ts:31-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L31-L389)
-- [src/cli/exit-codes.ts:1-65](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts#L1-L65)
-- [src/cli/onboarding.ts:1-164](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/onboarding.ts#L1-L164)
-
-**Section sources**
-- [bin/palee.ts:1-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L389)
-
 ## Core Components
 Before reviewing individual commands, it helps to understand the shared behaviors that affect every command:
 
@@ -86,13 +74,6 @@ Before reviewing individual commands, it helps to understand the shared behavior
 | Global environment variables | `PALEE_CONFIG_DIR`, `PALEE_NO_UPDATE_CHECK`, and `PALEE_DEBUG` are documented globally and used across commands. |
 | Update notification | After a successful command, the CLI may print one informational notice about a newer published version to stderr, subject to time and piping rules. |
 | Fatal errors | Unhandled exceptions and uncaught rejections are caught once and emitted consistently, either as JSON (`{ status, code, error }`) or plain text. |
-
-**Section sources**
-- [src/cli/program-name.ts:1-91](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/program-name.ts#L1-L91)
-- [src/cli/config.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L60)
-- [bin/palee.ts:31-100](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L31-L100)
-- [src/cli/onboarding.ts:1-164](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/onboarding.ts#L1-L164)
-- [bin/palee.ts:280-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L280-L389)
 
 ## Architecture Overview
 The command dispatch flow is centralized:
@@ -118,11 +99,6 @@ sequenceDiagram
     Commander->>Commander: postAction update check
 ```
 
-**Diagram sources**
-- [bin/palee.ts:31-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L31-L389)
-- [src/cli/config.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L120)
-- [src/cli/onboarding.ts:80-164](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/onboarding.ts#L80-L164)
-
 ## Detailed Component Analysis
 
 ### Global Help and Grouping
@@ -135,10 +111,6 @@ The CLI has no named subcommand groups; grouping is conceptual by purpose:
 - Session management: `session`
 
 Global help shows the program description, version, available commands, and environment variables. Use `palee --help` for top-level help and `palee <command> --help` for command-specific help.
-
-**Section sources**
-- [bin/palee.ts:31-100](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L31-L100)
-- [bin/palee.ts:201-330](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L201-L330)
 
 ### Exit Codes and Error Contract
 | Code | Meaning | Typical cause |
@@ -167,13 +139,6 @@ flowchart TD
   Provider -->|Other| Exit5["Exit 5"]
 ```
 
-**Diagram sources**
-- [src/cli/exit-codes.ts:1-65](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts#L1-L65)
-
-**Section sources**
-- [src/cli/exit-codes.ts:1-65](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts#L1-L65)
-- [bin/palee.ts:330-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L330-L389)
-
 ### JSON Output Mode
 Commands that declare `--json` emit machine-readable payloads to stdout. When `--json` is requested or `PALEE_JSON=1` / `true` is set, errors are emitted to stderr as `{ error: string }`. Fatal process-level failures emit `{ status: "error", code: number, error: string }`.
 
@@ -182,11 +147,6 @@ Important distinction:
 - `PALEE_JSON` is respected only when the command itself declares `--json`.
 - Human-only commands intentionally pass `json: false` into vault validation so their initial configuration refusal remains human-readable even if `PALEE_JSON` is set.
 
-**Section sources**
-- [src/cli/onboarding.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/onboarding.ts#L1-L79)
-- [src/cli/vault-echo.ts:1-138](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/vault-echo.ts#L1-L138)
-- [bin/palee.ts:330-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L330-L389)
-
 ### Environment Variables
 | Variable | Effect |
 |---|---|
@@ -194,10 +154,6 @@ Important distinction:
 | `PALEE_NO_UPDATE_CHECK` | Silences the informational new-version notice after successful interactive commands. |
 | `PALEE_JSON` | Enables JSON output for commands that support `--json`. Accepts `1` or `true`. |
 | `PALEE_DEBUG` | Prints raw stack traces for fatal errors. |
-
-**Section sources**
-- [bin/palee.ts:40-100](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L40-L100)
-- [bin/palee.ts:330-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L330-L389)
 
 ### `config`
 Manage configuration stored in `$PALEE_CONFIG_DIR/config.json` or the per-user default.
@@ -242,10 +198,6 @@ palee config show --json
 - `3`: Provider schema mismatch.
 - `4`: OCC or lock conflict.
 - `5`: Unexpected runtime or network error.
-
-**Section sources**
-- [bin/palee.ts:70-85](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L70-L85)
-- [src/cli/config.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L200)
 
 ### `adopt`
 Adopt existing markdown notes as PALEE topics. Supports single-file adoption and batch scanning.
@@ -315,10 +267,6 @@ palee adopt --undo --drop-title
 - Forgetting `--all` means the scan does not adopt every note.
 - Auto-chaining can synthesize dependencies; always preview with `--dry-run` before committing.
 
-**Section sources**
-- [bin/palee.ts:85-199](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L85-L199)
-- [src/cli/adopt.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L200)
-
 ### `next`
 Show the next topic due for review.
 
@@ -365,10 +313,6 @@ palee next --json
 **Automation tip**
 Use `status == "blocked"` to detect prerequisite gating and `next == null` to detect empty or fully scheduled vaults.
 
-**Section sources**
-- [bin/palee.ts:199-209](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L199-L209)
-- [src/cli/next.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L200)
-
 ### `plan`
 Show today’s learning plan.
 
@@ -406,10 +350,6 @@ palee plan --json
 - `2`: Missing or invalid vault path or invalid options.
 - `5`: Unexpected runtime exception.
 
-**Section sources**
-- [bin/palee.ts:209-216](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L209-L216)
-- [src/cli/plan.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/plan.ts#L1-L200)
-
 ### `progress`
 Show learning progress, optionally filtered to a specific topic.
 
@@ -444,10 +384,6 @@ palee progress --topic "Recursion" --json
 - `0`: Success.
 - `2`: Missing or invalid vault path or unresolved topic.
 - `5`: Unexpected runtime exception.
-
-**Section sources**
-- [bin/palee.ts:216-224](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L216-L224)
-- [src/cli/progress.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L200)
 
 ### `review`
 Record a manual spaced-repetition review for a topic.
@@ -486,10 +422,6 @@ palee review topic-calculus 2 --force
 
 **Troubleshooting**
 If SM-2 fields are corrupted, the handler suggests running `palee validate --fix`.
-
-**Section sources**
-- [bin/palee.ts:224-232](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L224-L232)
-- [src/cli/review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
 
 ### `assess`
 Record a four-pillar assessment and recompute topic mastery.
@@ -535,10 +467,6 @@ palee assess topic-mastery-lowering --conceptual 0.1 --practical 0.1 --debug 0.1
 - `4`: OCC conflict.
 - `5`: Unexpected runtime exception.
 
-**Section sources**
-- [bin/palee.ts:232-242](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L232-L242)
-- [src/cli/assess.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L200)
-
 ### `validate`
 Validate vault integrity and optionally repair known issues.
 
@@ -576,10 +504,6 @@ palee validate --fix --json
 - `3`: Validation failure.
 - `4`: OCC conflict during repair.
 - `5`: Unexpected runtime exception.
-
-**Section sources**
-- [bin/palee.ts:242-250](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L242-L250)
-- [src/cli/validate.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L1-L200)
 
 ### `roadmap`
 Import deterministic learning roadmaps from YAML or Markdown.
@@ -619,10 +543,6 @@ palee roadmap --from roadmap.yml --auto-chain --yes
 - `4`: OCC conflict.
 - `5`: Unexpected runtime exception.
 
-**Section sources**
-- [bin/palee.ts:201-216](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L201-L216)
-- [src/cli/roadmap.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L1-L200)
-
 ### `migrate`
 Migrate PALEE schema and prerequisite labels to the current version.
 
@@ -660,10 +580,6 @@ palee migrate --fix --relabel-ties --include-unlabeled-ties
 - `3`: Validation failure.
 - `4`: OCC conflict.
 - `5`: Unexpected runtime exception.
-
-**Section sources**
-- [bin/palee.ts:216-232](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L216-L232)
-- [src/cli/migrate.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/migrate.ts#L1-L200)
 
 ### `session`
 Manage learning sessions and hot memory.
@@ -705,10 +621,6 @@ palee session start --topic "Docker Volumes" --json
 - `4`: OCC conflict.
 - `5`: Unexpected runtime exception.
 
-**Section sources**
-- [bin/palee.ts:232-242](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L232-L242)
-- [src/cli/session.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L200)
-
 ### `dashboard`
 Show a learning dashboard summary.
 
@@ -743,10 +655,6 @@ palee dashboard --json
 - `2`: Missing or invalid vault path.
 - `5`: Unexpected runtime exception.
 
-**Section sources**
-- [bin/palee.ts:242-250](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L242-L250)
-- [src/cli/dashboard.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L200)
-
 ### `update`
 Update the global PALEE installation.
 
@@ -777,10 +685,6 @@ palee update --dry-run
 - `2`: Commander usage error.
 - `5`: Version check failure, npm execution failure, timeout, or unexpected error.
 
-**Section sources**
-- [bin/palee.ts:250-330](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L250-L330)
-- [src/cli/update.ts:1-84](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update.ts#L1-L84)
-
 ## Dependency Analysis
 The following diagram shows how the CLI entry point depends on command handlers and shared subsystems:
 
@@ -804,23 +708,12 @@ graph LR
   Handlers --> VaultEcho["src/cli/vault-echo.ts"]
 ```
 
-**Diagram sources**
-- [bin/palee.ts:31-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L31-L389)
-- [src/cli/exit-codes.ts:1-65](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts#L1-L65)
-- [src/cli/onboarding.ts:1-164](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/onboarding.ts#L1-L164)
-- [src/cli/vault-echo.ts:1-138](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/vault-echo.ts#L1-L138)
-
-**Section sources**
-- [bin/palee.ts:31-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L31-L389)
-
 ## Performance Considerations
 - Batch adoption and roadmap imports scan and write many notes; use `--dry-run` and `--verbose` before large operations.
 - Pattern filtering reduces vault traversal work in `adopt`.
 - Validation and repair operations read and possibly rewrite vault data; prefer targeted commands (`palee validate --fix`) over repeated broad scans.
 - JSON output avoids expensive human-rendered formatting and is better suited for automation.
 - Update checks and provider connections introduce network latency; cache behavior and timeouts are handled internally.
-
-[No sources needed since this section provides general guidance]
 
 ## Troubleshooting Guide
 
@@ -884,16 +777,6 @@ flowchart TD
   Code -->|5| Unexpected["Unexpected crash or I/O failure"]
 ```
 
-**Diagram sources**
-- [src/cli/exit-codes.ts:1-65](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts#L1-L65)
-
-**Section sources**
-- [src/cli/onboarding.ts:80-164](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/onboarding.ts#L80-L164)
-- [src/cli/review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [src/cli/assess.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L200)
-- [src/cli/update.ts:1-84](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update.ts#L1-L84)
-- [bin/palee.ts:330-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L330-L389)
-
 ## Conclusion
 The PALEE CLI provides a consistent, exit-code-aware interface for managing a markdown-backed learning vault. Commands share configuration, vault validation, JSON output conventions, and error classification. For reliable automation:
 
@@ -903,4 +786,46 @@ The PALEE CLI provides a consistent, exit-code-aware interface for managing a ma
 - Use `--json` for programmatic consumption and rely on `process.exitCode` for CI decisions.
 - Treat exit code `2` as user-fixable input/configuration problems, `4` as retryable concurrency problems, and `5` as unexpected failures requiring logs.
 
-[No sources needed since this section summarizes without analyzing specific files]
+## References
+
+- [package.json:1-20](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L1-L20)
+- [bin/palee.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L30)
+- [bin/palee.ts:31-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L31-L389)
+- [src/cli/exit-codes.ts:1-65](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts#L1-L65)
+- [src/cli/onboarding.ts:1-164](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/onboarding.ts#L1-L164)
+- [bin/palee.ts:1-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L389)
+- [src/cli/program-name.ts:1-91](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/program-name.ts#L1-L91)
+- [src/cli/config.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L60)
+- [bin/palee.ts:31-100](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L31-L100)
+- [bin/palee.ts:280-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L280-L389)
+- [src/cli/config.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L120)
+- [src/cli/onboarding.ts:80-164](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/onboarding.ts#L80-L164)
+- [bin/palee.ts:201-330](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L201-L330)
+- [bin/palee.ts:330-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L330-L389)
+- [src/cli/onboarding.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/onboarding.ts#L1-L79)
+- [src/cli/vault-echo.ts:1-138](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/vault-echo.ts#L1-L138)
+- [bin/palee.ts:40-100](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L40-L100)
+- [bin/palee.ts:70-85](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L70-L85)
+- [src/cli/config.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L200)
+- [bin/palee.ts:85-199](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L85-L199)
+- [src/cli/adopt.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L200)
+- [bin/palee.ts:199-209](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L199-L209)
+- [src/cli/next.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L200)
+- [bin/palee.ts:209-216](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L209-L216)
+- [src/cli/plan.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/plan.ts#L1-L200)
+- [bin/palee.ts:216-224](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L216-L224)
+- [src/cli/progress.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L200)
+- [bin/palee.ts:224-232](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L224-L232)
+- [src/cli/review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
+- [bin/palee.ts:232-242](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L232-L242)
+- [src/cli/assess.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L200)
+- [bin/palee.ts:242-250](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L242-L250)
+- [src/cli/validate.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L1-L200)
+- [bin/palee.ts:201-216](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L201-L216)
+- [src/cli/roadmap.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L1-L200)
+- [bin/palee.ts:216-232](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L216-L232)
+- [src/cli/migrate.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/migrate.ts#L1-L200)
+- [src/cli/session.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L200)
+- [src/cli/dashboard.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L200)
+- [bin/palee.ts:250-330](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L250-L330)
+- [src/cli/update.ts:1-84](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update.ts#L1-L84)
