@@ -259,8 +259,6 @@ Atomic writes trade some performance for durability:
 - If rename is not atomic, add additional safeguards such as copy-then-swap with strict ordering and verification.
 - Test behavior on Windows, macOS, Linux, and common containerized environments.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 
 ### Common Symptoms and Fixes
@@ -290,8 +288,6 @@ Atomic writes trade some performance for durability:
 
 ## Conclusion
 The atomic write system provides durability and crash safety by isolating partial writes behind unique temporary files and committing changes through atomic renames. Containment validation prevents path traversal, while locking ensures exclusive access during the critical commit phase. Abandoned temporary file reclaim and bounded lock acquisition improve resilience after crashes and reduce resource leaks. Together, these mechanisms make the storage layer safer for concurrent, crash-prone environments while keeping integration points clear for frontmatter, adoption, roadmap, and session writers.
-
-[No sources needed since this section summarizes without analyzing specific files]
 
 ## References
 

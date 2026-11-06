@@ -511,8 +511,6 @@ Key coupling observations:
 - Frontmatter writes use YAML CST manipulation to minimize file diffs and preserve existing formatting.
 - The loader caches topic loads, reducing repeated parsing cost across CLI commands.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 
 ### Symptom: Assessment Field Is Rejected as Not a Number

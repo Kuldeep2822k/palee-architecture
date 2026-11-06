@@ -384,8 +384,6 @@ Memory management guidance:
   - Bounding cache size and clearing it between heavy operations.
 - Distributed or multi-process scenarios should treat the cache as process-local and coordinate invalidation through durable state or explicit coordination.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 
 ### Common Walker Errors
@@ -422,8 +420,6 @@ Memory management guidance:
 The vault walker and scanner form a disciplined boundary between the filesystem and the rest of the Palee storage pipeline. The walker focuses on safe, predictable discovery of Markdown notes, while the scanner converts those discoveries into stable, diagnostic-rich records suitable for validation and loading. The in-memory cache provides a practical optimization for frequently accessed metadata, bounded by LRU eviction and timestamp/fingerprint-based invalidation.
 
 For enterprise-scale vaults, the most important operational advice is to minimize redundant walks, avoid unnecessary symlink traversal, keep scanner output deterministic, and manage cache lifetime explicitly. Error handling is designed to be resilient: missing files, permission problems, malformed YAML, and filesystem anomalies produce actionable diagnostics rather than abrupt failures.
-
-[No sources needed since this section summarizes without analyzing specific files]
 
 ## References
 

@@ -264,8 +264,6 @@ graph TB
 
 The 250-word cap keeps prompts small and predictable. The design intentionally avoids an ever-growing single log file; individual session notes are easier to search, migrate, inspect, and recover with Git.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 
 ### Hot Memory Is Missing or Corrupt

@@ -354,8 +354,6 @@ When mocking external systems is necessary:
 - Keep mocks small and typed to the actual interface contract.
 - Validate that mocks preserve failure modes, not just happy paths.
 
-[No sources needed since this section provides general guidance derived from existing spawn and isolation patterns]
-
 ## Dependency Analysis
 The test layer depends on the production source through relative imports, while CLI tests depend on the test utilities for process launching and vault lifecycle.
 

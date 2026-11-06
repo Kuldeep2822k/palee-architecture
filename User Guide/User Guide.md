@@ -47,10 +47,6 @@ Key capabilities from a user perspective:
 - Four-pillar assessment tracks conceptual, practical, debug, and Feynman dimensions.
 - Sessions preserve continuity between work intervals through hot memory and full session logs.
 
-**Section sources**
-- [README.md:13-26](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L13-L26)
-- [README.md:37-88](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L37-L88)
-
 ## Core Concepts
 
 ### Topics as Structured Markdown Notes
@@ -90,19 +86,6 @@ erDiagram
   TOPIC ||--o{ TOPIC : "depends_on"
 ```
 
-**Diagram sources**
-- [types.ts:113-165](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L113-L165)
-- [Docker Fundamentals.md:1-26](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Fundamentals.md#L1-L26)
-- [Docker Volumes.md:1-27](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Volumes.md#L1-L27)
-- [Docker Networking.md:1-30](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Networking.md#L1-L30)
-
-**Section sources**
-- [README.md:207-251](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L207-L251)
-- [types.ts:113-165](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L113-L165)
-- [Docker Fundamentals.md:1-26](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Fundamentals.md#L1-L26)
-- [Docker Volumes.md:1-27](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Volumes.md#L1-L27)
-- [Docker Networking.md:1-30](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Networking.md#L1-L30)
-
 ### The SM-2 Spaced Repetition Algorithm
 SM-2 controls *when* you should review a topic, not whether you have mastered it conceptually. Each review updates:
 - Ease factor: how quickly intervals grow.
@@ -137,13 +120,6 @@ flowchart TD
     DueDate --> Save(["Save updated state"])
 ```
 
-**Diagram sources**
-- [sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-
-**Section sources**
-- [sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-- [README.md:207-251](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L207-L251)
-
 ### Four-Pillar Mastery Model
 Mastery measures *what you know*, while SM-2 measures *when to review*. They are complementary:
 - Conceptual understanding.
@@ -163,15 +139,6 @@ flowchart TD
     Gate -->|Yes| Mastered["Topic satisfies dependency gate"]
     Gate -->|No| Learning["Topic remains below threshold"]
 ```
-
-**Diagram sources**
-- [0004-four-pillar-pedagogical-mastery.md:15-35](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L15-L35)
-- [assess.ts:70-130](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L70-L130)
-
-**Section sources**
-- [0004-four-pillar-pedagogical-mastery.md:15-35](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L15-L35)
-- [types.ts:15-52](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L15-L52)
-- [assess.ts:70-130](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L70-L130)
 
 ### Prerequisite Relationships and Gating
 Prerequisites define which topics must be studied before others become available. They can come from:
@@ -198,18 +165,6 @@ graph TB
     Threshold -->|Yes| Available
     Threshold -->|No| Blocked
 ```
-
-**Diagram sources**
-- [Docker Fundamentals.md:1-26](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Fundamentals.md#L1-L26)
-- [Docker Volumes.md:1-27](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Volumes.md#L1-L27)
-- [Docker Networking.md:1-30](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Networking.md#L1-L30)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [0012-declared-prerequisites.md:1-82](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0012-declared-prerequisites.md#L1-L82)
-
-**Section sources**
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [plan.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/plan.ts#L1-L200)
-- [0012-declared-prerequisites.md:1-82](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0012-declared-prerequisites.md#L1-L82)
 
 ## Topic Lifecycle
 A topic moves through several states as you adopt it, study it, assess it, and review it.
@@ -241,16 +196,6 @@ stateDiagram-v2
     Archived --> [*]
 ```
 
-**Diagram sources**
-- [types.ts:113-165](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L113-L165)
-- [assess.ts:70-130](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L70-L130)
-- [progress.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L200)
-
-**Section sources**
-- [types.ts:113-165](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L113-L165)
-- [assess.ts:70-130](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L70-L130)
-- [progress.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L200)
-
 ## Daily Study Workflow
 
 ### Discover What to Study Next
@@ -280,15 +225,6 @@ sequenceDiagram
     CLI->>Output: Print next topic or blocked notice
 ```
 
-**Diagram sources**
-- [next.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L200)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-
-**Section sources**
-- [next.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L200)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-
 ### Build a Study Session Plan
 Use `palee plan` for a fuller daily view. It shows:
 - Reviews due.
@@ -307,13 +243,6 @@ flowchart TD
     BlockGate --> ReadyLearn["Compute ready-to-learn topics"]
     ReadyLearn --> Report["Print plan sections and counts"]
 ```
-
-**Diagram sources**
-- [plan.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/plan.ts#L1-L200)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-
-**Section sources**
-- [plan.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/plan.ts#L1-L200)
 
 ### Conduct a Review
 After studying a topic, record its recall quality:
@@ -348,13 +277,6 @@ sequenceDiagram
     Store-->>Review: Success or conflict
     Review-->>User: Summary and warnings
 ```
-
-**Diagram sources**
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-
-**Section sources**
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
 
 ### Record a Four-Pillar Assessment
 Use assessment to evaluate mastery across the four pedagogical dimensions:
@@ -399,14 +321,6 @@ sequenceDiagram
     Assess->>Store: Write updated frontmatter
 ```
 
-**Diagram sources**
-- [assess.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L200)
-- [0004-four-pillar-pedagogical-mastery.md:15-35](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L15-L35)
-
-**Section sources**
-- [assess.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L200)
-- [0004-four-pillar-pedagogical-mastery.md:15-35](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L15-L35)
-
 ### Track Progress
 Use `palee progress` to view aggregate mastery statistics or inspect a single topic’s progress. Aggregate output includes:
 - Active and archived topic counts.
@@ -417,10 +331,6 @@ Use `palee progress` to view aggregate mastery statistics or inspect a single to
 - Per-topic details when requested.
 
 Per-topic progress shows mastery, difficulty, repetition, lapses, last assessment date, and last review date. Date-only values are displayed in local calendar form rather than UTC midnight.
-
-**Section sources**
-- [progress.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L200)
-- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
 
 ## Advanced Workflows
 
@@ -448,15 +358,6 @@ flowchart TD
     Write --> Rollback["Roll back partial failures"]
 ```
 
-**Diagram sources**
-- [adopt.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L200)
-- [0012-declared-prerequisites.md:1-82](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0012-declared-prerequisites.md#L1-L82)
-
-**Section sources**
-- [README.md:124-168](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L124-L168)
-- [adopt.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L200)
-- [0012-declared-prerequisites.md:1-82](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0012-declared-prerequisites.md#L1-L82)
-
 ### Roadmap Planning and Import
 Roadmaps let you import a planned set of topics deterministically without running AI or network calls. The `palee roadmap --from <file>` command:
 - Parses roadmap input.
@@ -478,13 +379,6 @@ flowchart TD
     Validate --> Apply["Apply topic updates"]
     Apply --> Report["Report synthesized and skipped edges"]
 ```
-
-**Diagram sources**
-- [roadmap.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L1-L200)
-
-**Section sources**
-- [README.md:124-168](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L124-L168)
-- [roadmap.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L1-L200)
 
 ### Session Management
 Sessions capture your active learning context between terminal invocations. Key concepts:
@@ -524,14 +418,6 @@ sequenceDiagram
     Session->>Hot: Refresh hot memory
 ```
 
-**Diagram sources**
-- [session.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L200)
-- [README.md:239-251](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L239-L251)
-
-**Section sources**
-- [session.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L200)
-- [README.md:239-251](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L239-L251)
-
 ### Configuration and Provider Setup
 Provider configuration is optional. Required setup for general operation is setting your vault path. Optional provider setup enables AI-powered features in later phases.
 
@@ -541,10 +427,6 @@ Important safety properties:
 - `palee config show` masks the key.
 - `test-connection` is the only command that directly contacts a network endpoint.
 - Non-interactive or JSON runs refuse risky key operations without explicit flags.
-
-**Section sources**
-- [README.md:41-122](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L41-L122)
-- [program-name.ts:1-91](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/program-name.ts#L1-L91)
 
 ## Practical Examples
 
@@ -565,13 +447,6 @@ Expected outcome:
 - Fundamentals becomes available immediately.
 - Volumes and networking remain gated until fundamentals is mastered.
 
-**Section sources**
-- [README.md:41-88](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L41-L88)
-- [Docker Fundamentals.md:1-26](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Fundamentals.md#L1-L26)
-- [Docker Volumes.md:1-27](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Volumes.md#L1-L27)
-- [Docker Networking.md:1-30](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Networking.md#L1-L30)
-- [adopt.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L200)
-
 ### Example 2: Set Up a Prerequisite Chain Manually
 If your notes already contain clear dependencies, you can write `depends_on` directly in frontmatter:
 
@@ -580,12 +455,6 @@ If your notes already contain clear dependencies, you can write `depends_on` dir
 - `Docker Fundamentals.md` has no dependencies.
 
 After adoption, `palee plan` will show fundamentals as ready to learn and volumes/networking as blocked until fundamentals reaches mastery.
-
-**Section sources**
-- [Docker Fundamentals.md:1-26](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Fundamentals.md#L1-L26)
-- [Docker Volumes.md:1-27](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Volumes.md#L1-L27)
-- [Docker Networking.md:1-30](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Networking.md#L1-L30)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
 
 ### Example 3: Manage a Study Session Across Terminal Invocations
 1. Start a session: `palee session start`.
@@ -597,11 +466,6 @@ After adoption, `palee plan` will show fundamentals as ready to learn and volume
 
 Hot memory ensures the next session starts near your previous position without loading the entire study log.
 
-**Section sources**
-- [session.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L200)
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [README.md:239-251](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L239-L251)
-
 ### Example 4: Interpret Progress Reports
 Run `palee progress` to see:
 - How many topics are active or archived.
@@ -611,10 +475,6 @@ Run `palee progress` to see:
 - Per-topic mastery, repetition, lapses, and timestamps.
 
 For machine-readable automation, add `--json` and parse fields like `global_mastery`, `counts`, and per-topic metrics.
-
-**Section sources**
-- [progress.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L200)
-- [types.ts:167-188](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L167-L188)
 
 ### Example 5: Fix Corrupted Scheduling State
 If SM-2 fields become invalid, `palee review` hints at repair. You can run:
@@ -629,10 +489,6 @@ This repairs:
 - Invalid SM-2 review fields.
 
 Some repairs are safe and automatic; others require human judgment and are labeled accordingly.
-
-**Section sources**
-- [review.ts:100-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L100-L141)
-- [validate.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L1-L200)
 
 ## Performance and Large Vault Guidance
 
@@ -660,8 +516,6 @@ Hot memory is intentionally capped to keep session context compact. Full session
 - Use `--dry-run` for adoption and roadmap imports before committing changes.
 - Prefer stable topic IDs and explicit dependencies for predictable scheduling.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting and Recovery
 
 ### Common Exit Codes
@@ -674,9 +528,6 @@ Hot memory is intentionally capped to keep session context compact. Full session
 | 4 | Optimistic concurrency conflict | Another process modified the same file. |
 | 5 | Unexpected error | Internal exception or runtime failure. |
 
-**Section sources**
-- [README.md:253-286](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L253-L286)
-
 ### Topic Not Found or Ambiguous Query
 Commands that accept a topic argument resolve queries against vault-loaded topics. If no topic matches, the command names the query. If multiple topics match, it lists candidates and asks for a more specific identifier.
 
@@ -686,36 +537,17 @@ Recommended remedies:
 - Check whether the topic is archived.
 - Run `palee progress --topic "<query>"` to inspect matching behavior.
 
-**Section sources**
-- [review.ts:30-80](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L30-L80)
-- [assess.ts:130-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L130-L200)
-- [progress.ts:100-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L100-L200)
-
 ### Early Review Warning
 Recording a review before the due date is allowed, but PALEE warns that the interval compounds off-schedule. Pass `--force` if you intentionally want to record the review without the warning. The record is still saved.
-
-**Section sources**
-- [review.ts:80-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L80-L141)
 
 ### Assessment Lowers Mastery
 If an assessment lowers mastery below the gate, dependent topics may stop being offered by `palee plan`. The command names affected topics and offers `--dry-run` to preview the change and `--force` to suppress the lowering warning when recording.
 
-**Section sources**
-- [assess.ts:70-130](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L70-L130)
-
 ### Invalid SM-2 State
 Invalid stored SM-2 values cause defensive errors. The review command suggests running `palee validate --fix`. Validation can reset invalid fields to adopt defaults and rebuild derived projections.
 
-**Section sources**
-- [sm2.ts:100-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L100-L200)
-- [review.ts:100-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L100-L141)
-- [validate.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L1-L200)
-
 ### Network and Provider Safety
 Only `palee config test-connection` directly contacts a configured provider endpoint. Other commands such as `next`, `plan`, `review`, `validate`, `adopt`, and `roadmap --from` do not perform that network call. Connection testing reports the URL, key source, latency, and token cost.
-
-**Section sources**
-- [README.md:41-122](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L41-L122)
 
 ## Conclusion
 PALEE combines structured Markdown topics, SM-2 scheduling, prerequisite gating, four-pillar mastery assessment, and durable session management into a repeatable daily study workflow. Beginners can start by adopting notes, reviewing due topics, and tracking progress. Experienced users can build prerequisite chains, automate roadmap imports, manage sessions across interruptions, and rely on validation and atomic writes for vault integrity.
@@ -727,4 +559,42 @@ For best results:
 - Use sessions to preserve context between study intervals.
 - Validate regularly and repair only what you understand.
 
-[No sources needed since this section summarizes without analyzing specific files]
+## References
+
+- [README.md:13-26](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L13-L26)
+- [README.md:37-88](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L37-L88)
+- [types.ts:113-165](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L113-L165)
+- [Docker Fundamentals.md:1-26](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Fundamentals.md#L1-L26)
+- [Docker Volumes.md:1-27](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Volumes.md#L1-L27)
+- [Docker Networking.md:1-30](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Networking.md#L1-L30)
+- [README.md:207-251](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L207-L251)
+- [sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
+- [0004-four-pillar-pedagogical-mastery.md:15-35](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L15-L35)
+- [assess.ts:70-130](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L70-L130)
+- [types.ts:15-52](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L15-L52)
+- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
+- [0012-declared-prerequisites.md:1-82](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0012-declared-prerequisites.md#L1-L82)
+- [plan.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/plan.ts#L1-L200)
+- [progress.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L200)
+- [next.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L200)
+- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
+- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
+- [assess.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L200)
+- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
+- [adopt.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L200)
+- [README.md:124-168](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L124-L168)
+- [roadmap.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L1-L200)
+- [session.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L200)
+- [README.md:239-251](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L239-L251)
+- [README.md:41-122](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L41-L122)
+- [program-name.ts:1-91](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/program-name.ts#L1-L91)
+- [README.md:41-88](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L41-L88)
+- [types.ts:167-188](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L167-L188)
+- [review.ts:100-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L100-L141)
+- [validate.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L1-L200)
+- [README.md:253-286](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L253-L286)
+- [review.ts:30-80](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L30-L80)
+- [assess.ts:130-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L130-L200)
+- [progress.ts:100-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L100-L200)
+- [review.ts:80-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L80-L141)
+- [sm2.ts:100-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L100-L200)

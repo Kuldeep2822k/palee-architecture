@@ -443,8 +443,6 @@ Optimization recommendations:
 - Keep `details` payloads compact because JSON serialization cost grows with payload size.
 - Prefer early filtering in callers when only a subset of issues is needed for a specific report.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 
 ### Human Report Problems

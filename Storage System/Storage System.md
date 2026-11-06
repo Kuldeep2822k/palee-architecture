@@ -417,8 +417,6 @@ graph LR
 - Session hot memory should be bounded; rely on durable logs for recovery rather than keeping everything in RAM.
 - Dependency and TOC structures should be constructed incrementally and reused across operations.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 Common issues and recovery procedures. The two error codes that matter here are `ECONFLICT` (retryable contention, CLI exit code 4) and `ECONTAINMENT` (a path escaping the vault, CLI exit code 3 — never retryable).
 
@@ -446,8 +444,6 @@ Common issues and recovery procedures. The two error codes that matter here are 
 
 ## Conclusion
 The PALEE storage subsystem provides a robust foundation for vault operations. Frontmatter parsing and updating handle YAML metadata safely. Atomic writes and file locking deliver durability and concurrency control. The vault walker and scanner efficiently traverse large directories with caching. Session memory balances performance and persistence. Dependency storage, TOC management, and wikilink processing integrate into a coherent graph model. With careful attention to validation, error handling, and resource limits, the subsystem scales to large vaults while maintaining strong consistency and recovery guarantees.
-
-[No sources needed since this section summarizes without analyzing specific files]
 
 ## References
 

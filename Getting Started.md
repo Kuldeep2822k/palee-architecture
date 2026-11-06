@@ -48,11 +48,6 @@ Key ideas:
 
 PALEE also maintains internal state such as session logs and hot memory under a `.palee` directory inside your vault, while keeping user-authored notes readable and editable by Obsidian and other tools.
 
-**Section sources**
-- [README.md:1-20](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L1-L20)
-- [README.md:21-60](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L21-L60)
-- [README.md:61-120](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L61-L120)
-
 ## Installation
 Install PALEE globally with npm:
 
@@ -74,11 +69,6 @@ palee update
 
 The update command delegates to your installed `npm`, uses your normal global registry configuration, and does not open a network connection itself. When running interactively, PALEE may print at most one update notice per day; set `PALEE_NO_UPDATE_CHECK=1` to silence it.
 
-**Section sources**
-- [README.md:61-90](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L61-L90)
-- [package.json:1-20](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L1-L20)
-- [package.json:60-75](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L60-L75)
-
 ## Vault-Based Learning Model
 PALEE treats your Obsidian vault as the source of truth for learning content. A topic is:
 - A Markdown file.
@@ -92,10 +82,6 @@ This design has several benefits:
 - Ability to keep personal fields alongside PALEE-managed fields.
 
 When you adopt a note, PALEE adds only the fields it owns while preserving your original content. When you undo an adoption, PALEE strips those owned keys rather than deleting the entire file.
-
-**Section sources**
-- [README.md:120-180](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L120-L180)
-- [src/cli/adopt.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L40)
 
 ## The Four-Pillar Pedagogical Approach
 Traditional spaced repetition often reduces recall to a single score. PALEE models technical mastery more holistically through four pillars:
@@ -126,12 +112,6 @@ flowchart TD
     Threshold -->|"Yes"| Mastered["Topic Satisfies Downstream Dependencies"]
     Threshold -->|"No"| NeedsWork["Topic Needs More Practice"]
 ```
-
-**Diagram sources**
-- [docs/adr/0004-four-pillar-pedagogical-mastery.md:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
-
-**Section sources**
-- [docs/adr/0004-four-pillar-pedagogical-mastery.md:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
 
 ## Initial Setup
 The first step after installing PALEE is to tell it where your Obsidian vault lives.
@@ -165,12 +145,6 @@ Important security notes:
 
 If you do not need AI features right away, skip these steps and begin with vault configuration and topic adoption.
 
-**Section sources**
-- [README.md:90-120](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L90-L120)
-- [src/cli/config.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L40)
-- [src/cli/config.ts:41-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L41-L120)
-- [src/cli/config.ts:121-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L121-L200)
-
 ## Creating Your First Topic
 You can create a topic manually by adding a Markdown file to your vault with YAML frontmatter. At minimum, include:
 - `palee_schema`
@@ -194,9 +168,6 @@ When you write your own topics:
 - Use Obsidian wikilinks for cross-references.
 - Leave `assessed_at` null until you have performed a four-pillar assessment.
 - Let PALEE manage scheduling fields such as `due_at`, `ease_factor`, `interval_days`, `repetition`, and `lapses`.
-
-**Section sources**
-- [examples/Docker Fundamentals.md:1-26](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Fundamentals.md#L1-L26)
 
 ## Adopting Existing Notes
 Adoption converts existing Markdown notes into PALEE topics. This is useful when you already have documentation, tutorials, or study notes.
@@ -252,15 +223,6 @@ flowchart TD
     WriteNote --> Done["Adoption complete"]
 ```
 
-**Diagram sources**
-- [src/cli/adopt.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L40)
-- [src/cli/adopt.ts:41-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L41-L120)
-- [bin/palee.ts:80-170](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L80-L170)
-
-**Section sources**
-- [bin/palee.ts:80-170](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L80-L170)
-- [src/cli/adopt.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L40)
-
 ## Running Your First Review Session
 Once your vault contains at least one adopted or manually created topic, start reviewing.
 
@@ -306,17 +268,6 @@ sequenceDiagram
     CLI-->>User: "Due topic, ID, mastery, path"
 ```
 
-**Diagram sources**
-- [src/cli/next.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L40)
-- [src/cli/next.ts:41-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L41-L120)
-- [src/cli/next.ts:121-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L121-L200)
-
-**Section sources**
-- [README.md:120-180](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L120-L180)
-- [bin/palee.ts:170-220](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L170-L220)
-- [src/cli/next.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L40)
-- [src/cli/review.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L40)
-
 ## Expected Directory Structure
 Your vault contains two kinds of directories:
 
@@ -346,12 +297,6 @@ graph TB
     Palee --> Sessions
 ```
 
-**Diagram sources**
-- [examples/.palee/index.md:1-10](https://github.com/Kuldeep2822k/cli/blob/main/examples/.palee/index.md#L1-L10)
-
-**Section sources**
-- [examples/.palee/index.md:1-10](https://github.com/Kuldeep2822k/cli/blob/main/examples/.palee/index.md#L1-L10)
-
 ## Topics and Prerequisite Chains
 Topics form a directed graph. A dependent topic should normally wait until its prerequisites satisfy the mastery gate. In the examples:
 - `Docker Fundamentals` has no prerequisites.
@@ -369,16 +314,6 @@ graph LR
     Fundamentals --> Networking
     Fundamentals --> Volumes
 ```
-
-**Diagram sources**
-- [examples/Docker Fundamentals.md:1-26](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Fundamentals.md#L1-L26)
-- [examples/Docker Networking.md:1-30](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Networking.md#L1-L30)
-- [examples/Docker Volumes.md:1-27](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Volumes.md#L1-L27)
-
-**Section sources**
-- [examples/Docker Fundamentals.md:1-26](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Fundamentals.md#L1-L26)
-- [examples/Docker Networking.md:1-30](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Networking.md#L1-L30)
-- [examples/Docker Volumes.md:1-27](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Volumes.md#L1-L27)
 
 ## Common First-Time Issues
 
@@ -414,10 +349,6 @@ graph LR
 **Explanation:** Recording an early review compounds the interval off-schedule.  
 **Fix:** Ignore the warning, or pass `--force` when automation needs silent behavior.
 
-**Section sources**
-- [src/cli/next.ts:41-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L41-L120)
-- [src/cli/review.ts:41-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L41-L141)
-
 ## Troubleshooting Guide
 
 | Problem | Likely Cause | Resolution |
@@ -450,12 +381,6 @@ palee config show
 
 Environment isolation is available through `PALEE_CONFIG_DIR`. Setting this environment variable makes PALEE read and write a separate `config.json`, which is useful for testing or isolated runs.
 
-**Section sources**
-- [src/cli/config.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L40)
-- [src/cli/config.ts:41-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L41-L120)
-- [src/cli/review.ts:120-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L120-L141)
-- [bin/palee.ts:20-60](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L20-L60)
-
 ## Next Steps
 After completing this guide, you can continue building your learning system:
 
@@ -468,6 +393,34 @@ After completing this guide, you can continue building your learning system:
 
 For a complete command reference, architecture explanation, and advanced configuration, consult the project’s documentation site referenced in the repository README.
 
-**Section sources**
+## References
+
+- [README.md:1-20](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L1-L20)
+- [README.md:21-60](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L21-L60)
+- [README.md:61-120](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L61-L120)
+- [README.md:61-90](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L61-L90)
+- [package.json:1-20](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L1-L20)
+- [package.json:60-75](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L60-L75)
+- [README.md:120-180](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L120-L180)
+- [src/cli/adopt.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L40)
+- [docs/adr/0004-four-pillar-pedagogical-mastery.md:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
+- [README.md:90-120](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L90-L120)
+- [src/cli/config.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L40)
+- [src/cli/config.ts:41-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L41-L120)
+- [src/cli/config.ts:121-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L121-L200)
+- [examples/Docker Fundamentals.md:1-26](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Fundamentals.md#L1-L26)
+- [src/cli/adopt.ts:41-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L41-L120)
+- [bin/palee.ts:80-170](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L80-L170)
+- [src/cli/next.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L40)
+- [src/cli/next.ts:41-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L41-L120)
+- [src/cli/next.ts:121-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L121-L200)
+- [bin/palee.ts:170-220](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L170-L220)
+- [src/cli/review.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L40)
+- [examples/.palee/index.md:1-10](https://github.com/Kuldeep2822k/cli/blob/main/examples/.palee/index.md#L1-L10)
+- [examples/Docker Networking.md:1-30](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Networking.md#L1-L30)
+- [examples/Docker Volumes.md:1-27](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Volumes.md#L1-L27)
+- [src/cli/review.ts:41-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L41-L141)
+- [src/cli/review.ts:120-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L120-L141)
+- [bin/palee.ts:20-60](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L20-L60)
 - [README.md:120-220](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L120-L220)
 - [bin/palee.ts:170-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L170-L389)

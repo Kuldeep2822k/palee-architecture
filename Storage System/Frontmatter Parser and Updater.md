@@ -310,8 +310,6 @@ For large vaults, the most important performance characteristics are:
 
 The design deliberately avoids parsing the entire Markdown body as YAML. Malformed frontmatter is surfaced as a parse outcome rather than aborting vault traversal. This keeps large vault scanning resilient even when some notes have bad YAML.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 
 ### Common Errors and Causes
@@ -336,8 +334,6 @@ PALEE’s frontmatter subsystem is designed around two complementary goals:
 2. **Fidelity-preserving updates**: Targeted modifications rewrite only the YAML frontmatter while keeping comments, unknown keys, body content, line endings, and BOMs intact.
 
 The schema separates storage-level flat keys from higher-level domain models. Validation rules enforce raw data integrity, while loader normalization provides safe defaults for consumers. For large vaults, the approach favors resilience, bounded mutation, and deterministic error reporting over aggressive automatic repair.
-
-[No sources needed since this section summarizes without analyzing specific files]
 
 ## Appendices
 
