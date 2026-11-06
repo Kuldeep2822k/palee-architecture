@@ -159,6 +159,8 @@ due_at: null
 ---
 ```
 
+The shipped note carries no `status` key, and it is valid as written: the loader defaults a missing `status` to `not_started`, so only a present-but-invalid value is an error.
+
 A topic that has been studied carries the same keys with non-default values; `examples/Docker Fundamentals.md` shows one after its first review (`repetition: 1`, `last_quality: 4`, `due_at` set).
 
 ### Assessment Model
@@ -365,8 +367,8 @@ A full configuration may additionally set provider, model, endpoint, and API key
 ```json
 {
   "vaultPath": "/home/user/notes-vault",
-  "aiProvider": "anthropic",
-  "baseUrl": "https://api.anthropic.com",
+  "aiProvider": "openai",
+  "baseUrl": "https://api.openai.com",
   "model": "<model-id>",
   "apiKey": "sk-..."
 }
