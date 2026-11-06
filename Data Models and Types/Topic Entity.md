@@ -58,21 +58,6 @@ graph TB
     Engine["Engine Policy<br/>topic-id.ts"] --> Valid
 ```
 
-**Diagram sources**
-- [src/storage/loader.ts:201-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L201-L417)
-- [src/storage/dependencies.ts:1-28](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/dependencies.ts#L1-L28)
-- [src/types.ts:1-170](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L170)
-- [src/validation/rules/valid-topic-status.ts:1-62](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-status.ts#L1-L62)
-- [src/validation/rules/valid-dependency-list.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-dependency-list.ts#L1-L200)
-- [src/engine/topic-id.ts:1-81](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L1-L81)
-
-**Section sources**
-- [src/types.ts:1-170](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L170)
-- [src/storage/loader.ts:201-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L201-L417)
-- [src/storage/dependencies.ts:1-28](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/dependencies.ts#L1-L28)
-- [src/engine/topic-id.ts:1-81](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L1-L81)
-- [docs/05-1-topic-and-assessment-schema.md:1-171](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md#L1-L171)
-
 ## Core Components
 The canonical domain model centers on three related shapes:
 
@@ -85,11 +70,6 @@ The canonical domain model centers on three related shapes:
 | `LoadedTopic` | Storage-layer normalized runtime representation | Extends `TopicNode` plus `id`, `title`, `path`, `filePath`, `content`, `frontmatter`, plus assessment/review fields |
 
 Important distinction: `Topic` describes the persisted schema contract, while `LoadedTopic` is what `loadTopics` returns after coercion, clamping, defaults, and alias resolution. Consumers that need filesystem paths, raw content, or normalized graph edges should use `LoadedTopic`; consumers that reason about persistence contracts should reference `Topic`.
-
-**Section sources**
-- [src/types.ts:1-170](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L170)
-- [src/types.ts:624-654](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L624-L654)
-- [src/storage/loader.ts:201-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L201-L417)
 
 ## Architecture Overview
 The Topic lifecycle across persistence and memory looks like this:
@@ -110,11 +90,6 @@ sequenceDiagram
     Loader-->>Consumer: LoadedTopic[]
     Consumer->>Consumer: Validate via palee validate
 ```
-
-**Diagram sources**
-- [src/storage/loader.ts:201-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L201-L417)
-- [src/storage/dependencies.ts:1-28](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/dependencies.ts#L1-L28)
-- [src/types.ts:615-619](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L615-L619)
 
 ## Detailed Component Analysis
 
@@ -147,12 +122,6 @@ Mapping ranges:
 - `2..3`: `'intermediate'`
 - `>= 4`: `'advanced'`
 
-**Section sources**
-- [src/types.ts:1-170](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L170)
-- [src/engine/topic-id.ts:1-81](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L1-L81)
-- [src/validation/rules/valid-topic-status.ts:1-62](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-status.ts#L1-L62)
-- [src/validation/rules/valid-dependency-list.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-dependency-list.ts#L1-L200)
-
 ### Assessment Model
 The `Assessment` model represents pedagogical mastery using four pillars:
 
@@ -165,10 +134,6 @@ The `Assessment` model represents pedagogical mastery using four pillars:
 | `assessed_at` | Last assessment timestamp | ISO 8601 string or `null` | Normalized through `normalizeAssessedAt`; epoch milliseconds are converted to ISO 8601 |
 
 The documentation defines the overall mastery formula as a weighted average where the Feynman pillar carries double weight. However, the canonical `Topic` interface stores the four individual pillar scores and their assessment timestamp rather than a precomputed aggregate. Consumers should compute derived mastery from the stored pillars according to the documented invariant.
-
-**Section sources**
-- [src/types.ts:1-170](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L170)
-- [docs/05-1-topic-and-assessment-schema.md:1-171](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md#L1-L171)
 
 ### Review Model
 The `Review` model implements SM-2 scheduling state:
@@ -190,10 +155,6 @@ Constraints:
 - Timestamp fields are expected as ISO 8601 strings.
 
 The loader does not clamp every SM-2 field directly; instead, it coerces types and supplies sensible defaults. Additional constraints such as date validity and SM-2 bounds are enforced by dedicated validation rules rather than by `parseNumber`/`parseInteger`.
-
-**Section sources**
-- [src/types.ts:1-170](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L170)
-- [src/storage/loader.ts:201-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L201-L417)
 
 ### Dependencies, Depends-On Alias, and Provenance
 
@@ -217,11 +178,6 @@ flowchart TD
     DiskFM --> Validation["valid-dependency-list rule"]
     Validation --> WarnLegacy["Advisory warning for dependencies"]
 ```
-
-**Diagram sources**
-- [src/storage/dependencies.ts:1-28](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/dependencies.ts#L1-L28)
-- [src/types.ts:624-654](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L624-L654)
-- [src/validation/rules/valid-dependency-list.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-dependency-list.ts#L1-L200)
 
 #### Dependency Validation Rules
 The `valid-dependency-list` rule validates raw frontmatter values before normalization:
@@ -250,12 +206,6 @@ Not all prerequisites lock a learner out. Gating is controlled by `depends_on_so
 | `tie` | No | Filename collation between same-rank notes |
 
 Unknown labels map to absent provenance, keeping the gate in place rather than relaxing it. This is intentional: demoting a hand-written prerequisite to advisory would be a silent, permanent loss of gating.
-
-**Section sources**
-- [src/storage/dependencies.ts:1-28](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/dependencies.ts#L1-L28)
-- [src/types.ts:615-654](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L615-L654)
-- [src/validation/rules/valid-dependency-list.ts:1-258](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-dependency-list.ts#L1-L258)
-- [docs/adr/0009-gating-model-depends-on-source.md:1-85](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0009-gating-model-depends-on-source.md#L1-L85)
 
 ### Status and Lifecycle Transitions
 Allowed lifecycle states:
@@ -288,16 +238,6 @@ stateDiagram-v2
     Paused --> Archived : "retire"
     NotStarted --> Archived : "retire"
 ```
-
-**Diagram sources**
-- [src/engine/topic-id.ts:12-20](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L12-L20)
-- [src/validation/rules/valid-topic-status.ts:1-62](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-status.ts#L1-L62)
-- [src/storage/loader.ts:201-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L201-L417)
-
-**Section sources**
-- [src/engine/topic-id.ts:12-20](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L12-L20)
-- [src/validation/rules/valid-topic-status.ts:1-62](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-status.ts#L1-L62)
-- [src/storage/loader.ts:201-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L201-L417)
 
 ### Topic vs TopicNode
 `TopicNode` is the graph-oriented abstraction consumed by the dependency engine and scheduling components. It is intentionally narrower than `Topic`:
@@ -362,16 +302,6 @@ classDiagram
     TopicNode <|-- LoadedTopic
 ```
 
-**Diagram sources**
-- [src/types.ts:1-170](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L170)
-- [src/types.ts:624-654](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L624-L654)
-- [src/storage/loader.ts:201-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L201-L417)
-
-**Section sources**
-- [src/types.ts:1-170](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L170)
-- [src/types.ts:624-654](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L624-L654)
-- [src/storage/loader.ts:201-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L201-L417)
-
 ## Dependency Analysis
 The Topic entity participates in several important dependency relationships:
 
@@ -385,26 +315,12 @@ graph LR
     ADR["docs/adr/0009-gating-model-depends-on-source.md"] --> Types
 ```
 
-**Diagram sources**
-- [src/types.ts:1-170](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L170)
-- [src/storage/loader.ts:201-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L201-L417)
-- [src/storage/dependencies.ts:1-28](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/dependencies.ts#L1-L28)
-- [src/engine/topic-id.ts:1-81](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L1-L81)
-- [docs/05-1-topic-and-assessment-schema.md:1-171](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md#L1-L171)
-- [docs/adr/0009-gating-model-depends-on-source.md:1-85](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0009-gating-model-depends-on-source.md#L1-L85)
-
 Key coupling observations:
 - `Topic` is the source-of-truth schema, but `LoadedTopic` is the practical runtime contract.
 - Storage normalization is central: `loadTopics` applies difficulty normalization, score clamping, timestamp conversion, and dependency alias resolution.
 - Validation reads raw frontmatter to detect corruption before normalization hides it.
 - Engine policy modules (`topic-id.ts`) define shared constants and policies reused by validation and storage.
 - `TopicNode` decouples graph consumers from persistence details.
-
-**Section sources**
-- [src/types.ts:1-170](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L170)
-- [src/storage/loader.ts:201-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L201-L417)
-- [src/storage/dependencies.ts:1-28](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/dependencies.ts#L1-L28)
-- [src/engine/topic-id.ts:1-81](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L1-L81)
 
 ## Performance Considerations
 `loadTopics` includes several performance safeguards relevant to Topic loading:
@@ -415,10 +331,6 @@ Key coupling observations:
 - Deduplication of dependency IDs during normalization.
 
 These mechanisms mean Topic loading cost tracks the number of real topics rather than the total vault size, and repeated scans avoid redundant YAML parsing.
-
-**Section sources**
-- [src/storage/loader.ts:201-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L201-L417)
-- [src/storage/dependencies.ts:1-28](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/dependencies.ts#L1-L28)
 
 ## Troubleshooting Guide
 
@@ -447,13 +359,6 @@ When evolving the schema:
 - Add validation rules for new required or constrained fields.
 - Provide migration tooling when stored data can become semantically incorrect without repair.
 
-**Section sources**
-- [src/engine/topic-id.ts:12-20](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L12-L20)
-- [src/storage/loader.ts:201-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L201-L417)
-- [src/types.ts:331-373](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L331-L373)
-- [src/validation/rules/valid-topic-status.ts:1-62](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-status.ts#L1-L62)
-- [src/validation/rules/valid-dependency-list.ts:1-258](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-dependency-list.ts#L1-L258)
-
 ## Conclusion
 The Topic entity is the anchor of PALEE’s learning model. Its persistence schema is expressed by `Topic`, its runtime representation by `LoadedTopic`, and its graph usage by `TopicNode`. The storage layer is the primary transformation boundary: it normalizes difficulty, clamps assessment scores, converts timestamps, resolves the legacy `dependencies` alias into canonical `depends_on`, and supplies safe defaults. Validation complements this by inspecting raw frontmatter to expose corruption, malformed aliases, self-references, duplicates, and invalid lifecycle states.
 
@@ -464,3 +369,20 @@ For reliable Topic manipulation:
 - Use `normalizeDifficulty` for any external difficulty input.
 - Respect `depends_on_source` when diagnosing why a topic is gated.
 - Run `palee validate` to surface pre-normalization defects before assuming normalization has fixed the vault.
+
+## References
+
+- [src/storage/loader.ts:201-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L201-L417)
+- [src/storage/dependencies.ts:1-28](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/dependencies.ts#L1-L28)
+- [src/types.ts:1-170](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L170)
+- [src/validation/rules/valid-topic-status.ts:1-62](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-status.ts#L1-L62)
+- [src/validation/rules/valid-dependency-list.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-dependency-list.ts#L1-L200)
+- [src/engine/topic-id.ts:1-81](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L1-L81)
+- [docs/05-1-topic-and-assessment-schema.md:1-171](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md#L1-L171)
+- [src/types.ts:624-654](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L624-L654)
+- [src/types.ts:615-619](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L615-L619)
+- [src/types.ts:615-654](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L615-L654)
+- [src/validation/rules/valid-dependency-list.ts:1-258](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-dependency-list.ts#L1-L258)
+- [docs/adr/0009-gating-model-depends-on-source.md:1-85](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0009-gating-model-depends-on-source.md#L1-L85)
+- [src/engine/topic-id.ts:12-20](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L12-L20)
+- [src/types.ts:331-373](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L331-L373)

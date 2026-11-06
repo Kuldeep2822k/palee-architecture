@@ -80,15 +80,6 @@ graph TB
   Migrate --> Types
 ```
 
-**Diagram sources**
-- [bin/palee.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L120)
-- [src/cli/config.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L120)
-- [src/types.ts:501-1001](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L501-L1001)
-
-**Section sources**
-- [bin/palee.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L120)
-- [src/types.ts:501-1001](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L501-L1001)
-
 ## Core Components
 ### PaleeConfig
 `PaleeConfig` is the shared user configuration object loaded from disk and passed into most commands. It has five optional fields:
@@ -139,15 +130,6 @@ flowchart TD
   NarrowFields --> Return["Return PaleeConfig"]
 ```
 
-**Diagram sources**
-- [src/cli/config.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L120)
-- [src/cli/config.ts:120-220](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L120-L220)
-
-**Section sources**
-- [src/types.ts:560-610](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L560-L610)
-- [src/cli/config.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L120)
-- [src/cli/config.ts:120-220](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L120-L220)
-
 ## Architecture Overview
 The CLI architecture is command-oriented: `bin/palee.ts` registers each subcommand with Commander, declares arguments and options, and delegates to a handler module. Handlers load `PaleeConfig` through `loadConfig()`, validate inputs, call storage/engine/application layers, and print human-readable or JSON output.
 
@@ -168,10 +150,6 @@ sequenceDiagram
   Storage-->>Handler: topic data
   Handler->>Output: print result or error
 ```
-
-**Diagram sources**
-- [bin/palee.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L120)
-- [src/cli/config.ts:120-220](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L120-L220)
 
 ## Detailed Component Analysis
 
@@ -216,11 +194,6 @@ Security recommendations:
 - Avoid placing the config directory in shared network drives, Dropbox-synced folders, or repository directories on Windows.
 - Use `palee config set-api-key --from-env VARIABLE_NAME` in automation instead of writing secrets directly into source control.
 
-**Section sources**
-- [src/types.ts:560-610](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L560-L610)
-- [src/cli/config.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L120)
-- [src/cli/config.ts:120-220](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L120-L220)
-
 ### AdoptOptions
 `AdoptOptions` controls `palee adopt`, which converts existing Markdown notes into PALEE topics.
 
@@ -264,12 +237,6 @@ palee adopt --all --undo --dry-run
 palee adopt --all --undo --drop-title
 ```
 
-**Section sources**
-- [src/types.ts:610-760](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L610-L760)
-- [src/cli/adopt.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L60)
-- [bin/palee.ts:120-220](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L120-L220)
-- [src/cli/adopt-undo.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts#L1-L60)
-
 ### NextOptions
 `NextOptions` controls `palee next`, which shows the next topic due for review.
 
@@ -292,11 +259,6 @@ palee next --all
 palee next --json
 ```
 
-**Section sources**
-- [src/types.ts:760-790](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L760-L790)
-- [src/cli/next.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L120)
-- [bin/palee.ts:220-240](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L220-L240)
-
 ### PlanOptions
 `PlanOptions` controls `palee plan`, which shows today's learning plan.
 
@@ -315,11 +277,6 @@ Example invocation:
 ```text
 palee plan --json
 ```
-
-**Section sources**
-- [src/types.ts:790-805](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L790-L805)
-- [src/cli/plan.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/plan.ts#L1-L120)
-- [bin/palee.ts:240-250](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L240-L250)
 
 ### ReviewOptions
 `ReviewOptions` controls `palee review`, which records an SM-2 spaced repetition review for a topic.
@@ -343,11 +300,6 @@ palee review topic-linear-algebra 1
 palee review topic-regex --force
 ```
 
-**Section sources**
-- [src/types.ts:805-825](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L805-L825)
-- [src/cli/review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [bin/palee.ts:260-275](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L260-L275)
-
 ### DashboardOptions
 `DashboardOptions` controls `palee dashboard`, which shows a learning dashboard summary.
 
@@ -365,11 +317,6 @@ Example invocation:
 ```text
 palee dashboard --json
 ```
-
-**Section sources**
-- [src/types.ts:825-835](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L825-L835)
-- [src/cli/dashboard.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L120)
-- [bin/palee.ts:330-340](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L330-L340)
 
 ### ProgressOptions
 `ProgressOptions` controls `palee progress`, which shows learning progress metrics and mastery.
@@ -391,11 +338,6 @@ palee progress
 palee progress --topic topic-docker-networking
 palee progress --topic topic-docker-networking --json
 ```
-
-**Section sources**
-- [src/types.ts:835-845](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L835-L845)
-- [src/cli/progress.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L120)
-- [bin/palee.ts:250-260](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L250-L260)
 
 ### ValidateOptions
 `ValidateOptions` controls `palee validate`, which validates vault integrity and can attempt repairs.
@@ -421,11 +363,6 @@ palee validate --json
 palee validate --fix --strict
 ```
 
-**Section sources**
-- [src/types.ts:845-865](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L845-L865)
-- [src/cli/validate.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L1-L120)
-- [bin/palee.ts:275-290](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L275-L290)
-
 ### SessionOptions
 `SessionOptions` controls `palee session`, which manages learning sessions and session memory.
 
@@ -448,11 +385,6 @@ palee session start --topic topic-docker-volumes
 palee session start --interactive
 palee session list --json
 ```
-
-**Section sources**
-- [src/types.ts:865-875](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L865-L875)
-- [src/cli/session.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L120)
-- [bin/palee.ts:340-355](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L340-L355)
 
 ### RoadmapOptions
 `RoadmapOptions` controls `palee roadmap`, which imports deterministic curriculum roadmaps.
@@ -479,11 +411,6 @@ palee roadmap --from docs/curriculum.yaml --auto-chain
 palee roadmap --from docs/curriculum.yaml --dry-run
 palee roadmap --from docs/curriculum.yaml --yes
 ```
-
-**Section sources**
-- [src/types.ts:875-920](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L875-L920)
-- [src/cli/roadmap.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L1-L120)
-- [bin/palee.ts:290-315](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L290-L315)
 
 ### AssessOptions
 `AssessOptions` controls `palee assess`, which records four-pillar assessment scores and recomputes topic mastery.
@@ -514,11 +441,6 @@ palee assess topic-docker-volumes --feynman 0.1 --dry-run
 palee assess topic-docker-volumes --conceptual 0.2 --force
 ```
 
-**Section sources**
-- [src/types.ts:920-965](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L920-L965)
-- [src/cli/assess.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L120)
-- [bin/palee.ts:275-290](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L275-L290)
-
 ### UpdateOptions
 `UpdateOptions` controls `palee update`, which reports the current and latest published versions and upgrades the global install by delegating to npm.
 
@@ -538,11 +460,6 @@ Example invocations:
 palee update
 palee update --dry-run
 ```
-
-**Section sources**
-- [src/types.ts:965-975](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L965-L975)
-- [src/cli/update.ts:1-84](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update.ts#L1-L84)
-- [bin/palee.ts:355-380](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L355-L380)
 
 ### MigrateOptions
 `MigrateOptions` controls `palee migrate`, which evolves schema-less notes and prerequisite labels toward the current version.
@@ -569,11 +486,6 @@ palee migrate --relabel-ties
 palee migrate --relabel-ties --include-unlabeled-ties
 palee migrate --relabel-ties --include-unlabeled-ties --dry-run
 ```
-
-**Section sources**
-- [src/types.ts:520-560](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L520-L560)
-- [src/cli/migrate.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/migrate.ts#L1-L120)
-- [bin/palee.ts:315-340](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L315-L340)
 
 ## Dependency Analysis
 The following diagram maps CLI option interfaces to the handlers that consume them and to shared type definitions.
@@ -606,21 +518,6 @@ graph LR
   UpdateCmd["Update Handler<br/>src/cli/update.ts"] --> UpdateOpts
   MigrateCmd["Migrate Handler<br/>src/cli/migrate.ts"] --> MigrateOpts
 ```
-
-**Diagram sources**
-- [src/types.ts:520-1001](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L520-L1001)
-- [src/cli/adopt.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L60)
-- [src/cli/next.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L60)
-- [src/cli/plan.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/plan.ts#L1-L60)
-- [src/cli/review.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L60)
-- [src/cli/dashboard.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L60)
-- [src/cli/progress.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L60)
-- [src/cli/validate.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L1-L60)
-- [src/cli/session.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L60)
-- [src/cli/roadmap.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L1-L60)
-- [src/cli/assess.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L60)
-- [src/cli/update.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update.ts#L1-L40)
-- [src/cli/migrate.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/migrate.ts#L1-L60)
 
 ## Performance Considerations
 These configuration and option choices primarily affect correctness and safety rather than raw throughput, but a few interactions matter:
@@ -656,13 +553,6 @@ Exit codes commonly used by these commands:
 | `4` | Lock conflict or concurrent modification, such as an OCC conflict during review or assessment. |
 | `5` | Unexpected exception or infrastructure failure. |
 
-**Section sources**
-- [src/cli/config.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L120)
-- [src/cli/review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [src/cli/assess.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L120)
-- [src/cli/validate.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L1-L120)
-- [src/cli/session.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L120)
-
 ## Conclusion
 PALee's configuration and CLI option model separates three concerns cleanly:
 
@@ -677,3 +567,58 @@ For safe operation:
 - Use `--dry-run` before destructive operations like `adopt --undo`, `roadmap --auto-chain`, `validate --fix`, or `migrate --relabel-ties`.
 - Treat exit code `2` as a user-input problem and exit code `5` as an unexpected failure worth investigating.
 
+## References
+
+- [bin/palee.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L120)
+- [src/cli/config.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L120)
+- [src/types.ts:501-1001](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L501-L1001)
+- [src/cli/config.ts:120-220](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L120-L220)
+- [src/types.ts:560-610](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L560-L610)
+- [src/types.ts:610-760](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L610-L760)
+- [src/cli/adopt.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L60)
+- [bin/palee.ts:120-220](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L120-L220)
+- [src/cli/adopt-undo.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts#L1-L60)
+- [src/types.ts:760-790](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L760-L790)
+- [src/cli/next.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L120)
+- [bin/palee.ts:220-240](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L220-L240)
+- [src/types.ts:790-805](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L790-L805)
+- [src/cli/plan.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/plan.ts#L1-L120)
+- [bin/palee.ts:240-250](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L240-L250)
+- [src/types.ts:805-825](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L805-L825)
+- [src/cli/review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
+- [bin/palee.ts:260-275](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L260-L275)
+- [src/types.ts:825-835](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L825-L835)
+- [src/cli/dashboard.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L120)
+- [bin/palee.ts:330-340](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L330-L340)
+- [src/types.ts:835-845](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L835-L845)
+- [src/cli/progress.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L120)
+- [bin/palee.ts:250-260](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L250-L260)
+- [src/types.ts:845-865](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L845-L865)
+- [src/cli/validate.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L1-L120)
+- [bin/palee.ts:275-290](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L275-L290)
+- [src/types.ts:865-875](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L865-L875)
+- [src/cli/session.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L120)
+- [bin/palee.ts:340-355](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L340-L355)
+- [src/types.ts:875-920](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L875-L920)
+- [src/cli/roadmap.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L1-L120)
+- [bin/palee.ts:290-315](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L290-L315)
+- [src/types.ts:920-965](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L920-L965)
+- [src/cli/assess.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L120)
+- [src/types.ts:965-975](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L965-L975)
+- [src/cli/update.ts:1-84](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update.ts#L1-L84)
+- [bin/palee.ts:355-380](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L355-L380)
+- [src/types.ts:520-560](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L520-L560)
+- [src/cli/migrate.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/migrate.ts#L1-L120)
+- [bin/palee.ts:315-340](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L315-L340)
+- [src/types.ts:520-1001](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L520-L1001)
+- [src/cli/next.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L60)
+- [src/cli/plan.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/plan.ts#L1-L60)
+- [src/cli/review.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L60)
+- [src/cli/dashboard.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L60)
+- [src/cli/progress.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L60)
+- [src/cli/validate.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L1-L60)
+- [src/cli/session.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L60)
+- [src/cli/roadmap.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L1-L60)
+- [src/cli/assess.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L60)
+- [src/cli/update.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update.ts#L1-L40)
+- [src/cli/migrate.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/migrate.ts#L1-L60)

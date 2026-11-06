@@ -56,18 +56,6 @@ graph TB
   ADR --> TESTS
 ```
 
-**Diagram sources**
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-- [03-1-sm2-spaced-repetition-algorithm.md:1-330](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L1-L330)
-- [0001-supermemo-sm2-algorithm.md:1-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L1-L63)
-- [engine-sm2.test.ts:1-442](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L1-L442)
-
-**Section sources**
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-- [03-1-sm2-spaced-repetition-algorithm.md:1-330](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L1-L330)
-- [0001-supermemo-sm2-algorithm.md:1-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L1-L63)
-- [engine-sm2.test.ts:1-442](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L1-L442)
-
 ## Core Components
 The SM-2 module exposes several focused pieces:
 
@@ -82,9 +70,6 @@ The SM-2 module exposes several focused pieces:
 
 The public API surface exported by the module includes all of these functions plus the interval ceiling constant.
 
-**Section sources**
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-
 ## Architecture Overview
 At a high level, the SM-2 engine sits between the application layer and persistent storage:
 
@@ -98,10 +83,6 @@ flowchart TD
 ```
 
 This separation keeps SM-2 free of I/O concerns. The engine receives raw review state and produces updated state plus due-date helpers. Validation and persistence are handled outside the pure algorithm.
-
-**Diagram sources**
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-- [03-1-sm2-spaced-repetition-algorithm.md:1-330](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L1-L330)
 
 ## Detailed Component Analysis
 
@@ -123,20 +104,14 @@ where `q` is the review quality rating from 0 to 5.
 | 1 | Incorrect; familiar but unable to recall | −0.54 | EF decreases more |
 | 0 | Complete blackout | −0.80 | EF decreases strongly |
 
-The resulting EF is clamped to a minimum of 1.3 and rounded to four decimal places using positive decimal half-up rounding.
-
-**Section sources**
-- [sm2.ts:19-70](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L19-L70)
-- [sm2.ts:160-177](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L160-L177)
-- [03-1-sm2-spaced-repetition-algorithm.md:44-65](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L44-L65)
-- [0001-supermemo-sm2-algorithm.md:14-29](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L14-L29)
+The resulting EF is clamped to a minimum of 1.3 and rounded to four decimal places using positive decimal half-up rounding. A topic with no stored ease factor starts at EF = 2.5, the canonical SM-2 initial value.
 
 #### Interval Calculation Formula
 For successful reviews (`q >= 3`), the next interval depends on the repetition count:
 
 - Repetition 1: 1 day
 - Repetition 2: 6 days
-- Repetition 3 and later: `Math.round(previous_interval × ease_factor)`
+- Repetition 3 and later: `Math.round(previous_interval × ease_factor)`, using the ease factor stored before this review's ΔEF update is applied (canonical SM-2 applies the updated ease factor here — a deliberate deviation)
 
 For failed reviews (`q < 3`):
 
@@ -163,14 +138,6 @@ flowchart TD
   Clamp --> UpdateEF["Update EF<br/>EF += ΔEF<br/>EF = max(1.3, round(EF, 4))"]
   UpdateEF --> End(["Return Updated State"])
 ```
-
-**Diagram sources**
-- [sm2.ts:71-177](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L71-L177)
-- [sm2.ts:179-210](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L179-L210)
-
-**Section sources**
-- [sm2.ts:71-210](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L71-L210)
-- [03-1-sm2-spaced-repetition-algorithm.md:67-123](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L67-L123)
 
 ### Review Lifecycle
 
@@ -199,19 +166,11 @@ stateDiagram-v2
   Failed --> Learning : "Next successful review"
 ```
 
-**Diagram sources**
-- [sm2.ts:71-177](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L71-L177)
-- [engine-sm2.test.ts:247-289](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L247-L289)
-
-**Section sources**
-- [sm2.ts:71-210](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L71-L210)
-- [engine-sm2.test.ts:247-289](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L247-L289)
-
 ### Edge Cases and Boundary Conditions
 
 #### Minimum and Maximum Interval Bounds
 - Minimum interval: 1 day.
-- Maximum interval: 36,500 days, which is a scheduling policy cap rather than the JavaScript `Date` representable range.
+- Maximum interval: 36,500 days, which is a scheduling policy cap rather than the JavaScript `Date` representable range. Canonical SM-2 defines no maximum interval at all; this ceiling is a PALEE policy addition, not part of the algorithm.
 - If a caller bypasses the cap, `computeDueDate` refuses day counts that would produce an invalid calendar date.
 
 #### Zero-Score Handling
@@ -252,18 +211,6 @@ flowchart TD
   ValidDate -->|Yes| Done(["Return Updated State"])
 ```
 
-**Diagram sources**
-- [sm2.ts:71-210](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L71-L210)
-- [sm2.ts:212-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L212-L306)
-- [engine-sm2.test.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L1-L120)
-
-**Section sources**
-- [sm2.ts:71-210](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L71-L210)
-- [sm2.ts:212-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L212-L306)
-- [engine-sm2.test.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L1-L120)
-- [engine-sm2.test.ts:201-246](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L201-L246)
-- [engine-sm2.test.ts:401-442](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L401-L442)
-
 ### Date Scheduling and DST Safety
 Due dates are calculated by advancing calendar days locally:
 
@@ -292,14 +239,6 @@ sequenceDiagram
   end
 ```
 
-**Diagram sources**
-- [sm2.ts:212-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L212-L306)
-- [engine-sm2.test.ts:291-399](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L291-L399)
-
-**Section sources**
-- [sm2.ts:212-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L212-L306)
-- [engine-sm2.test.ts:291-399](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L291-L399)
-
 ### Integration with the Mastery System
 SM-2 measures retention over time, while the mastery system evaluates multi-dimensional competence. The conceptual guide documents two complementary engines:
 
@@ -318,12 +257,6 @@ graph LR
   Schedule --> Study["Learning Workflow"]
 ```
 
-**Diagram sources**
-- [03-1-sm2-spaced-repetition-algorithm.md:1-330](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L1-L330)
-
-**Section sources**
-- [03-1-sm2-spaced-repetition-algorithm.md:1-330](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L1-L330)
-
 ## Dependency Analysis
 The SM-2 module has minimal external dependencies:
 
@@ -339,15 +272,6 @@ graph TB
   SM2 --> Docs["Algorithm Documentation"]
   SM2 --> ADR["Architectural Decision Record"]
 ```
-
-**Diagram sources**
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-- [03-1-sm2-spaced-repetition-algorithm.md:1-330](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L1-L330)
-- [0001-supermemo-sm2-algorithm.md:1-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L1-L63)
-- [engine-sm2.test.ts:1-442](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L1-L442)
-
-**Section sources**
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
 
 ## Performance Considerations
 The SM-2 algorithm is intentionally lightweight:
@@ -389,13 +313,6 @@ For large-scale scheduling operations across many topics:
 5. If corruption exists, use the application’s validation repair flow rather than manually editing values.
 6. For schedule anomalies, simulate the review sequence using `processReview` and compare intermediate states.
 
-**Section sources**
-- [sm2.ts:71-210](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L71-L210)
-- [sm2.ts:212-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L212-L306)
-- [engine-sm2.test.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L1-L120)
-- [engine-sm2.test.ts:201-246](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L201-L246)
-- [engine-sm2.test.ts:401-442](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L401-L442)
-
 ## Conclusion
 The SM-2 implementation follows the canonical SuperMemo algorithm with clear safety boundaries. It separates pure scheduling math from I/O, validates untrusted stored state aggressively, caps intervals at a 100-year policy limit, and handles calendar dates safely across local timezones. Its tests cover normal transitions, edge cases, numeric safety, interval saturation, and date range protection. Together with the mastery system, SM-2 provides a robust foundation for adaptive, long-term retention in a Markdown-based learning workflow.
 
@@ -412,9 +329,6 @@ The SM-2 implementation follows the canonical SuperMemo algorithm with clear saf
 | `computeDueDate` | `fromDate`, `days: number` | `Date` | Local calendar arithmetic with range checks |
 | `MAX_INTERVAL_DAYS` | Constant | `number` | 36,500 days |
 
-**Section sources**
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-
 ### Example Test Approaches
 
 Recommended test categories for algorithmic correctness:
@@ -430,5 +344,23 @@ Recommended test categories for algorithmic correctness:
 
 These patterns are already covered extensively in the SM-2 unit tests.
 
-**Section sources**
+## References
+
+- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
+- [03-1-sm2-spaced-repetition-algorithm.md:1-330](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L1-L330)
+- [0001-supermemo-sm2-algorithm.md:1-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L1-L63)
 - [engine-sm2.test.ts:1-442](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L1-L442)
+- [sm2.ts:19-70](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L19-L70)
+- [sm2.ts:160-177](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L160-L177)
+- [03-1-sm2-spaced-repetition-algorithm.md:44-65](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L44-L65)
+- [0001-supermemo-sm2-algorithm.md:14-29](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L14-L29)
+- [sm2.ts:71-177](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L71-L177)
+- [sm2.ts:179-210](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L179-L210)
+- [sm2.ts:71-210](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L71-L210)
+- [03-1-sm2-spaced-repetition-algorithm.md:67-123](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L67-L123)
+- [engine-sm2.test.ts:247-289](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L247-L289)
+- [sm2.ts:212-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L212-L306)
+- [engine-sm2.test.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L1-L120)
+- [engine-sm2.test.ts:201-246](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L201-L246)
+- [engine-sm2.test.ts:401-442](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L401-L442)
+- [engine-sm2.test.ts:291-399](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L291-L399)

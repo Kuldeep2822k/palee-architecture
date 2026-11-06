@@ -13,7 +13,7 @@
 - [wikilink.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/wikilink.ts)
 - [atomic-write.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/atomic-write.ts)
 - [exit-codes.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/src/cli/exit-codes.ts)
-- [02-1-topic-management-commands.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/docs/02-1-topic-management-commands.md)
+- [02-1-topic-management-commands.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/02-1-topic-management-commands.md)
 
 :::
 
@@ -282,4 +282,4 @@ The `palee adopt` command is a controlled, vault-aware tool for converting notes
 - [wikilink.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/wikilink.ts#L1-L200)
 - [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/storage/atomic-write.ts#L1-L200)
 - [exit-codes.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/src/cli/exit-codes.ts#L1-L200)
-- [02-1-topic-management-commands.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/docs/docs/02-1-topic-management-commands.md#L1-L200)
+- [02-1-topic-management-commands.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/docs/02-1-topic-management-commands.md#L1-L200)

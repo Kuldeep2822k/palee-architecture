@@ -1,18 +1,5 @@
 # Dependency and TOC Management
 
-::: details Referenced Files in This Document
-
-- [dependency.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts)
-- [prereq-text.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts)
-- [toc-chain.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts)
-- [wikilink.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts)
-- [toc.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/toc.ts)
-- [frontmatter.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts)
-- [no-dependency-cycle.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-dependency-cycle.ts)
-- [no-missing-dependency.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-missing-dependency.ts)
-
-:::
-
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Project Structure](#project-structure)
@@ -23,6 +10,7 @@
 7. [Performance Considerations](#performance-considerations)
 8. [Troubleshooting Guide](#troubleshooting-guide)
 9. [Conclusion](#conclusion)
+10. [References](#references)
 
 ## Introduction
 This document explains how the project models, validates, and navigates topic relationships across three related systems:
@@ -68,26 +56,6 @@ graph TB
   Dep --> MissingRule
 ```
 
-**Diagram sources**
-- [dependency.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L100)
-- [prereq-text.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L100)
-- [toc-chain.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L1-L100)
-- [toc.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/toc.ts#L1-L100)
-- [wikilink.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L1-L100)
-- [frontmatter.ts:1-50](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L50)
-- [no-dependency-cycle.ts:1-74](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-dependency-cycle.ts#L1-L74)
-- [no-missing-dependency.ts:1-77](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-missing-dependency.ts#L1-L77)
-
-**Section sources**
-- [dependency.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L100)
-- [prereq-text.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L100)
-- [toc-chain.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L1-L100)
-- [toc.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/toc.ts#L1-L100)
-- [wikilink.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L1-L100)
-- [frontmatter.ts:1-50](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L50)
-- [no-dependency-cycle.ts:1-74](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-dependency-cycle.ts#L1-L74)
-- [no-missing-dependency.ts:1-77](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-missing-dependency.ts#L1-L77)
-
 ## Core Components
 
 ### Dependency Graph Engine
@@ -110,14 +78,6 @@ flowchart TD
   Johnson --> Canonical["Canonicalize cycle paths"]
   Canonical --> Output["Sorted distinct cycles"]
 ```
-
-**Diagram sources**
-- [dependency.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L100)
-- [dependency.ts:201-500](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L201-L500)
-
-**Section sources**
-- [dependency.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L100)
-- [dependency.ts:201-500](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L201-L500)
 
 ### Prerequisite Text Parser
 A note can declare its own prerequisites under a dedicated heading such as “Prerequisites.” The parser scans that section, ignores fenced code, HTML comments, inline code, task items, and hedged prose, and collects wikilink and markdown-link references as candidate edges.
@@ -144,14 +104,6 @@ flowchart TD
   Dedup --> Resolve["Caller-resolved prerequisite targets"]
 ```
 
-**Diagram sources**
-- [prereq-text.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L100)
-- [prereq-text.ts:201-317](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L201-L317)
-
-**Section sources**
-- [prereq-text.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L100)
-- [prereq-text.ts:201-317](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L201-L317)
-
 ### TOC Link Extraction and Chain Planning
 The TOC subsystem reads repository-level enumeration documents and converts their markdown links into a planned chain. It supports angle-bracket destinations, percent encoding, anchors, trailing slashes, folder-to-README conversion, and lexical path folding. Backslashes are treated as literal characters rather than directory separators.
 
@@ -170,14 +122,6 @@ flowchart TD
   Fold --> Normalize["Normalize folder → README.md"]
   Normalize --> Candidates["Ordered normalized destinations"]
 ```
-
-**Diagram sources**
-- [toc-chain.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L1-L100)
-- [toc-chain.ts:201-565](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L201-L565)
-
-**Section sources**
-- [toc-chain.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L1-L100)
-- [toc-chain.ts:201-565](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L201-L565)
 
 ### TOC Discovery
 The storage layer finds which README or SUMMARY files should contribute ordering information. It walks the vault, excludes phase subtrees and excluded hygiene notes, and orders root-level enumeration before module-level enumeration. Each discovered document is read up to a size cap and scanned through the same link rules as the engine.
@@ -199,14 +143,6 @@ flowchart TD
   Parse --> Resolve["Resolve relative to TOC file"]
   Resolve --> Collect["Collect resolved note paths"]
 ```
-
-**Diagram sources**
-- [toc.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/toc.ts#L1-L100)
-- [toc.ts:201-262](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/toc.ts#L201-L262)
-
-**Section sources**
-- [toc.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/toc.ts#L1-L100)
-- [toc.ts:201-262](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/toc.ts#L201-L262)
 
 ### Wikilink Resolution
 Wikilinks are Obsidian-style `[[target]]` references used by roadmap and import workflows. Resolution enforces vault containment, rejects backslashes, strips anchors and `.md` suffixes, prefers exact vault-relative paths, falls back to basename matching, and throws explicit errors for ambiguous or missing targets.
@@ -237,14 +173,6 @@ flowchart TD
   Ambiguous -->|No| ThrowAmbig["Throw ambiguous error"]
 ```
 
-**Diagram sources**
-- [wikilink.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L1-L100)
-- [wikilink.ts:201-510](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L201-L510)
-
-**Section sources**
-- [wikilink.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L1-L100)
-- [wikilink.ts:201-510](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L201-L510)
-
 ### Frontmatter Parsing and Persistence
 Frontmatter is YAML stored between `---` fences at the top of Markdown notes. The parser uses a concrete syntax tree so existing comments, property order, custom formatting, and block scalars are preserved. It also updates keys non-destructively and preserves original line endings.
 
@@ -269,14 +197,6 @@ classDiagram
     +error string
   }
 ```
-
-**Diagram sources**
-- [frontmatter.ts:1-50](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L50)
-- [frontmatter.ts:201-220](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L201-L220)
-
-**Section sources**
-- [frontmatter.ts:1-50](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L50)
-- [frontmatter.ts:201-220](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L201-L220)
 
 ## Architecture Overview
 The three subsystems interact around a shared contract: notes declare relationships, tools parse those declarations, and validation ensures the resulting graph is sound.
@@ -305,15 +225,6 @@ sequenceDiagram
   Graph->>Validator: Report cycles and missing deps
   Validator-->>Author: Findings and diagnostics
 ```
-
-**Diagram sources**
-- [prereq-text.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L100)
-- [toc-chain.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L1-L100)
-- [toc.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/toc.ts#L1-L100)
-- [wikilink.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L1-L100)
-- [dependency.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L100)
-- [no-dependency-cycle.ts:1-74](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-dependency-cycle.ts#L1-L74)
-- [no-missing-dependency.ts:1-77](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-missing-dependency.ts#L1-L77)
 
 ## Detailed Component Analysis
 
@@ -345,14 +256,6 @@ flowchart TD
   Canonical --> Sort["Sort by canonical key"]
 ```
 
-**Diagram sources**
-- [dependency.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L100)
-- [dependency.ts:201-500](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L201-L500)
-
-**Section sources**
-- [dependency.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L100)
-- [dependency.ts:201-500](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L201-L500)
-
 ### Prerequisite Section Processing
 The prerequisite section parser is deliberately conservative. It does not infer edges from prose sentences because false positives permanently gate learners. Instead, it focuses on explicit links under recognized headings and drops hedged bullets.
 
@@ -367,10 +270,6 @@ Resolution contract:
 - `extractDeclaredPrerequisites` returns raw references.
 - `resolveDeclaredPrerequisites` maps references to targets through a caller-provided lookup.
 - Missing or ambiguous references are recorded separately.
-
-**Section sources**
-- [prereq-text.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L100)
-- [prereq-text.ts:201-317](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L201-L317)
 
 ### TOC Link Parsing and Destination Normalization
 TOC parsing is optimized for large documentation files. It avoids quadratic behavior by caching bracket-balance and closer tables after the first failure, counting probe steps, and rejecting pathological inputs early.
@@ -389,10 +288,6 @@ Performance safeguards:
 - Bracket-balance tables answer whether a label or destination can close without walking to end-of-text repeatedly.
 - Angle-closer tables handle `<...>` forms that do not follow paren depth rules.
 
-**Section sources**
-- [toc-chain.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L1-L100)
-- [toc-chain.ts:201-565](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L201-L565)
-
 ### TOC File Discovery and Enumeration
 Discovery determines which repository documents count as ordering signals. Root README or SUMMARY comes first; module-level ones follow directory order. Phase subtrees and excluded hygiene notes are ignored.
 
@@ -403,10 +298,6 @@ Enumeration rules:
 - Ambiguous matches are skipped.
 - Folder links without trailing slashes can resolve to README when no matching file exists.
 - Scoped adoption limits exclude targets outside the selected set.
-
-**Section sources**
-- [toc.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/toc.ts#L1-L100)
-- [toc.ts:201-262](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/toc.ts#L201-L262)
 
 ### Wikilink Resolution Pipeline
 Wikilink resolution is the most security-sensitive part of the reference system because resolved targets may be read or written by roadmap workflows.
@@ -428,10 +319,6 @@ Roadmap chaining:
 - New notes get minted identifiers unless frontmatter declares one.
 - Duplicate targets in a roadmap throw an error.
 
-**Section sources**
-- [wikilink.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L1-L100)
-- [wikilink.ts:201-510](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L201-L510)
-
 ## Dependency Analysis
 
 ### Component Relationships
@@ -446,16 +333,6 @@ graph LR
   Wikilink --> Frontmatter["frontmatter.ts"]
 ```
 
-**Diagram sources**
-- [prereq-text.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L100)
-- [toc-chain.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L1-L100)
-- [toc.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/toc.ts#L1-L100)
-- [wikilink.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L1-L100)
-- [dependency.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L100)
-- [frontmatter.ts:1-50](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L50)
-- [no-dependency-cycle.ts:1-74](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-dependency-cycle.ts#L1-L74)
-- [no-missing-dependency.ts:1-77](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-missing-dependency.ts#L1-L77)
-
 ### Coupling and Cohesion
 - The engine modules are largely filesystem-free and operate on in-memory topic maps. This keeps graph algorithms testable and reusable.
 - Storage modules encapsulate vault I/O, path safety, and note discovery.
@@ -466,11 +343,6 @@ graph LR
 - YAML parsing is delegated to a CST-based library so frontmatter edits preserve formatting.
 - Node.js filesystem APIs are used only in storage and wikilink resolution layers.
 - Cryptographic hashing is used for content fingerprinting.
-
-**Section sources**
-- [dependency.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L100)
-- [wikilink.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L1-L100)
-- [frontmatter.ts:1-50](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L50)
 
 ## Performance Considerations
 
@@ -522,10 +394,6 @@ Common causes:
 - Self-dependencies.
 - Indirect loops through intermediate topics.
 
-**Section sources**
-- [no-dependency-cycle.ts:1-74](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-dependency-cycle.ts#L1-L74)
-- [dependency.ts:201-500](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L201-L500)
-
 ### Missing Dependencies
 Symptoms:
 - A topic depends on a topic ID that does not exist.
@@ -540,10 +408,6 @@ Behavior:
 - Missing dependencies are warnings in vault scans.
 - The engine treats a missing prerequisite as having no mastery, which quarantines dependent topics without corrupting data.
 
-**Section sources**
-- [no-missing-dependency.ts:1-77](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-missing-dependency.ts#L1-L77)
-- [dependency.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L100)
-
 ### Ambiguous Wikilinks
 Symptoms:
 - An operation fails with an ambiguous wikilink error listing multiple candidate notes.
@@ -553,10 +417,6 @@ Diagnosis steps:
 2. Rename or move notes so the target basename is unique.
 3. Prefer exact vault-relative wikilinks when necessary.
 4. Ensure case and Unicode spelling match the intended note.
-
-**Section sources**
-- [wikilink.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L1-L100)
-- [wikilink.ts:201-510](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L201-L510)
 
 ### Unresolved Wikilinks
 Symptoms:
@@ -568,9 +428,6 @@ Diagnosis steps:
 3. Verify the link does not escape the vault or name an invisible namespace.
 4. Remove anchors or `.md` suffixes if they interfere with resolution.
 
-**Section sources**
-- [wikilink.ts:201-510](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L201-L510)
-
 ### TOC Links Not Becoming Edges
 Symptoms:
 - A link in README or SUMMARY does not create a dependency.
@@ -581,10 +438,6 @@ Diagnosis steps:
 3. Verify the destination resolves to an existing Markdown note.
 4. Ensure the target is within the adoption scope when scoping is enabled.
 
-**Section sources**
-- [toc.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/toc.ts#L1-L100)
-- [toc.ts:201-262](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/toc.ts#L201-L262)
-
 ### Prerequisite Section Ignored
 Symptoms:
 - A “Prerequisites” section does not produce dependencies.
@@ -594,10 +447,6 @@ Diagnosis steps:
 2. Make sure the section is not inside fenced code, HTML comments, or inline code.
 3. Check whether the bullet contains negation, reversal, or disjunction cues.
 4. Verify the linked target can be resolved by the caller’s lookup.
-
-**Section sources**
-- [prereq-text.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L100)
-- [prereq-text.ts:201-317](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L201-L317)
 
 ## Conclusion
 The dependency, TOC, and wikilink systems form a layered reference model:
@@ -610,3 +459,27 @@ The dependency, TOC, and wikilink systems form a layered reference model:
 
 For consistency at scale, prefer explicit canonical dependencies, keep filenames unique, use scoped adoption, and treat validation findings as authoritative contracts rather than optional hints. This keeps the dependency graph predictable, the TOC navigation reliable, and cross-reference resolution safe.
 
+## References
+
+- [dependency.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts)
+- [prereq-text.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts)
+- [toc-chain.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts)
+- [wikilink.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts)
+- [toc.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/toc.ts)
+- [frontmatter.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts)
+- [no-dependency-cycle.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-dependency-cycle.ts)
+- [no-missing-dependency.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-missing-dependency.ts)
+- [dependency.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L100)
+- [prereq-text.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L100)
+- [toc-chain.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L1-L100)
+- [toc.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/toc.ts#L1-L100)
+- [wikilink.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L1-L100)
+- [frontmatter.ts:1-50](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L50)
+- [no-dependency-cycle.ts:1-74](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-dependency-cycle.ts#L1-L74)
+- [no-missing-dependency.ts:1-77](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-missing-dependency.ts#L1-L77)
+- [dependency.ts:201-500](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L201-L500)
+- [prereq-text.ts:201-317](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L201-L317)
+- [toc-chain.ts:201-565](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L201-L565)
+- [toc.ts:201-262](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/toc.ts#L201-L262)
+- [wikilink.ts:201-510](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L201-L510)
+- [frontmatter.ts:201-220](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L201-L220)

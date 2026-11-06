@@ -1,14 +1,5 @@
 # File Locking and Concurrency Control
 
-::: details Referenced Files in This Document
-
-- [src/storage/lock.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts)
-- [test/storage-lock.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-lock.test.ts)
-- [test/storage-lock-heartbeat-loss.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-lock-heartbeat-loss.test.ts)
-- [docs/04-2-file-locking.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-2-file-locking.md)
-
-:::
-
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Project Structure](#project-structure)
@@ -19,6 +10,7 @@
 7. [Performance Considerations](#performance-considerations)
 8. [Troubleshooting Guide](#troubleshooting-guide)
 9. [Conclusion](#conclusion)
+10. [References](#references)
 
 ## Introduction
 This document explains the file locking mechanism used by the project to provide cross-process concurrency control for vault resources. The implementation avoids race conditions through atomic directory creation, session-specific lock records, a periodic heartbeat, and stale-lock recovery with quarantine semantics. It also documents lock acquisition bounds, contention handling, timeout behavior, platform differences, retry strategies, debugging techniques, and practical usage patterns.
@@ -52,17 +44,6 @@ graph TB
   D --> L
 ```
 
-**Diagram sources**
-- [src/storage/lock.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L1-L40)
-- [src/storage/lock.ts:201-260](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L201-L260)
-- [test/storage-lock.test.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-lock.test.ts#L1-L40)
-- [test/storage-lock-heartbeat-loss.test.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-lock-heartbeat-loss.test.ts#L1-L30)
-- [docs/04-2-file-locking.md:1-25](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-2-file-locking.md#L1-L25)
-
-**Section sources**
-- [src/storage/lock.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L1-L40)
-- [docs/04-2-file-locking.md:1-25](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-2-file-locking.md#L1-L25)
-
 ## Core Components
 - `Lock`: Public API for acquiring, maintaining, and releasing a process-wide lock on a vault target.
 - `createLock`: Synchronous acquisition loop using atomic `mkdirSync`, stale inspection, quarantine-based cleanup, and bounded retries.
@@ -77,12 +58,6 @@ Key responsibilities:
 - Bound all non-forward-progress loops.
 - Surface contention as a recognizable conflict error.
 - Expose ownership loss to long-running holders.
-
-**Section sources**
-- [src/storage/lock.ts:41-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L41-L120)
-- [src/storage/lock.ts:201-260](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L201-L260)
-- [src/storage/lock.ts:501-865](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L501-L865)
-- [src/storage/lock.ts:866-956](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L866-L956)
 
 ## Architecture Overview
 The lock system maps one logical resource (a vault-relative note path) to exactly one filesystem lock directory under `.palee/locks/`. Each successful acquisition writes one session JSON record containing the lock identifier, process ID, hostname, target path, and creation time. A background timer periodically touches that record so rival processes can detect liveness.
@@ -118,14 +93,11 @@ sequenceDiagram
   end
 ```
 
-**Diagram sources**
-- [src/storage/lock.ts:501-865](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L501-L865)
-- [src/storage/lock.ts:866-956](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L866-L956)
-
 ## Detailed Component Analysis
 
 ### Lock Identity and Lock Directory Layout
 - Locks are not stored next to the target files. They live under `<vault>/.palee/locks/<sha256>.lockdir`.
+- Inside the directory, the holder writes one record file named `<lockId>.json`, where the lock ID has the form `L-YYYYMMDDTHHMMSS-<8 hex chars>` (the hex suffix is 4 bytes of random entropy). The record is JSON with the fields `lock_id`, `target`, `pid`, `hostname`, and `created_at` — the PID and hostname are what stale detection and conflict messages report.
 - The lock key is derived from the vault-relative path after resolving real paths and applying case folding on platforms where default volumes treat different casings as the same file.
 - The resulting SHA-256 hash ensures deterministic mapping from a note to a lock directory while avoiding collisions from symlinked or differently spelled paths.
 - Before creating the locks directory, the implementation asserts that it remains contained within the vault root to prevent accidental placement outside the vault.
@@ -134,10 +106,6 @@ Practical implications:
 - Two callers locking the same logical note converge on the same lock directory.
 - Case-insensitive platforms fold names so `Notes/foo.md` and `notes/foo.md` share one lock.
 - Linux remains case-sensitive by design; this avoids treating distinct files as one.
-
-**Section sources**
-- [src/storage/lock.ts:201-260](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L201-L260)
-- [docs/04-2-file-locking.md:15-40](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-2-file-locking.md#L15-L40)
 
 ### Lock Acquisition Protocol
 Acquisition is synchronous at the storage layer and uses OS-level atomicity:
@@ -174,18 +142,11 @@ flowchart TD
   More -->|No| CapConflict["Throw ECONFLICT: did not settle"]
 ```
 
-**Diagram sources**
-- [src/storage/lock.ts:501-865](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L501-L865)
-
 Key guarantees:
 - Every branch either acquires the lock, throws, or makes forward progress observable to the next round.
-- The loop is capped at `MAX_ACQUISITION_ITERATIONS` to avoid unbounded spinning.
-- `ENOTEMPTY` is treated as a retryable condition only up to a fixed budget; beyond that it becomes a conflict error describing residual entries.
-- Windows `EPERM`/`EBUSY` handle contention is retried with exponential backoff and jitter; persistent handles surface as a raw error rather than hanging the CLI.
-
-**Section sources**
-- [src/storage/lock.ts:501-865](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L501-L865)
-- [docs/04-2-file-locking.md:42-140](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-2-file-locking.md#L42-L140)
+- The loop is capped at `MAX_ACQUISITION_ITERATIONS` (20 rounds) to avoid unbounded spinning.
+- `ENOTEMPTY` is treated as a retryable condition only up to a fixed budget (`ENOTEMPTY_RETRY_ATTEMPTS`: 5 retries after the first attempt, parking with backoff between attempts); beyond that it becomes a conflict error describing residual entries.
+- Windows `EPERM`/`EBUSY` handle contention is retried up to 5 times (`WINDOWS_RETRY_ATTEMPTS`) with exponential backoff: 50 ms initial delay, doubling, ±25% jitter, capped at 300 ms per wait. Persistent handles surface as a raw error rather than hanging the CLI.
 
 ### Lease-Based Expiration and Stale Recovery
 A lock lease expires when its owner stops renewing the record. Staleness detection combines two signals:
@@ -222,16 +183,8 @@ flowchart TD
   Restore --> Cleanup
 ```
 
-**Diagram sources**
-- [src/storage/lock.ts:261-340](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L261-L340)
-- [src/storage/lock.ts:501-865](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L501-L865)
-
-**Section sources**
-- [src/storage/lock.ts:261-340](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L261-L340)
-- [docs/04-2-file-locking.md:108-140](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-2-file-locking.md#L108-L140)
-
 ### Heartbeat Mechanism and Ownership Loss
-Once acquired, the `Lock` instance starts an unreferenced interval that calls `updateHeartbeat` every `HEARTBEAT_INTERVAL` milliseconds. The heartbeat touches the access and modification times of the session file without rewriting its content.
+Once acquired, the `Lock` instance starts an unreferenced interval that calls `updateHeartbeat` every `HEARTBEAT_INTERVAL` (15,000 ms). The heartbeat touches the access and modification times of the session file without rewriting its content.
 
 Ownership loss detection:
 - If `updateHeartbeat` cannot find the expected session file (`ENOENT`), the holder interprets this as a takeover.
@@ -251,15 +204,6 @@ stateDiagram-v2
   Acquired --> Released : "release()"
 ```
 
-**Diagram sources**
-- [src/storage/lock.ts:740-780](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L740-L780)
-- [src/storage/lock.ts:866-956](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L866-L956)
-
-**Section sources**
-- [src/storage/lock.ts:740-780](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L740-L780)
-- [src/storage/lock.ts:866-956](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L866-L956)
-- [test/storage-lock-heartbeat-loss.test.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-lock-heartbeat-loss.test.ts#L1-L120)
-
 ### Error Model and Contention Resolution
 All contention paths throw a structured Node error carrying `code = 'ECONFLICT'`. The message begins with a stable prefix so upstream consumers can recognize it as a retryable lock conflict. Typical outcomes include:
 
@@ -272,21 +216,11 @@ All contention paths throw a structured Node error carrying `code = 'ECONFLICT'`
 CLI integration:
 - Command handlers catch `ECONFLICT` and map it to exit code 4 to signal concurrency contention.
 
-**Section sources**
-- [src/storage/lock.ts:341-420](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L341-L420)
-- [src/storage/lock.ts:501-865](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L501-L865)
-- [docs/04-2-file-locking.md:68-76](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-2-file-locking.md#L68-L76)
-
 ### Platform-Specific Considerations
 - **Case-folding**: Lock keys are folded on Windows and macOS default volumes to avoid separate locks for different spellings of the same note. Linux remains case-sensitive.
 - **Stale thresholds**: Windows uses a shorter timeout due to filesystem latency and clock skew characteristics.
 - **Transient directory handles**: Windows reports briefly held directories as `EPERM`/`EBUSY`; these are retried with exponential backoff and jitter. POSIX `EPERM`/`EBUSY` are not considered transient here.
 - **Entry name safety**: Residual entry names are escaped before being included in human-readable conflict messages to avoid terminal control character injection.
-
-**Section sources**
-- [src/storage/lock.ts:121-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L121-L200)
-- [src/storage/lock.ts:261-420](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L261-L420)
-- [src/storage/lock.ts:421-500](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L421-L500)
 
 ### Practical Usage Patterns
 
@@ -318,11 +252,6 @@ At the caller level:
 
 The storage layer already bounds internal retries; external callers should add their own bounded retry strategy around the whole operation.
 
-**Section sources**
-- [src/storage/lock.ts:866-956](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L866-L956)
-- [docs/04-2-file-locking.md:42-107](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-2-file-locking.md#L42-L107)
-- [test/storage-lock.test.ts:520-600](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-lock.test.ts#L520-L600)
-
 ## Dependency Analysis
 The locking module depends on standard Node.js APIs and a small set of internal storage utilities.
 
@@ -338,19 +267,10 @@ graph LR
   Docs["04-2-file-locking.md"] --> Lock
 ```
 
-**Diagram sources**
-- [src/storage/lock.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L1-L40)
-- [test/storage-lock.test.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-lock.test.ts#L1-L40)
-- [docs/04-2-file-locking.md:1-25](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-2-file-locking.md#L1-L25)
-
 Coupling and cohesion:
 - Cohesion is high: all locking state, acquisition, heartbeat, and release logic is concentrated in one module.
 - Coupling is moderate: it imports containment and vault-walker identity folding to ensure canonical paths, and exports a small public surface for tests.
 - There is no circular dependency between the lock module and higher-level CLI commands; CLI handlers consume the exported `Lock` class and interpret `ECONFLICT`.
-
-**Section sources**
-- [src/storage/lock.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L1-L40)
-- [src/storage/lock.ts:866-956](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L866-L956)
 
 ## Performance Considerations
 - **Blocking acquisition**: `createLock` is synchronous and uses `Atomics.wait` for parking instead of CPU-spinning. This prevents event-loop starvation while waiting for transient handles or retry budgets.
@@ -386,11 +306,36 @@ Coupling and cohesion:
 4. Restart the affected process and retry with bounded retries.
 5. For persistent `ENOTEMPTY`, investigate foreign subdirectories or open handles such as antivirus scans.
 
-**Section sources**
-- [test/storage-lock.test.ts:201-590](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-lock.test.ts#L201-L590)
-- [test/storage-lock-heartbeat-loss.test.ts:120-300](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-lock-heartbeat-loss.test.ts#L120-L300)
-- [docs/04-2-file-locking.md:141-206](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-2-file-locking.md#L141-L206)
-
 ## Conclusion
 The file locking subsystem provides robust cross-process mutual exclusion for vault notes through atomic directory creation, deterministic path hashing, quarantine-based stale recovery, and a heartbeat-driven lease model. Its design emphasizes bounded execution, clear conflict signaling, platform-aware behavior, and observability of ownership loss. Callers should treat `ECONFLICT` as contention, implement bounded retries with jitter, reload state after retries, and check `lock.lockLost` during long-held operations to avoid writing under a reclaimed lease.
 
+## References
+
+- [src/storage/lock.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts)
+- [test/storage-lock.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-lock.test.ts)
+- [test/storage-lock-heartbeat-loss.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-lock-heartbeat-loss.test.ts)
+- [docs/04-2-file-locking.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-2-file-locking.md)
+- [src/storage/lock.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L1-L40)
+- [src/storage/lock.ts:201-260](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L201-L260)
+- [test/storage-lock.test.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-lock.test.ts#L1-L40)
+- [test/storage-lock-heartbeat-loss.test.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-lock-heartbeat-loss.test.ts#L1-L30)
+- [docs/04-2-file-locking.md:1-25](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-2-file-locking.md#L1-L25)
+- [src/storage/lock.ts:41-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L41-L120)
+- [src/storage/lock.ts:501-865](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L501-L865)
+- [src/storage/lock.ts:866-956](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L866-L956)
+- [docs/04-2-file-locking.md:15-40](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-2-file-locking.md#L15-L40)
+- [docs/04-2-file-locking.md:42-140](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-2-file-locking.md#L42-L140)
+- [src/storage/lock.ts:261-340](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L261-L340)
+- [docs/04-2-file-locking.md:108-140](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-2-file-locking.md#L108-L140)
+- [src/storage/lock.ts:740-780](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L740-L780)
+- [test/storage-lock-heartbeat-loss.test.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-lock-heartbeat-loss.test.ts#L1-L120)
+- [src/storage/lock.ts:341-420](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L341-L420)
+- [docs/04-2-file-locking.md:68-76](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-2-file-locking.md#L68-L76)
+- [src/storage/lock.ts:121-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L121-L200)
+- [src/storage/lock.ts:261-420](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L261-L420)
+- [src/storage/lock.ts:421-500](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L421-L500)
+- [docs/04-2-file-locking.md:42-107](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-2-file-locking.md#L42-L107)
+- [test/storage-lock.test.ts:520-600](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-lock.test.ts#L520-L600)
+- [test/storage-lock.test.ts:201-590](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-lock.test.ts#L201-L590)
+- [test/storage-lock-heartbeat-loss.test.ts:120-300](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-lock-heartbeat-loss.test.ts#L120-L300)
+- [docs/04-2-file-locking.md:141-206](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-2-file-locking.md#L141-L206)

@@ -70,23 +70,6 @@ graph TB
     ExampleNote --> Frontmatter
 ```
 
-**Diagram sources **
-- [types.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L40)
-- [mastery.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L40)
-- [frontmatter.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L40)
-- [loader.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L40)
-- [valid-assessment-fields.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L1-L30)
-- [valid-topic-mastery.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-mastery.ts#L1-L30)
-- [record-assessment.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L30)
-- [0004-four-pillar-pedagogical-mastery.md:1-20](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L20)
-- [0021-assessment-surface.md:1-20](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0021-assessment-surface.md#L1-L20)
-- [05-1-topic-and-assessment-schema.md:1-20](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md#L1-L20)
-- [Docker Fundamentals.md:1-20](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Fundamentals.md#L1-L20)
-
-**Section sources**
-- [types.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L40)
-- [05-1-topic-and-assessment-schema.md:1-20](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md#L1-L20)
-
 ## Core Components
 The Assessment model has three core concerns:
 
@@ -97,11 +80,6 @@ The Assessment model has three core concerns:
 | Persistence boundary | Flat frontmatter fields | Stores `conceptual`, `practical`, `debug`, `feynman`, `assessed_at`, and `topic_mastery` as top-level keys rather than nested objects. |
 
 The `Assessment` interface is reserved for the Phase-2 AI module assessment schema. Its JSDoc explicitly warns consumers that it is not the runtime shape: CLI and storage read/write flat frontmatter keys normalized by `loadTopics`. Consumers should treat it as a contract between Phase-2 modules, not as the in-memory representation of every loaded topic.
-
-**Section sources**
-- [types.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L40)
-- [mastery.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L40)
-- [05-1-topic-and-assessment-schema.md:100-140](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md#L100-L140)
 
 ## Architecture Overview
 The Assessment model participates in two distinct contracts:
@@ -128,19 +106,7 @@ sequenceDiagram
     Loader-->>Consumer: Normalized TopicNode
 ```
 
-**Diagram sources **
-- [types.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L40)
-- [record-assessment.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L60)
-- [mastery.ts:100-160](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L100-L160)
-- [frontmatter.ts:120-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L120-L200)
-- [loader.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L40)
-
 The critical architectural distinction is this: the AI module produces a structured `Assessment`; the vault stores flat keys; the loader normalizes them back into a usable runtime topic. The validation framework operates on both raw frontmatter values and computed mastery.
-
-**Section sources**
-- [types.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L40)
-- [0004-four-pillar-pedagogical-mastery.md:10-30](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L10-L30)
-- [05-1-topic-and-assessment-schema.md:100-140](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md#L100-L140)
 
 ## Detailed Component Analysis
 
@@ -181,14 +147,6 @@ classDiagram
     Topic --> Assessment : "contains"
 ```
 
-**Diagram sources **
-- [types.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L40)
-- [types.ts:120-170](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L120-L170)
-
-**Section sources**
-- [types.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L40)
-- [types.ts:120-170](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L120-L170)
-
 ### Pillars and Scoring Scale
 Each pillar is evaluated on a scale from 0.0 to 1.0:
 
@@ -200,10 +158,6 @@ Each pillar is evaluated on a scale from 0.0 to 1.0:
 | `feynman` | Articulating and explaining concepts simply without jargon | 40% | Double-weighted because clear explanation is treated as the strongest signal of genuine comprehension. |
 
 The ADR explains why Feynman is double-weighted: traditional spaced repetition measures recall, while real engineering mastery requires theoretical comprehension, practical application, debugging ability, and communication ability. The design intentionally penalizes superficial rote memorization.
-
-**Section sources**
-- [types.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L40)
-- [0004-four-pillar-pedagogical-mastery.md:10-30](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L10-L30)
 
 ### Mastery Calculation
 The engine computes overall mastery using the canonical formula:
@@ -230,13 +184,6 @@ flowchart TD
     Round --> Result(["Return mastery in [0.0, 1.0]"])
 ```
 
-**Diagram sources **
-- [mastery.ts:100-160](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L100-L160)
-
-**Section sources**
-- [mastery.ts:100-160](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L100-L160)
-- [0004-four-pillar-pedagogical-mastery.md:20-40](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L20-L40)
-
 ### Assessed At Timestamp
 `assessed_at` tracks when an assessment was last updated. It can be:
 
@@ -244,11 +191,6 @@ flowchart TD
 - `null` to indicate an unassessed topic or a topic whose assessment state has not been recorded.
 
 Validation treats invalid `assessed_at` values as errors: missing or null is allowed, but malformed strings and impossible calendar dates are rejected. The timestamp does not participate in mastery calculation; it is metadata about assessment recency.
-
-**Section sources**
-- [types.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L40)
-- [valid-assessment-fields.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L1-L30)
-- [record-assessment.ts:80-110](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L80-L110)
 
 ### Valid Assessment Fields Rule
 The `valid-assessment-fields` rule validates the raw on-disk assessment shape. It reads original frontmatter values so it exposes real vault corruption instead of silently blessing loader-normalized values.
@@ -277,12 +219,6 @@ flowchart TD
     Next --> End(["Done"])
 ```
 
-**Diagram sources **
-- [valid-assessment-fields.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L1-L79)
-
-**Section sources**
-- [valid-assessment-fields.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L1-L79)
-
 ### Relationship to Topic.topic_mastery
 `topic_mastery` is the derived value used by prerequisite gating. The validation rule `valid-topic-mastery` compares the stored value against the canonical formula.
 
@@ -309,14 +245,6 @@ flowchart TD
     Compare -->|No| Warn["Warn about drift"]
 ```
 
-**Diagram sources **
-- [valid-topic-mastery.ts:1-183](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-mastery.ts#L1-L183)
-- [mastery.ts:100-160](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L100-L160)
-
-**Section sources**
-- [valid-topic-mastery.ts:1-183](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-mastery.ts#L1-L183)
-- [mastery.ts:100-160](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L100-L160)
-
 ### Data Flow Through the Validation Framework
 Assessment data flows through validation in two stages:
 
@@ -339,15 +267,6 @@ sequenceDiagram
     RuleB-->>Context: Warnings for stale topic_mastery
 ```
 
-**Diagram sources **
-- [loader.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L40)
-- [valid-assessment-fields.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L1-L79)
-- [valid-topic-mastery.ts:1-183](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-mastery.ts#L1-L183)
-
-**Section sources**
-- [valid-assessment-fields.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L1-L79)
-- [valid-topic-mastery.ts:1-183](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-mastery.ts#L1-L183)
-
 ### Assessment Write Path
 The `record-assessment` use case builds the frontmatter update for `palee assess`. It follows these rules:
 
@@ -369,14 +288,6 @@ flowchart TD
     WriteOnlySupplied --> Return["Return AssessmentUpdate"]
 ```
 
-**Diagram sources **
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [mastery.ts:100-160](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L100-L160)
-
-**Section sources**
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [0021-assessment-surface.md:20-60](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0021-assessment-surface.md#L20-L60)
-
 ### Transformation Patterns Between Interface and Storage
 There are three important transformation patterns:
 
@@ -395,17 +306,6 @@ flowchart LR
     Frontmatter --> Loader["Topic Loader"]
     Loader --> Runtime["Normalized TopicNode"]
 ```
-
-**Diagram sources **
-- [types.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L40)
-- [frontmatter.ts:120-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L120-L200)
-- [loader.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L40)
-- [record-assessment.ts:80-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L80-L134)
-
-**Section sources**
-- [frontmatter.ts:120-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L120-L200)
-- [loader.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L40)
-- [record-assessment.ts:80-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L80-L134)
 
 ### Examples of Assessment States
 
@@ -441,13 +341,30 @@ Expected characteristics:
 - Mastery remains low until meaningful assessment data is provided.
 
 #### Frontmatter Example Reference
-The Docker Fundamentals example shows flat frontmatter keys including `conceptual`, `practical`, `debug`, `feynman`, `assessed_at`, and `topic_mastery`. This illustrates the actual storage representation, not the nested `Assessment` interface.
+The Docker Fundamentals example (`examples/Docker Fundamentals.md` in the CLI repository) shows the flat frontmatter keys `conceptual`, `practical`, `debug`, `feynman`, `assessed_at`, and `topic_mastery` at the note root. This is the actual storage representation, not the nested `Assessment` interface:
 
-**Section sources**
-- [Docker Fundamentals.md:1-20](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Fundamentals.md#L1-L20)
-- [valid-assessment-fields.ts:30-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L30-L79)
-- [valid-topic-mastery.ts:60-140](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-mastery.ts#L60-L140)
-- [05-1-topic-and-assessment-schema.md:100-140](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md#L100-L140)
+```yaml
+---
+palee_schema: 1
+palee_id: T-docker-fundamentals
+title: Docker Fundamentals
+difficulty: beginner
+depends_on: []
+topic_mastery: 0
+assessed_at: null
+conceptual: 0
+practical: 0
+debug: 0
+feynman: 0
+ease_factor: 2.5
+interval_days: 1
+repetition: 1
+lapses: 0
+last_quality: 4
+last_reviewed_at: 2026-08-09
+due_at: 2026-08-10
+---
+```
 
 ### Distinction Between Typed Assessment Interface and Storage Representation
 This distinction is central to understanding the model:
@@ -462,10 +379,6 @@ This distinction is central to understanding the model:
 | Reader | Future Phase-2 AI consumers | Current CLI, validation, and storage layers |
 
 The type definition explicitly warns consumers not to use it as the runtime contract. The runtime contract is the flat frontmatter shape normalized by `loadTopics`.
-
-**Section sources**
-- [types.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L40)
-- [05-1-topic-and-assessment-schema.md:100-140](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md#L100-L140)
 
 ## Dependency Analysis
 The Assessment model depends on multiple layers working together:
@@ -483,13 +396,6 @@ graph LR
     Dependency --> Threshold
 ```
 
-**Diagram sources **
-- [types.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L40)
-- [mastery.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L40)
-- [mastery.ts:100-160](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L100-L160)
-- [valid-assessment-fields.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L1-L30)
-- [record-assessment.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L60)
-
 Key coupling observations:
 
 - The assessment schema defines the domain vocabulary used by the mastery engine.
@@ -497,12 +403,6 @@ Key coupling observations:
 - Validation splits responsibility: field shape versus derived-data consistency.
 - The assessment write path depends on both mastery computation and dependency readiness.
 - Storage preserves the flat representation while loaders normalize for consumption.
-
-**Section sources**
-- [mastery.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L40)
-- [mastery.ts:100-160](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L100-L160)
-- [valid-assessment-fields.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L1-L79)
-- [record-assessment.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L60)
 
 ## Performance Considerations
 - Normalization clamps and rounds to four decimal places, which avoids floating-point drift and keeps comparisons stable.
@@ -517,39 +417,53 @@ Key coupling observations:
 **Cause:** A pillar value is not a finite number.  
 **Resolution:** Replace the value with a number in `[0.0, 1.0]`. If the stored value is corrupt, pass the pillar explicitly through `palee assess` or repair it manually.
 
-**Section sources**
-- [valid-assessment-fields.ts:30-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L30-L79)
-- [record-assessment.ts:20-50](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L20-L50)
-
 ### Symptom: assessed_at Fails Validation
 **Cause:** The value is neither `null` nor a valid calendar date. Impossible dates such as February 30 are rejected.  
 **Resolution:** Set `assessed_at` to a valid ISO timestamp or remove it if the topic should remain unassessed.
-
-**Section sources**
-- [valid-assessment-fields.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L1-L30)
 
 ### Symptom: Mastery Is Below 0.70 Even With High Scores
 **Cause:** The three ordinary pillars cap mastery at 0.60. Without a non-zero Feynman score, the 0.70 gate cannot be reached.  
 **Resolution:** Provide a Feynman score. The command’s availability reporting names the missing pillar when the below-threshold assessment lacks it.
 
-**Section sources**
-- [0004-four-pillar-pedagogical-mastery.md:20-40](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L20-L40)
-- [0021-assessment-surface.md:40-80](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0021-assessment-surface.md#L40-L80)
-
 ### Symptom: validate --fix Does Not Repair Mastery
 **Cause:** The topic has missing assessment pillars. Partial assessments are skipped because they represent incomplete data, not a completed formula.  
 **Resolution:** Supply all four pillars before expecting mastery repair.
-
-**Section sources**
-- [valid-topic-mastery.ts:60-140](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-mastery.ts#L60-L140)
-- [0035-validate-fix-partial-pillar-eligibility.md:1-53](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0035-validate-fix-partial-pillar-eligibility.md#L1-L53)
 
 ### Symptom: Stored topic_mastery Differs From Computed Value
 **Cause:** The stored derived value drifted from the canonical formula.  
 **Resolution:** Run `palee validate --fix` when all four pillars are present and valid. The rule reports a warning, not an error, because the underlying assessment data may still be correct.
 
-**Section sources**
-- [valid-topic-mastery.ts:1-183](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-mastery.ts#L1-L183)
-
 ## Conclusion
 The Assessment model is a deliberate bridge between pedagogical theory and machine-readable vault state. Its typed `Assessment` interface defines the Phase-2 AI assessment contract, while flat frontmatter keys and loader normalization form the persistent runtime contract. The four pillars capture conceptual, practical, debugging, and articulation skills, with Feynman double-weighted to emphasize true comprehension. Mastery is computed deterministically, gated at 0.70, and validated both at the field-shape level and at the derived-data level. Correct usage preserves the distinction between absent pillars and zero scores, refuses corrupt stored values, and keeps `assessed_at` as assessment metadata rather than a mastery driver.
+
+## References
+
+- [types.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L40)
+- [mastery.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L40)
+- [frontmatter.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L40)
+- [loader.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L40)
+- [valid-assessment-fields.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L1-L30)
+- [valid-topic-mastery.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-mastery.ts#L1-L30)
+- [record-assessment.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L30)
+- [0004-four-pillar-pedagogical-mastery.md:1-20](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L20)
+- [0021-assessment-surface.md:1-20](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0021-assessment-surface.md#L1-L20)
+- [05-1-topic-and-assessment-schema.md:1-20](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md#L1-L20)
+- [Docker Fundamentals.md:1-20](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Fundamentals.md#L1-L20)
+- [05-1-topic-and-assessment-schema.md:100-140](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md#L100-L140)
+- [record-assessment.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L60)
+- [mastery.ts:100-160](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L100-L160)
+- [frontmatter.ts:120-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L120-L200)
+- [0004-four-pillar-pedagogical-mastery.md:10-30](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L10-L30)
+- [types.ts:120-170](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L120-L170)
+- [0004-four-pillar-pedagogical-mastery.md:20-40](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L20-L40)
+- [record-assessment.ts:80-110](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L80-L110)
+- [valid-assessment-fields.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L1-L79)
+- [valid-topic-mastery.ts:1-183](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-mastery.ts#L1-L183)
+- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
+- [0021-assessment-surface.md:20-60](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0021-assessment-surface.md#L20-L60)
+- [record-assessment.ts:80-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L80-L134)
+- [valid-assessment-fields.ts:30-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L30-L79)
+- [valid-topic-mastery.ts:60-140](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-mastery.ts#L60-L140)
+- [record-assessment.ts:20-50](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L20-L50)
+- [0021-assessment-surface.md:40-80](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0021-assessment-surface.md#L40-L80)
+- [0035-validate-fix-partial-pillar-eligibility.md:1-53](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0035-validate-fix-partial-pillar-eligibility.md#L1-L53)

@@ -54,23 +54,6 @@ graph TB
   Storage --> Types
 ```
 
-**Diagram sources**
-- [next.ts:10-40](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L10-L40)
-- [get-next-topics.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L40)
-- [due-topics.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L20)
-- [engine/index.ts:1-25](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L25)
-- [dependency.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L20)
-- [mastery.ts:1-25](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L25)
-- [storage/index.ts:1-25](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L25)
-- [loader.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L20)
-
-**Section sources**
-- [next.ts:10-40](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L10-L40)
-- [get-next-topics.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L40)
-- [due-topics.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L20)
-- [engine/index.ts:1-25](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L25)
-- [storage/index.ts:1-25](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L25)
-
 ## Core Components
 The due topics discovery pipeline consists of two main components:
 
@@ -83,9 +66,6 @@ These functions operate only on raw date values and item lists. They do not know
 | `compareDue` | Sorts dates so never-scheduled items come first, then oldest due date first. | Two `Date | null` values. | Negative, zero, or positive comparison result. |
 | `partitionDue` | Splits items into elapsed reviews and never-reviewed items. | Item array, current time, and a getter for each item’s due date. | `{ dueReviews, neverReviewed }`. Future-due items fall into neither bucket. |
 
-**Section sources**
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-
 ### Next Topics Use Case
 The use case combines primitives, storage model, and engine rules into one reusable discovery result.
 
@@ -97,9 +77,6 @@ The use case combines primitives, storage model, and engine rules into one reusa
 | Prerequisite gate | Topics are removed from the actionable list if they are not archived, below mastery threshold, and have unmet prerequisites. |
 | Blocked reporting | Withheld topics include human-readable blocker phrases describing missing or insufficiently mastered dependencies. |
 | Result contract | Returns actionable topics, total topic count, and blocked topics. |
-
-**Section sources**
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
 
 ## Architecture Overview
 The due topics discovery flow starts at the CLI and moves through well-defined subsystem boundaries.
@@ -130,13 +107,6 @@ sequenceDiagram
     CLI-->>User: Next topic or due topics
 ```
 
-**Diagram sources**
-- [next.ts:20-80](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L20-L80)
-- [get-next-topics.ts:100-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L100-L199)
-- [dependency.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L40)
-- [mastery.ts:1-25](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L25)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-
 ## Detailed Component Analysis
 
 ### Due Date Normalization and Partitioning
@@ -153,9 +123,6 @@ flowchart TD
   NullOut --> End(["Output Date | null"])
   ReturnDate --> End
 ```
-
-**Diagram sources**
-- [due-topics.ts:12-24](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L12-L24)
 
 Partitioning separates candidates into two buckets while preserving input order within each bucket:
 
@@ -178,13 +145,6 @@ flowchart TD
   Next --> Done(["Return { dueReviews, neverReviewed }"])
 ```
 
-**Diagram sources**
-- [due-topics.ts:32-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L32-L58)
-
-**Section sources**
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [application-due-topics.test.ts:1-91](https://github.com/Kuldeep2822k/cli/blob/main/test/application-due-topics.test.ts#L1-L91)
-
 ### Next Topics Filtering Algorithm
 The filtering algorithm follows this sequence:
 
@@ -206,12 +166,6 @@ flowchart TD
   F --> G["Filter out blocked topic ids"]
   G --> H(["NextTopicsResult"])
 ```
-
-**Diagram sources**
-- [get-next-topics.ts:140-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L140-L199)
-
-**Section sources**
-- [get-next-topics.ts:100-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L100-L199)
 
 ### Prerequisite Gate
 The prerequisite gate decides whether a topic may be studied now. It excludes topics that satisfy any of these conditions:
@@ -238,19 +192,12 @@ flowchart TD
   Blocked --> End
 ```
 
-**Diagram sources**
-- [get-next-topics.ts:41-139](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L41-L139)
-
 Key implementation details:
 
 - Dependency extraction reads the canonical `depends_on` field.
 - The full topic graph is built before evaluation so archived prerequisites are still visible as graph nodes.
 - Cyclic topics are quarantined before blocking decisions, preventing undefined behavior around cycles.
 - Missing references and low-mastery prerequisites produce distinct blocker messages.
-
-**Section sources**
-- [get-next-topics.ts:41-139](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L41-L139)
-- [dependency.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L40)
 
 ### Mastery Threshold Integration
 The mastery threshold is a shared constant defining when a prerequisite is considered sufficiently learned. In the current codebase, the threshold is `0.7`.
@@ -263,10 +210,6 @@ The mastery threshold is a shared constant defining when a prerequisite is consi
 | Prerequisite missing from vault | Prerequisite is reported as absent. |
 
 The mastery engine also provides score normalization and pillar-based mastery calculation, but due topics discovery uses the already-computed `topic_mastery` value from the storage model.
-
-**Section sources**
-- [mastery.ts:1-25](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L25)
-- [get-next-topics.ts:41-139](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L41-L139)
 
 ### Storage Layer Integration
 The storage layer supplies the topic model consumed by due topics discovery.
@@ -281,11 +224,6 @@ The storage layer supplies the topic model consumed by due topics discovery.
 
 The `getNextTopics` function expects `LoadedTopic[]`, which includes fields such as `palee_id`, `title`, `path`, `due_at`, `topic_mastery`, `repetition`, `difficulty`, and `status`.
 
-**Section sources**
-- [storage/index.ts:1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
-- [loader.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L200)
-- [get-next-topics.ts:140-170](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L140-L170)
-
 ### Engine Layer Integration
 The engine layer exposes the dependency and readiness logic used by the prerequisite gate.
 
@@ -297,10 +235,6 @@ The engine layer exposes the dependency and readiness logic used by the prerequi
 | `MASTERY_THRESHOLD` | Defines the mastery cutoff used by the gate. |
 
 The engine barrel aggregates these exports so higher layers import from a stable surface.
-
-**Section sources**
-- [engine/index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
-- [dependency.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L40)
 
 ### CLI Composition
 The CLI command composes storage loading, application discovery, and presentation.
@@ -329,13 +263,6 @@ sequenceDiagram
     CLI->>UI: Print due topics or blocked warning
 ```
 
-**Diagram sources**
-- [next.ts:20-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L20-L120)
-- [get-next-topics.ts:140-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L140-L199)
-
-**Section sources**
-- [next.ts:10-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L10-L120)
-
 ## Dependency Analysis
 The due topics discovery component depends on lower layers but remains largely pure at the application boundary.
 
@@ -349,25 +276,12 @@ graph LR
   Storage --> StorageTypes["LoadedTopic model"]
 ```
 
-**Diagram sources**
-- [next.ts:10-40](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L10-L40)
-- [get-next-topics.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L40)
-- [due-topics.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L20)
-- [dependency.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L20)
-- [mastery.ts:1-25](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L25)
-- [loader.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L20)
-
 Coupling characteristics:
 
 - **Low coupling to I/O:** The application layer does not call file systems directly.
 - **Single source of truth for readiness:** The engine’s `areDependenciesSatisfied` drives the gate; the application layer does not reimplement prerequisite logic.
 - **Shared constants:** The mastery threshold is imported rather than duplicated.
 - **Clear separation between filtering and presentation:** CLI handles output and archived-note visibility; application layer returns the core discovery result.
-
-**Section sources**
-- [get-next-topics.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L40)
-- [engine/index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
-- [storage/index.ts:1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
 
 ## Performance Considerations
 For large vaults, due topics discovery should consider the following performance characteristics:
@@ -405,10 +319,6 @@ Resolution:
 - Treat `null` as never reviewed.
 - Verify whether the due date is actually past the current time before treating a topic as overdue.
 
-**Section sources**
-- [due-topics.ts:12-24](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L12-L24)
-- [application-due-topics.test.ts:1-28](https://github.com/Kuldeep2822k/cli/blob/main/test/application-due-topics.test.ts#L1-L28)
-
 ### Topics Appear Due When They Should Not
 Symptoms:
 - A topic scheduled for the future shows up as due.
@@ -420,10 +330,6 @@ Likely causes:
 Resolution:
 - Inspect whether the topic is truly scheduled or merely unscheduled.
 - Understand that `partitionDue` treats `due <= now` as due.
-
-**Section sources**
-- [due-topics.ts:32-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L32-L58)
-- [application-due-topics.test.ts:30-91](https://github.com/Kuldeep2822k/cli/blob/main/test/application-due-topics.test.ts#L30-L91)
 
 ### Topics Are Blocked by Prerequisites
 Symptoms:
@@ -440,10 +346,6 @@ Resolution:
 - Read the `waiting_on` phrases to identify missing or under-mastered prerequisites.
 - Validate the vault if referenced prerequisites are absent.
 
-**Section sources**
-- [get-next-topics.ts:41-139](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L41-L139)
-- [next.ts:40-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L40-L120)
-
 ### Archived Topics Do Not Appear as Next
 Symptoms:
 - An archived topic is excluded from the final output even if it is technically due.
@@ -455,9 +357,6 @@ Resolution:
 - This is intentional to keep `next`, `plan`, and `dashboard` consistent.
 - Use broader exploration commands if reviewing archived material is required.
 
-**Section sources**
-- [next.ts:60-80](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L60-L80)
-
 ### Unexpected Topic Ordering
 Symptoms:
 - Never-reviewed topics appear after some due topics.
@@ -467,10 +366,6 @@ Explanation:
 - Actionable topics are ordered with never-reviewed first, then oldest due date first.
 - Stable ordering is preserved within each bucket during partitioning.
 - The CLI applies an additional archived-topic filter after ordering.
-
-**Section sources**
-- [get-next-topics.ts:160-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L160-L199)
-- [due-topics.ts:24-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L24-L58)
 
 ## Conclusion
 The due topics discovery function is a focused, testable core that bridges storage-loaded topics and engine-driven readiness rules. Its responsibilities are cleanly separated:
@@ -482,3 +377,36 @@ The due topics discovery function is a focused, testable core that bridges stora
 - **CLI** composes these layers into a user-facing review workflow.
 
 For large vaults, the design favors predictable linear passes over topics and delegates complex graph work to the engine. For error handling, it converts malformed scheduling data into safe defaults and surfaces prerequisite failures as explicit blocker information. This composition allows the same discovery logic to support multiple read models, including `next`, `plan`, and `dashboard`, while keeping review recommendations consistent across the application.
+
+## References
+
+- [next.ts:10-40](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L10-L40)
+- [get-next-topics.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L40)
+- [due-topics.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L20)
+- [engine/index.ts:1-25](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L25)
+- [dependency.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L20)
+- [mastery.ts:1-25](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L25)
+- [storage/index.ts:1-25](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L25)
+- [loader.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L20)
+- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
+- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
+- [next.ts:20-80](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L20-L80)
+- [get-next-topics.ts:100-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L100-L199)
+- [dependency.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L40)
+- [due-topics.ts:12-24](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L12-L24)
+- [due-topics.ts:32-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L32-L58)
+- [application-due-topics.test.ts:1-91](https://github.com/Kuldeep2822k/cli/blob/main/test/application-due-topics.test.ts#L1-L91)
+- [get-next-topics.ts:140-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L140-L199)
+- [get-next-topics.ts:41-139](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L41-L139)
+- [storage/index.ts:1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
+- [loader.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L200)
+- [get-next-topics.ts:140-170](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L140-L170)
+- [engine/index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
+- [next.ts:20-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L20-L120)
+- [next.ts:10-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L10-L120)
+- [application-due-topics.test.ts:1-28](https://github.com/Kuldeep2822k/cli/blob/main/test/application-due-topics.test.ts#L1-L28)
+- [application-due-topics.test.ts:30-91](https://github.com/Kuldeep2822k/cli/blob/main/test/application-due-topics.test.ts#L30-L91)
+- [next.ts:40-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L40-L120)
+- [next.ts:60-80](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L60-L80)
+- [get-next-topics.ts:160-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L160-L199)
+- [due-topics.ts:24-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L24-L58)
