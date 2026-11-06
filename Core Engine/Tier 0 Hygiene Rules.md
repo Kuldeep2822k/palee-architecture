@@ -267,8 +267,6 @@ Key performance characteristics observed in the codebase:
 
 The architecture deliberately separates concerns so that expensive operations—such as vault walking, frontmatter parsing, session/memory reads, and derived view rebuilds—are owned by their respective layers, while Tier 0 hygiene stays lightweight.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 
 ### Common Hygiene Issues and Resolutions
@@ -307,8 +305,6 @@ For maintainers, the practical takeaway is simple:
 - Use Tier 0 hygiene when diagnosing why a file was excluded, demoted, or allowed to gate the chain.
 
 Together, these layers preserve vault cleanliness while allowing automation to scale across large study repositories without inventing false dependencies.
-
-[No sources needed since this section summarizes without analyzing specific files]
 
 ## References
 

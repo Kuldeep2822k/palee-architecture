@@ -371,8 +371,6 @@ Recommendations:
 - Avoid generating IDs in tight loops unless necessary; cache generated IDs at command boundaries.
 - Treat duplicate-ID resolution as a post-scan operation because it requires all topics to be collected.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 
 ### Common Invalid ID Patterns
@@ -400,8 +398,6 @@ For safe operation:
 - Rely on validation rules to detect malformed or duplicate IDs.
 - Prefer migration tools to rewrite legacy or inconsistent IDs rather than ad hoc scripts.
 - Remember that ID stability belongs to the author and storage layer; minting is only for newly created topics.
-
-[No sources needed since this section summarizes without analyzing specific files]
 
 ## References
 

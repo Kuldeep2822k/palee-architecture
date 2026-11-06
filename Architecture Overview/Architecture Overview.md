@@ -445,8 +445,6 @@ Optimization opportunities should preserve the existing contracts:
 - Treat `FileCache` as performance-only; it must be deletable without changing behavior.
 - Do not replace the vault-first model with an in-process database.
 
-[No sources needed since this section provides general guidance]
-
 ## Security Model and System Boundaries
 The security model centers on three boundaries:
 
@@ -662,4 +660,3 @@ The exit-code mapper centralizes conflict, containment, and provider error class
 ## Conclusion
 PALEE’s architecture is a disciplined separation between user interface, business workflow, pure computation, and safe persistence. The Obsidian vault is the authoritative data store, the engine is deterministic, and the storage layer enforces containment, locking, atomicity, and optimistic concurrency. The validation framework provides a stable audit surface for vault integrity, while the optional AI boundary allows future capability growth without compromising the security and determinism guarantees of the core system. For maintainers, the most important rule is to keep dependencies downward, keep engine logic pure, and route every filesystem mutation through the storage layer.
 
-[No sources needed since this section summarizes without analyzing specific files]

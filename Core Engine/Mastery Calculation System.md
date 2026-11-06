@@ -372,8 +372,6 @@ Edge-case performance risks:
 - Scanning the entire topic graph for every next-topic query can dominate runtime if not cached.
 - Corrupt frontmatter values cause validation errors early; this is safer but may stop commands sooner than silent defaults.
 
-[No sources needed since this section provides general guidance derived from analyzed code structure]
-
 ## Troubleshooting Guide
 
 ### Common Edge Cases
@@ -408,8 +406,6 @@ For users, this means:
 - Low mastery or poor recall brings topics back sooner.
 - Missing assessment data does not pretend to be zero mastery.
 - Achieving the `0.7` gate requires demonstrating comprehension beyond the three ordinary pillars.
-
-[No sources needed since this section summarizes without analyzing specific files]
 
 ## Appendices
 

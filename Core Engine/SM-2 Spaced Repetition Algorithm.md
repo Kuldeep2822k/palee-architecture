@@ -111,7 +111,7 @@ For successful reviews (`q >= 3`), the next interval depends on the repetition c
 
 - Repetition 1: 1 day
 - Repetition 2: 6 days
-- Repetition 3 and later: `Math.round(previous_interval × ease_factor)`, using the ease factor stored before this review's ΔEF update is applied, as canonical SM-2 prescribes
+- Repetition 3 and later: `Math.round(previous_interval × ease_factor)`, using the ease factor stored before this review's ΔEF update is applied (canonical SM-2 applies the updated ease factor here — a deliberate deviation)
 
 For failed reviews (`q < 3`):
 
@@ -288,8 +288,6 @@ For large-scale scheduling operations across many topics:
 - Be cautious with precomputed intervals near `Number.MAX_VALUE`; the engine rejects non-finite results rather than silently corrupting them.
 - Use the exported `MAX_INTERVAL_DAYS` constant in tests and integration logic to keep behavior consistent with the implementation.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 
 ### Common Error Messages and Causes
@@ -317,8 +315,6 @@ For large-scale scheduling operations across many topics:
 
 ## Conclusion
 The SM-2 implementation follows the canonical SuperMemo algorithm with clear safety boundaries. It separates pure scheduling math from I/O, validates untrusted stored state aggressively, caps intervals at a 100-year policy limit, and handles calendar dates safely across local timezones. Its tests cover normal transitions, edge cases, numeric safety, interval saturation, and date range protection. Together with the mastery system, SM-2 provides a robust foundation for adaptive, long-term retention in a Markdown-based learning workflow.
-
-[No sources needed since this section summarizes without analyzing specific files]
 
 ## Appendices
 

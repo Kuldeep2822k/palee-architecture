@@ -359,8 +359,6 @@ graph LR
 - Use `tallyPatterns` for diagnostic reporting when investigating slow or broad include/exclude filters.
 - Keep glob patterns specific to reduce unnecessary comparisons across thousands of vault paths.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 
 ### Notes Are Skipped During Scanning
@@ -447,4 +445,3 @@ PALEE’s source cap, pattern matching, and note title resolution subsystems wor
 
 For large vaults, prefer precise patterns, pre-scanned file lists, and explicit frontmatter titles. When diagnosing problems, consult the size diagnostics, per-pattern tallies, and title-resolution fallback order.
 
-[No sources needed since this section summarizes without analyzing specific files]

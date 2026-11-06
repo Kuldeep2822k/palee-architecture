@@ -370,8 +370,6 @@ Coupling observations:
 - The explicit update command has a longer timeout because the user is waiting for the answer.
 - The test suite previously measured ~561 ms cold spawn time; later improvements reduced overall cold-start impact through other means, but the per-spawn distinction remains important.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 
 ### A script receives truncated JSON on failure

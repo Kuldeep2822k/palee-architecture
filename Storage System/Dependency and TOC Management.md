@@ -504,8 +504,6 @@ Recommendations:
 - Maintain unique, descriptive filenames to minimize ambiguity.
 - Prefer exact vault-relative wikilinks when targeting folders.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 
 ### Dependency Cycles
@@ -612,4 +610,3 @@ The dependency, TOC, and wikilink systems form a layered reference model:
 
 For consistency at scale, prefer explicit canonical dependencies, keep filenames unique, use scoped adoption, and treat validation findings as authoritative contracts rather than optional hints. This keeps the dependency graph predictable, the TOC navigation reliable, and cross-reference resolution safe.
 
-[No sources needed since this section summarizes without analyzing specific files]
