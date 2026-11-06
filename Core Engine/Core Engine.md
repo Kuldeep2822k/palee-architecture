@@ -97,10 +97,10 @@ sequenceDiagram
 
 ### SM-2 Spaced Repetition Algorithm
 The SM-2 implementation follows the SuperMemo SM-2 specification. The formulas below are stated as implemented in `src/engine/sm2.ts`:
-- The ease factor starts at 2.5 and is updated after every review — pass or fail — by the canonical delta `ΔEF = 0.1 − (5 − q) × (0.08 + (5 − q) × 0.02)`, where `q` is the quality rating from 0 to 5. That gives +0.10 for `q = 5`, 0.00 for `q = 4`, −0.14 for `q = 3`, −0.32 for `q = 2`, −0.54 for `q = 1`, and −0.80 for `q = 0`. The updated ease factor is clamped to a minimum of 1.3 and rounded to four decimal places using positive decimal half-up rounding; canonical SM-2 sets no upper bound, and neither does the implementation.
+- The ease factor starts at 2.5 and is updated after every review — pass or fail (canonical SM-2 leaves the E-Factor unchanged on a failed review, so updating it on every review is one deliberate deviation) — by the canonical delta `ΔEF = 0.1 − (5 − q) × (0.08 + (5 − q) × 0.02)`, where `q` is the quality rating from 0 to 5. That gives +0.10 for `q = 5`, 0.00 for `q = 4`, −0.14 for `q = 3`, −0.32 for `q = 2`, −0.54 for `q = 1`, and −0.80 for `q = 0`. The updated ease factor is clamped to a minimum of 1.3 and rounded to four decimal places using positive decimal half-up rounding; canonical SM-2 sets no upper bound, and neither does the implementation.
 - A failed review (`q < 3`) resets repetition to 0 and the interval to 1 day, and increments lapses only when the topic had prior repetitions.
-- A successful review increments repetition and sets the interval by repetition count: `I(1) = 1` day, `I(2) = 6` days, and `I(n) = round(I(n − 1) × EF)` for `n ≥ 3`, using the ease factor from before this review's update, exactly as canonical SM-2 prescribes.
-- One deliberate deviation from the canonical algorithm: computed intervals are capped at 36,500 days (100 years, `MAX_INTERVAL_DAYS`). Canonical SM-2 has no ceiling; the cap exists so unbounded interval growth cannot overflow the calendar. The strict validation of stored state (refusing non-finite or out-of-range frontmatter values rather than clamping them) is likewise an implementation hardening layer around the algorithm, not part of SM-2 itself.
+- A successful review increments repetition and sets the interval by repetition count: `I(1) = 1` day, `I(2) = 6` days, and `I(n) = round(I(n − 1) × EF)` for `n ≥ 3`, using the ease factor from before this review's update — canonical SM-2 applies the updated ease factor in this step, so the pre-update factor is a second deliberate deviation.
+- A further deliberate deviation from the canonical algorithm: computed intervals are capped at 36,500 days (100 years, `MAX_INTERVAL_DAYS`). Canonical SM-2 has no ceiling; the cap exists so unbounded interval growth cannot overflow the calendar. The strict validation of stored state (refusing non-finite or out-of-range frontmatter values rather than clamping them) is likewise an implementation hardening layer around the algorithm, not part of SM-2 itself.
 - Due dates are computed in local timezone arithmetic.
 
 ```mermaid
@@ -368,7 +368,7 @@ Potential risks:
 | Tarjan SCC | O(V + E) | Iterative implementation avoids call-stack exhaustion. |
 | Cycle enumeration | O(V + E + C) per SCC | Johnson-style enumeration is proportional to reported cycles; dense SCCs can be exponential, so bounded variants exist. |
 | Dependency readiness check | O(prerequisites) | Linear in the number of prerequisites examined per topic. |
-| Auto-chain planning | O(n log n) | Sorting directories and lessons dominates; wikilink scanning is linear in the line/bullet content scanned. |
+| Auto-chain planning | O(n log n) | Sorting directories and lessons dominates; wikilink scanning rescans the prefix per match, so it is worst-case quadratic on link-dense content. |
 | TOC link extraction | O(document length) | Linear scan with lazy balance tables for malformed inputs. |
 | Topic ID generation/validation | O(1) or O(k) | Very fast; intended for frequent use during adoption and validation. |
 | Tier-0 classification | O(segments) | Small constant-time list lookups over path segments. |
