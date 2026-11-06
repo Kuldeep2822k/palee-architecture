@@ -404,7 +404,7 @@ For users, this means:
 - High mastery opens downstream topics.
 - High SM-2 performance delays future reviews.
 - Low mastery keeps downstream topics gated until their prerequisites reach the threshold; poor recall (low SM-2 quality) is what brings a topic back sooner.
-- Missing assessment data does not pretend to be zero mastery.
+- A partial assessment invents nothing: unsupplied pillars are filled from stored frontmatter, and only a pillar with no value anywhere counts as 0 in the weighted average.
 - Achieving the `0.7` gate requires demonstrating comprehension beyond the three ordinary pillars.
 
 ## Appendices
