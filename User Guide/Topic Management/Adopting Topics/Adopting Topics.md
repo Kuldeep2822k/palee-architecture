@@ -93,7 +93,7 @@ The undo command reverses adoption changes safely:
 - Collapses an empty `{}` frontmatter block back to nothing when appropriate.
 - Writes through the same atomic OCC path and maintains a rollback journal.
 
-Owned keys removed by undo include identity, schema, difficulty, dependency declarations, mastery, assessment timestamps (`assessed_at`), pillar scores (`conceptual`, `practical`, `debug`, `feynman`), SM-2 scheduling fields (`ease_factor`, `interval_days`, `repetition`, `lapses`, `last_quality`, `last_reviewed_at`, `due_at`), and provenance labels — undo removes exactly the review/SM-2 and assessment keys in `PALEE_OWNED_KEYS`. Keys adoption never writes — e.g. status, topic, legacy dependencies, and title (unless --drop-title) — are preserved.
+Owned keys removed by undo include identity, schema, difficulty, dependency declarations, mastery, assessment timestamps (`assessed_at`), pillar scores (`conceptual`, `practical`, `debug`, `feynman`), SM-2 scheduling fields (`ease_factor`, `interval_days`, `repetition`, `lapses`, `last_quality`, `last_reviewed_at`, `due_at`), and provenance labels — undo removes exactly the review/SM-2 and assessment keys in `PALEE_OWNED_KEYS`. Keys adoption never writes — e.g. status, topic, and legacy dependencies — are preserved. One exception: adoption does write `title` but does not own it, so undo removes it only when `--drop-title` is passed.
 
 ### Topic Identity
 A PALEE topic ID follows the policy `T-` followed by lowercase kebab-case segments. Adopted IDs are generated using a timestamp plus cryptographic randomness. Existing legacy adopt-generated formats remain valid for validation, but new adoption uses the canonical form.
@@ -376,7 +376,7 @@ graph LR
 
 ### Undo Did Not Remove Expected Keys
 - Undo removes only PALEE-owned keys — exactly the review/SM-2 and assessment keys in `PALEE_OWNED_KEYS` (`assessed_at`, `conceptual`, `practical`, `debug`, `feynman`, `ease_factor`, `interval_days`, `repetition`, `lapses`, `last_quality`, `last_reviewed_at`, `due_at`, and the other owned keys).
-- Keys adoption never writes — e.g. status, topic, legacy dependencies, and title (unless --drop-title) — are preserved.
+- Keys adoption never writes — e.g. status, topic, and legacy dependencies — are preserved. One exception: adoption does write `title` but does not own it, so undo removes it only when `--drop-title` is passed.
 - The `title` key is kept by default because adoption does not own it.
 - Use the dedicated flag to drop `title` if you want it removed.
 

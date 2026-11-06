@@ -282,7 +282,7 @@ Consult the exit-code definitions for exact numeric mappings and consult the com
 ### Recovery Procedures
 1. **Stop further changes**: Avoid running additional adoptions until the cause is understood.
 2. **Inspect per-file results**: Look for parse errors, validation failures, or write failures.
-3. **Use undo when possible**: Run `palee adopt --undo` (preview with `palee adopt --undo --dry-run`) to strip only the PALEE-owned frontmatter keys from the selected notes; no session record is needed and prior contents are not restored.
+3. **Use undo when possible**: Run `palee adopt --all --undo` (preview with `palee adopt --all --undo --dry-run`) to strip only the PALEE-owned frontmatter keys from the selected notes; no session record is needed and prior contents are not restored.
 4. **Repair source notes**: Fix malformed YAML frontmatter or broken wikilinks.
 5. **Rerun narrowly**: Limit the next attempt to the affected directory or file.
 6. **Validate afterward**: Run PALEE validation commands to confirm schema integrity.
