@@ -217,7 +217,7 @@ flowchart TD
   Start["Scan note"] --> Parse["Parse frontmatter"]
   Parse --> HasId{"Has palee_id?"}
   HasId -->|"No"| Skip["Not a topic note"]
-  HasId -->|"Yes"| TypeCheck{"Is non-empty string?"}
+  HasId -->|"Yes"| TypeCheck{"Is non-blank string?"}
   TypeCheck -->|"No"| InvalidId["Not usable — loader skips the note"]
   TypeCheck -->|"Yes"| Trim["Trimmed ID"]
   Trim --> Load["Load as topic record"]

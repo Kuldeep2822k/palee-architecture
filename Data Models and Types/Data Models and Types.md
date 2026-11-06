@@ -160,6 +160,8 @@ due_at: null
 ---
 ```
 
+The shipped note carries no `status` key, and it is valid as written: the loader defaults a missing `status` to `not_started`, so only a present-but-invalid value is an error.
+
 A topic that has been studied carries the same keys with non-default values; `examples/Docker Fundamentals.md` shows one after its first review (`repetition: 1`, `last_quality: 4`, `due_at` set).
 
 ### Assessment Model
@@ -382,9 +384,9 @@ Every managed note carries a `palee_schema` version field. The currently support
 So a schema bump, when one eventually happens, has a defined path: raise `SUPPORTED_SCHEMA_VERSION`, teach `migrate --fix` the upgrade, and let validation flag every note that has not been migrated yet.
 
 ## Architecture Overview
-All canonical data models are declared in a single module, `src/types.ts`. `Topic` is the aggregate: it composes one `Assessment` and one `Review`, and carries the topic's identity (`palee_schema`, `palee_id`), lifecycle state (`status`, `difficulty`), and prerequisite edges (`depends_on`, with `dependencies` as a legacy alias). Sessions exist in two parallel families with deliberately identical field shapes: the in-memory `Session` union (`CompletedSession` / `DraftSession`) used while a session is running, and the persisted `SessionRecord` union (`CompletedSessionRecord` / `DraftSessionRecord`) stored as frontmatter under `.palee/sessions/`. `PaleeConfig` stands apart from the vault models — it describes application settings, not learning data.
+All canonical data models are declared in a single module, `src/types.ts`. `Topic` is the aggregate: it composes one `Assessment` and one `Review`, and carries the topic's identity (`palee_schema`, `palee_id`), lifecycle state (`status`, `difficulty`), and prerequisite edges (`depends_on`, with `dependencies` as a legacy alias). Sessions exist in two parallel families with deliberately identical field shapes: the in-memory `Session` union (`CompletedSession` / `DraftSession`), which is likewise Phase-2-reserved and not used by the runtime, and the persisted `SessionRecord` union (`CompletedSessionRecord` / `DraftSessionRecord`) stored as frontmatter under `.palee/sessions/`. `PaleeConfig` stands apart from the vault models — it describes application settings, not learning data.
 
-> **Caveat:** `Topic` (with its nested `Assessment` and `Review`) is a Phase-2-reserved schema, not the runtime shape — see the caveat in the Introduction. The runtime contract is flat frontmatter normalized into `TopicNode` / `LoadedTopic`.
+> **Caveat:** `Topic` (with its nested `Assessment` and `Review`) and the in-memory `Session` union are Phase-2-reserved schemas, not the runtime shapes — see the caveat in the Introduction. The runtime contracts are flat frontmatter normalized into `TopicNode` / `LoadedTopic`, and `SessionRecord` for sessions.
 
 No other module owns a *domain* model definition; loader/read shapes (`LoadedSession`, `LoadedTopic`) live with their loaders — for example, `src/storage/sessions.ts` defines `MemoryReadError`, `LoadedSession`, and `SessionIndexRead`, and `src/storage/memory.ts` defines `HotMemoryRead`. The storage loader converts flat on-disk frontmatter into these shapes (see Detailed Component Analysis), the engines compute over them, and the validation rules inspect raw frontmatter against the same contracts. The class diagram below shows the field-level layout; the companion pages in this section (Topic Entity, Assessment Model, Review Model, Session Types and Lifecycle, Configuration and CLI Option Types) document each model individually.
 

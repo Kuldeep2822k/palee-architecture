@@ -62,7 +62,7 @@ graph TB
 ### Application Use Case: `getNextTopics`
 The application use case is the central decision point for next-topic recommendations. It:
 
-1. Builds a prerequisite-block map using `findPrerequisiteBlocked`.
+1. Builds a prerequisite-block map using `findPrerequisiteBlocked` — gate verdicts, cycle quarantine included, are computed here, before partitioning, and applied at step 5.
 2. Converts loaded topics into normalized recommendation objects.
 3. Partitions them into never-reviewed and elapsed-review candidates.
 4. Sorts candidates with never-reviewed first, then oldest due date.
@@ -197,7 +197,7 @@ graph LR
 ```
 
 - **Vault and loader**: Provide topic metadata, mastery, repetition, due dates, status, and dependencies.
-- **Gater**: Enforces prerequisite mastery and existence; cycle quarantine runs inside the gate, before partitioning, removing undefined learning order caused by cycles.
+- **Gater**: Enforces prerequisite mastery and existence. Its verdicts — cycle quarantine included — are computed before partitioning and applied to the partitioned, sorted candidates, so the component graph (gate first) and the use-case sequence (gate applied last) describe the same run.
 - **Partitioner**: Separates never-reviewed topics from elapsed reviews.
 - **Output**: Exposes actionable recommendations and blocked explanations.
 

@@ -244,10 +244,10 @@ Recognized headings include variations such as “Prerequisites”, “Prerequis
 palee adopt "Docker Fundamentals.md"
 palee adopt . --all --difficulty beginner
 palee adopt MODULES/01 --include '*.md' --exclude '*template*' --tag 'lab'
-palee adopt --auto-chain --chain-tier strict
-palee adopt --dry-run --verbose
-palee adopt --undo --dry-run
-palee adopt --undo --drop-title
+palee adopt --all --auto-chain --chain-tier strict
+palee adopt --all --dry-run --verbose
+palee adopt --all --undo --dry-run
+palee adopt --all --undo --drop-title
 ```
 
 **Output formats**

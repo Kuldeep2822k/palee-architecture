@@ -6,6 +6,7 @@
 - [bin/palee.ts](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts)
 - [src/cli/config.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts)
 - [src/cli/adopt.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts)
+- [src/cli/adopt-undo.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts)
 - [src/cli/next.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts)
 - [src/cli/plan.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/plan.ts)
 - [src/cli/review.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts)
@@ -554,7 +555,7 @@ Exit codes commonly used by these commands:
 | `5` | Unexpected exception or infrastructure failure. |
 
 ## Conclusion
-PALEE's configuration and CLI option model separates three concerns cleanly:
+PALee's configuration and CLI option model separates three concerns cleanly:
 
 1. **Per-user configuration**: `PaleeConfig` defines vault location and AI backend settings, resolved from a platform-default per-user path or `PALEE_CONFIG_DIR`.
 2. **Option interfaces**: Each command has a focused TypeScript interface describing its flags, defaults, and intended behavior.

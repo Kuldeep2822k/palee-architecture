@@ -435,7 +435,7 @@ Coupling observations:
 The auto-chaining system emphasizes predictable, bounded performance:
 
 - Wikilink parsing in `extractWikilinks` runs a global regex over the text; for each match it slices the prefix and compares `lastIndexOf('[[)` against `lastIndexOf(']]')` to reject a match nested inside an unclosed `[[` — there is no bracket-balance table.
-- The scan is linear in document size.
+- Because each match rescans its prefix, the worst case is quadratic in document size on link-dense text; on ordinary notes, where matches are sparse, the scan behaves linearly.
 - Basename matching avoids unnecessary filesystem calls when possible.
 - Canonical vault root computation can be hoisted for bulk roadmap resolution.
 - Glob patterns intended for validation are separated from matching to prevent catastrophic backtracking on repeated `.test()` calls.

@@ -370,7 +370,7 @@ Example workflows:
 
 - Automate adoption with dry-run first:
   ```text
-  palee adopt --dry-run
+  palee adopt --all --dry-run
   palee adopt --all
   ```
   - Success: exit `0`.
