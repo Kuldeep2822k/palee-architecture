@@ -286,8 +286,6 @@ stateDiagram-v2
     Mastered --> Due : "SM-2 interval expires"
 ```
 
-[No sources needed since this diagram shows conceptual workflow, not actual code structure]
-
 ## Dependency Analysis
 The learning pipeline has clear boundaries between measurement, policy, and scheduling:
 
@@ -314,8 +312,6 @@ PAL EE’s learning decisions trade computational work for correctness:
 - **Readiness is shared**: `next` and `plan` use the same prerequisite gate instead of duplicating logic.
 - **Cycle quarantine happens once per readiness computation**, skipping both passes when the vault has no edges.
 - **Per-edge blocking is proposed for future mixed-source notes**, but the current per-note label avoids premature complexity while documenting the exact failure mode it prevents.
-
-[No sources needed since this section provides general guidance]
 
 ## Troubleshooting Guide
 

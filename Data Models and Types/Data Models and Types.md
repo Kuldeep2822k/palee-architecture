@@ -573,8 +573,6 @@ graph LR
 - Session loading reads files in deterministic sorted order and preserves per-file parse/read errors instead of failing the entire scan.
 - Frontmatter updates preserve comments, ordering, and line endings where possible, reducing unnecessary diff noise.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 
 ### Common Assessment Issues

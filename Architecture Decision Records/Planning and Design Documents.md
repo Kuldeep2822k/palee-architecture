@@ -528,8 +528,6 @@ Key considerations:
 
 These are not optimization goals alone; many are safety requirements. For example, unbounded AI context could cause prompt overflow, failed retries could overwrite vault files, and large vault scans could hang CI jobs.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 When diagnosing issues, start by matching symptoms to planning artifacts.
 
@@ -563,8 +561,6 @@ PALEE’s planning documents form a coherent contract surface:
 - **Phase 2 gaps** track where design intent has not yet reached production.
 
 The strongest signal for development priority is not feature visibility, but invariant coverage and data safety. When a new design touches storage, scheduling, AI, or session continuity, it should be traced back to its invariant, mapped to the relevant planning artifact, and verified against both tests and the Phase 2 gap list.
-
-[No sources needed since this section summarizes without analyzing specific files]
 
 ## References
 

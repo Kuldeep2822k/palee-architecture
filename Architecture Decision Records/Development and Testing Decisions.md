@@ -233,8 +233,6 @@ flowchart LR
   Review --> Tests
 ```
 
-[No sources needed since this diagram shows conceptual workflow, not actual code structure]
-
 ## Dependency Analysis
 The guiding decisions depend on several concrete files:
 
@@ -269,8 +267,6 @@ PALEE’s testing performance choices are intentional tradeoffs:
 - **Coverage children pay a per-spawn cold-start cost through `tsx`.** This was measured and retained because switching to the compiled distribution collapsed function coverage due to merged transform lineages.
 - **Installed artifact smoke adds a small global-install and command-execution cost**, but it proves a materially stronger claim than flag-only probes.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 
 ### A test looks like a guard but never fails
@@ -293,8 +289,6 @@ If a number has a source of truth, quote it exactly. If there is no source of tr
 
 ## Conclusion
 PALEE’s development and testing decisions are unified by a single concern: evidence must prove something that can fail. Tests must be falsifiable, CI must prove the installed package, and documentation must distinguish current claims from labeled history. These standards make the repository easier to review, maintain, and extend because they turn ambiguity into explicit, auditable contracts rather than relying on ceremony, green suites, or unstated assumptions.
-
-[No sources needed since this section summarizes without analyzing specific files]
 
 ## References
 

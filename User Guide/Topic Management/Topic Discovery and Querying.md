@@ -54,22 +54,6 @@ graph TB
   EngineBarrel["Engine Barrel<br/>engine/index.ts"] --> Engine
 ```
 
-**Diagram sources**
-- [topic-query.ts:1-97](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/topic-query.ts#L1-L97)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [dependency.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L200)
-- [index.ts:41-50](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L41-L50)
-- [mastery.ts:19-19](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L19-L19)
-- [types.ts:624-684](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L624-L684)
-
-**Section sources**
-- [topic-query.ts:1-97](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/topic-query.ts#L1-L97)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [dependency.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L200)
-- [types.ts:624-684](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L624-L684)
-
 ## Core Components
 This section summarizes the core types and primitives that power topic discovery.
 
@@ -88,18 +72,12 @@ This section summarizes the core types and primitives that power topic discovery
 | `difficulty` | Optional difficulty classification. | Secondary sort or session planning hints. |
 | `extra` | Arbitrary frontmatter keys. | Metadata-based discovery when callers read this field. |
 
-**Section sources**
-- [types.ts:624-684](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L624-L684)
-
 ### Readiness Threshold
 The default mastery threshold used to decide whether a prerequisite is considered satisfied is defined centrally.
 
 | Constant | Value | Purpose |
 |---|---:|---|
 | `MASTERY_THRESHOLD` | `0.7` | Minimum prerequisite mastery for gating and readiness. |
-
-**Section sources**
-- [mastery.ts:19-19](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L19-L19)
 
 ## Architecture Overview
 Topic discovery follows a layered pipeline:
@@ -125,18 +103,6 @@ flowchart TD
   GraphHealth["Dependency Graph Health"] --> Quarantine["Quarantine Cycles<br/>dependency.ts"]
   Quarantine --> Ready
 ```
-
-**Diagram sources**
-- [topic-query.ts:28-97](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/topic-query.ts#L28-L97)
-- [due-topics.ts:13-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L13-L58)
-- [get-next-topics.ts:20-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L20-L199)
-- [dependency.ts:930-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L930-L1015)
-
-**Section sources**
-- [topic-query.ts:28-97](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/topic-query.ts#L28-L97)
-- [due-topics.ts:13-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L13-L58)
-- [get-next-topics.ts:20-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L20-L199)
-- [dependency.ts:930-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L930-L1015)
 
 ## Detailed Component Analysis
 
@@ -174,12 +140,6 @@ flowchart TD
   MoreThanOne -->|No| ReturnSingle
 ```
 
-**Diagram sources**
-- [topic-query.ts:28-97](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/topic-query.ts#L28-L97)
-
-**Section sources**
-- [topic-query.ts:28-97](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/topic-query.ts#L28-L97)
-
 ### Due-Topic Partitioning
 The due-topic partitioner separates topics into two buckets:
 
@@ -202,12 +162,6 @@ flowchart TD
   Due --> End
   Skip --> End
 ```
-
-**Diagram sources**
-- [due-topics.ts:13-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L13-L58)
-
-**Section sources**
-- [due-topics.ts:13-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L13-L58)
 
 ### Next-Topic Selection and Prerequisite Gating
 The next-topic use case combines due-topic selection with prerequisite gating. Its main responsibilities are:
@@ -250,14 +204,6 @@ sequenceDiagram
   Due-->>Next: "actionable list"
   Next-->>Caller: "dueTopics, totalTopics, blockedTopics"
 ```
-
-**Diagram sources**
-- [get-next-topics.ts:20-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L20-L199)
-- [dependency.ts:930-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L930-L1015)
-- [due-topics.ts:35-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L35-L58)
-
-**Section sources**
-- [get-next-topics.ts:20-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L20-L199)
 
 ### Dependency Graph Engine
 The dependency engine provides the foundational operations used by discovery and reporting:
@@ -310,18 +256,6 @@ classDiagram
   DependencyEngine --> MasteryConstants : "uses"
 ```
 
-**Diagram sources**
-- [dependency.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L200)
-- [dependency.ts:601-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L601-L1015)
-- [mastery.ts:19-19](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L19-L19)
-- [types.ts:624-684](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L624-L684)
-
-**Section sources**
-- [dependency.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L200)
-- [dependency.ts:601-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L601-L1015)
-- [mastery.ts:19-19](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L19-L19)
-- [types.ts:624-684](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L624-L684)
-
 ### Data Flow for Common Discovery Scenarios
 
 #### Scenario 1: Find Topics Ready for Review
@@ -337,10 +271,6 @@ flowchart TD
   Partition --> Gate["Apply Prerequisite Gate"]
   Gate --> Ready["Produce Actionable Topics"]
 ```
-
-**Diagram sources**
-- [due-topics.ts:35-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L35-L58)
-- [get-next-topics.ts:150-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L150-L199)
 
 #### Scenario 2: Identify Topics Missing Prerequisites
 1. Build full topic graph.
@@ -358,17 +288,8 @@ flowchart TD
   Missing -->|No| Keep["Keep as Actionable"]
 ```
 
-**Diagram sources**
-- [get-next-topics.ts:60-149](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L60-L149)
-- [dependency.ts:930-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L930-L1015)
-
 #### Scenario 3: Locate Topics at Specific Mastery Levels
 Discovery operates on `topic_mastery`, which is compared against `MASTERY_THRESHOLD` for readiness. To find topics at a particular mastery range, callers should filter loaded `TopicNode` objects by that numeric field. Mastery itself is computed elsewhere; discovery consumes it as a numeric value between 0.0 and 1.0.
-
-**Section sources**
-- [get-next-topics.ts:60-149](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L60-L149)
-- [types.ts:657-657](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L657-L657)
-- [mastery.ts:19-19](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L19-L19)
 
 ## Dependency Analysis
 The discovery pipeline depends on well-defined contracts between layers.
@@ -382,22 +303,6 @@ graph LR
   AppNext --> CLI["cli/topic-query.ts"]
   EngineBarrel["engine/index.ts"] --> AppNext
 ```
-
-**Diagram sources**
-- [types.ts:624-684](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L624-L684)
-- [dependency.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L200)
-- [index.ts:41-50](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L41-L50)
-- [get-next-topics.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L30)
-- [due-topics.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L20)
-- [topic-query.ts:1-15](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/topic-query.ts#L1-L15)
-
-**Section sources**
-- [types.ts:624-684](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L624-L684)
-- [dependency.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L200)
-- [index.ts:41-50](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L41-L50)
-- [get-next-topics.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L30)
-- [due-topics.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L20)
-- [topic-query.ts:1-15](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/topic-query.ts#L1-L15)
 
 ## Performance Considerations
 Large vaults require careful attention to graph complexity and repeated scans.
@@ -422,12 +327,6 @@ Large vaults require careful attention to graph complexity and repeated scans.
 - **Index by stable identifiers**: Since `palee_id` is the canonical key, index topics by ID for O(1) lookups during dependency traversal.
 - **Separate report generation**: Generate progress reports by iterating over precomputed partitions rather than recomputing readiness repeatedly.
 
-**Section sources**
-- [dependency.ts:201-588](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L201-L588)
-- [dependency.ts:601-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L601-L1015)
-- [topic-query.ts:28-97](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/topic-query.ts#L28-L97)
-- [get-next-topics.ts:60-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L60-L199)
-
 ## Troubleshooting Guide
 
 ### A Topic Query Resolves to Ambiguous Candidates
@@ -442,9 +341,6 @@ Large vaults require careful attention to graph complexity and repeated scans.
 - Use the full vault path printed by PALEE commands.
 - Disambiguate by narrowing the substring or switching to exact path matching.
 
-**Section sources**
-- [topic-query.ts:28-97](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/topic-query.ts#L28-L97)
-
 ### A Topic Is Not Showing Up as Due
 **Symptoms**: A topic appears actionable even though its review is upcoming, or vice versa.  
 **Likely Causes**:
@@ -456,11 +352,6 @@ Large vaults require careful attention to graph complexity and repeated scans.
 - Inspect `due_at` and confirm it parses to a valid date.
 - Confirm the current time comparison.
 - Check `status` and `topic_mastery`.
-
-**Section sources**
-- [due-topics.ts:13-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L13-L58)
-- [get-next-topics.ts:150-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L150-L199)
-- [types.ts:684-684](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L684-L684)
 
 ### A Topic Is Blocked by Prerequisites
 **Symptoms**: A topic is due but hidden from actionable results.  
@@ -476,10 +367,6 @@ Large vaults require careful attention to graph complexity and repeated scans.
 - Verify `depends_on_source` if the edge was auto-generated.
 - Run vault validation to detect missing or circular dependencies.
 
-**Section sources**
-- [get-next-topics.ts:60-149](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L60-L149)
-- [dependency.ts:930-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L930-L1015)
-
 ### A Topic Appears Ready But Should Be Blocked
 **Symptoms**: An expected prerequisite did not gate the topic.  
 **Likely Causes**:
@@ -491,10 +378,6 @@ Large vaults require careful attention to graph complexity and repeated scans.
 - Inspect `depends_on_source`.
 - Treat advisory edges as ordering guidance, not hard gates.
 - Raise the prerequisite mastery above the threshold if it is below.
-
-**Section sources**
-- [dependency.ts:930-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L930-L1015)
-- [types.ts:644-655](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L644-L655)
 
 ### Vault Has Circular Dependencies
 **Symptoms**: Discovery shows quarantine behavior, missing ordering, or truncated cycle reports.  
@@ -509,10 +392,6 @@ Large vaults require careful attention to graph complexity and repeated scans.
 - Fix the dependency declarations so prerequisites flow in one direction.
 - Re-run validation after repair.
 
-**Section sources**
-- [dependency.ts:201-588](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L201-L588)
-- [dependency.ts:601-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L601-L1015)
-
 ## Conclusion
 PALEE’s topic discovery system separates user-facing query resolution, pure scheduling logic, and graph analysis. This design makes it straightforward to:
 
@@ -522,3 +401,29 @@ PALEE’s topic discovery system separates user-facing query resolution, pure sc
 - Generate progress reports by inspecting mastery, status, due dates, and prerequisite satisfaction.
 
 For large vaults, the most important optimization principle is to reuse precomputed topic graphs, avoid redundant scans, and prefer bounded algorithms where cycle enumeration could otherwise grow exponentially. Proper indexing by `palee_id`, careful use of advisory edges, and clear distinction between due-date actionability and prerequisite readiness together produce reliable, predictable discovery behavior.
+
+## References
+
+- [topic-query.ts:1-97](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/topic-query.ts#L1-L97)
+- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
+- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
+- [dependency.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L200)
+- [index.ts:41-50](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L41-L50)
+- [mastery.ts:19-19](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L19-L19)
+- [types.ts:624-684](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L624-L684)
+- [topic-query.ts:28-97](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/topic-query.ts#L28-L97)
+- [due-topics.ts:13-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L13-L58)
+- [get-next-topics.ts:20-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L20-L199)
+- [dependency.ts:930-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L930-L1015)
+- [due-topics.ts:35-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L35-L58)
+- [dependency.ts:601-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L601-L1015)
+- [get-next-topics.ts:150-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L150-L199)
+- [get-next-topics.ts:60-149](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L60-L149)
+- [types.ts:657-657](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L657-L657)
+- [get-next-topics.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L30)
+- [due-topics.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L20)
+- [topic-query.ts:1-15](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/topic-query.ts#L1-L15)
+- [dependency.ts:201-588](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L201-L588)
+- [get-next-topics.ts:60-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L60-L199)
+- [types.ts:684-684](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L684-L684)
+- [types.ts:644-655](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L644-L655)
