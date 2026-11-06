@@ -201,7 +201,7 @@ JSON output is machine-readable and intended for automation. It is enabled by:
 
 Rules:
 - Piping or redirecting stdout does NOT enable JSON mode. Human-readable reports stay readable unless explicitly requested.
-- Only commands that declare `--json` accept it. Reading commands such as `next`, `plan`, `progress`, `dashboard`, `validate`, and `session list` support it; mutating or interactive commands such as `review`, `adopt`, `assess`, `roadmap`, `migrate`, and `update` do not.
+- Only commands that declare `--json` accept it. The canonical JSON-support matrix is: `config`, `next`, `plan`, `progress`, `validate`, `session`, and `dashboard` declare `--json` (for example, `palee config show --json`); `adopt`, `assess`, `review`, `roadmap`, `migrate`, and `update` do not. Support does not follow a reading-versus-mutating split — `config` declares `--json` for every action, including its mutating ones.
 - On success, supported commands emit a JSON object describing their result.
 - On failure, supported commands emit a structured JSON error object on stderr.
 - For fatal crashes outside the normal command path, the entry point emits `{ status: "error", code: 5, error: "<message>" }` when JSON mode is active.
@@ -402,6 +402,7 @@ The PALEE CLI is a consistent, scriptable interface over the PALEE engine. Its C
 ## Appendices
 
 ### Quick Reference: Supported JSON Commands
+- `config --json` (for example, `palee config show --json`)
 - `next --json`
 - `plan --json`
 - `progress --json`

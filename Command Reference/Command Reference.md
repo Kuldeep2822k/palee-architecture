@@ -71,7 +71,7 @@ Before reviewing individual commands, it helps to understand the shared behavior
 | Configuration directory | Controlled by `PALEE_CONFIG_DIR`; otherwise defaults to `%LOCALAPPDATA%/palee` on Windows or `~/.config/palee` elsewhere. All commands share this file unless isolated explicitly. |
 | Vault path | Required by most commands; set through `palee config set-vault`. Missing or unreadable vaults produce usage errors. |
 | JSON output | Enabled by `--json` when a command declares that flag, or by setting `PALEE_JSON=1` / `true`. Some human-only commands deliberately ignore `PALEE_JSON` for their initial vault refusal messages. |
-| Global environment variables | `PALEE_CONFIG_DIR`, `PALEE_NO_UPDATE_CHECK`, and `PALEE_DEBUG` are documented globally and used across commands. |
+| Global environment variables | Global help documents only `PALEE_CONFIG_DIR` and `PALEE_NO_UPDATE_CHECK`. `PALEE_DEBUG` is not documented in global help; it only enables raw stack traces on the fatal-error path. |
 | Update notification | After a successful command, the CLI may print one informational notice about a newer published version to stderr, subject to time and piping rules. |
 | Fatal errors | Unhandled exceptions and uncaught rejections are caught once and emitted consistently, either as JSON (`{ status, code, error }`) or plain text. |
 
@@ -366,6 +366,7 @@ palee progress [options]
 
 **Topic resolution**
 - Exact match or substring match is supported.
+- Title substrings also resolve as queries, not only full `T-...` topic IDs.
 - Missing topic produces usage error.
 - Ambiguous match lists candidates and requires a more specific query.
 
@@ -376,7 +377,7 @@ palee progress [options]
 **Examples**
 ```sh
 palee progress
-palee progress --topic topic-linear-algebra
+palee progress --topic T-linear-algebra
 palee progress --topic "Recursion" --json
 ```
 
@@ -409,9 +410,9 @@ palee review <topic> <quality>
 
 **Examples**
 ```sh
-palee review topic-calculus 5
+palee review T-calculus 5
 palee review "Advanced Docker" 3
-palee review topic-calculus 2 --force
+palee review T-calculus 2 --force
 ```
 
 **Exit codes**
@@ -450,15 +451,15 @@ palee assess <topic> [--conceptual N] [--practical N] [--debug N] [--feynman N] 
 - Values outside the range are rejected rather than silently clamped.
 
 **Mastery effects**
-- Mastery is recomputed directly from the provided pillars.
+- Mastery is recomputed from the provided pillars merged over the topic's stored pillar values.
 - Lowering mastery below the threshold can hide previously available dependents.
 - If only ordinary pillars are provided and they cannot reach the threshold, the handler explains how `--feynman` affects the gate.
 
 **Examples**
 ```sh
-palee assess topic-docker --conceptual 0.8 --practical 0.9
+palee assess T-docker --conceptual 0.8 --practical 0.9
 palee assess "Networking Basics" --debug 0.7 --dry-run
-palee assess topic-mastery-lowering --conceptual 0.1 --practical 0.1 --debug 0.1 --feynman 0.1 --force
+palee assess T-mastery-lowering --conceptual 0.1 --practical 0.1 --debug 0.1 --feynman 0.1 --force
 ```
 
 **Exit codes**
@@ -544,7 +545,7 @@ palee roadmap --from roadmap.yml --auto-chain --yes
 - `5`: Unexpected runtime exception.
 
 ### `migrate`
-Migrate PALEE schema and prerequisite labels to the current version.
+Upgrade notes missing `palee_schema` to schema v1 (`--fix`) and relabel dependency-source ties (`--relabel-ties` / `--include-unlabeled-ties`); it does not rename topic IDs or migrate config files. See [Maintenance and System Commands](/Command%20Reference/Maintenance%20and%20System%20Commands) for the full coverage.
 
 **Syntax**
 ```
@@ -607,7 +608,7 @@ palee session <action> [options]
 
 **Examples**
 ```sh
-palee session start --topic topic-docker-networking
+palee session start --topic T-docker-networking
 palee session draft --interactive
 palee session list
 palee session end
@@ -756,7 +757,7 @@ fi
 palee plan --json > plan.json
 
 # Record daily review in automation
-palee review topic-docker-fundamentals 4
+palee review T-docker-fundamentals 4
 
 # Show dashboard metrics
 palee dashboard --json > dashboard.json
