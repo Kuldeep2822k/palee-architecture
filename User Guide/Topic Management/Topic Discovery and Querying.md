@@ -110,10 +110,10 @@ flowchart TD
 The query resolver supports three matching strategies:
 
 1. Exact `palee_id` match.
-2. Substring match against `palee_id` or lowercase `title`.
+2. Substring match against `palee_id` or lowercase `title`. ID substring is case-sensitive; title substring is not.
 3. Normalized exact vault path match.
 
-Path normalization folds backslashes to forward slashes, drops a leading `./`, and lowercases on Windows. On POSIX systems, path casing remains significant because filesystem lookup is case-sensitive.
+Path normalization folds backslashes to forward slashes, drops a leading `./`, and lowercases on Windows. On POSIX systems, path casing remains significant because filesystem lookup is case-sensitive. Partial paths are deliberately refused: a bare basename or an extension-less path does not resolve — only the full printed vault-relative path works.
 
 The result type distinguishes three outcomes:
 
@@ -129,12 +129,13 @@ flowchart TD
   ExactId --> ExactFound{"Exact match found?"}
   ExactFound -->|Yes| Substring["Use exact matches only"]
   ExactFound -->|No| SubstringMatch["Filter by palee_id or title substring"]
-  SubstringMatch --> AmbiguousCheck{"More than one candidate?"}
-  AmbiguousCheck -->|Yes| ReturnAmbiguous["Return ambiguous candidates"]
-  AmbiguousCheck -->|No| PathMatch["Normalize and match vault path"]
+  SubstringMatch --> AmbiguousCheck{"How many candidates?"}
+  AmbiguousCheck -->|">1"| ReturnAmbiguous["Return ambiguous candidates"]
+  AmbiguousCheck -->|"==1"| ReturnSingle["Return single topic"]
+  AmbiguousCheck -->|"==0"| PathMatch["Normalize and match vault path"]
   PathMatch --> PathResult{"Path match unique?"}
   PathResult -->|No| ReturnNone["Return none"]
-  PathResult -->|Yes| ReturnSingle["Return single topic"]
+  PathResult -->|Yes| ReturnSingle
   Substring --> MoreThanOne{"More than one candidate?"}
   MoreThanOne -->|Yes| ReturnAmbiguous
   MoreThanOne -->|No| ReturnSingle
@@ -377,7 +378,7 @@ Large vaults require careful attention to graph complexity and repeated scans.
 **Resolution**:
 - Inspect `depends_on_source`.
 - Treat advisory edges as ordering guidance, not hard gates.
-- Raise the prerequisite mastery above the threshold if it is below.
+- If the edge should gate, re-declare the dependency with a gated source instead of toc/tie.
 
 ### Vault Has Circular Dependencies
 **Symptoms**: Discovery shows quarantine behavior, missing ordering, or truncated cycle reports.  

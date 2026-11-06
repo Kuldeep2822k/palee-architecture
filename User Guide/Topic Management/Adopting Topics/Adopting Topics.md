@@ -33,7 +33,7 @@ The adopt command converts existing Markdown notes into managed PALEE topics by 
 - Batch adoption across a directory or the whole vault with glob-style filters.
 - Prerequisite text extraction from a note’s own prerequisite section.
 - Safe atomic writes backed by optimistic concurrency control.
-- Reversal through the adopt-undo command, which removes only the keys PALEE added.
+- Reversal through undo, a mode of the adopt command (`palee adopt --undo`), which removes only the keys PALEE added.
 
 This document explains how to use the command, what happens under the hood, how undo works, and how to handle common issues safely.
 
@@ -93,7 +93,7 @@ The undo command reverses adoption changes safely:
 - Collapses an empty `{}` frontmatter block back to nothing when appropriate.
 - Writes through the same atomic OCC path and maintains a rollback journal.
 
-Owned keys removed by undo include identity, schema, difficulty, dependency declarations, mastery, assessment timestamps, pillar scores, SM-2 scheduling fields, and provenance labels. Keys such as user-authored topic metadata, review data, and assessment state are intentionally not removed because they may predate or postdate adoption.
+Owned keys removed by undo include identity, schema, difficulty, dependency declarations, mastery, assessment timestamps (`assessed_at`), pillar scores (`conceptual`, `practical`, `debug`, `feynman`), SM-2 scheduling fields (`ease_factor`, `interval_days`, `repetition`, `lapses`, `last_quality`, `last_reviewed_at`, `due_at`), and provenance labels — undo removes exactly the review/SM-2 and assessment keys in `PALEE_OWNED_KEYS`. Keys adoption never writes — e.g. status, topic, and legacy dependencies — are preserved. One exception: adoption does write `title` but does not own it, so undo removes it only when `--drop-title` is passed.
 
 ### Topic Identity
 A PALEE topic ID follows the policy `T-` followed by lowercase kebab-case segments. Adopted IDs are generated using a timestamp plus cryptographic randomness. Existing legacy adopt-generated formats remain valid for validation, but new adoption uses the canonical form.
@@ -155,7 +155,7 @@ Atomic writes provide durability and concurrency safety:
 8. Flush the containing directory where supported.
 9. Handle Windows locking with bounded exponential backoff and jitter.
 
-Undo also uses this path, restoring previous content during rollback by writing exact prior bytes with their original fingerprints.
+Undo also uses this path, restoring previous content during rollback by writing the prior bytes back, verified against the fingerprint of the bytes the undo run wrote (`item.writtenFingerprint` in `rollbackBatch`) — not against the fingerprint of the original bytes.
 
 ```mermaid
 sequenceDiagram
@@ -181,7 +181,7 @@ flowchart TD
   DetectMode -->|Single file| ValidateSingle["Validate path, size, frontmatter, duplicate ID"]
   DetectMode -->|Batch| WalkVault["Walk vault and apply filters"]
   WalkVault --> PreviewScope["Preview matched notes"]
-  PreviewScope --> Confirm{"Interactive and not --yes?"}
+  PreviewScope --> Confirm{"Non-interactive and not --yes?"}
   Confirm -->|Yes| ExitUsage["Exit usage code"]
   Confirm -->|No| PlanDeps["Resolve dependencies and topic metadata"]
   ValidateSingle --> PlanDeps
@@ -372,11 +372,11 @@ graph LR
 
 ### Non-Interactive Mode
 - Batch adoption without `--yes` exits with usage code in non-interactive environments.
-- Automation scripts should pass `--yes` or pipe confirmation.
+- Automation scripts should pass `--yes`.
 
 ### Undo Did Not Remove Expected Keys
-- Undo removes only PALEE-owned keys.
-- User-authored keys such as topic metadata, review state, or assessment fields are preserved.
+- Undo removes only PALEE-owned keys — exactly the review/SM-2 and assessment keys in `PALEE_OWNED_KEYS` (`assessed_at`, `conceptual`, `practical`, `debug`, `feynman`, `ease_factor`, `interval_days`, `repetition`, `lapses`, `last_quality`, `last_reviewed_at`, `due_at`, and the other owned keys).
+- Keys adoption never writes — e.g. status, topic, and legacy dependencies — are preserved. One exception: adoption does write `title` but does not own it, so undo removes it only when `--drop-title` is passed.
 - The `title` key is kept by default because adoption does not own it.
 - Use the dedicated flag to drop `title` if you want it removed.
 

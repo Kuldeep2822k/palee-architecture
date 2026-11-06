@@ -22,7 +22,8 @@
 6. [Dependency Analysis](#dependency-analysis)
 7. [Performance Considerations](#performance-considerations)
 8. [Troubleshooting Guide](#troubleshooting-guide)
-9. [Conclusion](#conclusion)
+9. [Best Practices](#best-practices)
+10. [Conclusion](#conclusion)
 
 ## Introduction
 This document explains how PALEE manages topics: turning existing Markdown notes into tracked learning units, recording pillar-based assessments, and querying or planning around topic dependencies. It focuses on the `adopt` and `assess` commands, prerequisite extraction from note text, topic discovery and resolution, vault organization best practices, common workflows, and troubleshooting for large vaults.
@@ -109,6 +110,7 @@ Resolution order:
 - Exact ID first, avoiding substring ambiguity.
 - Title and ID substring matches grouped as candidates.
 - Path fallback only when no ID/title match exists.
+- ID substring matching is case-sensitive; title matching is not.
 
 Ambiguity is surfaced to the caller rather than silently picking the first candidate.
 
@@ -160,7 +162,7 @@ sequenceDiagram
     participant App as "Record Assessment"
     participant Storage as "Frontmatter Writer"
 
-    User->>CLI_Assess: "palee assess <topic> --pillar N [--dry-run]"
+    User->>CLI_Assess: "palee assess <topic> --conceptual N [--dry-run]"
     CLI_Assess->>Query: "resolve topic id/path"
     Query-->>CLI_Assess: "single topic or error"
     CLI_Assess->>App: "build assessment update"
