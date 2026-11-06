@@ -43,7 +43,6 @@ graph TB
   TW --> VW
   TS --> SC
   SC --> VW
-  CF -. "Used by higher layers" .- SC
 ```
 
 ## Core Components
@@ -354,14 +353,14 @@ Recommendations for very large vaults:
 - Use custom `excludeDirs` to prune known irrelevant subtrees such as generated assets or external repositories.
 
 ### Scanning Performance
-- Each note is read once per scan unless `includeContent` is disabled.
+- Each note is read once per scan: `readFileSync` runs unconditionally for every scanned file; `includeContent` only controls whether those bytes are attached to the returned `ScannedNote` as `content`.
 - Oversized notes are rejected stat-first, avoiding expensive reads and line scans.
 - Sorting is performed over `ScannedNote` objects by relative path, which is predictable and platform-stable.
 
 Optimization techniques:
 
 - Batch vault scans into a single walk and pass `files` to all scanners or loaders.
-- Disable `includeContent` when only frontmatter diagnostics are needed.
+- Disable `includeContent` when only frontmatter diagnostics are needed, so raw bytes are not attached to the results (the file is still read for parsing).
 - Apply application-level concurrency only around independent workloads that do not mutate shared vault state.
 
 ### Cache Performance
@@ -411,13 +410,13 @@ Memory management guidance:
 
 | Symptom | Likely Cause | Resolution |
 |---|---|---|
-| Stale data served | `mtime` changed but cache was not invalidated. | Invalidate the path or clear the cache. |
+| Stale data served after an edit | Not a cache path: `FileCache.get` re-verifies the SHA-256 fingerprint when `mtime` changes, so a changed file is not served stale from cache. | Look for a caller holding an older snapshot and re-run the scan/load; no cache invalidation is needed for an `mtime` change. |
 | Cache not helping performance | Entries evicted too quickly or never populated. | Increase `MAX_CACHE_ENTRIES` or populate more frequently accessed entries. |
 | Memory grows unexpectedly | Many unique paths cached without eviction. | Reduce cache size, clear after batch operations, or scope caches per operation. |
 | Fingerprint mismatch errors | File changed during unsettled horizon. | Allow the cache to refresh; do not assume immediate consistency. |
 
 ## Conclusion
-The vault walker and scanner form a disciplined boundary between the filesystem and the rest of the Palee storage pipeline. The walker focuses on safe, predictable discovery of Markdown notes, while the scanner converts those discoveries into stable, diagnostic-rich records suitable for validation and loading. The in-memory cache provides a practical optimization for frequently accessed metadata, bounded by LRU eviction and timestamp/fingerprint-based invalidation.
+The vault walker and scanner form a disciplined boundary between the filesystem and the rest of the PALEE storage pipeline. The walker focuses on safe, predictable discovery of Markdown notes, while the scanner converts those discoveries into stable, diagnostic-rich records suitable for validation and loading. The in-memory cache provides a practical optimization for frequently accessed metadata, bounded by LRU eviction and timestamp/fingerprint-based invalidation.
 
 For enterprise-scale vaults, the most important operational advice is to minimize redundant walks, avoid unnecessary symlink traversal, keep scanner output deterministic, and manage cache lifetime explicitly. Error handling is designed to be resilient: missing files, permission problems, malformed YAML, and filesystem anomalies produce actionable diagnostics rather than abrupt failures.
 
