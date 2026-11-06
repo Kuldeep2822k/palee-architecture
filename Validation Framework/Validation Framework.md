@@ -144,7 +144,7 @@ The validation pipeline has three phases:
 
 1. **Collection phase**: The CLI resolves the vault path, loads configuration, calls `collectVault`, and captures the full snapshot.
 2. **Validation phase**: `runRules` executes every rule in `VALIDATION_RULES` against the snapshot. Findings are accumulated in deterministic order.
-3. **Repair and reporting phase**: If `--fix` is enabled, the CLI plans repairs based on rule metadata, applies them, re-collects from fresh disk state, re-validates, formats output, and sets the exit code according to error count and strict mode.
+3. **Repair and reporting phase**: If `--fix` is enabled, the CLI plans repairs based on rule metadata and applies them; when `--fix` produces at least one repair, the handler re-collects and re-runs the rules from fresh disk state, then formats output and sets the exit code according to error count and strict mode.
 
 ```mermaid
 sequenceDiagram
@@ -164,8 +164,10 @@ sequenceDiagram
   alt --fix enabled
     CLI->>Planner: planRepairs + applyFixes
     Planner-->>CLI: repairs[], conflicts[]
-    CLI->>Collector: collectVault(vaultPath) again
-    CLI->>Runner: runRules(context', VALIDATION_RULES) again
+    opt When --fix produces at least one repair
+      CLI->>Collector: collectVault(vaultPath) again
+      CLI->>Runner: runRules(context', VALIDATION_RULES) again
+    end
   end
   CLI->>Formatter: formatHuman or formatJson
   Formatter-->>CLI: report string
@@ -366,9 +368,13 @@ graph LR
   ValidMastery["rules/valid-topic-mastery.ts"] --> MasteryEngine["engine/mastery.ts"]
   ValidReviewFields["rules/valid-review-fields.ts"] --> DiagnosticValue
   ValidReviewDates["rules/valid-review-dates.ts"] --> ReviewDates["rules/review-dates.ts"]
+  ValidReviewDates --> DiagnosticValue
   ValidSessionSchema["rules/valid-session-schema.ts"] --> AssessedAt
+  ValidSessionSchema --> DiagnosticValue
+  ValidAssessment --> DiagnosticValue
   NoSessionUnknown["rules/no-session-unknown-topic.ts"] --> ValidSessionSchema
   ValidHotMemory["rules/valid-hot-memory.ts"] --> StorageMemory["storage/memory"]
+  ValidHotMemory --> DiagnosticValue
   SafePaths["rules/safe-vault-paths.ts"] --> Types
 ```
 

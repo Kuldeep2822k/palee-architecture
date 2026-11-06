@@ -61,7 +61,7 @@ This section summarizes the primary types and formatter responsibilities.
 | `ValidationSeverity` | Issue classification | Either `error`, which gates success, or `warning`, which does not gate success by default. |
 | `ValidationRule` | Contract implemented by each validation rule | Provides an identifier, description, default severity, optional fixability metadata, and a deterministic `run` function. |
 | `ValidationContext` | Read-only snapshot passed to rules | Includes vault paths, files, topics, notes, sessions, session index, hot memory, read-incomplete signals, and component-level memory errors. |
-| `FormatCounts` | Shared formatter options | Tracks topic count, file count, and strict mode so both formatters can produce consistent summaries. |
+| `FormatCounts` | Shared formatter options | Tracks topic count, file count, and strict mode so `formatJson` can produce the summary fields; `formatHuman` takes only the issue list. |
 | `formatHuman` | Console report generator | Produces plain text with severity blocks, bullet points, file locations, and rule identifiers; no ANSI colors. |
 | `formatJson` | Machine-readable serializer | Produces one-line JSON preserving documented contract keys, legacy locator compatibility, error/warning counts, and strict gating flags. |
 
@@ -184,6 +184,28 @@ Important implementation characteristics:
 - The formatter is synchronous and returns a string.
 
 #### Example Human Reports
+A clean vault produces exactly this pass line:
+
+```text
+✓ Vault validation passed - no errors found
+```
+
+A vault with one error and one warning produces a report using the same literal headers and bullet rendering:
+
+```text
+✗ Found 1 validation error(s):
+
+  • Duplicate topic ID T-example used by 2 notes
+    Files: notes/example-a.md, notes/example-b.md
+    Rule: no-duplicate-topic-id
+
+
+⚠ Found 1 validation warning(s):
+
+  • notes/broken.md: Malformed frontmatter
+    Rule: parse-frontmatter
+```
+
 The test suite validates several scenarios:
 
 | Scenario | Expected Human Output Characteristics |
@@ -234,7 +256,7 @@ Contract guarantees:
 Legacy mapping behavior:
 
 - A small set of historical rule IDs map to legacy `type` values.
-- Rule-specific locator fields such as `id`, `topic`, `files`, and `path` are copied from `details` when present.
+- Rule-specific locator fields are handled per source: `files`, `path`, and `missing` are copied from `issue.details` when present, while `id` and `topic` are copied from `issue.topicId` — `id` only for `no-duplicate-topic-id` and `topic` only for `no-missing-dependency`.
 - Newer fields like `rule_id`, `severity`, and `message` are always included.
 
 #### Example JSON Scenarios
@@ -268,8 +290,10 @@ sequenceDiagram
   alt --fix enabled
     Handler->>Fix: Apply planned repairs
     Fix-->>Handler: Repairs and conflicts
-    Handler->>Vault: Re-collect after repairs
-    Handler->>Rules: Re-run rules
+    opt When --fix produces at least one repair
+      Handler->>Vault: Re-collect after repairs
+      Handler->>Rules: Re-run rules
+    end
   end
   alt JSON mode
     Handler->>Format: formatJson(issues, counts, strict)
@@ -287,7 +311,7 @@ Exit code behavior:
 - Errors always cause a validation exit code.
 - Warnings alone do not fail the run unless `--strict` is enabled.
 - In JSON mode, the handler still sets the same exit code policy, even though the payload itself keeps `valid` errors-only.
-- When `--fix` runs, the handler re-collects and re-rules after repairs so the final report reflects remaining issues.
+- When `--fix` produces at least one repair, the handler re-collects and re-runs the rules after repairs so the final report reflects remaining issues.
 
 Repair reporting:
 
