@@ -90,12 +90,13 @@ flowchart TD
     Template -->|Yes| ExcludedTemplate["Excluded — template"]
     Template -->|No| Locale{"Locale suffix kind?"}
     Locale -->|Generic| ExcludedTranslationCopy["Excluded — translation copy"]
-    Locale -->|Other| LeafTranslationGuess["Leaf — translation guess"]
-    Locale -->|None| IdCheck{"Invalid palee_id?"}
+    Locale -->|Other or None| IdCheck{"Invalid palee_id?"}
     IdCheck -->|Yes| LeafBadId["Leaf — invalid-palee-id"]
     IdCheck -->|No| Phase{"Phase subtree?"}
     Phase -->|Yes| LeafPhase["Leaf — phase-subtree"]
-    Phase -->|No| Content{"Content doc name?"}
+    Phase -->|No| LocaleOther{"Locale suffix (other)?"}
+    LocaleOther -->|Yes| LeafTranslationGuess["Leaf — translation guess"]
+    LocaleOther -->|No| Content{"Content doc name?"}
     Content -->|Yes| Backbone["Backbone"]
     Content -->|No| LeafDefault["Leaf"]
 ```
@@ -133,8 +134,8 @@ Tier 0 hygiene uses two remediation strategies rather than a generic error/warni
 | Name-based translation guess | B2: locale suffix on unnumbered non-generic name | `leaf` | Attach as a leaf; do not let it gate successors | Rename to remove locale suffix if it is not a translation, or mark explicitly |
 | Templates | B3: whole-token `template`/`templates` in stem or directory | `excluded` | Remove scaffolding from the chain | Rename to avoid whole-token match if the file is real content |
 | Phase subtrees | B4: non-final segment named `solution`, `solutions`, `your-work`, `start`, `sketch`, `answers` | `leaf` | Collapse subtree; attach notes without internal chaining | Restructure work products if they should participate in learning order |
-| Reporting | B6: per-rule hygiene report printed for every batch adoption | Batch-wide (not a per-note classification) | Print per-rule skip counts on the dry-run and confirmation screens — even when nothing survived filtering — plus backbone/leaf counts under `--auto-chain` | Adopt a note the report shows as wrongly skipped directly in single-file mode, which has no batch hygiene pass |
-| Invalid identifier | B7: truthy non-string `palee_id` | `leaf` with reason `invalid-palee-id` | Demote without rewriting frontmatter | Fix frontmatter so `palee_id` is a non-empty string |
+| Reporting | B6: per-rule hygiene report printed only when there is something to report: when `skippedByHygiene.size > 0`, or `skippedInvalidId.length > 0`, or — under `--auto-chain` — a chain plan exists (`autoChain && chainPlan`) | Batch-wide (not a per-note classification) | Print per-rule skip counts on the dry-run and confirmation screens when that condition holds — a clean batch prints no hygiene block — plus backbone/leaf counts under `--auto-chain` | Adopt a note the report shows as wrongly skipped directly in single-file mode, which has no batch hygiene pass |
+| Invalid identifier | B7: present-but-invalid `palee_id` (non-string, or an empty/whitespace-only string) | `leaf` with reason `invalid-palee-id` | Demote without rewriting frontmatter | Fix frontmatter so `palee_id` is a non-empty string |
 | Non-content sibling | B5 fails | `leaf` | Attach without gating | Add numbering or rename to a recognized content-doc pattern if it should be backbone |
 | Recognized content document | B5 passes | `backbone` | Allowed to gate the chain | Review whether the naming really expresses intended prerequisite structure |
 
@@ -158,7 +159,7 @@ The test suite pins these behaviors precisely because they are heuristics about 
 Tier 0 hygiene itself does not rewrite frontmatter. Its repair contract is conservative:
 
 1. **Classification is pure.** It reads a path and optional `palee_id` and returns a decision.
-2. **Exclusions remove notes from batch scope.** They are reported with a counted reason: B6 requires every batch adoption to print the per-rule hygiene report on the dry-run and the confirmation screen — so what is reviewed is what is written — and to print it even when nothing survived filtering, so no skipped note goes unaccounted.
+2. **Exclusions remove notes from batch scope.** They are reported with a counted reason: the per-rule hygiene report is printed only when there is something to report: when `skippedByHygiene.size > 0`, or `skippedInvalidId.length > 0`, or — under `--auto-chain` — a chain plan exists (`autoChain && chainPlan`). A clean batch prints no hygiene block.
 3. **Demotions keep notes attached but prevent gating.** A leaf may still have a predecessor; it simply cannot become a predecessor of later chain nodes.
 4. **Invalid identifiers are not corrected automatically.** The classifier reports `invalid-palee-id`, but the note’s frontmatter remains untouched.
 5. **Vault mutation belongs to the higher-level repair pipeline.** The validation framework’s `--fix` mechanism separates permission (`fixable`) from capability (implemented repairer).
@@ -277,7 +278,7 @@ The architecture deliberately separates concerns so that expensive operations—
 | A translation copy appears as a lesson | B2 matched `translations/` or a generic locale-suffixed doc name | Keep canonical enumeration in one place |
 | An unnumbered sibling becomes a chain head | B5 did not recognize it as content documentation | Number the file or rename to a recognized content-doc pattern |
 | Student work files chain incorrectly | B4 detected a phase directory | Treat phase subtrees as leaves; do not rely on alphabetical order |
-| Successors stop adopting after a note | B7 found a truthy non-string `palee_id` | Correct frontmatter so `palee_id` is a non-empty string |
+| Successors stop adopting after a note | B7 found a present-but-invalid `palee_id` (non-string, or an empty/whitespace-only string) | Correct frontmatter so `palee_id` is a non-empty string |
 | Non-markdown files influence chain decisions | Empty stem reached classification | Ensure scanned scope filters `.md` files |
 | Validation throws unexpectedly | Rule execution threw | Check rule-specific logs; the runner wraps unexpected errors as issues |
 

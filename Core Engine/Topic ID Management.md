@@ -217,8 +217,8 @@ flowchart TD
   Start["Scan note"] --> Parse["Parse frontmatter"]
   Parse --> HasId{"Has palee_id?"}
   HasId -->|"No"| Skip["Not a topic note"]
-  HasId -->|"Yes"| TypeCheck{"Is non-empty string?"}
-  TypeCheck -->|"No"| InvalidId["Usable but invalid for loader"]
+  HasId -->|"Yes"| TypeCheck{"Is non-blank string?"}
+  TypeCheck -->|"No"| InvalidId["Not usable — loader skips the note"]
   TypeCheck -->|"Yes"| Trim["Trimmed ID"]
   Trim --> Load["Load as topic record"]
   InvalidId --> AdoptFlow["Adopt flow may skip or classify by hygiene"]
@@ -323,7 +323,6 @@ classDiagram
 
   EngineApi --> TopicIdPolicy : "delegates"
   ValidTopicIdFormatRule --> TopicIdPolicy : "uses validator"
-  Loader --> Tier0Hygiene : "loads usable IDs"
   AdoptCommand --> TopicIdPolicy : "generates IDs"
   AdoptCommand --> Loader : "reads and writes topics"
 ```

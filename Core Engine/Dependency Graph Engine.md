@@ -266,8 +266,6 @@ graph LR
   Validator --> ValidateCommand["Validate Command"]
 ```
 
-[No additional section sources needed here since this diagram summarizes existing integration points already cited above.]
-
 ## Dependency Analysis
 
 ```mermaid
@@ -330,7 +328,7 @@ classDiagram
 
 | Operation | Complexity | Notes |
 |---|---|---|
-| Build edge map | O(D) | D is total dependency references |
+| Build edge map | O(D log k) | D is total dependency references |
 | Tarjan SCCs | O(V + E) | Iterative, stack-safe |
 | Unbounded cycle enumeration | O(V + E + C) per SCC | C is number of elementary cycles; can be exponential |
 | Bounded cycle enumeration | O(V + E + min(C, K)) | K is `maxCycles`; truncation proven via probe budget |

@@ -56,7 +56,7 @@ graph TB
   TC --> AC
   TC --> T0
   AC --> T0
-  DG --> TC
+  TC --> DG
 ```
 
 ## Core Components
