@@ -67,20 +67,6 @@ graph TB
     Sessions["Session Loader<br/>src/storage/sessions.ts"] --> Review
 ```
 
-**Diagram sources**
-- [assess.ts:1-279](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L279)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [mastery.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L200)
-- [sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-- [sessions.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L200)
-
-**Section sources**
-- [assess.ts:1-279](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L279)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [mastery.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L200)
-- [sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-- [sessions.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L200)
-
 ## Core Components
 The assessment system has four cooperating parts:
 
@@ -103,11 +89,6 @@ The canonical formula is:
 `topic_mastery = round((conceptual + practical + debug + 2 × feynman) / 5, 4)`
 
 A topic is considered mastered when its mastery is at least 0.70. Because Feynman is double-weighted, the three ordinary pillars alone cap mastery at 0.60. To pass the gate, you must include a non-zero Feynman score.
-
-**Section sources**
-- [0004-four-pillar-pedagogical-mastery.md:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
-- [mastery.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L200)
-- [05-1-topic-and-assessment-schema.md:1-171](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md#L1-L171)
 
 ## Architecture Overview
 The `palee assess` workflow connects user input, topic resolution, pure assessment computation, readiness analysis, and durable storage.
@@ -134,11 +115,6 @@ sequenceDiagram
     CLI-->>User: Print effect and unlock/block summary
     CLI->>FS: atomicWrite updated frontmatter
 ```
-
-**Diagram sources**
-- [assess.ts:1-279](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L279)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [mastery.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L200)
 
 ## Detailed Component Analysis
 
@@ -175,11 +151,6 @@ At least one pillar flag is required. If none is provided, the command prints us
 - Missing vault, missing topic, ambiguous topic, invalid pillar, or no pillar returns a usage error.
 - Concurrent modification returns an OCC conflict error.
 
-**Section sources**
-- [assess.ts:1-279](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L279)
-- [0021-assessment-surface.md:1-86](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0021-assessment-surface.md#L1-L86)
-- [cli-assess.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-assess.test.ts#L1-L200)
-
 ### Pure Assessment Update Logic
 The application layer isolates the business rules from filesystem I/O and process handling. Its responsibilities are:
 
@@ -205,13 +176,6 @@ flowchart TD
     Updates --> Result(["Return AssessmentUpdate"])
 ```
 
-**Diagram sources**
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-
-**Section sources**
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [application-record-assessment.test.ts:1-66](https://github.com/Kuldeep2822k/cli/blob/main/test/application-record-assessment.test.ts#L1-L66)
-
 ### Mastery Calculation and Thresholds
 The mastery engine provides:
 
@@ -234,13 +198,6 @@ flowchart TD
     Gate -->|No| Learning["Not yet mastered"]
 ```
 
-**Diagram sources**
-- [mastery.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L200)
-
-**Section sources**
-- [mastery.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L200)
-- [0004-four-pillar-pedagogical-mastery.md:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
-
 ### Relationship Between Assessments and SM-2 Scheduling
 Assessments and SM-2 reviews serve different purposes:
 
@@ -253,11 +210,6 @@ Assessments and SM-2 reviews serve different purposes:
 | Timestamp | `assessed_at` ISO timestamp | `last_reviewed_at` date-only string |
 
 `assessed_at` is important because it marks when a learner actively assessed understanding. SM-2 uses `last_reviewed_at` and `due_at` for scheduling. They are complementary signals: mastery says whether a topic satisfies prerequisites; SM-2 says when to revisit it.
-
-**Section sources**
-- [03-1-sm2-spaced-repetition-algorithm.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L1-L200)
-- [sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-- [05-1-topic-and-assessment-schema.md:1-171](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md#L1-L171)
 
 ### Data Model and Storage
 Assessments are persisted in Markdown frontmatter. The relevant fields are:
@@ -303,14 +255,6 @@ erDiagram
   TOPIC ||--o{ DEPENDENCY : "has_prerequisites"
 ```
 
-**Diagram sources**
-- [05-1-topic-and-assessment-schema.md:1-171](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md#L1-L171)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-
-**Section sources**
-- [05-1-topic-and-assessment-schema.md:1-171](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md#L1-L171)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-
 ### Concurrency and Safety
 Before writing, `palee assess`:
 
@@ -322,10 +266,6 @@ Before writing, `palee assess`:
 6. Throws an OCC conflict if the file changed or disappeared.
 
 This prevents two concurrent assessment or write operations from silently overwriting each other. The test suite validates unlocking dependents, boundary mastery values, demotion back below the threshold, and preservation of unmentioned pillars.
-
-**Section sources**
-- [assess.ts:1-279](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L279)
-- [cli-assess.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-assess.test.ts#L1-L200)
 
 ## Dependency Analysis
 Assessment changes affect readiness through the dependency graph. The readiness difference is computed the same way planning computes readiness: cyclic topics are quarantined, and readiness is evaluated over the acyclic subgraph.
@@ -340,20 +280,12 @@ flowchart TD
     Diff --> Blocked["No longer offered"]
 ```
 
-**Diagram sources**
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-
 Key relationships:
 
 - `assessCommand` depends on `loadConfig`, topic resolution, frontmatter loading/parsing, and atomic write.
 - `buildAssessmentUpdate` depends on `computeTopicMastery` and `normalizeScore`.
 - `assessmentAvailabilityDiff` depends on dependency readiness computation.
 - Mastery thresholds and pillar weights live in the engine layer, not the CLI.
-
-**Section sources**
-- [assess.ts:1-279](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L279)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [mastery.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L200)
 
 ## Performance Considerations
 Assessment recording is lightweight:
@@ -372,8 +304,6 @@ Best practices for performance:
 - Avoid running many concurrent assessments against the same topic.
 - Keep vaults reasonably sized; large vaults increase topic scan time.
 - Run assessments after reviewing a small batch of topics rather than continuously between every review.
-
-[No sources needed since this section provides general guidance]
 
 ## Troubleshooting Guide
 
@@ -407,11 +337,6 @@ To keep assessments consistent:
 - Avoid mixing `palee assess` and manual edits of the same note concurrently.
 - For team vaults, agree on pillar definitions and grading conventions so one person’s 0.8 is another person’s 0.8.
 
-**Section sources**
-- [assess.ts:1-279](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L279)
-- [0021-assessment-surface.md:1-86](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0021-assessment-surface.md#L1-L86)
-- [cli-assess.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-assess.test.ts#L1-L200)
-
 ## Conclusion
 PALEE’s assessment system separates two kinds of learning signals:
 
@@ -421,8 +346,6 @@ PALEE’s assessment system separates two kinds of learning signals:
 `palee assess` is the dedicated interface for recording multi-dimensional mastery. It accepts conceptual, practical, debug, and Feynman scores, computes a weighted mastery value, updates the topic’s frontmatter atomically, and reports how planned topics change. Its strict validation, optimistic concurrency control, dry-run preview, and lowering notice make it safe for both individual study and shared vaults.
 
 For reliable results, record assessments deliberately, include Feynman scores when aiming to pass the 0.70 gate, keep pillar scales consistent, and use review sessions for SM-2 scheduling separately from understanding-based assessments.
-
-[No sources needed since this section summarizes without analyzing specific files]
 
 ## Appendices
 
@@ -466,7 +389,17 @@ Assessments themselves do not create or update session notes. The session manage
 - Reviews update SM-2 scheduling.
 - Planning combines readiness, dependencies, and vault state.
 
-**Section sources**
-- [0019-session-memory-lifecycle.md:1-71](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0019-session-memory-lifecycle.md#L1-L71)
+## References
+
+- [assess.ts:1-279](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L279)
+- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
+- [mastery.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L200)
+- [sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
 - [sessions.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L200)
+- [0004-four-pillar-pedagogical-mastery.md:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
 - [05-1-topic-and-assessment-schema.md:1-171](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md#L1-L171)
+- [0021-assessment-surface.md:1-86](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0021-assessment-surface.md#L1-L86)
+- [cli-assess.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-assess.test.ts#L1-L200)
+- [application-record-assessment.test.ts:1-66](https://github.com/Kuldeep2822k/cli/blob/main/test/application-record-assessment.test.ts#L1-L66)
+- [03-1-sm2-spaced-repetition-algorithm.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L1-L200)
+- [0019-session-memory-lifecycle.md:1-71](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0019-session-memory-lifecycle.md#L1-L71)

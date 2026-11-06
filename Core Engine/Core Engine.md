@@ -488,8 +488,6 @@ Optimization recommendations:
 - Avoid repeated path normalization by normalizing once per planner run.
 - Use the hygiene classifier consistently to prevent redundant branching logic.
 
-[No sources needed since this section provides general guidance]
-
 ## Troubleshooting Guide
 Common engine issues and their likely causes:
 
@@ -522,4 +520,3 @@ The PALEE core engine cleanly separates scheduling, mastery, graph analysis, cha
 
 Higher layers should consume the barrel API, validate raw inputs early, prefer bounded graph operations, and treat hygiene classifications as the contract for what may gate learners.
 
-[No sources needed since this section summarizes without analyzing specific files]
