@@ -51,16 +51,6 @@ graph TB
     App --> Reporters["Plan / Dashboard / Progress"]
 ```
 
-**Diagram sources**
-- [05-1-topic-and-assessment-schema.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md)
-- [mastery.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts)
-- [mastery-summary.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts)
-
-**Section sources**
-- [05-1-topic-and-assessment-schema.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md)
-- [mastery.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts)
-- [mastery-summary.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts)
-
 ## Core Components
 The mastery summary system has two main responsibilities:
 
@@ -86,11 +76,6 @@ The canonical formula is:
 
 Because Feynman is double-weighted, the ordinary pillars alone can reach at most `0.60`; reaching the `0.70` mastery gate requires non-zero Feynman input.
 
-**Section sources**
-- [0004-four-pillar-pedagogical-mastery.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md)
-- [05-1-topic-and-assessment-schema.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md)
-- [mastery.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts)
-
 ### Bucketing Contract
 The application layer exposes `summarizeMastery`, which takes an array of topic mastery values and produces:
 
@@ -101,10 +86,6 @@ The application layer exposes `summarizeMastery`, which takes an array of topic 
 | `new` | Topics with zero mastery |
 
 The default threshold is `0.7`, matching the engine’s mastery gate.
-
-**Section sources**
-- [mastery-summary.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts)
-- [application-mastery-summary.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/application-mastery-summary.test.ts)
 
 ## Architecture Overview
 The mastery computation pipeline moves from raw frontmatter through normalization, weighted aggregation, and finally into summary buckets.
@@ -124,11 +105,6 @@ sequenceDiagram
     App->>App: "Bucket by threshold"
     App-->>Reader: "{ mastered, learning, new }"
 ```
-
-**Diagram sources**
-- [mastery.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts)
-- [mastery-summary.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts)
-- [05-1-topic-and-assessment-schema.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md)
 
 ## Detailed Component Analysis
 
@@ -183,12 +159,6 @@ flowchart TD
     Round --> End(["Return mastery"])
 ```
 
-**Diagram sources**
-- [mastery.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts)
-
-**Section sources**
-- [mastery.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts)
-
 ### Application Layer: Mastery Summary Bucketing
 The application layer does not perform weighted pillar math. Its job is to convert already computed topic mastery scores into readable progress buckets.
 
@@ -233,14 +203,6 @@ flowchart TD
     Loop --> Done(["Return {mastered, learning, new}"])
 ```
 
-**Diagram sources**
-- [mastery-summary.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts)
-- [application-mastery-summary.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/application-mastery-summary.test.ts)
-
-**Section sources**
-- [mastery-summary.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts)
-- [application-mastery-summary.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/application-mastery-summary.test.ts)
-
 ### Data Model Integration
 The schema documentation and core types describe how assessment data lives in topic frontmatter and how it maps into runtime objects.
 
@@ -252,10 +214,6 @@ Key points:
 - `Progress` describes aggregate progress output, including global mastery and mastery status.
 
 This contract ensures that mastery summary computation operates on well-defined inputs even when storage formats evolve.
-
-**Section sources**
-- [types.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts)
-- [05-1-topic-and-assessment-schema.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md)
 
 ### Handling Missing Assessments and Partial Pillars
 A key design rule is that absent pillars mean “no data,” not “zero.”
@@ -269,10 +227,6 @@ Implications for mastery computation:
 - When repairing or validating, do not treat absent pillars as zero unless explicitly required by another command’s semantics.
 
 This rule protects partial assessments from being misinterpreted as deliberately low scores.
-
-**Section sources**
-- [0035-validate-fix-partial-pillar-eligibility.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0035-validate-fix-partial-pillar-eligibility.md)
-- [mastery.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts)
 
 ### Examples of Score Aggregation
 
@@ -314,11 +268,6 @@ Given mastery values `[0, 0.3, 0.69, 0.7, 0.95]` with threshold `0.7`:
 
 Result: `{ mastered: 2, learning: 2, new: 1 }`.
 
-**Section sources**
-- [application-mastery-summary.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/application-mastery-summary.test.ts)
-- [mastery.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts)
-- [0035-validate-fix-partial-pillar-eligibility.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0035-validate-fix-partial-pillar-eligibility.md)
-
 ## Dependency Analysis
 The following diagram shows how the mastery summary components depend on each other and on shared domain types.
 
@@ -332,15 +281,6 @@ graph LR
     Tests["Tests<br/>test/application-mastery-summary.test.ts"] --> AppSummary
 ```
 
-**Diagram sources**
-- [types.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts)
-- [mastery.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts)
-- [mastery-summary.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts)
-- [05-1-topic-and-assessment-schema.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md)
-- [0004-four-pillar-pedagogical-mastery.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md)
-- [0035-validate-fix-partial-pillar-eligibility.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0035-validate-fix-partial-pillar-eligibility.md)
-- [application-mastery-summary.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/application-mastery-summary.test.ts)
-
 ### Coupling and Cohesion
 - **Engine cohesion**: All numeric normalization, pillar handling, and weighted mastery logic live in the engine layer.
 - **Application cohesion**: The application layer focuses purely on summarizing precomputed mastery values.
@@ -351,11 +291,6 @@ graph LR
 - Storage layer provides frontmatter-backed pillar values and existing mastery.
 - CLI and read models consume `summarizeMastery` for planning, dashboard, and progress outputs.
 - Validation and repair workflows must respect the “absent pillar means no data” policy.
-
-**Section sources**
-- [mastery-summary.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts)
-- [mastery.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts)
-- [types.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts)
 
 ## Performance Considerations
 The mastery summary computation is designed for efficiency:
@@ -386,10 +321,6 @@ The separation between engine computation and application bucketing makes it eas
 - Use `carriedPillarScores` to preserve absence.
 - Respect ADR-0035: skip validation/repair for topics with any absent pillar.
 
-**Section sources**
-- [0035-validate-fix-partial-pillar-eligibility.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0035-validate-fix-partial-pillar-eligibility.md)
-- [mastery.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts)
-
 ### Symptom: A topic cannot reach the mastered bucket despite strong conceptual, practical, and debug scores
 **Likely cause:** Feynman is missing or too low.
 
@@ -400,10 +331,6 @@ The separation between engine computation and application bucketing makes it eas
 **Resolution:**
 - Encourage Feynman assessment.
 - Verify that Feynman is recorded as a valid number in `[0.0, 1.0]`.
-
-**Section sources**
-- [0004-four-pillar-pedagogical-mastery.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md)
-- [mastery.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts)
 
 ### Symptom: Boundary values fall into unexpected buckets
 **Likely cause:** Confusion about threshold comparisons.
@@ -416,10 +343,6 @@ The separation between engine computation and application bucketing makes it eas
 **Verification:**
 Use the test cases for `summarizeMastery` to confirm boundary behavior.
 
-**Section sources**
-- [application-mastery-summary.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/application-mastery-summary.test.ts)
-- [mastery-summary.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts)
-
 ### Symptom: Global progress shows inconsistent mastery status
 **Likely cause:** Mixing computed topic mastery with raw pillar averages or inconsistent thresholds.
 
@@ -427,10 +350,6 @@ Use the test cases for `summarizeMastery` to confirm boundary behavior.
 - Always compute topic mastery with `computeTopicMastery`.
 - Summarize with `summarizeMastery` using the same threshold as downstream gating.
 - Ensure storage inputs are normalized before computation.
-
-**Section sources**
-- [mastery.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts)
-- [mastery-summary.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts)
 
 ### Symptom: Large vaults report slowly
 **Likely cause:** Repeated recomputation or unnecessary I/O.
@@ -451,3 +370,12 @@ The mastery summary computation cleanly separates concerns:
 
 Together, these pieces provide reliable mastery metrics, meaningful progress indicators, and predictable behavior for edge cases such as partial assessments, empty assessments, and large topic collections.
 
+## References
+
+- [05-1-topic-and-assessment-schema.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md)
+- [mastery.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts)
+- [mastery-summary.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts)
+- [0004-four-pillar-pedagogical-mastery.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md)
+- [application-mastery-summary.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/application-mastery-summary.test.ts)
+- [types.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts)
+- [0035-validate-fix-partial-pillar-eligibility.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0035-validate-fix-partial-pillar-eligibility.md)
