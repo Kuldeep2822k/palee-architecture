@@ -28,7 +28,7 @@
 9. [Conclusion](#conclusion)
 
 ## Introduction
-This document describes PALETTE’s data model and type system as implemented in the repository. It covers:
+This document describes PALEE’s data model and type system as implemented in the repository. It covers:
 
 - The **Topic entity**, including its canonical schema, lifecycle states, difficulty levels, dependencies, assessment, and review state.
 - The **Assessment model** representing the four pedagogical pillars: conceptual, practical, debug, and Feynman.
@@ -79,22 +79,6 @@ graph TB
   Rules --> Loader
   Sessions --> Types
 ```
-
-**Diagram sources**
-- [src/types.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L120)
-- [src/engine/mastery.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L120)
-- [src/engine/sm2.ts:1-80](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L80)
-- [src/storage/loader.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L120)
-- [src/storage/frontmatter.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L60)
-- [src/storage/sessions.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L60)
-- [src/application/record-assessment.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L40)
-- [src/application/record-review.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L40)
-- [src/validation/rules/valid-assessment-fields.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L1-L30)
-- [src/validation/rules/valid-review-fields.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-fields.ts#L1-L40)
-
-**Section sources**
-- [src/types.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L120)
-- [src/storage/loader.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L120)
 
 ## Core Components
 
@@ -149,12 +133,35 @@ Prerequisites can be expressed as:
 Advisory sources (`toc`, `tie`) participate in cycle detection and ranking but do not block readiness; `numbered` and `declared` gate.
 
 #### Example Valid Topic
-A minimal valid topic includes a schema version, unique ID, title, status, difficulty, assessment, and review. A fuller example also includes track, dependencies, and assessment timestamps.
+On disk a topic is flat YAML frontmatter; the loader normalizes it into the `Topic` / `TopicNode` shapes described above. The frontmatter below is verbatim from the shipped example note `examples/Docker Networking.md` in the CLI repository — a never-assessed, never-reviewed topic with one prerequisite:
 
-**Section sources**
-- [src/types.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L120)
-- [src/types.ts:540-660](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L540-L660)
-- [src/storage/loader.ts:120-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L120-L200)
+```yaml
+---
+palee_schema: 1
+palee_id: T-docker-networking
+title: Docker Networking
+difficulty: advanced
+depends_on:
+  - T-docker-fundamentals
+topic_mastery: 0
+assessed_at: null
+conceptual: 0
+practical: 0
+debug: 0
+feynman: 0
+ease_factor: 2.5
+interval_days: 1
+repetition: 0
+lapses: 0
+last_quality: null
+last_reviewed_at: null
+due_at: null
+---
+```
+
+The shipped note carries no `status` key, and it is valid as written: the loader defaults a missing `status` to `not_started`, so only a present-but-invalid value is an error.
+
+A topic that has been studied carries the same keys with non-default values; `examples/Docker Fundamentals.md` shows one after its first review (`repetition: 1`, `last_quality: 4`, `due_at` set).
 
 ### Assessment Model
 The `Assessment` model captures the four pedagogical pillars and the timestamp of the last assessment.
@@ -189,13 +196,18 @@ The assessment use case exposes exactly four pillar flags:
 At least one pillar must be supplied when recording an assessment. If a pillar is absent from the note, it defaults to zero unless explicitly provided.
 
 #### Example Valid Assessment
-A valid assessment might contain four scores between 0.0 and 1.0 plus an ISO 8601 timestamp. An unassessed topic has all pillar fields absent or zero and `assessed_at` equal to null.
+Assessments are stored as flat frontmatter keys, not as a nested object. A real assessed topic (from the CLI end-to-end test fixtures) stores:
 
-**Section sources**
-- [src/types.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L60)
-- [src/engine/mastery.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L120)
-- [src/application/record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [src/validation/rules/valid-assessment-fields.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L1-L79)
+```yaml
+conceptual: 0.80
+practical: 0.70
+debug: 0.90
+feynman: 0.85
+assessed_at: "2026-09-01"
+topic_mastery: 0.82
+```
+
+The stored `topic_mastery` checks out against the scoring formula: (0.80 + 0.70 + 0.90 + 2 × 0.85) / 5 = 4.10 / 5 = 0.82, which is above the 0.7 mastered threshold. An unassessed topic instead has all pillar fields absent or zero and `assessed_at` equal to null, as in the Docker Networking example above.
 
 ### Review Model
 The `Review` model represents SuperMemo-2 spaced repetition state.
@@ -205,7 +217,7 @@ The `Review` model represents SuperMemo-2 spaced repetition state.
 | `interval_days` | number, finite, integer, ≥ 1 | 1 | Days until next review. |
 | `repetition` | number, finite, integer, ≥ 0 | 0 | Consecutive successful repetitions. |
 | `ease_factor` | number, finite, ≥ 1.3 | 2.5 | Easiness factor controlling interval scaling. |
-| `lapses` | number, finite, integer, ≥ 0 | 0 | Cumulative failed reviews after prior mastery. |
+| `lapses` | number, finite, integer, ≥ 0 | 0 | Cumulative count of failed reviews (quality 0–2). Increments only when the topic had prior repetitions (`repetition > 0`); a failure before the first successful repetition is not a lapse. |
 | `last_quality` | integer 0–5 or null | null | Quality rating from the most recent review. |
 | `last_reviewed_at` | ISO date string or null | null | Date of the last completed review. |
 | `due_at` | ISO date string, date object, or null | null | Next due date for review. |
@@ -215,20 +227,38 @@ When a review quality is recorded:
 
 | Quality | Outcome |
 |---:|---|
-| 0–2 | Repetition resets to 0; interval resets to 1; lapse count increments if there were prior repetitions. |
+| 0–2 | Repetition resets to 0; interval resets to 1; lapse count increments only if `repetition > 0` before the reset (the topic had prior repetitions). |
 | 3–5 | Repetition increments; interval becomes 1 for repetition 1, 6 for repetition 2, otherwise rounded product of previous interval and ease factor; minimum interval is 1. |
 | All | Ease factor increases by the SM-2 delta based on quality and is clamped to a minimum of 1.3. |
 
 The maximum interval cap is 36,500 days (about 100 years). This prevents schedules from eventually producing invalid dates.
 
 #### Example Valid Review
-A never-reviewed topic starts with default scheduling state: ease factor 2.5, interval 1 day, repetition 0, lapses 0, null quality, null last reviewed date, and null due date. A learned topic may have higher ease factors, larger intervals, non-zero repetition and possibly lapses.
+Review state is stored as seven flat frontmatter keys on the topic note. A never-reviewed topic carries the default scheduling state (shown here from `examples/Docker Networking.md`):
 
-**Section sources**
-- [src/types.ts:30-60](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L30-L60)
-- [src/engine/sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-- [src/application/record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [src/validation/rules/valid-review-fields.ts:1-166](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-fields.ts#L1-L166)
+```yaml
+ease_factor: 2.5
+interval_days: 1
+repetition: 0
+lapses: 0
+last_quality: null
+last_reviewed_at: null
+due_at: null
+```
+
+After one successful review with quality 4, the same keys look like this (from `examples/Docker Fundamentals.md`). Quality 4 has an ease-factor delta of 0, so the ease factor stays 2.5; repetition 1 schedules the next review 1 day out:
+
+```yaml
+ease_factor: 2.5
+interval_days: 1
+repetition: 1
+lapses: 0
+last_quality: 4
+last_reviewed_at: 2026-08-09
+due_at: 2026-08-10
+```
+
+A learned topic may have higher ease factors, larger intervals, non-zero repetition and possibly lapses.
 
 ### SessionRecord Family
 Session records model the learner’s study sessions. There are two distinct concepts:
@@ -279,14 +309,34 @@ Canonical session notes must satisfy:
 - For completed sessions, `ended_at` must not precede `started_at`.
 
 #### Example Valid Session Records
-- A completed session has both start and end timestamps and status `completed`.
-- A draft session has a start timestamp, null end timestamp, and status `draft`.
-- A malformed session could have mismatched status, missing timestamps, or an invalid schema version.
+Session records live as Markdown notes under `.palee/sessions/`, and the filename stem must equal the `session_id`. A completed session (`.palee/sessions/S-20260820T100000-aaaa.md`) has both start and end timestamps and status `completed`:
 
-**Section sources**
-- [src/types.ts:120-280](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L120-L280)
-- [src/storage/sessions.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L200)
-- [src/validation/rules/valid-session-schema.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-session-schema.ts#L1-L200)
+```yaml
+---
+palee_schema: 1
+session_id: S-20260820T100000-aaaa
+topic_id: T-valid
+status: completed
+started_at: "2026-08-20T10:00:00Z"
+ended_at: "2026-08-20T10:30:00Z"
+duration_minutes: 30
+---
+```
+
+A draft session (`.palee/sessions/DRAFT-S-45min.md`) has a start timestamp, a null end timestamp, and status `draft`:
+
+```yaml
+---
+palee_schema: 1
+session_id: DRAFT-S-45min
+topic_id: T-45min
+started_at: "2026-08-20T10:00:00.000Z"
+ended_at: null
+status: draft
+---
+```
+
+Both shapes are taken from the CLI test fixtures. A malformed session could have mismatched status, missing timestamps, or an invalid schema version.
 
 ### Config Types
 The configuration model is represented by `PaleeConfig`. It is read from a platform-specific JSON config file and may contain:
@@ -301,14 +351,42 @@ The configuration model is represented by `PaleeConfig`. It is read from a platf
 
 Configuration loading is tolerant: missing files return empty defaults, and malformed JSON logs a warning and falls back to defaults. Only recognized string properties are retained.
 
-#### Example Valid Configuration
-A minimal configuration may only set `vaultPath`. A full configuration may additionally set provider, model, endpoint, and API key.
+The `apiKey` is stored as plaintext inside `config.json` — it is not encrypted — but the file itself is protected. The config file lives at `~/.config/palee/config.json` on POSIX or `%LOCALAPPDATA%/palee/config.json` on Windows (overridable with `PALEE_CONFIG_DIR`). On POSIX it is written `0600` inside a `0700` directory, the mode being set on a temporary file before the atomic rename into place. Windows ignores those file modes, so the `set-api-key` command instead refuses to store a key when the config directory resolves outside the user's profile roots (`%USERPROFILE%`, `%LOCALAPPDATA%`), where the inherited ACL cannot be trusted; `PALEE_ALLOW_INSECURE_CONFIG_DIR=1` overrides that refusal for a directory the user has secured by other means. The `PALEE_API_KEY` environment variable avoids storing the key at all, and `palee config show` never prints the stored value.
 
-**Section sources**
-- [src/types.ts:280-420](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L280-L420)
-- [src/cli/config.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L200)
+#### Example Valid Configuration
+A minimal configuration may only set `vaultPath`:
+
+```json
+{
+  "vaultPath": "/home/user/notes-vault"
+}
+```
+
+A full configuration may additionally set provider, model, endpoint, and API key:
+
+```json
+{
+  "vaultPath": "/home/user/notes-vault",
+  "aiProvider": "openai",
+  "baseUrl": "https://api.openai.com",
+  "model": "<model-id>",
+  "apiKey": "sk-..."
+}
+```
+
+### Schema Evolution and Migration
+Every managed note carries a `palee_schema` version field. The currently supported version is `1`, declared as `SUPPORTED_SCHEMA_VERSION` in `src/engine/topic-id.ts`. Schema evolution is deliberately conservative: there is only one live version, and the validation layer enforces it rather than silently coercing unknown shapes.
+
+- The `valid-palee-schema` rule reports an error when a managed note is missing `palee_schema`, when the value is not an integer, or when it names an unsupported version. Session notes are held to the same version by the session schema rule.
+- The `palee migrate` command (options typed as `MigrateOptions` in `src/types.ts`) scans the vault and reports schema problems. With `--fix` it upgrades schema-less notes in place by writing `palee_schema: 1`. A note carrying an *unrecognized* schema value is not fixable by `--fix` — it keeps failing validation until a human decides what it is.
+- `migrate` also repairs dependency-label drift left by older versions: `--relabel-ties` rewrites `depends_on_source: numbered` to `tie` on notes whose only stored prerequisite is a same-rank sibling in the same directory (the label only — `depends_on` itself is never rewritten), and `--include-unlabeled-ties` extends that scan to notes that carry no `depends_on_source` key at all — the shape left behind before the label existed. `--dry-run` previews any of these passes without writing.
+
+So a schema bump, when one eventually happens, has a defined path: raise `SUPPORTED_SCHEMA_VERSION`, teach `migrate --fix` the upgrade, and let validation flag every note that has not been migrated yet.
 
 ## Architecture Overview
+All canonical data models are declared in a single module, `src/types.ts`. `Topic` is the aggregate: it composes one `Assessment` and one `Review`, and carries the topic's identity (`palee_schema`, `palee_id`), lifecycle state (`status`, `difficulty`), and prerequisite edges (`depends_on`, with `dependencies` as a legacy alias). Sessions exist in two parallel families with deliberately identical field shapes: the in-memory `Session` union (`CompletedSession` / `DraftSession`) used while a session is running, and the persisted `SessionRecord` union (`CompletedSessionRecord` / `DraftSessionRecord`) stored as frontmatter under `.palee/sessions/`. `PaleeConfig` stands apart from the vault models — it describes application settings, not learning data.
+
+Nothing outside `src/types.ts` owns a model definition. The storage loader converts flat on-disk frontmatter into these shapes (see Detailed Component Analysis), the engines compute over them, and the validation rules inspect raw frontmatter against the same contracts. The class diagram below shows the field-level layout; the companion pages in this section (Topic Entity, Assessment Model, Review Model, Session Types and Lifecycle, Configuration and CLI Option Types) document each model individually.
 
 ```mermaid
 classDiagram
@@ -394,10 +472,7 @@ classDiagram
     DraftSessionRecord --|> BaseSessionRecord : "extends"
 ```
 
-**Diagram sources**
-- [src/types.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L120)
-- [src/types.ts:120-280](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L120-L280)
-- [src/types.ts:280-420](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L280-L420)
+Two structural points are worth noting. First, composition is shallow: `Topic` nests exactly two value objects (`Assessment`, `Review`) and everything else is scalar, so a topic serializes to one flat frontmatter block. Second, the session families are parallel rather than shared — the persisted records repeat the in-memory fields instead of extending them, because the on-disk contract (including the filename-to-`session_id` coherence rule) is owned by the storage layer, not by the runtime types.
 
 ## Detailed Component Analysis
 
@@ -421,14 +496,6 @@ flowchart TD
   BuildLoadedTopic --> End(["Return typed topic"])
 ```
 
-**Diagram sources**
-- [src/storage/loader.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L200)
-- [src/storage/frontmatter.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L120)
-
-**Section sources**
-- [src/storage/loader.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L200)
-- [src/storage/frontmatter.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L120)
-
 ### Assessment Recording Flow
 Recording an assessment merges explicit pillar inputs over stored pillar values, recomputes mastery, updates `assessed_at`, and returns the frontmatter fields to write.
 
@@ -447,14 +514,6 @@ sequenceDiagram
     Assessment-->>CLI: "AssessmentResult with updates"
     CLI->>Store: "Write updated frontmatter"
 ```
-
-**Diagram sources**
-- [src/application/record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [src/engine/mastery.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L120)
-
-**Section sources**
-- [src/application/record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [src/engine/mastery.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L120)
 
 ### Review Recording Flow
 Recording a review computes new SM-2 state, derives the next due date, preserves existing pillar scores, and reports whether the review is early relative to the stored due date.
@@ -477,15 +536,6 @@ sequenceDiagram
     CLI->>Store: "Write updated frontmatter"
 ```
 
-**Diagram sources**
-- [src/application/record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [src/engine/sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-- [src/engine/mastery.ts:120-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L120-L229)
-
-**Section sources**
-- [src/application/record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [src/engine/sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-
 ### Session Loading and Validation Flow
 Session loading reads every session note, classifies it as draft or confirmed, parses frontmatter, and preserves parse/read errors so validation can report them without aborting the entire scan.
 
@@ -504,15 +554,8 @@ flowchart TD
   Skip --> Done
 ```
 
-**Diagram sources**
-- [src/storage/sessions.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L200)
-- [src/validation/rules/valid-session-schema.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-session-schema.ts#L1-L200)
-
-**Section sources**
-- [src/storage/sessions.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L200)
-- [src/validation/rules/valid-session-schema.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-session-schema.ts#L1-L200)
-
 ## Dependency Analysis
+The dependency direction is one-way: every layer points at the type module, and `src/types.ts` imports nothing from the engine, storage, application, or validation layers. The mastery engine is self-contained arithmetic over the four pillar numbers — it has no imports at all. The SM-2 engine imports only the `Review` type (plus a shared diagnostic formatter from the validation rules). The storage loader builds on the type module — which also hosts the normalizer helpers (`normalizeDifficulty`, `normalizeAssessedAt`, `normalizeDependsOnSource`) — and on storage-internal helpers for frontmatter parsing, vault walking, and caching. The application builders sit on top: `record-review` calls the SM-2 and mastery engines, and `record-assessment` calls the mastery and dependency engines. The validation rules depend on the shared validation contracts (`src/validation/types.ts`) and inspect raw frontmatter and loader-produced shapes; they never write. Because no layer imports upward, a model can be changed in exactly one place.
 
 ```mermaid
 graph LR
@@ -547,25 +590,6 @@ graph LR
   RulesSession --> Sessions
 ```
 
-**Diagram sources**
-- [src/types.ts:1-420](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L420)
-- [src/engine/mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [src/engine/sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-- [src/storage/loader.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L200)
-- [src/storage/frontmatter.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L120)
-- [src/storage/sessions.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L200)
-- [src/application/record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [src/application/record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [src/validation/rules/valid-assessment-fields.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L1-L79)
-- [src/validation/rules/valid-review-fields.ts:1-166](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-fields.ts#L1-L166)
-- [src/validation/rules/valid-session-schema.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-session-schema.ts#L1-L200)
-
-**Section sources**
-- [src/types.ts:1-420](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L420)
-- [src/validation/rules/valid-assessment-fields.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L1-L79)
-- [src/validation/rules/valid-review-fields.ts:1-166](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-fields.ts#L1-L166)
-- [src/validation/rules/valid-session-schema.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-session-schema.ts#L1-L200)
-
 ## Performance Considerations
 - Scores are clamped and rounded once during loader normalization, avoiding repeated floating-point drift.
 - SM-2 scheduling caps intervals at 36,500 days to prevent extremely long schedules and invalid date arithmetic.
@@ -581,20 +605,11 @@ graph LR
 - **Missing pillar handling:** Absent pillars default to zero unless explicitly provided by the assessment command.
 - **Mastery drift:** Stored `topic_mastery` should match the formula result; mismatch is handled by mastery consistency rules rather than this rule.
 
-**Section sources**
-- [src/validation/rules/valid-assessment-fields.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L1-L79)
-- [src/engine/mastery.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L120)
-
 ### Common Review Issues
 - **Ease factor below 1.3:** SM-2 requires a minimum ease factor of 1.3.
 - **Non-integer interval or counters:** `interval_days`, `repetition`, and `lapses` must be finite integers with appropriate lower bounds.
 - **Invalid quality rating:** `last_quality` must be null or an integer from 0 to 5.
 - **Early review:** A review performed before the stored `due_at` is detected by the application layer and reported as early.
-
-**Section sources**
-- [src/validation/rules/valid-review-fields.ts:1-166](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-fields.ts#L1-L166)
-- [src/engine/sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-- [src/application/record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
 
 ### Common Session Issues
 - **Malformed frontmatter:** Session notes must have parseable YAML.
@@ -603,12 +618,8 @@ graph LR
 - **Invalid timestamps:** Timestamps must be strict ISO 8601 with explicit timezone designators and real calendar dates.
 - **Ordering violation:** Completed session `ended_at` must not precede `started_at`.
 
-**Section sources**
-- [src/validation/rules/valid-session-schema.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-session-schema.ts#L1-L200)
-- [src/storage/sessions.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L200)
-
 ## Conclusion
-PALETTE’s data model centers on three durable concerns:
+PALEE’s data model centers on three durable concerns:
 
 1. **Learning content:** Topics carry identity, lifecycle state, difficulty, prerequisites, and four-pillar assessments.
 2. **Spaced repetition:** Reviews encode SM-2 scheduling state with strict numeric and temporal invariants.
@@ -623,14 +634,34 @@ The type system separates:
 
 Schema evolution is signaled by `palee_schema`, while migration behavior is exposed through `MigrateOptions`. Runtime safety comes from loader coercion and clamping, while compile-time safety comes from TypeScript interfaces, discriminated unions, literal enum types, and narrow validation-rule contracts.
 
-**Section sources**
+## References
+
+- [src/types.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L120)
+- [src/engine/mastery.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L120)
+- [src/engine/sm2.ts:1-80](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L80)
+- [src/storage/loader.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L120)
+- [src/storage/frontmatter.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L60)
+- [src/storage/sessions.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L60)
+- [src/application/record-assessment.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L40)
+- [src/application/record-review.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L40)
+- [src/validation/rules/valid-assessment-fields.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L1-L30)
+- [src/validation/rules/valid-review-fields.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-fields.ts#L1-L40)
+- [src/types.ts:540-660](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L540-L660)
+- [src/storage/loader.ts:120-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L120-L200)
+- [src/types.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L60)
+- [src/application/record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
+- [src/validation/rules/valid-assessment-fields.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L1-L79)
+- [src/types.ts:30-60](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L30-L60)
+- [src/engine/sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
+- [src/application/record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
+- [src/validation/rules/valid-review-fields.ts:1-166](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-fields.ts#L1-L166)
+- [src/types.ts:120-280](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L120-L280)
+- [src/storage/sessions.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L200)
+- [src/validation/rules/valid-session-schema.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-session-schema.ts#L1-L200)
+- [src/types.ts:280-420](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L280-L420)
+- [src/cli/config.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L200)
+- [src/storage/loader.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L200)
+- [src/storage/frontmatter.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L120)
+- [src/engine/mastery.ts:120-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L120-L229)
 - [src/types.ts:1-420](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L420)
 - [src/engine/mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [src/engine/sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-- [src/storage/loader.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L200)
-- [src/storage/sessions.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L200)
-- [src/application/record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [src/application/record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [src/validation/rules/valid-assessment-fields.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L1-L79)
-- [src/validation/rules/valid-review-fields.ts:1-166](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-fields.ts#L1-L166)
-- [src/validation/rules/valid-session-schema.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-session-schema.ts#L1-L200)
