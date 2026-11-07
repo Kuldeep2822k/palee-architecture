@@ -24,48 +24,82 @@
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Project Structure](#project-structure)
-3. [Core Components](#core-components)
-4. [Architecture Overview](#architecture-overview)
-5. [Detailed Component Analysis](#detailed-component-analysis)
-6. [Dependency Analysis](#dependency-analysis)
-7. [Performance Considerations](#performance-considerations)
-8. [Troubleshooting Guide](#troubleshooting-guide)
-9. [Conclusion](#conclusion)
-10. [Appendices](#appendices)
+3. [ADR Index](#adr-index)
+4. [Core Components](#core-components)
+5. [Architecture Overview](#architecture-overview)
+6. [Detailed Component Analysis](#detailed-component-analysis)
+7. [Dependency Analysis](#dependency-analysis)
+8. [Performance Considerations](#performance-considerations)
+9. [Troubleshooting Guide](#troubleshooting-guide)
+10. [Conclusion](#conclusion)
+11. [Appendices](#appendices)
 
 ## Introduction
-This document organizes PALEE’s architectural decision records and planning artifacts into a single, accessible reference. It explains how decisions about spaced repetition, storage, validation, concurrency, identity, roadmap import safety, session memory, readiness contracts, and future phases evolved from planning documents into the current implementation. It also documents the ADR lifecycle described by the repository’s primary agent, guidance for creating new ADRs, and the relationship between past decisions and present architecture.
+This document organizes PALEE’s architectural decision records and planning artifacts into a single, accessible reference. It explains how decisions about spaced repetition, storage, validation, concurrency, identity, roadmap import safety, session memory, readiness contracts, and future phases evolved from planning documents into the current implementation. It also documents the ADR lifecycle defined in the repository’s `agent.md` (with the status vocabulary in `docs/adr/README.md`), guidance for creating new ADRs, and the relationship between past decisions and present architecture.
 
-PALEE is an AI-powered study tracker CLI built on Node.js that schedules learning with SM-2 spaced repetition and dependency-aware recommendations over an Obsidian vault. Its codebase is deliberately layered: shared types are the contract; the engine provides pure scheduling and graph logic; the storage layer owns vault filesystem I/O; the application layer implements use cases; the validation layer inspects vault content; the AI provider boundary isolates network access; and the CLI exposes commands.
+PALEE is a study tracker CLI built on Node.js. Its engine is deterministic and runs fully offline: it schedules learning with SM-2 spaced repetition and dependency-aware recommendations over an Obsidian vault. AI features are not part of that engine — they sit behind a separate Phase 2 provider boundary — one of only two places network access is allowed, the other being the bounded `palee update` npm child process (ADR-0033). Its codebase is deliberately layered: shared types are the contract; the engine provides pure scheduling and graph logic; the storage layer owns vault filesystem I/O; the application layer implements use cases; the validation layer inspects vault content; the AI provider boundary isolates network access; and the CLI exposes commands.
 
-The central design philosophy is conservative durability and explicit boundaries: vault notes are canonical, derived views are rebuildable, writes are atomic and conflict-aware, locks protect concurrent writers, and network access is confined to one abstraction. Decisions are recorded as numbered ADRs and constrained by stable invariant IDs so that tests can pin behavior rather than silently drift.
+The central design philosophy is conservative durability and explicit boundaries: vault notes are canonical, derived views are rebuildable, writes are atomic and conflict-aware, locks protect concurrent writers, and network access is confined to two bounded paths: the AI provider boundary and the `palee update` npm child process. Decisions are recorded as numbered ADRs and constrained by stable invariant IDs so that tests can pin behavior rather than silently drift.
 
 ## Project Structure
 The relevant documentation and design assets live in three main areas:
 
-- `docs/docs/adr/` — chronological ADRs documenting concrete design choices and their consequences.
-- `docs/docs/` — user-facing and engineering documentation describing CLI commands, core algorithms, storage, data model, testing, CI, and planning.
+- `docs/adr/` — chronological ADRs documenting concrete design choices and their consequences.
+- `docs/` — user-facing and engineering documentation describing CLI commands, core algorithms, storage, data model, testing, CI, and planning.
 - `planning/` — forward-looking and specification documents such as invariants, memory design, storage design, roadmap, example workflows, and AI module design.
 
 ```mermaid
 graph TB
-    Planning["Planning Documents<br/>planning/"] --> ADRs["ADR Catalog<br/>docs/docs/adr/"]
+    Planning["Planning Documents<br/>planning/"] --> ADRs["ADR Catalog<br/>docs/adr/"]
     ADRs --> Implementation["Implementation<br/>src/"]
-    Docs["Engineering Documentation<br/>docs/docs/"] --> Implementation
+    Docs["Engineering Documentation<br/>docs/"] --> Implementation
     Invariants["Invariant Blueprint<br/>planning/invariants.md"] --> Testing["Test Discipline<br/>test/ + docs/testing docs"]
     StorageDesign["Storage Design<br/>planning/storage_design.md"] --> StorageLayer["Storage Layer<br/>src/storage/"]
     MemoryDesign["Session Memory Design<br/>planning/memory_design.md"] --> SessionMemory["Session Memory<br/>src/storage/sessions.ts + hot memory"]
 ```
 
-**Diagram sources**
-- [planning/invariants.md:1-76](https://github.com/Kuldeep2822k/cli/blob/main/planning/invariants.md#L1-L76)
-- [planning/storage_design.md:1-111](https://github.com/Kuldeep2822k/cli/blob/main/planning/storage_design.md#L1-L111)
-- [planning/memory_design.md:1-118](https://github.com/Kuldeep2822k/cli/blob/main/planning/memory_design.md#L1-L118)
-- [agent.md:1-92](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L1-L92)
+## ADR Index
+The repository records 37 ADRs in `docs/adr/`, numbered ADR-0001 through ADR-0037. The titles and statuses below are taken from each record itself; statuses use the vocabulary defined in `docs/adr/README.md`. 35 records are Accepted. Two remain Proposed and unimplemented: ADR-0013 and ADR-0028.
 
-**Section sources**
-- [agent.md:1-92](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L1-L92)
-- [planning/invariants.md:1-76](https://github.com/Kuldeep2822k/cli/blob/main/planning/invariants.md#L1-L76)
+| ADR | Title | Status |
+|---|---|---|
+| ADR-0001 | SuperMemo SM-2 Spaced Repetition Scheduling Algorithm | Accepted |
+| ADR-0002 | Atomic File Locking and Optimistic Concurrency Control | Accepted |
+| ADR-0003 | Non-Destructive Frontmatter Updates via YAML Document API | Accepted |
+| ADR-0004 | Four-Pillar Pedagogical Assessment Model | Accepted |
+| ADR-0005 | Concurrency-Hardened Storage and Automated Schema Migration | Accepted (amended by ADR-0034) |
+| ADR-0006 | Phase 1 Concurrency Resilience, Storage Layer Isolation & Session Duration Tracking | Accepted |
+| ADR-0007 | Hot-Memory Read-State Contract | Accepted |
+| ADR-0008 | Validation Rule Framework — Architecture and Product Decisions | Accepted (2026-09-13; amended by ADR-0035) |
+| ADR-0009 | The Gating Model — What May Lock a Note | Accepted |
+| ADR-0010 | Tier-0 Hygiene Classification for Batch Adoption | Accepted |
+| ADR-0011 | Tiered Auto-Chain — strict \| full | Accepted |
+| ADR-0012 | Declared Prerequisites — Reading a Note's Own Text | Accepted |
+| ADR-0013 | Per-Edge Blocking Policy and OR-Groups | Proposed (specified in #224; not implemented) |
+| ADR-0014 | Atomic-Write Durability and Vault Containment | Accepted |
+| ADR-0015 | Identity Preservation — An Identity on Disk Is Not a Command's to Invent | Accepted |
+| ADR-0016 | Frontmatter Byte Fidelity and Unicode Fold Discipline | Accepted |
+| ADR-0017 | Roadmap Import Safety | Accepted |
+| ADR-0018 | Note Read Path, Caching, and Locking | Accepted |
+| ADR-0019 | Session-Memory Lifecycle and Staleness Clamps | Accepted |
+| ADR-0020 | Readiness and Scheduling Contracts | Accepted |
+| ADR-0021 | The Assessment Surface | Accepted (extended for #269) |
+| ADR-0022 | Adoption — Non-Destructive, Reversible, Honest About Filters | Accepted |
+| ADR-0023 | `migrate --relabel-ties` as the Migration Surface | Accepted |
+| ADR-0024 | Exit Codes and the Machine-Readable Error Contract | Accepted |
+| ADR-0025 | The Application Layer and the CLI Boundary | Accepted |
+| ADR-0026 | Test Discipline — Falsifiability Over Ceremony | Accepted |
+| ADR-0027 | The AI Provider Adapter and Its Network Boundary | Accepted |
+| ADR-0028 | Phase-2 Design Directions | Proposed (specified in open issues; not implemented) |
+| ADR-0029 | Test-Time CLI Launch Policy | Accepted (amended by ADR-0032) |
+| ADR-0030 | Installed-Artifact CI Evidence | Accepted |
+| ADR-0031 | Documentation Truth - Current-State Docs, Labeled History | Accepted |
+| ADR-0032 | Direct Spawn Bounding — What ADR-0029 Claimed, and the Check That Pins It | Accepted (amends ADR-0029) |
+| ADR-0033 | The Update Command and Its npm Child Process | Accepted |
+| ADR-0034 | Reclaiming a Killed Writer's Temporary File, Bounded to the Target It Belongs To | Accepted (amends ADR-0005) |
+| ADR-0035 | `--fix` Mastery Repair and Partial Pillar Eligibility | Accepted (2026-10-22) |
+| ADR-0036 | Bounded Lock Acquisition — A Non-Empty Lockdir Is Not a Retry Signal | Accepted |
+| ADR-0037 | Manifest Values Reach the Shell as Data, Never as Interpolation | Accepted |
 
 ## Core Components
 PALEE’s architecture is defined more by its layers and boundaries than by large class hierarchies. The most important components for this documentation are:
@@ -82,10 +116,6 @@ PALEE’s architecture is defined more by its layers and boundaries than by larg
 
 These responsibilities are enforced by imports, tests, and the ADR/invariant system rather than by runtime checks alone.
 
-**Section sources**
-- [agent.md:1-92](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L1-L92)
-- [planning/invariants.md:1-76](https://github.com/Kuldeep2822k/cli/blob/main/planning/invariants.md#L1-L76)
-
 ## Architecture Overview
 At a high level, PALEE reads Markdown notes from an Obsidian vault, applies SM-2 scheduling and prerequisite gating, validates schema and domain rules, and writes durable records back to the same vault. Derived state such as session indexes and hot memory may be rebuilt without losing learning data.
 
@@ -99,15 +129,6 @@ flowchart TD
     Storage --> Derived["Derived Views<br/>.palee/index.md, .palee/hot.md"]
     CLI -.-> Network["AI Provider Boundary<br/>src/ai/*"]
 ```
-
-**Diagram sources**
-- [agent.md:1-92](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L1-L92)
-- [src/engine/sm2.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts)
-- [src/engine/dependency.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts)
-- [src/engine/mastery.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts)
-- [src/storage/atomic-write.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts)
-- [src/storage/lock.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts)
-- [src/validation/index.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts)
 
 ## Detailed Component Analysis
 
@@ -135,22 +156,12 @@ flowchart TD
     DueDate --> Return(["Return pure schedule result"])
 ```
 
-**Diagram sources**
-- [src/engine/sm2.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts)
-- [planning/invariants.md:12-20](https://github.com/Kuldeep2822k/cli/blob/main/planning/invariants.md#L12-L20)
-- [agent.md:34-45](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L34-L45)
-
 Evolution and rationale:
 - Early planning chose SM-2 rather than a custom adaptive scheduler because predictability and auditability matter more than experimental tuning.
 - Invariants INV-12 through INV-20 pin numerical behavior, making the algorithm verifiable even if implementation details change.
 - Tests cover edge cases such as zero reviews, non-integer quality, interval clamping, and calendar-day due dates.
 
 When evaluating alternative algorithms in the future, the team should compare them against these invariants and decide whether changing the algorithm is an ADR-level evolution or a parameterized extension.
-
-**Section sources**
-- [planning/invariants.md:12-20](https://github.com/Kuldeep2822k/cli/blob/main/planning/invariants.md#L12-L20)
-- [agent.md:34-45](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L34-L45)
-- [src/engine/sm2.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts)
 
 ### Storage Architecture Choices
 Storage design centers on four principles: vault notes are canonical, derived views are rebuildable, writes are atomic and optimistic-concurrency-safe, and malformed input does not crash scans.
@@ -180,21 +191,11 @@ flowchart TD
     Conflict --> Release
 ```
 
-**Diagram sources**
-- [planning/storage_design.md:15-70](https://github.com/Kuldeep2822k/cli/blob/main/planning/storage_design.md#L15-L70)
-- [src/storage/atomic-write.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts)
-- [src/storage/lock.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts)
-- [agent.md:47-63](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L47-L63)
-
 Evolution and lessons learned:
 - The original storage design emphasized safe traversal and frontmatter fidelity; later ADRs hardened durability, containment, abandonment recovery, and bounded lock acquisition.
 - Fingerprinting solved a class of race conditions where another writer could modify a note after the initial read but before the final rename.
 - Quarantining stale locks avoids destructive recovery while preserving diagnostic evidence.
 - The distinction between canonical notes and derived views prevents accidental loss when index or hot-memory writes fail.
-
-**Section sources**
-- [planning/storage_design.md:1-111](https://github.com/Kuldeep2822k/cli/blob/main/planning/storage_design.md#L1-L111)
-- [agent.md:47-63](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L47-L63)
 
 ### Validation Framework Design
 The validation framework separates vault collection, rule execution, formatting, and managed-note gating from the rest of the system. Each rule is focused, deterministic, and pluggable into a catalog exposed through the validation barrel.
@@ -223,20 +224,10 @@ sequenceDiagram
     Format-->>Output: "Human or JSON diagnostics"
 ```
 
-**Diagram sources**
-- [src/validation/index.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts)
-- [src/validation/run-rules.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts)
-- [agent.md:21-26](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L21-L26)
-
 Evolution and lessons learned:
 - The framework grew from simple field checks into a broader surface covering assessments, review fields, topic status, prerequisites, cycles, and session integrity.
 - Barrel census tests prevent accidental divergence between internal rules and the public API surface.
 - Validation failures are surfaced without crashing the scan, supporting incremental remediation.
-
-**Section sources**
-- [agent.md:21-26](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L21-L26)
-- [src/validation/index.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts)
-- [src/validation/run-rules.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts)
 
 ### Concurrency Model
 PALEE’s concurrency model is intentionally cautious. Long-running operations acquire locks with heartbeats; short-lived reads may use cached data; and all vault writes serialize through atomic replace semantics.
@@ -264,20 +255,10 @@ flowchart TD
     Release --> End
 ```
 
-**Diagram sources**
-- [planning/storage_design.md:55-105](https://github.com/Kuldeep2822k/cli/blob/main/planning/storage_design.md#L55-L105)
-- [src/storage/lock.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts)
-- [src/storage/cache.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/cache.ts)
-- [agent.md:47-63](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L47-L63)
-
 Evolution and lessons learned:
 - Phase 1 decisions isolated concurrency and storage concerns and introduced resilience patterns like retries, quarantine, and staleness thresholds.
 - Later ADRs tightened lock acquisition bounds and clarified when conflicts become exit-code signals versus diagnostic reports.
 - The model favors fail-closed behavior: missing order signals, ambiguous matches, and unsafe configurations should not silently proceed.
-
-**Section sources**
-- [planning/storage_design.md:55-105](https://github.com/Kuldeep2822k/cli/blob/main/planning/storage_design.md#L55-L105)
-- [agent.md:47-63](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L47-L63)
 
 ### Identity Preservation and Prerequisite Gating
 Identity decisions separate stable identifiers from mutable titles and filenames. Prerequisite gating controls which topics are ready for review or planning based on mastery and dependency satisfaction.
@@ -316,21 +297,10 @@ classDiagram
     DependencyEngine --> Mastery : "uses threshold"
 ```
 
-**Diagram sources**
-- [src/engine/dependency.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts)
-- [src/engine/mastery.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts)
-- [planning/invariants.md:21-28](https://github.com/Kuldeep2822k/cli/blob/main/planning/invariants.md#L21-L28)
-- [agent.md:46-52](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L46-L52)
-
 Evolution and lessons learned:
 - Declared prerequisites and per-edge blocking policies were refined to distinguish human-authored dependencies from synthesized auto-chain edges.
 - Tie edges and TOC-derived edges became advisory where appropriate, preventing accidental scheduling blocks.
 - Cycle detection prefers lexicographically smallest canonical cycles and avoids enumerating every elementary cycle unless explicitly required.
-
-**Section sources**
-- [planning/invariants.md:21-28](https://github.com/Kuldeep2822k/cli/blob/main/planning/invariants.md#L21-L28)
-- [src/engine/dependency.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts)
-- [src/engine/mastery.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts)
 
 ### Roadmap Import Safety and Auto-Chain
 Roadmap import and auto-chain decisions protect users from unintended prerequisite graphs. They emphasize honest refusal when structure does not justify an edge, cycle-safe synthesis, and clear attribution of edge origins.
@@ -358,20 +328,10 @@ flowchart TD
     FinalCheck --> Write["Write only if validation passes"]
 ```
 
-**Diagram sources**
-- [src/engine/tier0-hygiene.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts)
-- [src/cli/adopt.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts)
-- [planning/invariants.md:46-47](https://github.com/Kuldeep2822k/cli/blob/main/planning/invariants.md#L46-L47)
-
 Evolution and lessons learned:
 - Initial auto-chain designs were expanded into tiered hygiene, numbering dominance, cross-directory transition rules, and tie handling.
 - The roadmap import flow was hardened to avoid writing unconfirmed proposals and to print accurate synthesis counts only after validation.
 - Honest refusal is now treated as correct behavior rather than a failure when no structural signal exists.
-
-**Section sources**
-- [planning/invariants.md:46-47](https://github.com/Kuldeep2822k/cli/blob/main/planning/invariants.md#L46-L47)
-- [src/engine/tier0-hygiene.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts)
-- [src/cli/adopt.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts)
 
 ### Session Memory Lifecycle
 Session memory preserves continuity across CLI invocations without requiring the learner to restate prior context. Hot memory is compact; full sessions are durable; derived views are rebuildable.
@@ -403,19 +363,10 @@ stateDiagram-v2
     RecoveryMenu --> Active : "Ignore"
 ```
 
-**Diagram sources**
-- [planning/memory_design.md:1-118](https://github.com/Kuldeep2822k/cli/blob/main/planning/memory_design.md#L1-L118)
-- [planning/invariants.md:43-45](https://github.com/Kuldeep2822k/cli/blob/main/planning/invariants.md#L43-L45)
-- [agent.md:64-75](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L64-L75)
-
 Evolution and lessons learned:
 - The memory design moved from a conceptual log-like record to a bounded, addressable session model with immutable IDs.
 - Recovery behavior was strengthened to guarantee that non-interactive mode never discards drafts automatically.
 - The contract between hot memory and canonical sessions clarifies what is ephemeral, what is durable, and what is rebuildable.
-
-**Section sources**
-- [planning/memory_design.md:1-118](https://github.com/Kuldeep2822k/cli/blob/main/planning/memory_design.md#L1-L118)
-- [planning/invariants.md:43-45](https://github.com/Kuldeep2822k/cli/blob/main/planning/invariants.md#L43-L45)
 
 ### Readiness and Scheduling Contracts
 Readiness gates ensure learners only see topics whose prerequisites are satisfied. This connects SM-2 scheduling, prerequisite graphs, and application-layer planning.
@@ -423,7 +374,7 @@ Readiness gates ensure learners only see topics whose prerequisites are satisfie
 Key decisions include:
 
 - Readiness excludes archived topics.
-- Topics are ready when their mastery is below the threshold and all dependencies meet the threshold.
+- A topic is ready when its own mastery is below the mastery threshold (0.70) — it still needs work — and every prerequisite topic’s mastery is at or above the threshold. A topic at or above the threshold is already mastered and drops off the ready list; a topic with any non-advisory prerequisite below the threshold is blocked, however low its own mastery is (advisory `toc`/`tie` edges never gate, so they cannot block readiness).
 - Global mastery excludes archived topics but includes paused ones.
 - Missing dependencies block readiness.
 - The readiness threshold is defined centrally and reused by planning logic.
@@ -437,22 +388,10 @@ flowchart TD
     ApplyPrereqs --> Result["Return ready topics"]
 ```
 
-**Diagram sources**
-- [src/engine/dependency.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts)
-- [src/application/get-next-topics.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts)
-- [src/engine/mastery.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts)
-- [planning/invariants.md:21-28](https://github.com/Kuldeep2822k/cli/blob/main/planning/invariants.md#L21-L28)
-
 Evolution and lessons learned:
 - The readiness contract has been used repeatedly to align CLI outputs with progress tracking and scheduling.
 - Centralizing the mastery threshold avoids inconsistent thresholds across commands.
 - Future changes to prerequisites or mastery scoring should update both the invariant and the tests that pin readiness behavior.
-
-**Section sources**
-- [src/engine/dependency.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts)
-- [src/application/get-next-topics.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts)
-- [src/engine/mastery.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts)
-- [planning/invariants.md:21-28](https://github.com/Kuldeep2822k/cli/blob/main/planning/invariants.md#L21-L28)
 
 ### Relationship Between Decisions and Implementation
 Past decisions inform current architecture through three mechanisms:
@@ -470,10 +409,6 @@ graph LR
     Code --> Observability["Exit codes, diagnostics, JSON output"]
 ```
 
-**Diagram sources**
-- [agent.md:1-92](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L1-L92)
-- [planning/invariants.md:1-76](https://github.com/Kuldeep2822k/cli/blob/main/planning/invariants.md#L1-L76)
-
 ## Dependency Analysis
 PALEE’s dependencies are intentionally minimal. The runtime dependency list is restricted to `commander` and `yaml`, and the source tree contains no direct HTTP, HTTPS, net, or DNS imports. This keeps the library surface offline and reduces integration risk.
 
@@ -488,9 +423,6 @@ graph TB
     AI["AI Provider<br/>src/ai/*"] -.-> Library
 ```
 
-**Diagram sources**
-- [agent.md:1-92](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L1-L92)
-
 Coupling and cohesion observations:
 
 - The engine is highly cohesive and intentionally fs-free, making it easy to test and reuse.
@@ -504,9 +436,6 @@ Potential risks:
 - If new commands add filesystem calls outside the storage layer, the isolation contract weakens.
 - If validation rules grow stateful or nondeterministic, reproducibility suffers.
 - If AI provider integration expands beyond the current adapter boundary, network exposure increases.
-
-**Section sources**
-- [agent.md:1-92](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L1-L92)
 
 ## Performance Considerations
 Performance decisions in PALEE favor correctness and bounded resource use over raw throughput:
@@ -539,11 +468,6 @@ Common issues and their decision-backed resolutions:
 | Draft checkpoint remains after crash | Interruption during session | Offer recovery options; never auto-discard in non-interactive mode |
 | Machine output is mixed or corrupted | Handler exited via `process.exit` too early | Set `process.exitCode` and return so streams flush cleanly |
 
-**Section sources**
-- [planning/storage_design.md:55-105](https://github.com/Kuldeep2822k/cli/blob/main/planning/storage_design.md#L55-L105)
-- [planning/memory_design.md:85-118](https://github.com/Kuldeep2822k/cli/blob/main/planning/memory_design.md#L85-L118)
-- [agent.md:27-92](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L27-L92)
-
 ## Conclusion
 PALEE’s architecture is shaped by a series of deliberate, test-pinned decisions. Spaced repetition, storage durability, validation modularity, concurrency safety, identity preservation, roadmap import caution, and session memory continuity all reinforce the same goal: make learning data durable, observable, and reversible while keeping the CLI predictable.
 
@@ -560,8 +484,9 @@ Future considerations include:
 ## Appendices
 
 ### ADR Lifecycle Guidance
-According to the repository’s primary agent, the ADR lifecycle should be treated as part of the normal development workflow:
+The ADR lifecycle is defined in the repository’s `agent.md`, with the status vocabulary (`Proposed`, `Accepted`, `Superseded by ADR-nnnn`) defined in `docs/adr/README.md`. It is part of the normal development workflow:
 
+- Accepted ADRs are never rewritten: the original reasoning stands as written. A changed decision is recorded as a new ADR that supersedes or amends the old one, and the affected entries in `planning/invariants.md` are updated to match. Edits to an accepted ADR are limited to typo and link fixes, status changes, and the amendment notes `docs/adr/README.md` requires (such as an `Amended by ADR-nnnn` line).
 - Create an ADR when a decision materially affects architecture, durability, concurrency, security, data format, CLI contract, or test expectations.
 - Record alternatives considered, rationale, consequences, and links to implementation and tests.
 - Use stable identifiers (`ADR-NNNN`, `INV-NNNN`) so decisions and invariants can be referenced precisely.
@@ -576,6 +501,34 @@ Guidance for new ADRs:
 - Link ADRs to relevant invariants, implementation files, and tests.
 - When revisiting an ADR, create a successor ADR rather than editing history, especially when behavior changes.
 
-**Section sources**
+## References
+
+- [planning/invariants.md:1-76](https://github.com/Kuldeep2822k/cli/blob/main/planning/invariants.md#L1-L76)
+- [planning/storage_design.md:1-111](https://github.com/Kuldeep2822k/cli/blob/main/planning/storage_design.md#L1-L111)
+- [planning/memory_design.md:1-118](https://github.com/Kuldeep2822k/cli/blob/main/planning/memory_design.md#L1-L118)
 - [agent.md:1-92](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L1-L92)
+- [src/engine/sm2.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts)
+- [src/engine/dependency.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts)
+- [src/engine/mastery.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts)
+- [src/storage/atomic-write.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts)
+- [src/storage/lock.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts)
+- [src/validation/index.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts)
+- [planning/invariants.md:12-20](https://github.com/Kuldeep2822k/cli/blob/main/planning/invariants.md#L12-L20)
+- [agent.md:34-45](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L34-L45)
+- [planning/storage_design.md:15-70](https://github.com/Kuldeep2822k/cli/blob/main/planning/storage_design.md#L15-L70)
+- [agent.md:47-63](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L47-L63)
+- [src/validation/run-rules.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts)
+- [agent.md:21-26](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L21-L26)
+- [planning/storage_design.md:55-105](https://github.com/Kuldeep2822k/cli/blob/main/planning/storage_design.md#L55-L105)
+- [src/storage/cache.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/cache.ts)
+- [planning/invariants.md:21-28](https://github.com/Kuldeep2822k/cli/blob/main/planning/invariants.md#L21-L28)
+- [agent.md:46-52](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L46-L52)
+- [src/engine/tier0-hygiene.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts)
+- [src/cli/adopt.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts)
+- [planning/invariants.md:46-47](https://github.com/Kuldeep2822k/cli/blob/main/planning/invariants.md#L46-L47)
+- [planning/invariants.md:43-45](https://github.com/Kuldeep2822k/cli/blob/main/planning/invariants.md#L43-L45)
+- [agent.md:64-75](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L64-L75)
+- [src/application/get-next-topics.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts)
+- [planning/memory_design.md:85-118](https://github.com/Kuldeep2822k/cli/blob/main/planning/memory_design.md#L85-L118)
+- [agent.md:27-92](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L27-L92)
 - [planning/invariants.md:1-10](https://github.com/Kuldeep2822k/cli/blob/main/planning/invariants.md#L1-L10)
