@@ -72,23 +72,6 @@ graph TB
   CAAC --> AC
 ```
 
-**Diagram sources**
-- [auto-chain.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L200)
-- [prereq-text.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L120)
-- [wikilink.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L1-L120)
-- [0011-tiered-auto-chain.md:1-99](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0011-tiered-auto-chain.md#L1-L99)
-- [0012-declared-prerequisites.md:1-82](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0012-declared-prerequisites.md#L1-L82)
-- [engine-auto-chain.test.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-auto-chain.test.ts#L1-L60)
-- [engine-prereq-text.test.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-prereq-text.test.ts#L1-L40)
-- [cli-adopt-autochain.test.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-autochain.test.ts#L1-L60)
-
-**Section sources**
-- [auto-chain.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L200)
-- [prereq-text.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L120)
-- [wikilink.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L1-L120)
-- [0011-tiered-auto-chain.md:1-99](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0011-tiered-auto-chain.md#L1-L99)
-- [0012-declared-prerequisites.md:1-82](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0012-declared-prerequisites.md#L1-L82)
-
 ## Core Components
 The auto-chaining pipeline has four main responsibilities:
 
@@ -109,16 +92,6 @@ flowchart TD
   ValidateGraph --> CommitOrReject(["Commit Chain or Reject"])
 ```
 
-**Diagram sources**
-- [auto-chain.ts:201-400](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L201-L400)
-- [prereq-text.ts:201-317](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L201-L317)
-- [wikilink.ts:201-510](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L201-L510)
-
-**Section sources**
-- [auto-chain.ts:201-575](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L201-L575)
-- [prereq-text.ts:201-317](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L201-L317)
-- [wikilink.ts:201-510](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L201-L510)
-
 ## Architecture Overview
 Auto-chaining combines two design decisions:
 
@@ -136,10 +109,6 @@ flowchart LR
   Replace --> Merge
   Merge --> Final["Final Depends-On Edges"]
 ```
-
-**Diagram sources**
-- [0011-tiered-auto-chain.md:1-99](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0011-tiered-auto-chain.md#L1-L99)
-- [auto-chain.ts:201-400](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L201-L400)
 
 The architecture also separates parsing from resolution:
 
@@ -165,11 +134,6 @@ sequenceDiagram
   Validator-->>User: Accept or reject chain
 ```
 
-**Diagram sources**
-- [auto-chain.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L200)
-- [prereq-text.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L200)
-- [wikilink.ts:201-510](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L201-L510)
-
 ## Detailed Component Analysis
 
 ### Numbered-Tree Chaining and Lesson Ordering
@@ -192,9 +156,6 @@ flowchart TD
   Bridge --> Plan["ChainPlan"]
 ```
 
-**Diagram sources**
-- [auto-chain.ts:201-400](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L201-L400)
-
 Key implementation details:
 
 | Feature | Behavior |
@@ -205,11 +166,6 @@ Key implementation details:
 | Phase keywords | Fixed order: deep-dive, lab, exam |
 | Alphabetical fallback | Flagged through `hasUnnumbered` and detailed per-note reporting |
 | Homework placement | Assignment, quiz, and solution are placed last within a directory |
-
-**Section sources**
-- [auto-chain.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L200)
-- [auto-chain.ts:201-400](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L201-L400)
-- [engine-auto-chain.test.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-auto-chain.test.ts#L1-L120)
 
 ### Wikilink Parsing and Text-Based Prerequisite Detection
 Wikilink parsing is fs-free and focused on extracting targets from text. It supports:
@@ -241,9 +197,6 @@ flowchart TD
   Dedup --> References["Reference Candidates"]
 ```
 
-**Diagram sources**
-- [prereq-text.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L200)
-
 Cue classification:
 
 | Cue | Example meaning | Result |
@@ -251,11 +204,6 @@ Cue classification:
 | Negation | Denies the gate it names | Item skipped |
 | Reversal | States the link is the dependent, not the prerequisite | Item skipped |
 | Disjunction | Offers a choice the engine cannot model as AND | Item skipped |
-
-**Section sources**
-- [auto-chain.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L200)
-- [prereq-text.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L200)
-- [engine-prereq-text.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-prereq-text.test.ts#L1-L200)
 
 ### Declared-Prerequisite Processing Pipeline
 The declared-prerequisite pipeline transforms raw note text into resolvable references:
@@ -285,9 +233,6 @@ flowchart TD
   Resolve --> Outcome["Resolved or Skipped"]
 ```
 
-**Diagram sources**
-- [prereq-text.ts:201-317](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L201-L317)
-
 Resolution outcomes:
 
 | Outcome | Meaning | Effect |
@@ -295,10 +240,6 @@ Resolution outcomes:
 | Missing | Name matches no target | Edge skipped |
 | Ambiguous | Name matches multiple targets | Edge skipped |
 | Resolved | Exactly one unique target | Edge added |
-
-**Section sources**
-- [prereq-text.ts:201-317](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L201-L317)
-- [0012-declared-prerequisites.md:1-82](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0012-declared-prerequisites.md#L1-L82)
 
 ### Wikilink Resolution and Vault Safety
 The storage layer resolves parsed wikilinks against the vault with a strict safety policy:
@@ -332,9 +273,6 @@ flowchart TD
   Ambig -->|No| Return
 ```
 
-**Diagram sources**
-- [wikilink.ts:201-510](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L201-L510)
-
 Important safety guarantees:
 
 - Unsafe paths cannot fall through to basename matching.
@@ -342,10 +280,6 @@ Important safety guarantees:
 - Hidden namespaces and invisible paths are rejected.
 - Casing and Unicode normalization preserve topic identity.
 - Ambiguity fails closed instead of guessing.
-
-**Section sources**
-- [wikilink.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L1-L200)
-- [wikilink.ts:201-510](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L201-L510)
 
 ### Conflict Resolution Between Automatic Discovery and Explicit Declarations
 Conflict handling follows a clear precedence rule:
@@ -371,14 +305,6 @@ flowchart TD
   Advisory --> FinalEdge
 ```
 
-**Diagram sources**
-- [0011-tiered-auto-chain.md:1-99](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0011-tiered-auto-chain.md#L1-L99)
-- [0012-declared-prerequisites.md:1-82](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0012-declared-prerequisites.md#L1-L82)
-
-**Section sources**
-- [0011-tiered-auto-chain.md:1-99](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0011-tiered-auto-chain.md#L1-L99)
-- [0012-declared-prerequisites.md:1-82](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0012-declared-prerequisites.md#L1-L82)
-
 ### Validation Rules Preventing Invalid Chains
 The system enforces several invariants before committing chains:
 
@@ -393,9 +319,6 @@ The system enforces several invariants before committing chains:
 
 CLI integration tests confirm that pre-existing vault cycles block commits with a specific exit status and zero writes.
 
-**Section sources**
-- [cli-adopt-autochain.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-autochain.test.ts#L1-L200)
-
 ### Examples of Auto-Chaining Scenarios
 
 #### Scenario 1: Numbered Modules with a Cross-Module Bridge
@@ -407,9 +330,6 @@ flowchart LR
   B --> C["02-linux/01-processes.md"]
   C --> D["02-linux/lab-01-triage.md"]
 ```
-
-**Diagram sources**
-- [engine-auto-chain.test.ts:60-140](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-auto-chain.test.ts#L60-L140)
 
 Expected outcome:
 
@@ -426,9 +346,6 @@ flowchart LR
   R2 --> R3["Roadmap Topic 3"]
 ```
 
-**Diagram sources**
-- [wikilink.ts:201-510](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L201-L510)
-
 #### Scenario 3: Hedged Prerequisites
 A prerequisites section contains both a real requirement and a hedged statement.
 
@@ -441,9 +358,6 @@ Outcome:
 
 - Real link becomes an edge.
 - Hedged item contributes nothing.
-
-**Section sources**
-- [engine-prereq-text.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-prereq-text.test.ts#L1-L200)
 
 ### Edge Cases in Text Parsing
 
@@ -459,9 +373,6 @@ Outcome:
 | Plain bullet without a link | Contributes no reference |
 | Sentence describing what a lesson involves | Does not declare a prerequisite |
 
-**Section sources**
-- [engine-prereq-text.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-prereq-text.test.ts#L1-L200)
-
 ### Troubleshooting Common Auto-Discovery Issues
 
 | Symptom | Likely Cause | Resolution |
@@ -473,11 +384,6 @@ Outcome:
 | Declared prerequisite is ignored | Item is hedged, task-list, fenced, commented, or under an unrecognized heading | Remove hedge, use a checked list item, move link out of code/comment, use a recognized heading |
 | Chain conflicts with manual dependencies | Inferred edges were applied before explicit declarations | Ensure explicit declarations take precedence; declared edges replace inferred ones |
 | CLI reports false alphabetical ordering | Same-rank filenames decided order inside a directory | Keep this edge if the order is intentional; report it explicitly |
-
-**Section sources**
-- [engine-auto-chain.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-auto-chain.test.ts#L1-L200)
-- [engine-prereq-text.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-prereq-text.test.ts#L1-L200)
-- [cli-adopt-autochain.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-autochain.test.ts#L1-L200)
 
 ## Dependency Analysis
 The components have clear boundaries:
@@ -494,24 +400,12 @@ graph LR
   PatternMatcher["pattern-matcher.ts"] -. "CLI filtering" .- AutoChain
 ```
 
-**Diagram sources**
-- [auto-chain.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L200)
-- [prereq-text.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L120)
-- [wikilink.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L1-L120)
-- [pattern-matcher.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/pattern-matcher.ts#L1-L120)
-
 Coupling observations:
 
 - The engine layer remains filesystem-free and relies on interfaces like lookup functions.
 - Storage modules provide concrete vault behavior.
 - ADRs document design decisions that constrain implementation choices.
 - Tests pin expected parsing, ordering, and CLI behavior.
-
-**Section sources**
-- [auto-chain.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L200)
-- [prereq-text.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L120)
-- [wikilink.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L1-L120)
-- [pattern-matcher.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/pattern-matcher.ts#L1-L120)
 
 ## Performance Considerations
 The auto-chaining system emphasizes predictable, bounded performance:
@@ -535,11 +429,6 @@ Use these checks when auto-discovery behaves unexpectedly:
 6. For CLI failures, check exit codes and dry-run output before any files are modified.
 7. For existing chains, remember that declared prerequisites replace inferred predecessors rather than merging with them.
 
-**Section sources**
-- [cli-adopt-autochain.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-autochain.test.ts#L1-L200)
-- [engine-prereq-text.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-prereq-text.test.ts#L1-L200)
-- [wikilink.ts:201-510](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L201-L510)
-
 ## Conclusion
 The auto-chaining system is designed around trust signals:
 
@@ -550,3 +439,25 @@ The auto-chaining system is designed around trust signals:
 
 Its parsing rules favor safety over completeness. Hedged prerequisites, ambiguous names, unsafe paths, and invalid graphs are rejected rather than guessed. This makes auto-discovery reliable for automated workflows while keeping learners from being silently locked out by weak signals.
 
+## References
+
+- [auto-chain.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L200)
+- [prereq-text.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L120)
+- [wikilink.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L1-L120)
+- [0011-tiered-auto-chain.md:1-99](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0011-tiered-auto-chain.md#L1-L99)
+- [0012-declared-prerequisites.md:1-82](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0012-declared-prerequisites.md#L1-L82)
+- [engine-auto-chain.test.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-auto-chain.test.ts#L1-L60)
+- [engine-prereq-text.test.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-prereq-text.test.ts#L1-L40)
+- [cli-adopt-autochain.test.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-autochain.test.ts#L1-L60)
+- [auto-chain.ts:201-400](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L201-L400)
+- [prereq-text.ts:201-317](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L201-L317)
+- [wikilink.ts:201-510](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L201-L510)
+- [auto-chain.ts:201-575](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L201-L575)
+- [prereq-text.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L200)
+- [engine-auto-chain.test.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-auto-chain.test.ts#L1-L120)
+- [engine-prereq-text.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-prereq-text.test.ts#L1-L200)
+- [wikilink.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L1-L200)
+- [cli-adopt-autochain.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-autochain.test.ts#L1-L200)
+- [engine-auto-chain.test.ts:60-140](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-auto-chain.test.ts#L60-L140)
+- [engine-auto-chain.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-auto-chain.test.ts#L1-L200)
+- [pattern-matcher.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/pattern-matcher.ts#L1-L120)
