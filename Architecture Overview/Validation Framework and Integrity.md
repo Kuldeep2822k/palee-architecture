@@ -43,6 +43,7 @@
 8. [Troubleshooting Guide](#troubleshooting-guide)
 9. [Conclusion](#conclusion)
 10. [Appendices](#appendices)
+11. [References](#references)
 
 ## Introduction
 PALEE’s validation framework is a rule-based integrity system for an Obsidian vault that stores topics, assessments, reviews, sessions, and derived memory projections. It separates three responsibilities clearly:
@@ -106,18 +107,6 @@ graph TB
   Catalog --> Paths
 ```
 
-**Diagram sources**
-- [src/cli/validate.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts)
-- [src/validation/index.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts)
-- [src/validation/collect-vault.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts)
-- [src/validation/run-rules.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts)
-- [src/validation/format.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/format.ts)
-- [src/validation/types.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts)
-
-**Section sources**
-- [src/validation/index.ts:1-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L1-L130)
-- [src/cli/validate.ts:1-535](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L1-L535)
-
 ## Core Components
 The validation subsystem has five core layers:
 
@@ -152,12 +141,6 @@ The context is a single read-only snapshot containing:
 - `sessions`: Canonical session notes.
 - `sessionIndex`: Parsed session index.
 - `hotMemory`: Tolerant hot-memory projection.
-
-**Section sources**
-- [src/validation/types.ts:1-161](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts#L1-L161)
-- [src/validation/collect-vault.ts:1-147](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts#L1-L147)
-- [src/validation/run-rules.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts#L1-L60)
-- [src/validation/format.ts:1-180](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/format.ts#L1-L180)
 
 ## Architecture Overview
 The runtime flow is intentionally linear and deterministic:
@@ -194,12 +177,6 @@ sequenceDiagram
   CLI-->>User: "Exit code based on errors and strict mode"
 ```
 
-**Diagram sources**
-- [src/cli/validate.ts:201-535](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L201-L535)
-- [src/validation/collect-vault.ts:1-147](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts#L1-L147)
-- [src/validation/run-rules.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts#L1-L60)
-- [src/validation/format.ts:1-180](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/format.ts#L1-L180)
-
 ### Severity Policy
 ADR-0008 establishes four key policies:
 
@@ -207,9 +184,6 @@ ADR-0008 establishes four key policies:
 2. Warnings exit `0` by default; `--strict` escalates to exit `3`.
 3. Derived-view findings (`valid-session-index`, `valid-hot-memory`) are always warnings because they are rebuildable.
 4. One malformed topic note becomes one warning and never aborts the scan.
-
-**Section sources**
-- [docs/adr/0008-validation-framework-decisions.md:1-93](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0008-validation-framework-decisions.md#L1-L93)
 
 ## Detailed Component Analysis
 
@@ -239,12 +213,6 @@ flowchart TD
   Mark --> Return(["Return ValidationContext"])
 ```
 
-**Diagram sources**
-- [src/validation/collect-vault.ts:1-147](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts#L1-L147)
-
-**Section sources**
-- [src/validation/collect-vault.ts:1-147](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts#L1-L147)
-
 ### Managed Note Classification
 Managed-note eligibility is centralized so multiple rules cannot disagree about what PALEE owns:
 
@@ -265,17 +233,8 @@ flowchart TD
   TopicCheck -->|No| OtherManaged["Other managed entity"]
 ```
 
-**Diagram sources**
-- [src/validation/managed-note.ts:1-87](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/managed-note.ts#L1-L87)
-
-**Section sources**
-- [src/validation/managed-note.ts:1-87](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/managed-note.ts#L1-L87)
-
 ### Rule Execution and Error Isolation
 The rule runner executes every rule unconditionally in registration order. If a rule throws unexpectedly, the runner converts it into an error issue for that rule instead of stopping later rules. This keeps validation resilient even when a rule implementation has a bug.
-
-**Section sources**
-- [src/validation/run-rules.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts#L1-L60)
 
 ### Reporting Contracts
 Human output groups errors and warnings separately and preserves runner order. JSON output preserves legacy contract keys while adding new fields:
@@ -285,9 +244,6 @@ Human output groups errors and warnings separately and preserves runner order. J
 - `topic_count`, `file_count`, `error_count`, `warning_count`.
 - `errors[]` and `warnings[]`.
 - Each entry includes `rule_id`, `severity`, `message`, legacy locator fields where applicable, and `details`.
-
-**Section sources**
-- [src/validation/format.ts:1-180](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/format.ts#L1-L180)
 
 ## Detailed Component Analysis
 
@@ -307,29 +263,17 @@ The canonical rule catalog is ordered by concern:
 | Memory subsystem | `valid-session-schema`, `no-session-unknown-topic`, `valid-session-index`, `valid-hot-memory` | Validate canonical sessions and derived projections. |
 | Path boundary audit | `safe-vault-paths` | Ensure managed paths stay inside the configured vault. |
 
-**Section sources**
-- [src/validation/index.ts:60-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L60-L130)
-
 ### Semantic Validation Rules
 
 #### Parse and Read Surface
 - `parse-frontmatter`: Reports malformed YAML frontmatter as a warning per file.
 - `read-failure`: Reports unreadable notes, session notes, and memory subsystem components as warnings and marks the snapshot provisional.
 
-**Section sources**
-- [src/validation/rules/parse-frontmatter.ts:1-78](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/parse-frontmatter.ts#L1-L78)
-
 #### Managed Notes and Schema
 - `valid-managed-note-kind`: Classifies managed notes by identity and warns when the kind cannot be determined.
 - `valid-palee-schema`: Requires supported `palee_schema` version on managed notes.
 - `valid-topic-id-format`: Requires topic IDs to follow the centralized `T-` kebab-slug policy.
 - `valid-topic-status`: Requires present status values to be one of the four lifecycle values.
-
-**Section sources**
-- [src/validation/rules/valid-managed-note-kind.ts:1-189](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-managed-note-kind.ts#L1-L189)
-- [src/validation/rules/valid-palee-schema.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-palee-schema.ts#L1-L79)
-- [src/validation/rules/valid-topic-id-format.ts:1-75](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-id-format.ts#L1-L75)
-- [src/validation/rules/valid-topic-status.ts:1-62](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-status.ts#L1-L62)
 
 #### Identity and Dependency Integrity
 - `no-duplicate-topic-id`: Reports each duplicated topic ID with its affected files.
@@ -351,33 +295,15 @@ flowchart TD
   DupCheck -->|No| Pass["Valid dependency list"]
 ```
 
-**Diagram sources**
-- [src/validation/rules/valid-dependency-list.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-dependency-list.ts#L1-L200)
-
-**Section sources**
-- [src/validation/rules/no-duplicate-topic-id.ts:1-48](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-duplicate-topic-id.ts#L1-L48)
-- [src/validation/rules/valid-dependency-list.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-dependency-list.ts#L1-L200)
-- [src/validation/rules/no-missing-dependency.ts:1-77](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-missing-dependency.ts#L1-L77)
-- [src/validation/rules/no-dependency-cycle.ts:1-74](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-dependency-cycle.ts#L1-L74)
-
 #### Assessments and Mastery
 - `valid-assessment-fields`: Validates pillar scores as finite numbers in `[0.0, 1.0]` and `assessed_at` as null or a valid date.
 - `valid-topic-mastery`: Recomputes mastery from all four pillars and compares it to stored `topic_mastery`. Topics with absent or malformed pillar data are skipped.
 
 ADR-0035 clarifies that absent pillars mean “no data,” not zero. A topic with partial pillar data is skipped by both the rule and the repair path.
 
-**Section sources**
-- [src/validation/rules/valid-assessment-fields.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L1-L79)
-- [src/validation/rules/valid-topic-mastery.ts:1-183](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-mastery.ts#L1-L183)
-- [docs/adr/0035-validate-fix-partial-pillar-eligibility.md:1-53](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0035-validate-fix-partial-pillar-eligibility.md#L1-L53)
-
 #### Reviews and SM-2 State
 - `valid-review-fields`: Validates ease factor, interval, repetition, lapses, and last quality against the SM-2 engine contract.
 - `valid-review-dates`: Validates review dates as real `YYYY-MM-DD` strings and checks that `due_at` does not precede `last_reviewed_at`.
-
-**Section sources**
-- [src/validation/rules/valid-review-fields.ts:1-166](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-fields.ts#L1-L166)
-- [src/validation/rules/valid-review-dates.ts:1-115](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-dates.ts#L1-L115)
 
 #### Session and Memory Subsystem
 - `valid-session-schema`: Validates canonical session notes’ required fields, filename coherence, draft/completed status, and ISO timestamps.
@@ -385,17 +311,8 @@ ADR-0035 clarifies that absent pillars mean “no data,” not zero. A topic wit
 - `valid-session-index`: Warns about corrupt or stale session index entries; missing index is legal.
 - `valid-hot-memory`: Warns about unsupported schema, wrong identity, word-cap overflow, and broken session/topic references; missing hot memory is legal.
 
-**Section sources**
-- [src/validation/rules/valid-session-schema.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-session-schema.ts#L1-L200)
-- [src/validation/rules/no-session-unknown-topic.ts:1-85](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-session-unknown-topic.ts#L1-L85)
-- [src/validation/rules/valid-session-index.ts:1-87](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-session-index.ts#L1-L87)
-- [src/validation/rules/valid-hot-memory.ts:1-150](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-hot-memory.ts#L1-L150)
-
 #### Path Safety
 - `safe-vault-paths`: Audits scanned note paths, loaded topic paths, and session note paths to ensure none escape the configured vault.
-
-**Section sources**
-- [src/validation/rules/safe-vault-paths.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/safe-vault-paths.ts#L1-L134)
 
 ## Dependency Analysis
 The rule system has low coupling between individual rules and high cohesion within their semantic domain. Dependencies flow outward from shared contracts:
@@ -415,25 +332,12 @@ graph LR
   Rules --> Storage["storage modules"]
 ```
 
-**Diagram sources**
-- [src/validation/types.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts)
-- [src/validation/index.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts)
-- [src/validation/collect-vault.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts)
-- [src/validation/run-rules.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts)
-- [src/validation/format.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/format.ts)
-- [src/cli/validate.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts)
-
 Key relationships:
 
 - Rules depend on `ValidationContext`, not on the filesystem.
 - Graph rules depend on the storage loader and engine dependency utilities.
 - Session/memory rules depend on session parsing and hot-memory contracts.
 - The CLI composes everything and owns side effects: configuration, output, exit codes, and repairs.
-
-**Section sources**
-- [src/validation/types.ts:1-161](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts#L1-L161)
-- [src/validation/index.ts:1-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L1-L130)
-- [src/cli/validate.ts:1-535](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L1-L535)
 
 ## Performance Considerations
 
@@ -458,12 +362,6 @@ The repository exposes a `files` option on `collectVault`, allowing callers to s
 
 ### Concurrency and Provisional Scans
 When `readIncomplete` is true, some findings are provisional because the snapshot is incomplete. Rules that rely on cross-entity references should treat such cases carefully, and repair steps explicitly refuse to rebuild derived views from an incomplete snapshot.
-
-**Section sources**
-- [src/validation/collect-vault.ts:1-147](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts#L1-L147)
-- [src/validation/rules/no-dependency-cycle.ts:1-74](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-dependency-cycle.ts#L1-L74)
-- [src/validation/rules/valid-dependency-list.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-dependency-list.ts#L1-L200)
-- [src/cli/validate.ts:201-535](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L201-L535)
 
 ## Troubleshooting Guide
 
@@ -500,10 +398,6 @@ Typical `error`-severity rules include:
 ### Repair Conflicts
 `--fix` can skip repairs when another process modifies the vault concurrently. Conflicts are reported but do not abort other repairs. For derived views, repairs also refuse to run when the snapshot is incomplete.
 
-**Section sources**
-- [src/cli/validate.ts:201-535](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L201-L535)
-- [src/validation/format.ts:1-180](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/format.ts#L1-L180)
-
 ## Conclusion
 PALEE’s validation framework is a disciplined, rule-driven integrity layer. Its strength lies in separating concerns: collection builds one snapshot, rules express policy purely over that snapshot, and the CLI owns presentation, exit codes, and repairs. The rule catalog covers schema compliance, identity integrity, dependency graph health, assessment and review state, session memory, and path safety. Repairs are intentionally conservative and driven by each rule’s declared fixability. For large vaults, performance depends on single-pass collection, bounded graph operations, and caller-controlled incremental strategies.
 
@@ -533,9 +427,6 @@ PALEE’s validation framework is a disciplined, rule-driven integrity layer. It
 | `valid-hot-memory` | Warning | Safe | Corrupt, drifted, or stale hot memory |
 | `safe-vault-paths` | Error | Manual | Managed paths escaping the vault |
 
-**Section sources**
-- [src/validation/index.ts:60-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L60-L130)
-
 ### Custom Rule Development Checklist
 To add a new rule:
 
@@ -548,7 +439,42 @@ To add a new rule:
 7. If the rule can be auto-repaired, set `fixable: 'safe'` and register a repair implementation in the CLI handler.
 8. If manual repair is offered, mark `fixable: 'manual'` and add explicit permission through `EXPLICIT_MANUAL_REPAIRS` when needed.
 
-**Section sources**
-- [src/validation/types.ts:100-161](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts#L100-L161)
+## References
+
+- [src/cli/validate.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts)
+- [src/validation/index.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts)
+- [src/validation/collect-vault.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts)
+- [src/validation/run-rules.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts)
+- [src/validation/format.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/format.ts)
+- [src/validation/types.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts)
 - [src/validation/index.ts:1-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L1-L130)
+- [src/cli/validate.ts:1-535](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L1-L535)
+- [src/validation/types.ts:1-161](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts#L1-L161)
+- [src/validation/collect-vault.ts:1-147](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts#L1-L147)
+- [src/validation/run-rules.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts#L1-L60)
+- [src/validation/format.ts:1-180](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/format.ts#L1-L180)
+- [src/cli/validate.ts:201-535](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L201-L535)
+- [docs/adr/0008-validation-framework-decisions.md:1-93](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0008-validation-framework-decisions.md#L1-L93)
+- [src/validation/managed-note.ts:1-87](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/managed-note.ts#L1-L87)
+- [src/validation/index.ts:60-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L60-L130)
+- [src/validation/rules/parse-frontmatter.ts:1-78](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/parse-frontmatter.ts#L1-L78)
+- [src/validation/rules/valid-managed-note-kind.ts:1-189](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-managed-note-kind.ts#L1-L189)
+- [src/validation/rules/valid-palee-schema.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-palee-schema.ts#L1-L79)
+- [src/validation/rules/valid-topic-id-format.ts:1-75](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-id-format.ts#L1-L75)
+- [src/validation/rules/valid-topic-status.ts:1-62](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-status.ts#L1-L62)
+- [src/validation/rules/valid-dependency-list.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-dependency-list.ts#L1-L200)
+- [src/validation/rules/no-duplicate-topic-id.ts:1-48](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-duplicate-topic-id.ts#L1-L48)
+- [src/validation/rules/no-missing-dependency.ts:1-77](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-missing-dependency.ts#L1-L77)
+- [src/validation/rules/no-dependency-cycle.ts:1-74](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-dependency-cycle.ts#L1-L74)
+- [src/validation/rules/valid-assessment-fields.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L1-L79)
+- [src/validation/rules/valid-topic-mastery.ts:1-183](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-mastery.ts#L1-L183)
+- [docs/adr/0035-validate-fix-partial-pillar-eligibility.md:1-53](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0035-validate-fix-partial-pillar-eligibility.md#L1-L53)
+- [src/validation/rules/valid-review-fields.ts:1-166](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-fields.ts#L1-L166)
+- [src/validation/rules/valid-review-dates.ts:1-115](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-dates.ts#L1-L115)
+- [src/validation/rules/valid-session-schema.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-session-schema.ts#L1-L200)
+- [src/validation/rules/no-session-unknown-topic.ts:1-85](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-session-unknown-topic.ts#L1-L85)
+- [src/validation/rules/valid-session-index.ts:1-87](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-session-index.ts#L1-L87)
+- [src/validation/rules/valid-hot-memory.ts:1-150](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-hot-memory.ts#L1-L150)
+- [src/validation/rules/safe-vault-paths.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/safe-vault-paths.ts#L1-L134)
+- [src/validation/types.ts:100-161](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts#L100-L161)
 - [src/cli/validate.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L1-L200)
