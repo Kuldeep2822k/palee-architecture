@@ -6,6 +6,7 @@
 - [bin/palee.ts](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts)
 - [src/cli/config.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts)
 - [src/cli/adopt.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts)
+- [src/cli/adopt-undo.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts)
 - [src/cli/next.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts)
 - [src/cli/plan.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/plan.ts)
 - [src/cli/review.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts)
@@ -554,7 +555,7 @@ Exit codes commonly used by these commands:
 | `5` | Unexpected exception or infrastructure failure. |
 
 ## Conclusion
-PALee's configuration and CLI option model separates three concerns cleanly:
+PALEE's configuration and CLI option model separates three concerns cleanly:
 
 1. **Per-user configuration**: `PaleeConfig` defines vault location and AI backend settings, resolved from a platform-default per-user path or `PALEE_CONFIG_DIR`.
 2. **Option interfaces**: Each command has a focused TypeScript interface describing its flags, defaults, and intended behavior.
@@ -566,59 +567,3 @@ For safe operation:
 - Never commit `apiKey` into source control.
 - Use `--dry-run` before destructive operations like `adopt --undo`, `roadmap --auto-chain`, `validate --fix`, or `migrate --relabel-ties`.
 - Treat exit code `2` as a user-input problem and exit code `5` as an unexpected failure worth investigating.
-
-## References
-
-- [bin/palee.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L120)
-- [src/cli/config.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L120)
-- [src/types.ts:501-1001](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L501-L1001)
-- [src/cli/config.ts:120-220](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L120-L220)
-- [src/types.ts:560-610](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L560-L610)
-- [src/types.ts:610-760](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L610-L760)
-- [src/cli/adopt.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L60)
-- [bin/palee.ts:120-220](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L120-L220)
-- [src/cli/adopt-undo.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts#L1-L60)
-- [src/types.ts:760-790](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L760-L790)
-- [src/cli/next.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L120)
-- [bin/palee.ts:220-240](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L220-L240)
-- [src/types.ts:790-805](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L790-L805)
-- [src/cli/plan.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/plan.ts#L1-L120)
-- [bin/palee.ts:240-250](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L240-L250)
-- [src/types.ts:805-825](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L805-L825)
-- [src/cli/review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [bin/palee.ts:260-275](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L260-L275)
-- [src/types.ts:825-835](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L825-L835)
-- [src/cli/dashboard.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L120)
-- [bin/palee.ts:330-340](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L330-L340)
-- [src/types.ts:835-845](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L835-L845)
-- [src/cli/progress.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L120)
-- [bin/palee.ts:250-260](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L250-L260)
-- [src/types.ts:845-865](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L845-L865)
-- [src/cli/validate.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L1-L120)
-- [bin/palee.ts:275-290](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L275-L290)
-- [src/types.ts:865-875](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L865-L875)
-- [src/cli/session.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L120)
-- [bin/palee.ts:340-355](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L340-L355)
-- [src/types.ts:875-920](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L875-L920)
-- [src/cli/roadmap.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L1-L120)
-- [bin/palee.ts:290-315](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L290-L315)
-- [src/types.ts:920-965](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L920-L965)
-- [src/cli/assess.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L120)
-- [src/types.ts:965-975](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L965-L975)
-- [src/cli/update.ts:1-84](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update.ts#L1-L84)
-- [bin/palee.ts:355-380](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L355-L380)
-- [src/types.ts:520-560](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L520-L560)
-- [src/cli/migrate.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/migrate.ts#L1-L120)
-- [bin/palee.ts:315-340](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L315-L340)
-- [src/types.ts:520-1001](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L520-L1001)
-- [src/cli/next.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L60)
-- [src/cli/plan.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/plan.ts#L1-L60)
-- [src/cli/review.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L60)
-- [src/cli/dashboard.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L60)
-- [src/cli/progress.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L60)
-- [src/cli/validate.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L1-L60)
-- [src/cli/session.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L60)
-- [src/cli/roadmap.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L1-L60)
-- [src/cli/assess.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L60)
-- [src/cli/update.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update.ts#L1-L40)
-- [src/cli/migrate.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/migrate.ts#L1-L60)

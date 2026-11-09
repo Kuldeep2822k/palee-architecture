@@ -177,7 +177,7 @@ A topic moves through several states as you adopt it, study it, assess it, and r
 | Learning | Reviewed at least once; SM-2 scheduling begins. | `palee review <id> <quality>` | Future due dates are computed. |
 | Assessed | Four-pillar scores are recorded. | `palee assess <id> --conceptual ... --practical ... --debug ... --feynman ...` | `topic_mastery` recomputed; gates may open or close. |
 | Mastered | Composite mastery reaches or exceeds 0.70. | Assessment-driven. | Depends on this topic can become available. |
-| Archived | Topic removed from active study flow. | Status management in frontmatter. | Excluded from `next`, `plan`, and progress summaries. |
+| Archived | Topic removed from active study flow. | Status management in frontmatter. | Excluded from `next`, `plan`, and other actionable views, but still counted in progress totals. |
 | Paused | Intentionally suspended. | Status management in frontmatter. | Behavior depends on command-specific filtering. |
 
 ```mermaid
@@ -316,9 +316,8 @@ sequenceDiagram
     Mastery-->>Assess: New mastery and pillar values
     Assess->>Graph: Determine unlocked/blocked dependents
     Graph-->>Assess: Availability impact
-    Assess-->>User: Effect report
-    User->>Assess: Confirm or use --dry-run
     Assess->>Store: Write updated frontmatter
+    Assess-->>User: Effect report
 ```
 
 ### Track Progress
@@ -425,7 +424,7 @@ Important safety properties:
 - API keys are accepted from stdin, environment variables, or interactive prompts—not command arguments.
 - The key is stored securely on POSIX systems with restricted file permissions.
 - `palee config show` masks the key.
-- `test-connection` is the only command that directly contacts a network endpoint.
+- `test-connection` is the only command that contacts a configured provider endpoint. (The separate `palee update` command is the only other network-touching command; it contacts the package registry, not a configured provider endpoint.)
 - Non-interactive or JSON runs refuse risky key operations without explicit flags.
 
 ## Practical Examples
@@ -558,43 +557,3 @@ For best results:
 - Assess periodically so mastery reflects real competence, not just recall timing.
 - Use sessions to preserve context between study intervals.
 - Validate regularly and repair only what you understand.
-
-## References
-
-- [README.md:13-26](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L13-L26)
-- [README.md:37-88](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L37-L88)
-- [types.ts:113-165](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L113-L165)
-- [Docker Fundamentals.md:1-26](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Fundamentals.md#L1-L26)
-- [Docker Volumes.md:1-27](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Volumes.md#L1-L27)
-- [Docker Networking.md:1-30](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Networking.md#L1-L30)
-- [README.md:207-251](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L207-L251)
-- [sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-- [0004-four-pillar-pedagogical-mastery.md:15-35](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L15-L35)
-- [assess.ts:70-130](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L70-L130)
-- [types.ts:15-52](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L15-L52)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [0012-declared-prerequisites.md:1-82](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0012-declared-prerequisites.md#L1-L82)
-- [plan.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/plan.ts#L1-L200)
-- [progress.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L200)
-- [next.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L200)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [assess.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L200)
-- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
-- [adopt.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L200)
-- [README.md:124-168](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L124-L168)
-- [roadmap.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L1-L200)
-- [session.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L200)
-- [README.md:239-251](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L239-L251)
-- [README.md:41-122](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L41-L122)
-- [program-name.ts:1-91](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/program-name.ts#L1-L91)
-- [README.md:41-88](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L41-L88)
-- [types.ts:167-188](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L167-L188)
-- [review.ts:100-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L100-L141)
-- [validate.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L1-L200)
-- [README.md:253-286](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L253-L286)
-- [review.ts:30-80](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L30-L80)
-- [assess.ts:130-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L130-L200)
-- [progress.ts:100-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L100-L200)
-- [review.ts:80-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L80-L141)
-- [sm2.ts:100-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L100-L200)

@@ -33,7 +33,7 @@ The adopt command converts existing Markdown notes into managed PALEE topics by 
 - Batch adoption across a directory or the whole vault with glob-style filters.
 - Prerequisite text extraction from a note’s own prerequisite section.
 - Safe atomic writes backed by optimistic concurrency control.
-- Reversal through the adopt-undo command, which removes only the keys PALEE added.
+- Reversal through undo, a mode of the adopt command (`palee adopt --undo`), which removes only the keys PALEE added.
 
 This document explains how to use the command, what happens under the hood, how undo works, and how to handle common issues safely.
 
@@ -93,7 +93,7 @@ The undo command reverses adoption changes safely:
 - Collapses an empty `{}` frontmatter block back to nothing when appropriate.
 - Writes through the same atomic OCC path and maintains a rollback journal.
 
-Owned keys removed by undo include identity, schema, difficulty, dependency declarations, mastery, assessment timestamps, pillar scores, SM-2 scheduling fields, and provenance labels. Keys such as user-authored topic metadata, review data, and assessment state are intentionally not removed because they may predate or postdate adoption.
+Owned keys removed by undo include identity, schema, difficulty, dependency declarations, mastery, assessment timestamps (`assessed_at`), pillar scores (`conceptual`, `practical`, `debug`, `feynman`), SM-2 scheduling fields (`ease_factor`, `interval_days`, `repetition`, `lapses`, `last_quality`, `last_reviewed_at`, `due_at`), and provenance labels — undo removes exactly the review/SM-2 and assessment keys in `PALEE_OWNED_KEYS`. Keys adoption never writes — e.g. status, topic, and legacy dependencies — are preserved. One exception: adoption does write `title` but does not own it, so undo removes it only when `--drop-title` is passed.
 
 ### Topic Identity
 A PALEE topic ID follows the policy `T-` followed by lowercase kebab-case segments. Adopted IDs are generated using a timestamp plus cryptographic randomness. Existing legacy adopt-generated formats remain valid for validation, but new adoption uses the canonical form.
@@ -155,7 +155,7 @@ Atomic writes provide durability and concurrency safety:
 8. Flush the containing directory where supported.
 9. Handle Windows locking with bounded exponential backoff and jitter.
 
-Undo also uses this path, restoring previous content during rollback by writing exact prior bytes with their original fingerprints.
+Undo also uses this path, restoring previous content during rollback by writing the prior bytes back, verified against the fingerprint of the bytes the undo run wrote (`item.writtenFingerprint` in `rollbackBatch`) — not against the fingerprint of the original bytes.
 
 ```mermaid
 sequenceDiagram
@@ -181,7 +181,7 @@ flowchart TD
   DetectMode -->|Single file| ValidateSingle["Validate path, size, frontmatter, duplicate ID"]
   DetectMode -->|Batch| WalkVault["Walk vault and apply filters"]
   WalkVault --> PreviewScope["Preview matched notes"]
-  PreviewScope --> Confirm{"Interactive and not --yes?"}
+  PreviewScope --> Confirm{"Non-interactive and not --yes?"}
   Confirm -->|Yes| ExitUsage["Exit usage code"]
   Confirm -->|No| PlanDeps["Resolve dependencies and topic metadata"]
   ValidateSingle --> PlanDeps
@@ -372,28 +372,13 @@ graph LR
 
 ### Non-Interactive Mode
 - Batch adoption without `--yes` exits with usage code in non-interactive environments.
-- Automation scripts should pass `--yes` or pipe confirmation.
+- Automation scripts should pass `--yes`.
 
 ### Undo Did Not Remove Expected Keys
-- Undo removes only PALEE-owned keys.
-- User-authored keys such as topic metadata, review state, or assessment fields are preserved.
+- Undo removes only PALEE-owned keys — exactly the review/SM-2 and assessment keys in `PALEE_OWNED_KEYS` (`assessed_at`, `conceptual`, `practical`, `debug`, `feynman`, `ease_factor`, `interval_days`, `repetition`, `lapses`, `last_quality`, `last_reviewed_at`, `due_at`, and the other owned keys).
+- Keys adoption never writes — e.g. status, topic, and legacy dependencies — are preserved. One exception: adoption does write `title` but does not own it, so undo removes it only when `--drop-title` is passed.
 - The `title` key is kept by default because adoption does not own it.
 - Use the dedicated flag to drop `title` if you want it removed.
 
 ## Conclusion
 Adoption turns ordinary Markdown notes into managed PALEE topics with stable identities, structured metadata, and optional prerequisite edges. Single-file adoption is safest for careful conversion, while batch adoption scales across directories and vaults with filtering and preview. Undo restores the pre-adoption state by removing only the keys PALEE owns. Atomic writes and fingerprint checks protect against concurrent edits and crashes. For large vaults, organize content thoughtfully, keep notes small and focused, validate patterns with dry runs, and use undo to reverse mistakes safely.
-
-## References
-
-- [adopt.ts:201-531](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L201-L531)
-- [adopt-undo.ts:201-587](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts#L201-L587)
-- [vault-walker.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/vault-walker.ts#L1-L200)
-- [scanner.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L1-L200)
-- [frontmatter.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L200)
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
-- [topic-id.ts:1-81](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L1-L81)
-- [prereq-text.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L200)
-- [cli-adopt-batch.test.ts:1-180](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-batch.test.ts#L1-L180)
-- [cli-adopt-single-file-filters.test.ts:1-101](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-single-file-filters.test.ts#L1-L101)
-- [adopt-undo.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts#L1-L200)
-- [cli-adopt-prereq-text.test.ts:1-180](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-prereq-text.test.ts#L1-L180)

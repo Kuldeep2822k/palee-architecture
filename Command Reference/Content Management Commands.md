@@ -30,7 +30,7 @@ The three commands share common infrastructure:
 - Vault discovery through the user's configuration.
 - Atomic frontmatter writes that preserve existing topic identity.
 - Exit-code-driven error reporting compatible with automation.
-- JSON output support for machine-readable workflows.
+- JSON output support on `config` only, for machine-readable workflows: `adopt` and `assess` do not declare `--json`, and passing it to them is a usage error (exit 2). See the canonical JSON-support matrix in [General CLI Concepts and Conventions](/Command%20Reference/General%20CLI%20Concepts%20and%20Conventions).
 
 ## Project Structure
 The implementation is organized by CLI command, with shared engine, storage, and application logic under separate directories.
@@ -45,9 +45,12 @@ graph TB
 
     subgraph "Engine Layer"
         M["mastery.ts"]
-        R["record-assessment.ts"]
         P["pattern-matcher.ts"]
         T["types.ts"]
+    end
+
+    subgraph "Application Layer"
+        R["record-assessment.ts"]
     end
 
     A --> M
@@ -68,8 +71,10 @@ The adopt command converts existing Markdown notes into PALEE topics. It support
 - Difficulty specification.
 - Dependency declaration through `--depends-on`.
 - Auto-chaining from numbered curriculum structure or declared prerequisites.
-- Undo via a companion undo mechanism.
+- Undo via `palee adopt --undo`.
 - Dry-run preview without modifying files.
+- `--verbose`: Print detailed file-by-file inspection information.
+- `-y, --yes`: Skip confirmation prompts.
 
 Key behaviors:
 - Invalid difficulty values are rejected immediately.
@@ -242,7 +247,7 @@ Auto-chain builds a dependency plan before confirming or writing:
 #### Undo Functionality
 Adoption writes are tracked in a rollback journal. If a later step fails during batch processing, previously written notes can be restored to their original content. The undo operation is best-effort: failures are logged while continuing to revert remaining entries.
 
-The undo command is implemented separately and invoked through the adopt workflow where applicable.
+There is no separate undo command: undo is the `palee adopt --undo` mode of the adopt command itself (implemented in `src/cli/adopt-undo.ts`). Combined with `--drop-title`, it also removes the `title` key from the selected notes.
 
 #### Dry-Run Mode
 Dry-run modes exist for both single-file and batch adoption:
@@ -343,7 +348,7 @@ sequenceDiagram
 - `PALEE_CONFIG_DIR`: Overrides the config directory.
 - `LOCALAPPDATA`: Used by default Windows config resolution.
 - `USERPROFILE`: Used by Windows profile-root checks.
-- `API_KEY_ENV`: Identified in the AI module and referenced by connection testing to label the active key source.
+- `PALEE_API_KEY`: The environment variable holding the API key; referenced by connection testing to label the active key source.
 - `PALEE_ALLOW_INSECURE_CONFIG_DIR`: Overrides Windows API key directory safety checks.
 
 #### JSON Output Format
@@ -410,7 +415,7 @@ graph LR
 - **Already adopted**: The note already carries a `palee_id`; do not re-adopt it.
 - **Dangling dependency**: Correct malformed IDs or wait until referenced topics exist.
 - **Conflicting auto-chain and depends-on**: Use one strategy for declaring dependencies.
-- **Missing chain tier**: Pass `--chain-tier strict` or `--chain-tier full` with `--auto-chain`.
+- **Chain tier misuse**: `--chain-tier` used without `--auto-chain` is an error, as is an invalid tier value. No tier needs to be passed: when `--chain-tier` is absent, the tier defaults to `strict`.
 
 ### Common Assess Pitfalls
 - **No pillar provided**: Supply at least one of `--conceptual`, `--practical`, `--debug`, or `--feynman`.
@@ -429,7 +434,7 @@ graph LR
 - **Test connection failure**: Check provider settings, network access, and API key source.
 
 ## Conclusion
-PALAE's content management commands provide a disciplined workflow for turning existing notes into managed learning topics, recording structured assessments, and maintaining secure configuration. The adopt command balances flexibility with safety through validation, hygiene rules, atomic writes, and rollback. The assess command ties pedagogical mastery to prerequisite gating using a clear four-pillar model. The config command centralizes provider and vault settings while protecting secrets and exposing machine-readable output for automation.
+PALEE's content management commands provide a disciplined workflow for turning existing notes into managed learning topics, recording structured assessments, and maintaining secure configuration. The adopt command balances flexibility with safety through validation, hygiene rules, atomic writes, and rollback. The assess command ties pedagogical mastery to prerequisite gating using a clear four-pillar model. The config command centralizes provider and vault settings while protecting secrets and exposing machine-readable output for automation.
 
 For reliable workflows:
 - Prefer explicit topic IDs and narrow queries.
@@ -437,33 +442,3 @@ For reliable workflows:
 - Use dry-run modes to inspect planned changes.
 - Keep configuration inside safe directories and avoid embedding secrets in command history.
 - Treat mastery as a gate: raise it with all relevant pillars, especially Feynman, when prerequisite gates remain closed.
-
-## References
-
-- [adopt.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L20)
-- [assess.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L20)
-- [config.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L20)
-- [mastery.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L20)
-- [record-assessment.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L20)
-- [pattern-matcher.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/pattern-matcher.ts#L1-L20)
-- [types.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L20)
-- [adopt.ts:201-280](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L201-L280)
-- [adopt.ts:280-420](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L280-L420)
-- [adopt.ts:420-531](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L420-L531)
-- [adopt.ts:600-905](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L600-L905)
-- [assess.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L120)
-- [assess.ts:120-279](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L120-L279)
-- [mastery.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L120)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [config.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L120)
-- [config.ts:201-612](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L201-L612)
-- [config.ts:612-766](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L612-L766)
-- [adopt.ts:201-531](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L201-L531)
-- [config.ts:201-766](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L201-L766)
-- [pattern-matcher.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/pattern-matcher.ts#L1-L120)
-- [types.ts:60-120](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L60-L120)
-- [record-assessment.ts:60-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L60-L134)
-- [mastery.ts:80-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L80-L200)
-- [assess.ts:1-279](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L279)
-- [mastery.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L200)
-- [config.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L200)

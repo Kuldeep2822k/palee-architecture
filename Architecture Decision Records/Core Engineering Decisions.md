@@ -411,23 +411,3 @@ Common failure modes and their meanings:
 PALEE’s storage architecture chooses strong local consistency over maximum throughput. SM-2 provides deterministic scheduling without external dependencies. Concrete syntax tree frontmatter editing preserves user-authored Markdown. Atomic writes with optimistic concurrency control and cross-process locking protect against partial writes, lost updates, and crashes. Vault containment prevents accidental or malicious escape. Hot memory is a clearly bounded derived view. Caching accelerates scans while preserving correctness on platforms with coarse timestamps. Bounded lock acquisition replaces a busy-spin hazard with a measurable, diagnosable conflict.
 
 Together, these decisions enable concurrent access to Obsidian vaults while keeping the vault itself the single source of truth. The main ongoing trade-off is latency under contention: users editing or syncing the same notes concurrently may see retryable conflicts, but the system avoids silent corruption and indefinite hangs.
-
-## References
-
-- [README.md:1-314](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L1-L314)
-- [index.ts:1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
-- [sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-- [frontmatter.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L200)
-- [lock.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L1-L200)
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
-- [containment.ts:1-185](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts#L1-L185)
-- [memory.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1-L200)
-- [cache.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/cache.ts#L1-L200)
-- [0001-supermemo-sm2-algorithm.md:1-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L1-L63)
-- [0003-concrete-syntax-tree-yaml-frontmatter.md:1-51](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0003-concrete-syntax-tree-yaml-frontmatter.md#L1-L51)
-- [0002-atomic-file-locking-and-occ.md:1-56](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0002-atomic-file-locking-and-occ.md#L1-L56)
-- [0006-phase-1-concurrency-resilience-and-storage-isolation.md:1-87](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0006-phase-1-concurrency-resilience-and-storage-isolation.md#L1-L87)
-- [0007-hot-memory-read-state-contract.md:1-54](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0007-hot-memory-read-state-contract.md#L1-L54)
-- [0014-atomic-write-durability-and-containment.md:1-79](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0014-atomic-write-durability-and-containment.md#L1-L79)
-- [0018-read-path-caching-and-locking.md:1-78](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0018-read-path-caching-and-locking.md#L1-L78)
-- [0036-bounded-lock-acquisition.md:1-91](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0036-bounded-lock-acquisition.md#L1-L91)
