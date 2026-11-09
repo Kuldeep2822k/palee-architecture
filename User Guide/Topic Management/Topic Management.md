@@ -22,7 +22,8 @@
 6. [Dependency Analysis](#dependency-analysis)
 7. [Performance Considerations](#performance-considerations)
 8. [Troubleshooting Guide](#troubleshooting-guide)
-9. [Conclusion](#conclusion)
+9. [Best Practices](#best-practices)
+10. [Conclusion](#conclusion)
 
 ## Introduction
 This document explains how PALEE manages topics: turning existing Markdown notes into tracked learning units, recording pillar-based assessments, and querying or planning around topic dependencies. It focuses on the `adopt` and `assess` commands, prerequisite extraction from note text, topic discovery and resolution, vault organization best practices, common workflows, and troubleshooting for large vaults.
@@ -109,6 +110,7 @@ Resolution order:
 - Exact ID first, avoiding substring ambiguity.
 - Title and ID substring matches grouped as candidates.
 - Path fallback only when no ID/title match exists.
+- ID substring matching is case-sensitive; title matching is not.
 
 Ambiguity is surfaced to the caller rather than silently picking the first candidate.
 
@@ -160,7 +162,7 @@ sequenceDiagram
     participant App as "Record Assessment"
     participant Storage as "Frontmatter Writer"
 
-    User->>CLI_Assess: "palee assess <topic> --pillar N [--dry-run]"
+    User->>CLI_Assess: "palee assess <topic> --conceptual N [--dry-run]"
     CLI_Assess->>Query: "resolve topic id/path"
     Query-->>CLI_Assess: "single topic or error"
     CLI_Assess->>App: "build assessment update"
@@ -365,14 +367,3 @@ Common mistake:
 
 ## Conclusion
 Topic management in PALEE combines careful file scanning, robust frontmatter handling, explicit prerequisite modeling, and mastery-driven planning. The adopt command turns existing notes into managed topics while preserving author intent, and the assess command ties pedagogical mastery to scheduling and readiness. For large vaults, disciplined filtering, safe dry-runs, and clear prerequisite documentation produce predictable, maintainable learning graphs.
-
-## References
-
-- [adopt.ts:201-531](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L201-L531)
-- [assess.ts:1-279](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L279)
-- [topic-query.ts:1-97](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/topic-query.ts#L1-L97)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [prereq-text.ts:1-317](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L317)
-- [scanner.ts:1-327](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L1-L327)
-- [cli-adopt-batch.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-batch.test.ts#L1-L200)
-- [cli-adopt-prereq-text.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-prereq-text.test.ts#L1-L200)

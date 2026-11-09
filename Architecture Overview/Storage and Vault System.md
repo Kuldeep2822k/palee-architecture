@@ -24,7 +24,6 @@
 7. [Performance Considerations](#performance-considerations)
 8. [Troubleshooting Guide](#troubleshooting-guide)
 9. [Conclusion](#conclusion)
-10. [References](#references)
 
 ## Introduction
 This document explains PALEE's storage layer and its integration with an Obsidian vault. It covers how PALEE discovers Markdown notes, parses and updates YAML frontmatter while preserving formatting, performs atomic writes with optimistic concurrency control (OCC), enforces path containment for security, coordinates concurrent access through file locks, and caches parsed data to keep repeated scans efficient.
@@ -501,15 +500,3 @@ If the cache serves stale data or grows too large:
 
 ## Conclusion
 PALEE's storage layer is built around safety, consistency, and predictable performance. Vault traversal excludes unsafe and irrelevant paths, the scanner tolerates malformed notes without failing the whole scan, and the frontmatter layer preserves user formatting while enabling precise updates. Atomic writes combine containment checks, file locks, OCC fingerprints, temporary files, and durability flushing to ensure that vault data remains consistent even under concurrent or interrupted operations. The lock manager handles stale holders and platform differences, while the file cache and negative cache keep repeated loads efficient. Together, these components provide a secure, observable, and performant foundation for managing PALEE topics inside an Obsidian vault.
-
-## References
-
-- [storage index:1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
-- [vault walker:1-368](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/vault-walker.ts#L1-L368)
-- [note scanner:1-327](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L1-L327)
-- [frontmatter parser:1-220](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L220)
-- [atomic writer:1-611](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L611)
-- [file lock manager:1-956](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L1-L956)
-- [file cache:1-273](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/cache.ts#L1-L273)
-- [containment guard:1-185](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts#L1-L185)
-- [topic loader:1-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L417)

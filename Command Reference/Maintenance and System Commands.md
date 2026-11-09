@@ -398,30 +398,3 @@ Recommended baseline maintenance workflow:
 | `PALEE_JSON` | Global | Requests JSON output where supported. |
 | `PALEE_NO_UPDATE_CHECK` | Global | Silences the new-version notice for interactive runs. |
 | `PALEE_DEBUG` | Global | Enables raw stack traces on fatal errors. |
-
-## References
-
-- [bin/palee.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L60)
-- [bin/palee.ts:201-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L201-L389)
-- [src/cli/validate.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L1-L40)
-- [src/cli/migrate.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/migrate.ts#L1-L30)
-- [src/cli/session.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L30)
-- [src/cli/update.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update.ts#L1-L20)
-- [src/cli/vault-echo.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/vault-echo.ts#L1-L30)
-- [src/cli/vault-echo.ts:60-138](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/vault-echo.ts#L60-L138)
-- [src/cli/validate.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L1-L120)
-- [src/cli/validate.ts:201-330](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L201-L330)
-- [src/cli/validate.ts:331-535](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L331-L535)
-- [src/cli/migrate.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/migrate.ts#L1-L120)
-- [src/cli/migrate.ts:201-489](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/migrate.ts#L201-L489)
-- [src/cli/migrate.ts:490-801](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/migrate.ts#L490-L801)
-- [bin/palee.ts:201-260](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L201-L260)
-- [src/cli/session.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L120)
-- [src/cli/session.ts:201-553](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L201-L553)
-- [src/cli/session.ts:554-888](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L554-L888)
-- [bin/palee.ts:260-320](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L260-L320)
-- [src/cli/update.ts:1-84](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update.ts#L1-L84)
-- [bin/palee.ts:320-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L320-L389)
-- [src/cli/vault-echo.ts:1-138](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/vault-echo.ts#L1-L138)
-- [src/cli/session.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L40)
-- [src/cli/validate.ts:201-535](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L201-L535)

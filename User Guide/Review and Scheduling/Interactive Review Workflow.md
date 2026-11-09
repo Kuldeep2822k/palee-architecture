@@ -356,28 +356,3 @@ Recommended practices:
 
 ## Conclusion
 PALEE’s interactive review workflow is deliberately focused: it turns a self-reported recall rating into durable scheduling state and a refreshed mastery score without inventing assessment data. The four-pillar model ensures that true mastery requires conceptual, practical, debugging, and articulation competence, with Feynman’s double weight emphasizing clear explanation. The review command protects learners through strict validation, OCC-safe writes, explicit error messages, and early-review warnings. Session continuity and atomic storage keep the broader learning progression reliable, while the assessment surface remains the proper place to adjust mastery-driven prerequisite gating.
-
-## References
-
-- [src/cli/review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [src/application/record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [src/engine/sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-- [src/engine/mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [src/storage/sessions.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L200)
-- [src/cli/review.ts:20-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L20-L141)
-- [src/application/record-review.ts:68-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L68-L116)
-- [src/engine/sm2.ts:95-245](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L95-L245)
-- [src/engine/mastery.ts:145-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L145-L229)
-- [test/cli-review-early.test.ts:1-150](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-review-early.test.ts#L1-L150)
-- [src/application/record-review.ts:39-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L39-L116)
-- [test/application-record-review.test.ts:1-83](https://github.com/Kuldeep2822k/cli/blob/main/test/application-record-review.test.ts#L1-L83)
-- [docs/adr/0001-supermemo-sm2-algorithm.md:1-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L1-L63)
-- [src/engine/mastery.ts:1-144](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L144)
-- [docs/adr/0004-four-pillar-pedagogical-mastery.md:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
-- [docs/adr/0021-assessment-surface.md:1-86](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0021-assessment-surface.md#L1-L86)
-- [docs/adr/0019-session-memory-lifecycle.md:1-71](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0019-session-memory-lifecycle.md#L1-L71)
-- [docs/adr/0007-hot-memory-read-state-contract.md:1-54](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0007-hot-memory-read-state-contract.md#L1-L54)
-- [src/cli/review.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L20)
-- [src/application/record-review.ts:1-38](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L38)
-- [src/engine/sm2.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L20)
-- [src/engine/mastery.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L20)

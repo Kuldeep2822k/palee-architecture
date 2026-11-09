@@ -110,10 +110,10 @@ flowchart TD
 The query resolver supports three matching strategies:
 
 1. Exact `palee_id` match.
-2. Substring match against `palee_id` or lowercase `title`.
+2. Substring match against `palee_id` or lowercase `title`. ID substring is case-sensitive; title substring is not.
 3. Normalized exact vault path match.
 
-Path normalization folds backslashes to forward slashes, drops a leading `./`, and lowercases on Windows. On POSIX systems, path casing remains significant because filesystem lookup is case-sensitive.
+Path normalization folds backslashes to forward slashes, drops a leading `./`, and lowercases on Windows. On POSIX systems, path casing remains significant because filesystem lookup is case-sensitive. Partial paths are deliberately refused: a bare basename or an extension-less path does not resolve — only the full printed vault-relative path works.
 
 The result type distinguishes three outcomes:
 
@@ -129,12 +129,13 @@ flowchart TD
   ExactId --> ExactFound{"Exact match found?"}
   ExactFound -->|Yes| Substring["Use exact matches only"]
   ExactFound -->|No| SubstringMatch["Filter by palee_id or title substring"]
-  SubstringMatch --> AmbiguousCheck{"More than one candidate?"}
-  AmbiguousCheck -->|Yes| ReturnAmbiguous["Return ambiguous candidates"]
-  AmbiguousCheck -->|No| PathMatch["Normalize and match vault path"]
+  SubstringMatch --> AmbiguousCheck{"How many candidates?"}
+  AmbiguousCheck -->|">1"| ReturnAmbiguous["Return ambiguous candidates"]
+  AmbiguousCheck -->|"==1"| ReturnSingle["Return single topic"]
+  AmbiguousCheck -->|"==0"| PathMatch["Normalize and match vault path"]
   PathMatch --> PathResult{"Path match unique?"}
   PathResult -->|No| ReturnNone["Return none"]
-  PathResult -->|Yes| ReturnSingle["Return single topic"]
+  PathResult -->|Yes| ReturnSingle
   Substring --> MoreThanOne{"More than one candidate?"}
   MoreThanOne -->|Yes| ReturnAmbiguous
   MoreThanOne -->|No| ReturnSingle
@@ -377,7 +378,7 @@ Large vaults require careful attention to graph complexity and repeated scans.
 **Resolution**:
 - Inspect `depends_on_source`.
 - Treat advisory edges as ordering guidance, not hard gates.
-- Raise the prerequisite mastery above the threshold if it is below.
+- If the edge should gate, re-declare the dependency with a gated source instead of toc/tie.
 
 ### Vault Has Circular Dependencies
 **Symptoms**: Discovery shows quarantine behavior, missing ordering, or truncated cycle reports.  
@@ -401,29 +402,3 @@ PALEE’s topic discovery system separates user-facing query resolution, pure sc
 - Generate progress reports by inspecting mastery, status, due dates, and prerequisite satisfaction.
 
 For large vaults, the most important optimization principle is to reuse precomputed topic graphs, avoid redundant scans, and prefer bounded algorithms where cycle enumeration could otherwise grow exponentially. Proper indexing by `palee_id`, careful use of advisory edges, and clear distinction between due-date actionability and prerequisite readiness together produce reliable, predictable discovery behavior.
-
-## References
-
-- [topic-query.ts:1-97](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/topic-query.ts#L1-L97)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [dependency.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L200)
-- [index.ts:41-50](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L41-L50)
-- [mastery.ts:19-19](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L19-L19)
-- [types.ts:624-684](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L624-L684)
-- [topic-query.ts:28-97](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/topic-query.ts#L28-L97)
-- [due-topics.ts:13-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L13-L58)
-- [get-next-topics.ts:20-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L20-L199)
-- [dependency.ts:930-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L930-L1015)
-- [due-topics.ts:35-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L35-L58)
-- [dependency.ts:601-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L601-L1015)
-- [get-next-topics.ts:150-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L150-L199)
-- [get-next-topics.ts:60-149](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L60-L149)
-- [types.ts:657-657](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L657-L657)
-- [get-next-topics.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L30)
-- [due-topics.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L20)
-- [topic-query.ts:1-15](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/topic-query.ts#L1-L15)
-- [dependency.ts:201-588](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L201-L588)
-- [get-next-topics.ts:60-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L60-L199)
-- [types.ts:684-684](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L684-L684)
-- [types.ts:644-655](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L644-L655)

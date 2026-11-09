@@ -369,13 +369,3 @@ The mastery summary computation cleanly separates concerns:
 - **Architectural decisions** ensure that missing pillars are not mistaken for zero scores, and that the Feynman dimension receives its intended emphasis.
 
 Together, these pieces provide reliable mastery metrics, meaningful progress indicators, and predictable behavior for edge cases such as partial assessments, empty assessments, and large topic collections.
-
-## References
-
-- [05-1-topic-and-assessment-schema.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md)
-- [mastery.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts)
-- [mastery-summary.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts)
-- [0004-four-pillar-pedagogical-mastery.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md)
-- [application-mastery-summary.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/application-mastery-summary.test.ts)
-- [types.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts)
-- [0035-validate-fix-partial-pillar-eligibility.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0035-validate-fix-partial-pillar-eligibility.md)

@@ -44,7 +44,6 @@
 9. [Troubleshooting Guide](#troubleshooting-guide)
 10. [Conclusion](#conclusion)
 11. [Appendices](#appendices)
-12. [References](#references)
 
 ## Introduction
 PALEE’s validation framework is a rule-based integrity system for an Obsidian vault that stores topics, assessments, reviews, sessions, and derived memory projections. It separates three responsibilities clearly:
@@ -439,43 +438,3 @@ To add a new rule:
 6. Add tests covering edge cases, especially jurisdiction boundaries with related rules.
 7. If the rule can be auto-repaired, set `fixable: 'safe'` and register a repair implementation in the CLI handler.
 8. If manual repair is offered, mark `fixable: 'manual'` and add explicit permission through `EXPLICIT_MANUAL_REPAIRS` when needed.
-
-## References
-
-- [src/cli/validate.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts)
-- [src/validation/index.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts)
-- [src/validation/collect-vault.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts)
-- [src/validation/run-rules.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts)
-- [src/validation/format.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/format.ts)
-- [src/validation/types.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts)
-- [src/validation/index.ts:1-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L1-L130)
-- [src/cli/validate.ts:1-535](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L1-L535)
-- [src/validation/types.ts:1-161](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts#L1-L161)
-- [src/validation/collect-vault.ts:1-147](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts#L1-L147)
-- [src/validation/run-rules.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts#L1-L60)
-- [src/validation/format.ts:1-180](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/format.ts#L1-L180)
-- [src/cli/validate.ts:201-535](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L201-L535)
-- [docs/adr/0008-validation-framework-decisions.md:1-93](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0008-validation-framework-decisions.md#L1-L93)
-- [src/validation/managed-note.ts:1-87](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/managed-note.ts#L1-L87)
-- [src/validation/index.ts:60-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L60-L130)
-- [src/validation/rules/parse-frontmatter.ts:1-78](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/parse-frontmatter.ts#L1-L78)
-- [src/validation/rules/valid-managed-note-kind.ts:1-189](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-managed-note-kind.ts#L1-L189)
-- [src/validation/rules/valid-palee-schema.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-palee-schema.ts#L1-L79)
-- [src/validation/rules/valid-topic-id-format.ts:1-75](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-id-format.ts#L1-L75)
-- [src/validation/rules/valid-topic-status.ts:1-62](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-status.ts#L1-L62)
-- [src/validation/rules/valid-dependency-list.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-dependency-list.ts#L1-L200)
-- [src/validation/rules/no-duplicate-topic-id.ts:1-48](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-duplicate-topic-id.ts#L1-L48)
-- [src/validation/rules/no-missing-dependency.ts:1-77](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-missing-dependency.ts#L1-L77)
-- [src/validation/rules/no-dependency-cycle.ts:1-74](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-dependency-cycle.ts#L1-L74)
-- [src/validation/rules/valid-assessment-fields.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L1-L79)
-- [src/validation/rules/valid-topic-mastery.ts:1-183](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-mastery.ts#L1-L183)
-- [docs/adr/0035-validate-fix-partial-pillar-eligibility.md:1-53](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0035-validate-fix-partial-pillar-eligibility.md#L1-L53)
-- [src/validation/rules/valid-review-fields.ts:1-166](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-fields.ts#L1-L166)
-- [src/validation/rules/valid-review-dates.ts:1-115](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-dates.ts#L1-L115)
-- [src/validation/rules/valid-session-schema.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-session-schema.ts#L1-L200)
-- [src/validation/rules/no-session-unknown-topic.ts:1-85](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-session-unknown-topic.ts#L1-L85)
-- [src/validation/rules/valid-session-index.ts:1-87](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-session-index.ts#L1-L87)
-- [src/validation/rules/valid-hot-memory.ts:1-150](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-hot-memory.ts#L1-L150)
-- [src/validation/rules/safe-vault-paths.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/safe-vault-paths.ts#L1-L134)
-- [src/validation/types.ts:100-161](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts#L100-L161)
-- [src/cli/validate.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L1-L200)

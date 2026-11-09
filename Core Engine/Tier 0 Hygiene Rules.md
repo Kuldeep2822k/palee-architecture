@@ -306,21 +306,3 @@ For maintainers, the practical takeaway is simple:
 - Use Tier 0 hygiene when diagnosing why a file was excluded, demoted, or allowed to gate the chain.
 
 Together, these layers preserve vault cleanliness while allowing automation to scale across large study repositories without inventing false dependencies.
-
-## References
-
-- [0010-tier0-hygiene-classification.md:1-72](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0010-tier0-hygiene-classification.md#L1-L72)
-- [tier0-hygiene.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L30)
-- [tier0-hygiene.ts:1-405](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L405)
-- [0011-tiered-auto-chain.md:1-99](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0011-tiered-auto-chain.md#L1-L99)
-- [index.ts (validation barrel):1-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L1-L130)
-- [validate.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L1-L200)
-- [engine-tier0-hygiene.test.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-tier0-hygiene.test.ts#L1-L40)
-- [tier0-hygiene.ts:201-405](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L201-L405)
-- [run-rules.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts#L1-L60)
-- [tier0-hygiene.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L120)
-- [engine-tier0-hygiene.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-tier0-hygiene.test.ts#L1-L200)
-- [engine-tier0-hygiene.test.ts:201-L542](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-tier0-hygiene.test.ts#L201-L542)
-- [engine-tier0-empty-stem.test.ts:1-46](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-tier0-empty-stem.test.ts#L1-L46)
-- [types.ts (validation types):1-161](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts#L1-L161)
-- [engine-tier0-hygiene.test.ts:1-L542](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-tier0-hygiene.test.ts#L1-L542)
