@@ -1,5 +1,20 @@
 # Source Cap and Pattern Matching
 
+::: details Referenced Files in This Document
+
+- [source-cap.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/source-cap.ts)
+- [pattern-matcher.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/pattern-matcher.ts)
+- [note-title.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/note-title.ts)
+- [scanner.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts)
+- [loader.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts)
+- [adopt.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts)
+- [roadmap.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts)
+- [storage-source-cap.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-source-cap.test.ts)
+- [storage-pattern-matcher.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-pattern-matcher.test.ts)
+- [storage-note-title.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-note-title.test.ts)
+
+:::
+
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Project Structure](#project-structure)
@@ -10,7 +25,6 @@
 7. [Performance Considerations](#performance-considerations)
 8. [Troubleshooting Guide](#troubleshooting-guide)
 9. [Conclusion](#conclusion)
-10. [References](#references)
 
 ## Introduction
 This document explains the source capacity limiting and pattern matching subsystems that protect PALEE’s storage and CLI pipelines from resource exhaustion, unsafe writes, and expensive or incorrect file selection. It focuses on three tightly coupled areas:
@@ -338,32 +352,3 @@ PALEE’s source cap, pattern matching, and note title resolution subsystems wor
 - Note title resolution delivers deterministic fallbacks while respecting frontmatter, code fences, and filename stems.
 
 For large vaults, prefer precise patterns, pre-scanned file lists, and explicit frontmatter titles. When diagnosing problems, consult the size diagnostics, per-pattern tallies, and title-resolution fallback order.
-
-## References
-
-- [source-cap.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/source-cap.ts)
-- [pattern-matcher.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/pattern-matcher.ts)
-- [note-title.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/note-title.ts)
-- [scanner.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts)
-- [loader.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts)
-- [adopt.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts)
-- [roadmap.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts)
-- [storage-source-cap.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-source-cap.test.ts)
-- [storage-pattern-matcher.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-pattern-matcher.test.ts)
-- [storage-note-title.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-note-title.test.ts)
-- [adopt.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L100)
-- [roadmap.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L1-L100)
-- [scanner.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L1-L40)
-- [loader.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L60)
-- [source-cap.ts:1-109](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/source-cap.ts#L1-L109)
-- [pattern-matcher.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/pattern-matcher.ts#L1-L40)
-- [note-title.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/note-title.ts#L1-L30)
-- [pattern-matcher.ts:1-628](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/pattern-matcher.ts#L1-L628)
-- [note-title.ts:1-91](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/note-title.ts#L1-L91)
-- [source-cap.ts:40-85](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/source-cap.ts#L40-L85)
-- [storage-source-cap.test.ts:1-96](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-source-cap.test.ts#L1-L96)
-- [pattern-matcher.ts:201-420](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/pattern-matcher.ts#L201-L420)
-- [pattern-matcher.ts:420-628](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/pattern-matcher.ts#L420-L628)
-- [storage-pattern-matcher.test.ts:1-184](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-pattern-matcher.test.ts#L1-L184)
-- [storage-note-title.test.ts:1-31](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-note-title.test.ts#L1-L31)
-- [source-cap.ts:60-109](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/source-cap.ts#L60-L109)

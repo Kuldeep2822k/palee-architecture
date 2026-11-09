@@ -462,26 +462,3 @@ The auto-chaining system is designed around trust signals:
 - Pure alphabetical ordering is not trusted for gating.
 
 Its parsing rules favor safety over completeness. Hedged prerequisites, ambiguous names, unsafe paths, and invalid graphs are rejected rather than guessed. This makes auto-discovery reliable for automated workflows while keeping learners from being silently locked out by weak signals.
-
-## References
-
-- [auto-chain.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L200)
-- [prereq-text.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L120)
-- [wikilink.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L1-L120)
-- [0011-tiered-auto-chain.md:1-99](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0011-tiered-auto-chain.md#L1-L99)
-- [0012-declared-prerequisites.md:1-82](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0012-declared-prerequisites.md#L1-L82)
-- [engine-auto-chain.test.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-auto-chain.test.ts#L1-L60)
-- [engine-prereq-text.test.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-prereq-text.test.ts#L1-L40)
-- [cli-adopt-autochain.test.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-autochain.test.ts#L1-L60)
-- [auto-chain.ts:201-400](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L201-L400)
-- [prereq-text.ts:201-317](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L201-L317)
-- [wikilink.ts:201-510](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L201-L510)
-- [auto-chain.ts:201-575](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L201-L575)
-- [prereq-text.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L200)
-- [engine-auto-chain.test.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-auto-chain.test.ts#L1-L120)
-- [engine-prereq-text.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-prereq-text.test.ts#L1-L200)
-- [wikilink.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L1-L200)
-- [cli-adopt-autochain.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-autochain.test.ts#L1-L200)
-- [engine-auto-chain.test.ts:60-140](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-auto-chain.test.ts#L60-L140)
-- [engine-auto-chain.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-auto-chain.test.ts#L1-L200)
-- [pattern-matcher.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/pattern-matcher.ts#L1-L120)

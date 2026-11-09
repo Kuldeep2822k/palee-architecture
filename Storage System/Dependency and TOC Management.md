@@ -1,5 +1,18 @@
 # Dependency and TOC Management
 
+::: details Referenced Files in This Document
+
+- [dependency.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts)
+- [prereq-text.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts)
+- [toc-chain.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts)
+- [wikilink.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts)
+- [toc.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/toc.ts)
+- [frontmatter.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts)
+- [no-dependency-cycle.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-dependency-cycle.ts)
+- [no-missing-dependency.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-missing-dependency.ts)
+
+:::
+
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Project Structure](#project-structure)
@@ -10,7 +23,6 @@
 7. [Performance Considerations](#performance-considerations)
 8. [Troubleshooting Guide](#troubleshooting-guide)
 9. [Conclusion](#conclusion)
-10. [References](#references)
 
 ## Introduction
 This document explains how the project models, validates, and navigates topic relationships across three related systems:
@@ -458,28 +470,3 @@ The dependency, TOC, and wikilink systems form a layered reference model:
 - **Validation rules** enforce graph integrity by detecting cycles and missing targets.
 
 For consistency at scale, prefer explicit canonical dependencies, keep filenames unique, use scoped adoption, and treat validation findings as authoritative contracts rather than optional hints. This keeps the dependency graph predictable, the TOC navigation reliable, and cross-reference resolution safe.
-
-## References
-
-- [dependency.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts)
-- [prereq-text.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts)
-- [toc-chain.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts)
-- [wikilink.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts)
-- [toc.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/toc.ts)
-- [frontmatter.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts)
-- [no-dependency-cycle.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-dependency-cycle.ts)
-- [no-missing-dependency.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-missing-dependency.ts)
-- [dependency.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L100)
-- [prereq-text.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L100)
-- [toc-chain.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L1-L100)
-- [toc.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/toc.ts#L1-L100)
-- [wikilink.ts:1-100](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L1-L100)
-- [frontmatter.ts:1-50](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L50)
-- [no-dependency-cycle.ts:1-74](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-dependency-cycle.ts#L1-L74)
-- [no-missing-dependency.ts:1-77](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-missing-dependency.ts#L1-L77)
-- [dependency.ts:201-500](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L201-L500)
-- [prereq-text.ts:201-317](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L201-L317)
-- [toc-chain.ts:201-565](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L201-L565)
-- [toc.ts:201-262](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/toc.ts#L201-L262)
-- [wikilink.ts:201-510](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L201-L510)
-- [frontmatter.ts:201-220](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L201-L220)
