@@ -367,14 +367,3 @@ Common mistake:
 
 ## Conclusion
 Topic management in PALEE combines careful file scanning, robust frontmatter handling, explicit prerequisite modeling, and mastery-driven planning. The adopt command turns existing notes into managed topics while preserving author intent, and the assess command ties pedagogical mastery to scheduling and readiness. For large vaults, disciplined filtering, safe dry-runs, and clear prerequisite documentation produce predictable, maintainable learning graphs.
-
-## References
-
-- [adopt.ts:201-531](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L201-L531)
-- [assess.ts:1-279](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L279)
-- [topic-query.ts:1-97](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/topic-query.ts#L1-L97)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [prereq-text.ts:1-317](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L317)
-- [scanner.ts:1-327](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L1-L327)
-- [cli-adopt-batch.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-batch.test.ts#L1-L200)
-- [cli-adopt-prereq-text.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-prereq-text.test.ts#L1-L200)

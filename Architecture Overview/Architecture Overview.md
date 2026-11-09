@@ -41,7 +41,6 @@
 14. [Extension Points and Future Capabilities](#extension-points-and-future-capabilities)
 15. [Troubleshooting Guide](#troubleshooting-guide)
 16. [Conclusion](#conclusion)
-17. [References](#references)
 
 ## Introduction
 PALEE is a Personal Active Learning & Evaluation Engine that turns an Obsidian vault into a deterministic study workspace. It reads Markdown notes with YAML frontmatter, computes spaced-repetition schedules using SuperMemo SM-2, evaluates four-pillar mastery, and enforces prerequisite dependencies through a directed acyclic graph. The CLI is the user-facing boundary; the engine is pure computation; the storage layer owns filesystem operations safely; and the validation layer audits vault integrity.
@@ -516,49 +515,3 @@ The exit-code mapper centralizes conflict, containment, and provider error class
 
 ## Conclusion
 PALEE’s architecture is a disciplined separation between user interface, business workflow, pure computation, and safe persistence. The Obsidian vault is the authoritative data store, the engine is deterministic, and the storage layer enforces containment, locking, atomicity, and optimistic concurrency. The validation framework provides a stable audit surface for vault integrity, while the optional AI boundary allows future capability growth without compromising the security and determinism guarantees of the core system. For maintainers, the most important rule is to keep dependencies downward, keep engine logic pure, and route every filesystem mutation through the storage layer.
-
-## References
-
-- [README.md:1-120](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L1-L120)
-- [docs/01-2-architecture-overview.md:1-135](https://github.com/Kuldeep2822k/cli/blob/main/docs/01-2-architecture-overview.md#L1-L135)
-- [package.json:1-85](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L1-L85)
-- [bin/palee.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L60)
-- [src/index.ts:1-27](https://github.com/Kuldeep2822k/cli/blob/main/src/index.ts#L1-L27)
-- [src/types.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L120)
-- [docs/01-2-architecture-overview.md:25-85](https://github.com/Kuldeep2822k/cli/blob/main/docs/01-2-architecture-overview.md#L25-L85)
-- [src/application/get-next-topics.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L60)
-- [src/engine/index.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L40)
-- [src/storage/index.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L40)
-- [src/validation/index.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L1-L40)
-- [src/types.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L60)
-- [docs/03-0-engine-core.md:1-60](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-0-engine-core.md#L1-L60)
-- [docs/04-0-storage-layer.md:1-60](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-0-storage-layer.md#L1-L60)
-- [bin/palee.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L120)
-- [src/cli/next.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L60)
-- [src/cli/config.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L60)
-- [src/cli/program-name.ts:1-91](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/program-name.ts#L1-L91)
-- [src/cli/config.ts:1-80](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L80)
-- [src/cli/exit-codes.ts:1-65](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts#L1-L65)
-- [src/application/get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [src/engine/index.ts:40-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L40-L126)
-- [src/engine/index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
-- [docs/03-0-engine-core.md:1-120](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-0-engine-core.md#L1-L120)
-- [src/storage/index.ts:1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
-- [src/storage/atomic-write.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L60)
-- [src/storage/containment.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts#L1-L60)
-- [docs/04-0-storage-layer.md:1-145](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-0-storage-layer.md#L1-L145)
-- [src/validation/index.ts:1-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L1-L130)
-- [src/application/get-next-topics.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L40)
-- [src/types.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L40)
-- [docs/01-2-architecture-overview.md:15-40](https://github.com/Kuldeep2822k/cli/blob/main/docs/01-2-architecture-overview.md#L15-L40)
-- [src/storage/containment.ts:1-185](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts#L1-L185)
-- [src/cli/config.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L120)
-- [README.md:60-120](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L60-L120)
-- [src/storage/atomic-write.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L120)
-- [src/storage/containment.ts:120-185](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts#L120-L185)
-- [docs/adr/0002-atomic-file-locking-and-occ.md:1-56](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0002-atomic-file-locking-and-occ.md#L1-L56)
-- [docs/01-2-architecture-overview.md:85-135](https://github.com/Kuldeep2822k/cli/blob/main/docs/01-2-architecture-overview.md#L85-L135)
-- [docs/04-0-storage-layer.md:120-145](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-0-storage-layer.md#L120-L145)
-- [README.md:30-60](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L30-L60)
-- [README.md:30-120](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L30-L120)
-- [src/validation/index.ts:80-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L80-L130)

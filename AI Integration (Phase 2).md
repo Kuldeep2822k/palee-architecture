@@ -414,24 +414,3 @@ The separation is explicit:
 PALEE’s Phase 2 AI integration begins with a narrow, security-first provider abstraction. The current implementation provides a single OpenAI-compatible adapter, strict endpoint validation, credential isolation, bounded I/O, classified errors, and strong tests proving that network access is confined to one place.
 
 The broader AI module design extends this foundation into tutoring sessions, read-only tools, safe mutation workflows, anomaly detection, and adaptive recommendations—all while keeping PALEE’s deterministic learning engine independent from external AI systems. Future phases can add more providers, rate limiting, circuit breaking, and streaming, but they must preserve the same boundaries: no secret leakage, no uncontrolled network access, no model-controlled mutations, and no coupling between the AI layer and the CLI or core engine.
-
-## References
-
-- [index.ts:1-11](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/index.ts#L1-L11)
-- [provider.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L1-L60)
-- [ai-module-design.md:1-60](https://github.com/Kuldeep2822k/cli/blob/main/planning/ai_module_design.md#L1-L60)
-- [provider.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L1-L120)
-- [ai-module-design.md:1-120](https://github.com/Kuldeep2822k/cli/blob/main/planning/ai_module_design.md#L1-L120)
-- [provider.ts:480-700](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L480-L700)
-- [provider.ts:701-904](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L701-L904)
-- [ai-network-boundary.test.ts:1-114](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-network-boundary.test.ts#L1-L114)
-- [provider.ts:1-180](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L1-L180)
-- [provider.ts:201-450](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L201-L450)
-- [provider.ts:451-700](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L451-L700)
-- [cli-config-test-connection.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-config-test-connection.test.ts#L1-L200)
-- [provider.ts:120-180](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L120-L180)
-- [ai-module-design.md:201-317](https://github.com/Kuldeep2822k/cli/blob/main/planning/ai_module_design.md#L201-L317)
-- [ai-provider.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-provider.test.ts#L1-L200)
-- [ai-provider-loopback.test.ts:1-131](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-provider-loopback.test.ts#L1-L131)
-- [cli-config-provider-credentials.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-config-provider-credentials.test.ts#L1-L200)
-- [ai-module-design.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/planning/ai_module_design.md#L1-L200)

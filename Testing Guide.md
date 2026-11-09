@@ -1,5 +1,20 @@
 # Testing Guide
 
+::: details Referenced Files in This Document
+
+- [package.json](https://github.com/Kuldeep2822k/cli/blob/main/package.json)
+- [.c8rc.json](https://github.com/Kuldeep2822k/cli/blob/main/.c8rc.json)
+- [.github/workflows/ci.yml](https://github.com/Kuldeep2822k/cli/blob/main/.github/workflows/ci.yml)
+- [test/palee-cli.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/palee-cli.ts)
+- [test/cli-spawn-env.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-spawn-env.ts)
+- [test/e2e/test-env.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/e2e/test-env.ts)
+- [test/engine-sm2.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts)
+- [test/property-fuzz.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/property-fuzz.test.ts)
+- [test/stress-concurrency.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/stress-concurrency.test.ts)
+- [test/fault-injection.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/fault-injection.test.ts)
+
+:::
+
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Project Structure](#project-structure)
@@ -10,7 +25,6 @@
 7. [Performance Considerations](#performance-considerations)
 8. [Troubleshooting Guide](#troubleshooting-guide)
 9. [Conclusion](#conclusion)
-10. [References](#references)
 
 ## Introduction
 This document explains the PALEE testing strategy and how to write, run, debug, and maintain tests across unit, integration, end-to-end, fuzz, and stress layers. The suite emphasizes deterministic behavior, property-based invariants, boundary condition coverage, concurrency safety, filesystem isolation, and strict CI quality gates.
@@ -344,15 +358,3 @@ Quality gates are enforced by:
 - CI matrix testing: Node 22.x and 24.x on Ubuntu, Windows, and macOS, plus Node 26.x on Ubuntu.
 - Changed-code coverage diff checks on pull requests (`diff-cover`, fail under 50%).
 - Separate smoke and installed-artifact verification.
-
-## References
-- [package.json:20-45](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L20-L45)
-- [.c8rc.json:1-12](https://github.com/Kuldeep2822k/cli/blob/main/.c8rc.json#L1-L12)
-- [.github/workflows/ci.yml:1-258](https://github.com/Kuldeep2822k/cli/blob/main/.github/workflows/ci.yml#L1-L258)
-- [test/palee-cli.ts:1-104](https://github.com/Kuldeep2822k/cli/blob/main/test/palee-cli.ts#L1-L104)
-- [test/cli-spawn-env.ts:1-48](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-spawn-env.ts#L1-L48)
-- [test/e2e/test-env.ts:1-356](https://github.com/Kuldeep2822k/cli/blob/main/test/e2e/test-env.ts#L1-L356)
-- [test/engine-sm2.test.ts:1-442](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L1-L442)
-- [test/property-fuzz.test.ts:1-202](https://github.com/Kuldeep2822k/cli/blob/main/test/property-fuzz.test.ts#L1-L202)
-- [test/stress-concurrency.test.ts:1-144](https://github.com/Kuldeep2822k/cli/blob/main/test/stress-concurrency.test.ts#L1-L144)
-- [test/fault-injection.test.ts:1-293](https://github.com/Kuldeep2822k/cli/blob/main/test/fault-injection.test.ts#L1-L293)

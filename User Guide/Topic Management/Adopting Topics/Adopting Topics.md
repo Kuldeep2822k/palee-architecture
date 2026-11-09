@@ -382,18 +382,3 @@ graph LR
 
 ## Conclusion
 Adoption turns ordinary Markdown notes into managed PALEE topics with stable identities, structured metadata, and optional prerequisite edges. Single-file adoption is safest for careful conversion, while batch adoption scales across directories and vaults with filtering and preview. Undo restores the pre-adoption state by removing only the keys PALEE owns. Atomic writes and fingerprint checks protect against concurrent edits and crashes. For large vaults, organize content thoughtfully, keep notes small and focused, validate patterns with dry runs, and use undo to reverse mistakes safely.
-
-## References
-
-- [adopt.ts:201-531](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L201-L531)
-- [adopt-undo.ts:201-587](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts#L201-L587)
-- [vault-walker.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/vault-walker.ts#L1-L200)
-- [scanner.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L1-L200)
-- [frontmatter.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L200)
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
-- [topic-id.ts:1-81](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L1-L81)
-- [prereq-text.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L200)
-- [cli-adopt-batch.test.ts:1-180](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-batch.test.ts#L1-L180)
-- [cli-adopt-single-file-filters.test.ts:1-101](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-single-file-filters.test.ts#L1-L101)
-- [adopt-undo.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts#L1-L200)
-- [cli-adopt-prereq-text.test.ts:1-180](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-prereq-text.test.ts#L1-L180)
