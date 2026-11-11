@@ -1,5 +1,16 @@
 # Session Memory and Storage
 
+::: details Referenced Files in This Document
+
+- [ADR-0019: Session-Memory Lifecycle and Staleness Clamps](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0019-session-memory-lifecycle.md)
+- [ADR-0007: Hot-Memory Read-State Contract](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0007-hot-memory-read-state-contract.md)
+- [Session Memory Design](https://github.com/Kuldeep2822k/cli/blob/main/planning/memory_design.md)
+- [Session Memory Storage Documentation](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-4-session-memory-storage.md)
+- [Memory Manager Implementation](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts)
+- [Session CLI Command Handler](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts)
+
+:::
+
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Project Structure](#project-structure)
@@ -10,7 +21,6 @@
 7. [Performance Considerations](#performance-considerations)
 8. [Troubleshooting Guide](#troubleshooting-guide)
 9. [Conclusion](#conclusion)
-10. [References](#references)
 
 ## Introduction
 This document explains how PALEE manages session memory and durable storage. The system provides fast access to active learning state through a hot working-memory view, while preserving a durable, human-readable history of completed sessions. It also supports draft checkpoints for crash recovery and rebuilds derived views from canonical session records.
@@ -336,37 +346,3 @@ PALEE’s session memory system balances speed, durability, and consistency:
 - Rebuilds are safe, deterministic, and never delete canonical history.
 
 This design makes session continuity reliable across interruptions, crashes, and manual edits, while keeping performance predictable for typical learning workflows.
-
-## References
-
-- [ADR-0019: Session-Memory Lifecycle and Staleness Clamps](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0019-session-memory-lifecycle.md)
-- [ADR-0007: Hot-Memory Read-State Contract](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0007-hot-memory-read-state-contract.md)
-- [Session Memory Design](https://github.com/Kuldeep2822k/cli/blob/main/planning/memory_design.md)
-- [Session Memory Storage Documentation](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-4-session-memory-storage.md)
-- [Memory Manager Implementation](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts)
-- [Session CLI Command Handler](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts)
-- [Session CLI Command Handler:1-150](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L150)
-- [Memory Manager Implementation:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1-L200)
-- [Session Memory Design:1-118](https://github.com/Kuldeep2822k/cli/blob/main/planning/memory_design.md#L1-L118)
-- [Session Memory Storage Documentation:1-146](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-4-session-memory-storage.md#L1-L146)
-- [Memory Manager Implementation:24-43](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L24-L43)
-- [Memory Manager Implementation:102-168](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L102-L168)
-- [Memory Manager Implementation:448-506](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L448-L506)
-- [ADR-0007: Hot-Memory Read-State Contract:14-54](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0007-hot-memory-read-state-contract.md#L14-L54)
-- [Memory Manager Implementation:200-285](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L200-L285)
-- [Session Memory Design:67-118](https://github.com/Kuldeep2822k/cli/blob/main/planning/memory_design.md#L67-L118)
-- [Memory Manager Implementation:628-749](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L628-L749)
-- [ADR-0019: Session-Memory Lifecycle and Staleness Clamps:40-53](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0019-session-memory-lifecycle.md#L40-L53)
-- [Memory Manager Implementation:885-1006](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L885-L1006)
-- [Memory Manager Implementation:1006-1208](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1006-L1208)
-- [ADR-0019: Session-Memory Lifecycle and Staleness Clamps:14-39](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0019-session-memory-lifecycle.md#L14-L39)
-- [Memory Manager Implementation:508-626](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L508-L626)
-- [Session CLI Command Handler:200-480](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L200-L480)
-- [Memory Manager Implementation:750-884](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L750-L884)
-- [Memory Manager Implementation:336-383](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L336-L383)
-- [Session Memory Design:33-66](https://github.com/Kuldeep2822k/cli/blob/main/planning/memory_design.md#L33-L66)
-- [Session CLI Command Handler:147-174](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L147-L174)
-- [Memory Manager Implementation:1-23](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1-L23)
-- [Session CLI Command Handler:1-25](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L25)
-- [Memory Manager Implementation:1006-L1080](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1006-L1080)
-- [Memory Manager Implementation:885-984](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L885-L984)

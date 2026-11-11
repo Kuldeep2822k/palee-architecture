@@ -29,7 +29,6 @@
 8. [Troubleshooting Guide](#troubleshooting-guide)
 9. [Conclusion](#conclusion)
 10. [Appendices](#appendices)
-11. [References](#references)
 
 ## Introduction
 PALEE’s core algorithmic engine is a deterministic, file-system-free learning system composed of five cooperating parts:
@@ -494,39 +493,3 @@ The engine barrel exports:
 | Advisory TOC edges | Enumeration is weaker evidence than numbering or hand-authored dependencies | Learner must understand edge provenance |
 | Tier-0 hygiene by default | Repository furniture caused measured false edges | Scope is stricter than naïve `.md` scanning |
 | Iterative graph algorithms | Avoid call-stack limits on deep curricula | More code than simple recursive DFS |
-
-## References
-
-- [src/engine/index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
-- [src/engine/sm2.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L60)
-- [src/engine/mastery.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L30)
-- [src/engine/dependency.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L30)
-- [src/engine/auto-chain.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L30)
-- [src/engine/tier0-hygiene.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L30)
-- [src/engine/sm2.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L120)
-- [docs/adr/0001-supermemo-sm2-algorithm.md:1-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L1-L63)
-- [docs/03-1-sm2-spaced-repetition-algorithm.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L1-L200)
-- [src/engine/mastery.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L120)
-- [docs/adr/0004-four-pillar-pedagogical-mastery.md:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
-- [docs/03-1-sm2-spaced-repetition-algorithm.md:200-330](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L200-L330)
-- [src/engine/dependency.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L120)
-- [docs/03-2-dependency-graph-engine.md:1-215](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-2-dependency-graph-engine.md#L1-L215)
-- [src/engine/auto-chain.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L120)
-- [docs/adr/0011-tiered-auto-chain.md:1-99](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0011-tiered-auto-chain.md#L1-L99)
-- [src/engine/tier0-hygiene.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L120)
-- [docs/adr/0010-tier0-hygiene-classification.md:1-72](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0010-tier0-hygiene-classification.md#L1-L72)
-- [src/engine/auto-chain.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L40)
-- [src/engine/tier0-hygiene.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L40)
-- [src/engine/dependency.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L40)
-- [src/engine/sm2.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L40)
-- [src/engine/sm2.ts:60-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L60-L200)
-- [docs/03-1-sm2-spaced-repetition-algorithm.md:100-200](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L100-L200)
-- [src/engine/sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-- [docs/03-2-dependency-graph-engine.md:120-215](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-2-dependency-graph-engine.md#L120-L215)
-- [src/engine/dependency.ts:1-80](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L80)
-- [docs/03-2-dependency-graph-engine.md:60-120](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-2-dependency-graph-engine.md#L60-L120)
-- [src/engine/dependency.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L200)
-- [src/engine/auto-chain.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L200)
-- [docs/adr/0010-tier0-hygiene-classification.md:20-72](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0010-tier0-hygiene-classification.md#L20-L72)
-- [src/engine/tier0-hygiene.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L200)
-- [src/engine/mastery.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L40)

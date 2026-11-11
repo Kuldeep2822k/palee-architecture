@@ -65,7 +65,7 @@ The most important supporting models for this document are:
 | `Progress` | Aggregate learning statistics | `active_topic_count`, optional `archived_topic_count`, nullable `global_mastery`, `mastery_status` (`no_data` / `learning` / `mastered`) | Progress CLI output |
 | `NodeError` | Standard `Error` with an optional system error code | Optional `code` such as `ENOENT` or `ECONFLICT` | Locking, filesystem, and CLI error paths |
 | `FrontmatterResult` | YAML frontmatter parsing outcome | `frontmatter`, `body`, `raw`, optional `doc`, optional `error` | Scanner, roadmap parser, TOC readers |
-| `ScannedNote` | Per-file scan result for validation | `absolutePath`, `relativePath`, optional `frontmatter`, optional `parseError`, optional `readError`, optional `content` | Validation framework collectors |
+| `ScannedNote` | Per-file scan result for validation | `absolutePath`, `relativePath`, `frontmatter` (required, nullable), optional `parseError`, optional `readError`, optional `content` | Validation framework collectors |
 | `CacheEntry<T>` | In-memory filesystem cache entry | `mtime`, `size`, SHA-256 `fingerprint`, payload `data`, `lastVerified` | `FileCache` |
 | `LockData` | Cross-process lock record | `lock_id`, `target`, `pid`, `hostname`, `created_at` | Lock manager |
 | `WalkOptions` | Vault traversal configuration | Optional `followSymlinks`, optional `excludeDirs` | Vault walker |
@@ -97,7 +97,7 @@ sequenceDiagram
 ## Detailed Component Analysis
 
 ### Progress
-`Progress` is the machine-readable aggregate contract for vault-wide learning statistics. It reports:
+`Progress` is the machine-readable aggregate contract for vault-wide learning statistics. Note that `src/types.ts` reserves this interface for the machine-readable progress JSON contract specified in `planning/palee_cli_spec.md`; runtime progress output is built inline in `src/cli/progress.ts` rather than by constructing a `Progress` value. It reports:
 
 - `active_topic_count`: count of non-archived active topics.
 - `archived_topic_count`: optional archived topic count.
@@ -196,7 +196,7 @@ classDiagram
   class ScannedNote {
     +string absolutePath
     +string relativePath
-    +Record~string, unknown~? frontmatter
+    +Record~string, unknown~|null frontmatter
     +string? parseError
     +string? readError
     +string? content
@@ -210,7 +210,7 @@ Usage example (conceptual):
 Error handling pattern:
 - `parseError` means the file was readable but its YAML was malformed.
 - `readError` means the file could not be read; the note is retained so validation runs on a complete-enough snapshot and can warn that results may be provisional.
-- `frontmatter: null` can mean either no frontmatter or a malformed/non-object parse result; callers must inspect `parseError` and treat `frontmatter` as `unknown`.
+- `frontmatter: null` means no frontmatter or a parse failure; YAML that parses to a non-object still populates the field, so treat its shape as unknown and inspect `parseError`.
 
 ### `CacheEntry<T>`
 `CacheEntry<T>` is the internal representation of a cached filesystem resource. Its fields provide deterministic invalidation:
@@ -240,7 +240,7 @@ Usage example (conceptual):
 Invalidation behavior:
 - If the file size changes, the entry is evicted.
 - Within a 2-second unsettled horizon, the cache recomputes the SHA-256 fingerprint on read.
-- Outside the unsettled horizon, it trusts `mtime`; when filesystem timestamps have whole-second resolution, it falls back to fingerprint verification.
+- Outside the unsettled horizon, an `mtime` match is a hit; when `mtime` differs, the entry is re-verified against its SHA-256 fingerprint before it is refreshed or evicted.
 - On filesystem errors such as a deleted file, the entry is removed and the call returns null.
 
 ### LockData
@@ -449,7 +449,7 @@ Error handling pattern:
 ```mermaid
 flowchart TD
   Input["Raw assessed_at value"] --> TypeCheck{"Is string?"}
-  TypeCheck -->|Yes & non-empty| ReturnString["Return trimmed string"]
+  TypeCheck -->|Yes & non-empty| ReturnString["Return string verbatim"]
   TypeCheck -->|Yes & empty| NullString["Return null"]
   TypeCheck -->|No| NumberCheck{"Is finite number?"}
   NumberCheck -->|No| NullOther["Return null"]
@@ -510,38 +510,3 @@ Common issues and their model-based signals:
 
 ## Conclusion
 PALEE's supporting data models separate concerns cleanly: domain aggregates like `Progress`, low-level I/O contracts like `FrontmatterResult` and `CacheEntry<T>`, scanning diagnostics via `ScannedNote`, concurrency metadata through `LockData` and `NodeError`, traversal configuration via `WalkOptions`, dependency validation through `ValidationError` and `ValidationResult`, provenance control through `DependsOnSource`, and external curriculum ingestion through `RoadmapTopic`, `RoadmapFile`, and `ResolvedTopicUpdates`. Together, they allow PALEE to scan vaults safely, validate graphs deterministically, schedule learning reliably, and import curriculum without mutating existing topic state unintentionally.
-
-## References
-
-- [types.ts:59-80](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L59-L80)
-- [types.ts:438-500](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L438-L500)
-- [types.ts:515-635](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L515-L635)
-- [types.ts:908-985](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L908-L985)
-- [progress.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L60)
-- [scanner.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L1-L40)
-- [cache.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/cache.ts#L1-L40)
-- [lock.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L1-L40)
-- [vault-walker.ts:1-35](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/vault-walker.ts#L1-L35)
-- [dependency.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L20)
-- [roadmap-parser.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/roadmap-parser.ts#L1-L30)
-- [progress.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L120)
-- [types.ts:987-1001](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L987-L1001)
-- [lock.ts:320-360](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L320-L360)
-- [scanner.ts:250-327](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L250-L327)
-- [roadmap-parser.ts:140-210](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/roadmap-parser.ts#L140-L210)
-- [types.ts:465-500](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L465-L500)
-- [types.ts:412-437](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L412-L437)
-- [cache.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/cache.ts#L1-L120)
-- [cache.ts:201-273](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/cache.ts#L201-L273)
-- [types.ts:355-385](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L355-L385)
-- [lock.ts:201-360](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L201-L360)
-- [lock.ts:201-400](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L201-L400)
-- [types.ts:478-486](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L478-L486)
-- [vault-walker.ts:60-140](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/vault-walker.ts#L60-L140)
-- [vault-walker.ts:60-220](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/vault-walker.ts#L60-L220)
-- [types.ts:515-565](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L515-L565)
-- [types.ts:584-635](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L584-L635)
-- [roadmap-parser.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/roadmap-parser.ts#L1-L40)
-- [roadmap-parser.ts:201-270](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/roadmap-parser.ts#L201-L270)
-- [types.ts:260-340](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L260-L340)
-- [lock.ts:320-400](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L320-L400)

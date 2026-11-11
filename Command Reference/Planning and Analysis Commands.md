@@ -83,7 +83,7 @@ The roadmap command implements a safe, deterministic import pipeline:
 7. **Import**: writes managed frontmatter while preserving existing vault data according to explicit user intent.
 
 Key behaviors:
-- Explicit `[]` clears dependencies; omitted preserves existing dependencies; populated replaces them.
+- Explicit `[]` clears dependencies — but only without `--auto-chain`: under `--auto-chain`, a topic with no (or an empty) `depends_on` is treated as chainable and its `depends_on` is overwritten with a synthesized edge. Omitted preserves existing dependencies; populated replaces them.
 - Imported notes must be visible Markdown files under the vault boundary.
 - Existing notes with a conflicting declared `palee_id` are rejected to avoid silently retiring identities.
 - Oversized notes are refused consistently across read and write paths.
@@ -149,7 +149,7 @@ A roadmap defines one or more topics. Each topic carries:
 | `title` | string | Yes | Descriptive title written into the note. |
 | `path` | string | Yes | Vault-relative Markdown path where the note will be created or updated. |
 | `difficulty` | string | No | One of `beginner`, `intermediate`, `advanced`. Defaults to `intermediate` when not present. |
-| `depends_on` | array of strings | No | Prerequisite topic IDs. Omitted preserves existing dependencies; empty list clears them; populated replaces them. |
+| `depends_on` | array of strings | No | Prerequisite topic IDs. Omitted preserves existing dependencies; empty list clears them (only without `--auto-chain`; under `--auto-chain` an empty list is treated as chainable and overwritten with a synthesized edge); populated replaces them. |
 | `chained` | boolean | No | Marks a topic’s dependencies as final so auto-chaining skips it. |
 | `order` | number | No | Controls synthetic chaining order; topics with numbers sort before those without. |
 
@@ -198,8 +198,8 @@ When importing, the roadmap writes only the managed fields necessary to represen
 - `palee_id`: taken directly from the roadmap topic.
 - `title`: taken from the roadmap topic.
 - `difficulty`: roadmap value, existing vault value, or `intermediate`.
-- `depends_on`: explicit roadmap value wins; omitted preserves existing dependencies; empty list clears them.
-- Assessment pillars (`conceptual`, `practical`, `debug`, `feynman`) and SM2-related fields are passed through from existing vault frontmatter when absent from the roadmap.
+- `depends_on`: explicit roadmap value wins; omitted preserves existing dependencies; empty list clears them (only without `--auto-chain`; under `--auto-chain` an empty list is treated as chainable and overwritten with a synthesized edge).
+- Assessment pillars (`conceptual`, `practical`, `debug`, `feynman`) and SM-2-related fields are passed through from existing vault frontmatter when absent from the roadmap.
 - Missing pillar scores resolve to `undefined` rather than `0.0`, so an import does not mint assessment data unless the note already carries it.
 
 This design avoids accidental loss of review state and ensures that validation and writeback use identical rules.
@@ -301,11 +301,12 @@ Use `--dry-run` to preview changes without modifying the vault:
 - Writes zero bytes.
 
 ### Confirmation Prompts
-The roadmap command’s interface supports a `--yes` option through its typed options, but the documented handler emphasizes dry-run planning and explicit confirmation workflows. In practice:
+Without `--yes`, the confirmation contract depends on whether the run is interactive:
 
-- Without confirmation automation, users inspect the validation and dry-run output before approving changes.
-- With `--yes`, automated workflows can proceed after reviewing the dry-run plan.
-- For interactive approval, users should combine dry-run inspection with the intended confirmation flow defined by their environment.
+- **Non-interactive (non-TTY) run**: the command prints `Error: Non-interactive environment detected. Use --yes to confirm import.`, sets exit code Usage (2), and writes nothing.
+- **Interactive terminal (TTY) run**: the command prompts `Proceed? (y/N)` and aborts on anything but `y`.
+
+With `--yes`, the prompt is skipped (`Auto-confirmed via --yes.`) and the import proceeds. Use `--dry-run` to preview the validation results and the per-note plan without writing anything.
 
 ### Dashboard Metrics and Interpretation
 The dashboard summarizes:
@@ -405,7 +406,7 @@ Recommended workflow:
    - Use an empty list to clear dependencies explicitly.
    - Populate the list to replace dependencies with an explicit ordering.
 4. **Use `order` for sequencing**: Assign increasing integers when you want synthetic chaining; leave it out for topics that should keep file order or rely on manual dependencies.
-5. **Validate before importing**: Run the roadmap command without `--yes` to see validation results.
+5. **Validate before importing**: Run the roadmap command with `--dry-run` to see validation results without writing anything. (Running without `--yes` in a non-interactive environment is not a preview: it prints `Error: Non-interactive environment detected. Use --yes to confirm import.`, exits with code 2, and writes nothing.)
 6. **Preview with dry-run**: Use `--dry-run` to confirm create/update decisions and effective dependencies.
 7. **Approve and import**: Use `--yes` in automated pipelines after confirming the dry-run output.
 
@@ -430,25 +431,3 @@ Provide a roadmap where some topics omit `depends_on`. Enable `--auto-chain` so 
 PALEE’s roadmap command provides a safe, validated pathway for importing structured learning plans. It supports multiple input formats, preserves existing vault state according to explicit user intent, detects dangerous configuration early, and offers dry-run previews before committing changes. Its wikilink support integrates naturally with Markdown-based knowledge bases, while auto-chaining helps learners establish deterministic learning sequences.
 
 The dashboard command complements planning by turning stored mastery and scheduling data into actionable analytics. It distinguishes mastered, learning, and new topics, highlights due reviews, breaks down progress by difficulty, and surfaces the next recommended topic. Together, these commands enable learners to plan carefully, import safely, and interpret progress clearly.
-
-## References
-
-- [roadmap.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L1-L200)
-- [dashboard.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L200)
-- [roadmap-parser.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/roadmap-parser.ts#L1-L200)
-- [auto-chain.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L200)
-- [wikilink.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L1-L200)
-- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
-- [types.ts:793-931](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L793-L931)
-- [roadmap.ts:201-533](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L201-L533)
-- [roadmap.ts:534-842](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L534-L842)
-- [types.ts:843-931](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L843-L931)
-- [roadmap.ts:201-842](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L201-L842)
-- [roadmap-parser.ts:1-270](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/roadmap-parser.ts#L1-L270)
-- [types.ts:908-931](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L908-L931)
-- [roadmap.ts:843-861](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L843-L861)
-- [roadmap-parser.ts:201-270](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/roadmap-parser.ts#L201-L270)
-- [roadmap.ts:201-333](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L201-L333)
-- [roadmap.ts:793-842](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L793-L842)
-- [auto-chain.ts:201-450](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L201-L450)
-- [types.ts:843-861](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L843-L861)

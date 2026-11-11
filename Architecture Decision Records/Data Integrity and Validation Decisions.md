@@ -430,21 +430,3 @@ Tradeoffs include duplicated shape checks between loader normalization and raw v
 
 ## Conclusion
 PALEE’s data integrity model is built around conservative defaults and explicit mutation surfaces. Validation discovers problems without changing vault state; adoption and roadmap import refuse dangerous assumptions; migration provides a narrow route for backward compatibility; and `--fix` repairs only what is clearly safe or explicitly allowed. The result is a system that protects the vault from silent corruption while still supporting flexible content workflows, manual correction, and recovery procedures grounded in observable, deterministic behavior.
-
-## References
-
-- [0008-validation-framework-decisions.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0008-validation-framework-decisions.md)
-- [validate.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts)
-- [migrate.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/migrate.ts)
-- [collect-vault.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts)
-- [index.ts (validation barrel)](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts)
-- [run-rules.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts)
-- [types.ts (validation types)](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts)
-- [types.ts (validation types):1-161](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts#L1-L161)
-- [index.ts (validation barrel):1-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L1-L130)
-- [0015-identity-preservation.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0015-identity-preservation.md)
-- [0016-frontmatter-fidelity-and-unicode-fold.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0016-frontmatter-fidelity-and-unicode-fold.md)
-- [0017-roadmap-import-safety.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0017-roadmap-import-safety.md)
-- [0022-adoption-contracts.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0022-adoption-contracts.md)
-- [0023-migrate-relabel-ties.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0023-migrate-relabel-ties.md)
-- [0035-validate-fix-partial-pillar-eligibility.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0035-validate-fix-partial-pillar-eligibility.md)

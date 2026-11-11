@@ -201,7 +201,7 @@ JSON output is machine-readable and intended for automation. It is enabled by:
 
 Rules:
 - Piping or redirecting stdout does NOT enable JSON mode. Human-readable reports stay readable unless explicitly requested.
-- Only commands that declare `--json` accept it. Reading commands such as `next`, `plan`, `progress`, `dashboard`, `validate`, and `session list` support it; mutating or interactive commands such as `review`, `adopt`, `assess`, `roadmap`, `migrate`, and `update` do not.
+- Only commands that declare `--json` accept it. The canonical JSON-support matrix is: `config`, `next`, `plan`, `progress`, `validate`, `session`, and `dashboard` declare `--json` (for example, `palee config show --json`); `adopt`, `assess`, `review`, `roadmap`, `migrate`, and `update` do not. Support does not follow a reading-versus-mutating split — `config` declares `--json` for every action, including its mutating ones.
 - On success, supported commands emit a JSON object describing their result.
 - On failure, supported commands emit a structured JSON error object on stderr.
 - For fatal crashes outside the normal command path, the entry point emits `{ status: "error", code: 5, error: "<message>" }` when JSON mode is active.
@@ -370,7 +370,7 @@ Example workflows:
 
 - Automate adoption with dry-run first:
   ```text
-  palee adopt --dry-run
+  palee adopt --all --dry-run
   palee adopt --all
   ```
   - Success: exit `0`.
@@ -402,6 +402,7 @@ The PALEE CLI is a consistent, scriptable interface over the PALEE engine. Its C
 ## Appendices
 
 ### Quick Reference: Supported JSON Commands
+- `config --json` (for example, `palee config show --json`)
 - `next --json`
 - `plan --json`
 - `progress --json`
@@ -410,17 +411,3 @@ The PALEE CLI is a consistent, scriptable interface over the PALEE engine. Its C
 - `session --json`
 
 Commands that do not declare `--json` include `review`, `adopt`, `assess`, `roadmap`, `migrate`, and `update`. Their success output remains human-readable even when `PALEE_JSON` is set.
-
-## References
-
-- [bin/palee.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L20)
-- [bin/palee.ts:60-240](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L60-L240)
-- [bin/palee.ts:240-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L240-L389)
-- [bin/palee.ts:40-70](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L40-L70)
-- [src/cli/program-name.ts:1-91](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/program-name.ts#L1-L91)
-- [src/cli/exit-codes.ts:1-65](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts#L1-L65)
-- [src/storage/index.ts:1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
-- [docs/adr/0024-exit-codes-and-error-contract.md:1-75](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0024-exit-codes-and-error-contract.md#L1-L75)
-- [src/cli/onboarding.ts:1-164](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/onboarding.ts#L1-L164)
-- [src/cli/config.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L200)
-- [src/cli/update-check.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update-check.ts#L1-L200)
