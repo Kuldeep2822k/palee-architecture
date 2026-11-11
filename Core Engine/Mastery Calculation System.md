@@ -27,7 +27,7 @@
 10. [Appendices](#appendices)
 
 ## Introduction
-This document explains the mastery calculation system that combines four pedagogical pillars into a single topic mastery score, and shows how that score controls prerequisites, review scheduling, reporting buckets, and user-facing recommendations. The system separates two concerns:
+This document explains the mastery calculation system that combines four pedagogical pillars into a single topic mastery score, and shows how that score controls prerequisites, reporting buckets, and user-facing recommendations. Mastery does not control review scheduling: SM-2 scheduling is independent of mastery (see below). The system separates two concerns:
 
 - **Pedagogical mastery**: A weighted combination of Conceptual, Practical, Debug, and Feynman pillar scores.
 - **Spaced repetition scheduling**: SM-2 interval expansion, ease factor adjustment, lapse handling, and due-date computation.
@@ -385,7 +385,7 @@ Edge-case performance risks:
 | Three ordinary pillars maxed | Maximum is `0.6`; the `0.7` gate cannot be reached without Feynman. | Provide a Feynman score above zero. |
 | Corrupt stored pillar value | Assessment refuses the specific field instead of clamping it. | Fix the stored value or pass the pillar explicitly. |
 | Already mastered topic gated by prerequisites | The topic itself may be mastered but still blocked by another topic below `0.7`. | Improve the prerequisite’s mastery. |
-| High mastery reduces review urgency | High mastery usually expands SM-2 intervals; low mastery or poor recall shortens them. | Review according to `due_at`; mastery unlocks topics, SM-2 schedules them. |
+| Mastery does not change review urgency | Mastery never enters `processReview(state, quality)`; SM-2 intervals and scheduling urgency come from quality, repetition, and ease factor only. Mastery gates prerequisites/readiness and bucketing only. | Review according to `due_at`; mastery unlocks topics, SM-2 schedules them. |
 
 ### Why the Feynman Pillar Matters
 The design intentionally makes articulation a strong signal of understanding. If a learner achieves high Conceptual, Practical, and Debug scores but no Feynman score, the system will report that the threshold remains unreachable because the ordinary pillars cap at `0.6`. This is not a bug in the formula; it is a pedagogical constraint.
@@ -403,8 +403,8 @@ The mastery calculation system separates pedagogical competence from retention s
 For users, this means:
 - High mastery opens downstream topics.
 - High SM-2 performance delays future reviews.
-- Low mastery or poor recall brings topics back sooner.
-- Missing assessment data does not pretend to be zero mastery.
+- Low mastery keeps downstream topics gated until their prerequisites reach the threshold; poor recall (low SM-2 quality) is what brings a topic back sooner.
+- A partial assessment invents nothing: unsupplied pillars are filled from stored frontmatter, and only a pillar with no value anywhere counts as 0 in the weighted average.
 - Achieving the `0.7` gate requires demonstrating comprehension beyond the three ordinary pillars.
 
 ## Appendices
@@ -415,7 +415,7 @@ For users, this means:
 |---|---:|---:|---:|---:|---|---:|
 | Balanced strong understanding | 0.8 | 0.7 | 0.9 | 0.85 | `(0.8 + 0.7 + 0.9 + 2 × 0.85) / 5` | `0.82` |
 | Strong skills but no Feynman | 1.0 | 1.0 | 1.0 | 0.0 | `(1 + 1 + 1 + 0) / 5` | `0.60` |
-| Partial assessment | 0.5 | null | 0.4 | 0.3 | Ordinary missing pillars treated as absent; only provided pillars contribute | Computed from provided pillars |
+| Partial assessment | 0.5 | null | 0.4 | 0.3 | Unsupplied pillars are filled by `buildAssessmentUpdate` from stored frontmatter (0 if absent everywhere), and the divisor stays 5: `(0.5 + filled_practical + 0.4 + 2 × 0.3) / 5` | Computed from provided pillars plus pillars filled from stored frontmatter |
 | All omitted | null | null | null | null | No assessment data | `0.0` |
 | Just below threshold | 0.6 | 0.5 | 0.7 | 0.4 | `(0.6 + 0.5 + 0.7 + 2 × 0.4) / 5` | `0.64` |
 | Exactly at threshold | 0.7 | 0.6 | 0.5 | 0.5 | `(0.7 + 0.6 + 0.5 + 2 × 0.5) / 5` | `0.70` |
