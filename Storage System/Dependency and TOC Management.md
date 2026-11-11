@@ -284,7 +284,6 @@ Parsing pipeline:
 7. Preserve backslashes as literal characters.
 
 Performance safeguards:
-- `TOC_MAX_SOURCE_BYTES` declines extremely large documents.
 - Bracket-balance tables answer whether a label or destination can close without walking to end-of-text repeatedly.
 - Angle-closer tables handle `<...>` forms that do not follow paren depth rules.
 
@@ -298,6 +297,7 @@ Enumeration rules:
 - Ambiguous matches are skipped.
 - Folder links without trailing slashes can resolve to README when no matching file exists.
 - Scoped adoption limits exclude targets outside the selected set.
+- Storage-layer size cap: `TOC_MAX_SOURCE_BYTES` (512 KiB, in `src/storage/toc.ts`, checked with `statSync`) declines extremely large documents before they are read in this discovery context; `src/engine/toc-chain.ts` only comments on the cap, it does not define it.
 
 ### Wikilink Resolution Pipeline
 Wikilink resolution is the most security-sensitive part of the reference system because resolved targets may be read or written by roadmap workflows.

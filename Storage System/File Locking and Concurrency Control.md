@@ -45,7 +45,7 @@ graph TB
 ```
 
 ## Core Components
-- `Lock`: Public API for acquiring, maintaining, and releasing a process-wide lock on a vault target.
+- `Lock`: Public API for acquiring, maintaining, and releasing a per-target cross-process mutex on a vault target.
 - `createLock`: Synchronous acquisition loop using atomic `mkdirSync`, stale inspection, quarantine-based cleanup, and bounded retries.
 - `updateHeartbeat` / `startHeartbeat`: Periodic timestamp renewal that detects takeover via `ENOENT`.
 - `releaseLock`: Safe release that unlinks only the holder’s session file and attempts to remove an empty lock directory.
@@ -114,7 +114,7 @@ Acquisition is synchronous at the storage layer and uses OS-level atomicity:
 2. On success, write the session JSON file and return `LockData`.
 3. On `EEXIST`, read the directory contents and parse `.json` records.
 4. If any record is fresh, throw a lock conflict.
-5. If the directory appears newly created and empty or contains a quarantine, reject as an incoming process.
+5. If the directory appears newly created and empty or contains a quarantine and the directory is less than 5 seconds old, reject as an incoming process.
 6. Otherwise, quarantine each stale record, restore any that turned out live, unlink stale ones, and attempt to remove the directory.
 7. Retry bounded rounds when removal cannot proceed immediately.
 
@@ -205,7 +205,7 @@ stateDiagram-v2
 ```
 
 ### Error Model and Contention Resolution
-All contention paths throw a structured Node error carrying `code = 'ECONFLICT'`. The message begins with a stable prefix so upstream consumers can recognize it as a retryable lock conflict. Typical outcomes include:
+Almost all contention paths throw a structured Node error carrying `code = 'ECONFLICT'`. The exception is the exhausted Windows `EPERM`/`EBUSY` path, which rethrows the raw error instead of an `ECONFLICT` (CLI exit code 5, ADR-0036). The message begins with a stable prefix so upstream consumers can recognize it as a retryable lock conflict. Typical outcomes include:
 
 - Another active holder: `"locked by PID ..."`
 - An incoming process recovering the directory: `"locked by an incoming process"`

@@ -15,7 +15,7 @@
 ## Introduction
 This document explains the atomic write system that protects vault data from partial writes, crashes, and concurrent access. It focuses on durability and crash safety through:
 
-- Temporary files written outside the target’s containment window.
+- Temporary files written alongside the target, inside the vault’s containment boundary, under names no reader will mistake for a note.
 - Unique identifiers for temporary files to avoid collisions.
 - Transaction-like semantics where a successful write is committed by an atomic rename.
 - Cleanup of abandoned temporary files and stale locks after failures or process termination.
@@ -78,18 +78,20 @@ sequenceDiagram
     participant Caller as "Caller"
     participant Writer as "Atomic Writer"
     participant Ctl as "Containment Validator"
-    participant FS as "Filesystem"
     participant Lk as "Lock Manager"
+    participant FS as "Filesystem"
 
     Caller->>Writer: "Write(targetPath, content)"
     Writer->>Ctl: "Validate target path containment"
     Ctl-->>Writer: "Allowed"
-    Writer->>FS: "Create temporary file with unique ID"
-    Writer->>Writer: "Write content to temporary file"
     Writer->>Lk: "Acquire exclusive lock for target"
     Lk-->>Writer: "Lock acquired"
-    Writer->>FS: "Flush and sync if available"
+    Writer->>Writer: "OCC fingerprint / expectation checks"
+    Writer->>FS: "Reap stale temp files for target"
+    Writer->>FS: "Create temp file and write content (inside retry loop)"
+    Writer->>FS: "fsync temp file (unconditional)"
     Writer->>FS: "Rename temporary file to target atomically"
+    Writer->>FS: "Best-effort fsync of containing directory"
     Writer->>Lk: "Release lock"
     Writer-->>Caller: "Success"
 
@@ -99,9 +101,10 @@ sequenceDiagram
 ### Transaction-Like Semantics
 A write behaves like a small transaction:
 
-1. **Prepare**: Validate containment and create a temporary file.
-2. **Commit**: Rename the temporary file to the target path.
-3. **Abort**: On any error, clean up the temporary file and released locks.
+1. **Prepare**: Validate containment, acquire the lock, run the OCC fingerprint/expectation checks, and reap stale temp files.
+2. **Write**: Create the temporary file inside the retry loop, write the content, and fsync the temp file unconditionally.
+3. **Commit**: Rename the temporary file to the target path, then best-effort fsync the containing directory and release the lock.
+4. **Abort**: On any error, clean up the temporary file and release the lock.
 
 Because rename is typically atomic on POSIX and most modern filesystems, readers cannot observe an intermediate state.
 
@@ -122,11 +125,16 @@ flowchart TD
     Start(["Start write"]) --> Validate["Validate target path containment"]
     Validate --> Valid{"Path valid?"}
     Valid -->|No| Error["Reject with containment error"]
-    Valid -->|Yes| CreateTemp["Create unique temporary file"]
+    Valid -->|Yes| AcquireLock["Acquire exclusive lock for target"]
+    AcquireLock --> Locked{"Exclusive lock acquired?"}
+    Locked -->|No| Abort["Abort and clean up"]
+    Locked -->|Yes| Occ["OCC fingerprint / expectation checks"]
+    Occ --> OccOk{"OCC checks pass?"}
+    OccOk -->|No| Abort
+    OccOk -->|Yes| Reap["Reap stale temp files for target"]
+    Reap --> CreateTemp["Create unique temporary file"]
     CreateTemp --> WriteContent["Write content to temporary file"]
-    WriteContent --> Locked{"Exclusive lock acquired?"}
-    Locked -->|No| Abort["Abort and clean up temporary file"]
-    Locked -->|Yes| Sync["Flush/sync if supported"]
+    WriteContent --> Sync["fsync temp file (unconditional)"]
     Sync --> Commit["Rename temporary file to target"]
     Commit --> Success["Release lock and return success"]
     Commit --> FailedCommit["Handle commit failure"]
@@ -235,7 +243,7 @@ graph LR
 - Filesystem rename semantics.
 - Directory listing and deletion APIs.
 - Process exit behavior and lock cleanup.
-- Optional sync or flush calls depending on platform support.
+- File fsync (`fs.fsyncSync`) on the temp file runs unconditionally on every write on every platform; only the post-rename directory fsync is best-effort and silently skipped where refused (Windows `EPERM`/`EISDIR`).
 
 ## Performance Considerations
 Atomic writes trade some performance for durability:
@@ -246,7 +254,7 @@ Atomic writes trade some performance for durability:
 | Disk space | Temporary files temporarily double usage per write | Monitor vault growth; reclaim abandoned temp files |
 | Lock overhead | Exclusive locks block concurrent writers | Batch related writes when possible; respect bounded acquisition |
 | Rename cost | Usually low but filesystem-dependent | Avoid excessive micro-writes; group updates |
-| Sync and flush | Can increase latency | Use only when durability guarantees require it |
+| Sync and flush | File fsync can increase latency but runs unconditionally on every write | File fsync is mandatory; only the post-rename directory fsync is best-effort and skipped where the platform refuses it |
 | Containment checks | Small CPU cost | Keep path normalization simple and cached where appropriate |
 
 ### Storage Requirements
@@ -269,7 +277,7 @@ Atomic writes trade some performance for durability:
 | Write fails with `OCC conflict: ... was modified by another process` (`ECONFLICT`, exit 4) | The file changed between the caller's read and the write | Re-read the file and retry; check for an editor or second PALEE process writing the same note |
 | Write fails with `Lock conflict: ... is locked by PID <pid>` (`ECONFLICT`, exit 4) | Another live process holds the target's lock | Wait for that PID, or close it; see the File Locking page for the lock directory layout under `.palee/locks/` |
 | Stale temporary files (`<note>.tmp.<pid>.<hex>`) accumulate | A process was killed between temp write and rename | Nothing to run: the next write to the same note reaps them automatically once they are over 30 s old and the owner PID is gone. Safe to delete by hand when no PALEE process is running |
-| Rename keeps failing on Windows with `EPERM`/`EBUSY` | An antivirus or indexer briefly holds a handle on the file | The writer already retries 5 times with backoff (50 ms doubling, ±25% jitter, 300 ms cap); if it still fails, exclude the vault from the scanner or close the holding process |
+| Rename keeps failing on Windows with `EPERM`/`EBUSY` | An antivirus or indexer briefly holds a handle on the file | The writer already attempts the rename up to 5 times (50 ms doubling, ±25% jitter, 300 ms cap); if it still fails, exclude the vault from the scanner or close the holding process |
 | File content is the old version after a crash mid-write | The crash happened before the rename | Expected behavior, not corruption: readers see either the complete old file or the complete new one, never a partial write |
 
 ### Error Recovery Procedures
@@ -285,6 +293,7 @@ Atomic writes trade some performance for durability:
 - Verify that temporary files are also contained.
 - Audit lock files and temporary files periodically.
 - Restrict vault permissions so only trusted processes can modify managed data.
+- The destination's existing permission mode is restored onto the temp file before rename; a new file keeps the platform default — this primitive preserves, it never tightens.
 
 ## Conclusion
 The atomic write system provides durability and crash safety by isolating partial writes behind unique temporary files and committing changes through atomic renames. Containment validation prevents path traversal, while locking ensures exclusive access during the critical commit phase. Abandoned temporary file reclaim and bounded lock acquisition improve resilience after crashes and reduce resource leaks. Together, these mechanisms make the storage layer safer for concurrent, crash-prone environments while keeping integration points clear for frontmatter, adoption, roadmap, and session writers.

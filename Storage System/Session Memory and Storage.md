@@ -225,12 +225,18 @@ flowchart TD
     Eligible -->|No| NextSession["Skip File"]
     Eligible -->|Yes| CompareTime["Compare Parsed Start Time"]
     CompareTime --> Newest{"Newest Confirmed Session?"}
-    Newest -->|Yes| TrackNewest["Track New Session"]
+    Newest -->|Yes| TrackNewest["Track Newest Session"]
     Newest -->|No| NextSession
-    TrackNewest --> HasActive{"Active Session Marker?"}
-    HasActive -->|Yes| DeriveFromActive["Derive Hot From Active Context"]
+    TrackNewest --> NextSession
+    NextSession --> MoreFiles{"More Files To Scan?"}
+    MoreFiles -->|Yes| ParseFrontmatter
+    MoreFiles -->|No| HasNewest{"Newest Confirmed Session Found?"}
+    HasNewest -->|Yes| DeriveFromBody["Use Newest Session Body As Hot Memory"]
+    HasNewest -->|No| HasActive{"Active Session Marker?"}
+    HasActive -->|Yes| DeriveFromActive["Derive Minimal Message From Active Context"]
     HasActive -->|No| DeriveDefault["Derive Default Hot Message"]
-    DeriveFromActive --> UpdateHot["Update Hot Memory"]
+    DeriveFromBody --> UpdateHot["Update Hot Memory"]
+    DeriveFromActive --> UpdateHot
     DeriveDefault --> UpdateHot
     UpdateHot --> RegenerateIndex["Regenerate Index"]
     RegenerateIndex --> Done(["Derived Views Rebuilt"])
