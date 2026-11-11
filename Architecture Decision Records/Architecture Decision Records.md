@@ -93,11 +93,11 @@ The repository records 37 ADRs in `docs/adr/`, numbered ADR-0001 through ADR-003
 | ADR-0028 | Phase-2 Design Directions | Proposed (specified in open issues; not implemented) |
 | ADR-0029 | Test-Time CLI Launch Policy | Accepted (amended by ADR-0032) |
 | ADR-0030 | Installed-Artifact CI Evidence | Accepted |
-| ADR-0031 | Documentation Truth - Current-State Docs, Labeled History | Accepted |
+| ADR-0031 | Documentation Truth — Current-State Docs, Labeled History | Accepted |
 | ADR-0032 | Direct Spawn Bounding — What ADR-0029 Claimed, and the Check That Pins It | Accepted (amends ADR-0029) |
 | ADR-0033 | The Update Command and Its npm Child Process | Accepted |
 | ADR-0034 | Reclaiming a Killed Writer's Temporary File, Bounded to the Target It Belongs To | Accepted (amends ADR-0005) |
-| ADR-0035 | `--fix` Mastery Repair and Partial Pillar Eligibility | Accepted (2026-10-22) |
+| ADR-0035 | `--fix` Mastery Repair and Partial Pillar Eligibility | Accepted (2026-10-22; amends ADR-0008) |
 | ADR-0036 | Bounded Lock Acquisition — A Non-Empty Lockdir Is Not a Retry Signal | Accepted |
 | ADR-0037 | Manifest Values Reach the Shell as Data, Never as Interpolation | Accepted |
 
@@ -111,7 +111,7 @@ PALEE’s architecture is defined more by its layers and boundaries than by larg
 | Storage | Vault traversal, frontmatter parsing, atomic writes, locking, caching, sessions, TOC, and dependencies | All vault mutations pass through it |
 | Application | Use-case cores behind CLI commands | No Commander, no process, no I/O |
 | Validation | One-pass vault collection, deterministic rule execution, formatting, and managed-note gating | Used by `palee validate` and repair flows |
-| AI provider | Only place allowed to open network sockets | Deliberately excluded from published surface |
+| AI provider | Only place allowed to open network sockets, plus the update command's bounded npm child process (ADR-0033) | Deliberately excluded from published surface |
 | CLI | Command handlers, exit codes, JSON output policy, config, and vault path validation | Thin orchestration around application and storage |
 
 These responsibilities are enforced by imports, tests, and the ADR/invariant system rather than by runtime checks alone.
@@ -290,12 +290,14 @@ classDiagram
 
     class Mastery {
         +threshold number
-        +computeGlobalMastery() number|null
+        +computeTopicMastery() number|null
     }
 
     DependencyEngine --> Topic : "reads"
     DependencyEngine --> Mastery : "uses threshold"
 ```
+
+`computeTopicMastery` computes the mastery value for one topic from its four pillars. Global mastery is an aggregate over eligible topics and is documented separately; the class diagram does not imply that the topic-level method performs that aggregate.
 
 Evolution and lessons learned:
 - Declared prerequisites and per-edge blocking policies were refined to distinguish human-authored dependencies from synthesized auto-chain edges.
@@ -374,9 +376,10 @@ Readiness gates ensure learners only see topics whose prerequisites are satisfie
 Key decisions include:
 
 - Readiness excludes archived topics.
-- A topic is ready when its own mastery is below the mastery threshold (0.70) — it still needs work — and every prerequisite topic’s mastery is at or above the threshold. A topic at or above the threshold is already mastered and drops off the ready list; a topic with any non-advisory prerequisite below the threshold is blocked, however low its own mastery is (advisory `toc`/`tie` edges never gate, so they cannot block readiness).
+- A topic is ready when its own mastery is below the mastery threshold (0.70) — it still needs work — and every prerequisite topic’s mastery is at or above the threshold. A topic at or above the threshold is already mastered and drops off the ready list; a topic with any prerequisite below the threshold is blocked, however low its own mastery is. Exception: when a note's `depends_on_source` is advisory, `areDependenciesSatisfied` returns true immediately, so its prerequisites do not gate it in that case.
+- A topic is ready when its own mastery is below the mastery threshold (0.70) — it still needs work — and every non-advisory prerequisite topic’s mastery is at or above the threshold. A topic at or above the threshold is already mastered and drops off the ready list; a topic with any non-advisory prerequisite below the threshold is blocked, however low its own mastery is. Advisory `toc` and `tie` edges never gate readiness.
 - Global mastery excludes archived topics but includes paused ones.
-- Missing dependencies block readiness.
+- Missing non-advisory dependencies block readiness; missing advisory dependencies do not gate readiness.
 - The readiness threshold is defined centrally and reused by planning logic.
 
 ```mermaid
@@ -444,7 +447,7 @@ Performance decisions in PALEE favor correctness and bounded resource use over r
 - Caching avoids redundant parsing but includes an unsettled horizon to guard against rapid edits.
 - Atomic writes and locking add overhead but prevent corruption and races.
 - SM-2 scheduling is pure and fast; the main cost is graph traversal and readiness computation.
-- Test concurrency is capped at four workers to avoid memory pressure on development machines.
+- Test concurrency is capped at four workers in the full and coverage suites (`test` and `test:coverage` in `package.json`) to avoid memory pressure on development machines; the other suites do not carry that cap.
 - Coverage thresholds require substantial test coverage, reducing regression risk.
 
 Recommendations:
@@ -500,35 +503,3 @@ Guidance for new ADRs:
 - If no, record the choice in code comments or a smaller planning note, but still ensure tests pin behavior.
 - Link ADRs to relevant invariants, implementation files, and tests.
 - When revisiting an ADR, create a successor ADR rather than editing history, especially when behavior changes.
-
-## References
-
-- [planning/invariants.md:1-76](https://github.com/Kuldeep2822k/cli/blob/main/planning/invariants.md#L1-L76)
-- [planning/storage_design.md:1-111](https://github.com/Kuldeep2822k/cli/blob/main/planning/storage_design.md#L1-L111)
-- [planning/memory_design.md:1-118](https://github.com/Kuldeep2822k/cli/blob/main/planning/memory_design.md#L1-L118)
-- [agent.md:1-92](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L1-L92)
-- [src/engine/sm2.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts)
-- [src/engine/dependency.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts)
-- [src/engine/mastery.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts)
-- [src/storage/atomic-write.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts)
-- [src/storage/lock.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts)
-- [src/validation/index.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts)
-- [planning/invariants.md:12-20](https://github.com/Kuldeep2822k/cli/blob/main/planning/invariants.md#L12-L20)
-- [agent.md:34-45](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L34-L45)
-- [planning/storage_design.md:15-70](https://github.com/Kuldeep2822k/cli/blob/main/planning/storage_design.md#L15-L70)
-- [agent.md:47-63](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L47-L63)
-- [src/validation/run-rules.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts)
-- [agent.md:21-26](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L21-L26)
-- [planning/storage_design.md:55-105](https://github.com/Kuldeep2822k/cli/blob/main/planning/storage_design.md#L55-L105)
-- [src/storage/cache.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/cache.ts)
-- [planning/invariants.md:21-28](https://github.com/Kuldeep2822k/cli/blob/main/planning/invariants.md#L21-L28)
-- [agent.md:46-52](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L46-L52)
-- [src/engine/tier0-hygiene.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts)
-- [src/cli/adopt.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts)
-- [planning/invariants.md:46-47](https://github.com/Kuldeep2822k/cli/blob/main/planning/invariants.md#L46-L47)
-- [planning/invariants.md:43-45](https://github.com/Kuldeep2822k/cli/blob/main/planning/invariants.md#L43-L45)
-- [agent.md:64-75](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L64-L75)
-- [src/application/get-next-topics.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts)
-- [planning/memory_design.md:85-118](https://github.com/Kuldeep2822k/cli/blob/main/planning/memory_design.md#L85-L118)
-- [agent.md:27-92](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L27-L92)
-- [planning/invariants.md:1-10](https://github.com/Kuldeep2822k/cli/blob/main/planning/invariants.md#L1-L10)

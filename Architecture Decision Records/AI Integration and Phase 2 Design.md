@@ -42,11 +42,12 @@ This document explains:
 - The planned evolution toward dependency-aware recommendations, chain verification, per-edge blocking policies, and integrated tutoring sessions.
 
 ## Project Structure
-The AI integration lives under `src/ai`, while CLI configuration logic imports from it. Tests enforce that no other source file opens network connections.
+The AI integration lives under `src/ai`, while CLI configuration logic imports from it: `src/cli/config.ts` is the runtime importer, and `src/cli/exit-codes.ts` also imports `ProviderError` from it (type/classification only, with no network path). Tests enforce that no other source file opens network connections.
 
 ```mermaid
 graph TB
     CLI["CLI Layer<br/>src/cli/config.ts"] --> AIIndex["AI Subsystem Entry<br/>src/ai/index.ts"]
+    ExitCodes["CLI Exit Codes<br/>src/cli/exit-codes.ts<br/>(imports ProviderError only)"] --> AIIndex
     AIIndex --> Provider["Provider Adapter<br/>src/ai/provider.ts"]
     Provider --> Types["Shared Types<br/>src/types.ts"]
     Tests["Test Suite"] --> Provider
@@ -76,7 +77,7 @@ PALEE’s architecture separates concerns across layers:
 - Engine components compute SM-2 scheduling, dependency chains, mastery, and prerequisite text.
 - Storage handles vault files, frontmatter, locking, sessions, and scanning.
 - Validation rules enforce schema and policy constraints.
-- AI is isolated into `src/ai`; currently, only the CLI configuration command uses it.
+- AI is isolated into `src/ai`; currently, only two CLI files import from it — the CLI configuration command (`src/cli/config.ts`) and `src/cli/exit-codes.ts`, which imports `ProviderError` only to classify errors (type-only in effect, with no network path).
 
 ```mermaid
 graph TB
@@ -119,15 +120,15 @@ The adapter defines a small, testable contract:
 ```mermaid
 classDiagram
     class ChatTurn {
-        +string role
+        +'system'|'user'|'assistant' role
         +string content
     }
 
     class ChatRequest {
         +ChatTurn[] messages
-        +boolean expectJson
-        +number temperature
-        +number maxTokens
+        +boolean? expectJson
+        +number? temperature
+        +number? maxTokens
     }
 
     class UsageCounts {
@@ -138,13 +139,13 @@ classDiagram
 
     class ChatReply {
         +string text
-        +any json
-        +UsageCounts usage
+        +unknown? json
+        +UsageCounts? usage
     }
 
     class ProviderError {
-        +string kind
-        +number status
+        +ProviderErrorKind kind
+        +number? status
     }
 
     class Transport {
@@ -155,16 +156,16 @@ classDiagram
     class ProviderSettings {
         +string baseUrl
         +string model
-        +string apiKey
-        +string keySource
-        +string providerName
+        +string? apiKey
+        +KeySource keySource
+        +string? providerName
     }
 
     class ProviderOptions {
-        +Transport transport
-        +number timeoutMs
-        +Record env
-        +AbortSignal signal
+        +Transport? transport
+        +number? timeoutMs
+        +Record? env
+        +AbortSignal? signal
     }
 
     ChatRequest --> ChatTurn : "contains"
@@ -211,15 +212,13 @@ A typical provider call follows this flow:
 sequenceDiagram
     participant Caller as "Caller"
     participant Settings as "resolveProviderSettings"
-    participant Validator as "normalizeProviderEndpoint"
     participant Provider as "OpenAICompatibleProvider"
     participant Transport as "Transport"
     participant ProviderService as "External Provider"
 
     Caller->>Settings: "Load baseUrl, apiKey, model"
+    Settings->>Settings: "normalizeProviderEndpoint (internal step): validate base URL"
     Settings-->>Caller: "ProviderSettings"
-    Caller->>Validator: "Validate base URL"
-    Validator-->>Caller: "Validated URL"
     Caller->>Provider: "complete(request)"
     Provider->>Transport: "POST /chat/completions"
     Transport->>ProviderService: "Send request"
@@ -408,24 +407,3 @@ On Windows:
 
 ## Conclusion
 PALEE’s AI integration is deliberately narrow. The current adapter provides a secure, testable bridge to OpenAI-compatible endpoints while keeping the rest of the system deterministic and offline. The contract between providers and the system is small, explicit, and observable through tests. Phase 2 plans expand capability through structured abstractions, bounded sessions, and asymmetric authority: AI helps understand and narrow learning state, but it does not own the core gating decisions. As PALEE evolves toward integrated AI assistance, these boundaries, contracts, and security guarantees will remain the foundation.
-
-## References
-
-- [index.ts:1-11](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/index.ts#L1-L11)
-- [provider.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L1-L20)
-- [config.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L30)
-- [ai-network-boundary.test.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-network-boundary.test.ts#L1-L30)
-- [ai-network-boundary.test.ts:1-114](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-network-boundary.test.ts#L1-L114)
-- [provider.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L1-L120)
-- [0025-application-layer.md:1-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0025-application-layer.md#L1-L63)
-- [ai-network-boundary.test.ts:70-114](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-network-boundary.test.ts#L70-L114)
-- [provider.ts:201-450](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L201-L450)
-- [0027-ai-provider-boundary.md:1-97](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0027-ai-provider-boundary.md#L1-L97)
-- [provider.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts#L1-L200)
-- [ai-provider-loopback.test.ts:1-131](https://github.com/Kuldeep2822k/cli/blob/main/test/ai-provider-loopback.test.ts#L1-L131)
-- [config.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L200)
-- [cli-config-provider-credentials.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-config-provider-credentials.test.ts#L1-L200)
-- [cli-config-test-connection.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-config-test-connection.test.ts#L1-L200)
-- [types.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L30)
-- [ai_module_design.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/planning/ai_module_design.md#L1-L200)
-- [0028-phase-2-design-directions.md:1-65](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0028-phase-2-design-directions.md#L1-L65)

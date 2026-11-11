@@ -50,18 +50,18 @@ PALEE distinguishes between two closely related concepts:
 
 | Concept | Purpose | Key fields | Persistence |
 |---|---|---|---|
-| `Session` | Runtime discriminated union describing an in-process session snapshot | `palee_schema`, `session_id`, `topic_id`, `started_at`, plus status-specific fields | Used by application logic; not itself a file format |
+| `Session` | Phase-2-reserved discriminated union; its shape is pinned by `test/types-difficulty.test.ts`, but no file outside `src/types.ts` references it | `palee_schema`, `session_id`, `topic_id`, `started_at`, plus status-specific fields | Reserved for the Phase-2 AI session flow; not a runtime type and not a file format |
 | `SessionRecord` | Frontmatter schema written into `.palee/sessions/*.md` files | Same core fields as `Session`, plus `status`, `ended_at`, optional `duration_minutes` | Durable Markdown note |
 
-The most important distinction is that `Session` is a domain shape used while processing sessions, whereas `SessionRecord` is the on-disk contract for session notes. Drafts and completed sessions share the base fields but differ in `status` and `ended_at`.
+The most important distinction is that `Session` is a Phase-2-reserved, test-pinned shape, whereas `SessionRecord` is the on-disk contract for session notes: the runtime lifecycle runs entirely on `SessionRecord` frontmatter. Drafts and completed sessions share the base fields but differ in `status` and `ended_at`.
 
 ## Architecture Overview
 The session architecture has four cooperating pieces:
 
-1. **In-memory session types**: `BaseSession`, `CompletedSession`, `DraftSession`, and their union `Session`.
+1. **Phase-2-reserved session types**: `BaseSession`, `CompletedSession`, `DraftSession`, and their union `Session` (test-pinned shape, not used by the runtime).
 2. **Persisted session records**: `BaseSessionRecord`, `CompletedSessionRecord`, `DraftSessionRecord`, and their union `SessionRecord`.
 3. **Hot memory**: `HotMemoryData` in `.palee/hot.md`, representing the current working context.
-4. **Active session state**: `ActiveSessionData`, representing the process-local session currently being worked on.
+4. **Active session state**: `ActiveSessionData`, representing the session currently in progress; it is persisted on disk as frontmatter in `.palee/active-session.md`.
 
 ```mermaid
 classDiagram
@@ -133,7 +133,7 @@ classDiagram
 | `palee_schema` | Schema version identifier | Must be compatible with the runtime; writers pin supported versions |
 | `session_id` | Unique session identity | See ID format section below |
 | `topic_id` | Topic studied in this session | Resolved through the vault's topic index or hot memory fallback |
-| `started_at` | ISO 8601 start timestamp | Nullable only for legacy compatibility; current writers emit it |
+| `started_at` | ISO 8601 start timestamp | Required and non-nullable; current writers always emit it |
 
 `CompletedSession` adds:
 
@@ -162,7 +162,7 @@ The persisted schema mirrors the in-memory hierarchy but is intentionally separa
 
 | Type | Status | `ended_at` | Additional fields |
 |---|---|---|---|
-| `BaseSessionRecord` | Not discriminative | ISO 8601 timestamp | Shared base fields |
+| `BaseSessionRecord` | — (defined by derived records) | — (defined by derived records) | Shared base fields |
 | `CompletedSessionRecord` | `"completed"` | ISO 8601 timestamp | Optional `duration_minutes` |
 | `DraftSessionRecord` | `"draft"` | `null` | None beyond the base |
 
@@ -173,7 +173,7 @@ Important schema behaviors:
 - Unknown additional keys are ignored, never rejected.
 - `palee_schema` identifies the schema version; unsupported schemas are refused rather than coerced during rebuilds.
 - `duration_minutes` is optional because draft checkpoints do not have an end time.
-- `started_at` must normally be present; consumers treat it as nullable only for legacy compatibility.
+- `started_at` is required and non-nullable on session records; a session record missing `started_at` is a validation error.
 
 ```mermaid
 flowchart TD
@@ -214,7 +214,7 @@ stateDiagram-v2
 ```
 
 ### Active Session Data: `ActiveSessionData`
-`ActiveSessionData` is distinct from `HotMemoryData`. It represents the process-local state for a session currently in progress, including its own `session_id`, `topic_id`, `started_at`, and `updated_at`. This separates the durable working-memory view from the transient in-memory session being edited.
+`ActiveSessionData` is distinct from `HotMemoryData`. It represents the state for a session currently in progress, including its own `session_id`, `topic_id`, `started_at`, and `updated_at`. It is not process-local or transient: it is persisted on disk as frontmatter in `.palee/active-session.md` (via `readActiveSession` / `writeActiveSession` in `src/storage/memory.ts`), written at session start and cleared at session end, so an interrupted session can be recovered on a later run. This separates the durable working-memory view (hot memory) from the persisted active-session marker.
 
 | Field | Meaning |
 |---|---|
@@ -254,7 +254,7 @@ Additional rules:
 - Draft IDs use a hex random suffix generated separately from confirmed session IDs.
 - Confirmed sessions are stored as `S-*.md`; drafts are stored as `DRAFT-S-*.md`.
 - Filenames, not frontmatter, are the primary classification signal for whether a file is a draft or confirmed session.
-- `started_at` is ISO 8601. Legacy files may omit it, so consumers must tolerate nullability even though current writers emit it.
+- `started_at` is ISO 8601 and is required on session notes: a missing `started_at` on a session record is a validation error. (The legacy-nullability remark belongs to `HotMemoryData` only: readers must treat `HotMemoryData.started_at` as nullable because legacy `hot.md` files may omit it, even though current writers always emit it.)
 - During recovery and session completion, timestamps older than 24 hours are clamped to a floor to avoid reporting phantom study duration. A clock-skew band accepts timestamps within 60 seconds of now; more than 60 seconds in the future is clamped to now.
 
 ### Session Creation Flow
@@ -412,28 +412,3 @@ If `.palee/hot.md` is missing, corrupt, or carries an unsupported schema:
 
 ## Conclusion
 PALEE's session model separates in-memory domain state from durable frontmatter records. `BaseSession` extends into `CompletedSession` and `DraftSession`, while `BaseSessionRecord` extends into `CompletedSessionRecord` and `DraftSessionRecord`. Hot memory provides a fast, derived working view, while session files provide canonical history. Draft recovery supports resume, save, discard, and ignore, with strict timestamp clamping and robust error handling. Durability is provided by atomic writes, locking, containment checks, and deterministic rebuild policies, while isolation is enforced per vault path.
-
-## References
-
-- [session.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L60)
-- [memory.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1-L40)
-- [sessions.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L40)
-- [types.ts:200-350](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L200-L350)
-- [types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)
-- [memory.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1-L60)
-- [types.ts:120-220](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L120-L220)
-- [0019-session-memory-lifecycle.md:1-71](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0019-session-memory-lifecycle.md#L1-L71)
-- [memory.ts:40-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L40-L120)
-- [0007-hot-memory-read-state-contract.md:1-54](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0007-hot-memory-read-state-contract.md#L1-L54)
-- [types.ts:200-300](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L200-L300)
-- [04-4-session-memory-storage.md:1-146](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-4-session-memory-storage.md#L1-L146)
-- [04-4-session-memory-storage.md:90-146](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-4-session-memory-storage.md#L90-L146)
-- [04-4-session-memory-storage.md:30-80](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-4-session-memory-storage.md#L30-L80)
-- [0019-session-memory-lifecycle.md:20-45](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0019-session-memory-lifecycle.md#L20-L45)
-- [session.ts:60-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L60-L120)
-- [04-4-session-memory-storage.md:60-120](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-4-session-memory-storage.md#L60-L120)
-- [draft-recovery-transaction.test.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/test/draft-recovery-transaction.test.ts#L1-L120)
-- [04-4-session-memory-storage.md:1-60](https://github.com/Kuldeep2822k/cli/blob/main/docs/04-4-session-memory-storage.md#L1-L60)
-- [types.ts:120-350](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L120-L350)
-- [sessions.ts:40-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L40-L120)
-- [0019-session-memory-lifecycle.md:45-71](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0019-session-memory-lifecycle.md#L45-L71)

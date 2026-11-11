@@ -333,13 +333,3 @@ The review recording workflow cleanly separates concerns:
 - Shared types define the persistent review contract.
 
 This separation makes it possible to verify SM-2 behavior independently of file system behavior, protect durable state from concurrent modification, recover gracefully from corrupted notes, and maintain consistent progress tracking across spaced repetition intervals and mastery calculations.
-
-## References
-
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)
-- [engine-sm2.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L1-L200)
-- [application-record-review.test.ts:1-83](https://github.com/Kuldeep2822k/cli/blob/main/test/application-record-review.test.ts#L1-L83)

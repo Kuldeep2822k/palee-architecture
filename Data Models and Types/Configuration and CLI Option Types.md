@@ -6,6 +6,7 @@
 - [bin/palee.ts](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts)
 - [src/cli/config.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts)
 - [src/cli/adopt.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts)
+- [src/cli/adopt-undo.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts)
 - [src/cli/next.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts)
 - [src/cli/plan.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/plan.ts)
 - [src/cli/review.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts)
@@ -86,7 +87,7 @@ graph TB
 
 | Field | Type | Purpose | Valid values / constraints | Default behavior |
 |---|---:|---|---|---|
-| `vaultPath` | `string` | Absolute path to the active Obsidian vault used by commands that read or write topic notes. | Must be an absolute path accepted by the vault reader; invalid paths cause usage errors. | If absent, many commands prompt or refuse until a vault is configured. |
+| `vaultPath` | `string` | Absolute path to the active Obsidian vault used by commands that read or write topic notes. | Stored as an absolute path; `set-vault` resolves relative input before saving. Invalid paths cause usage errors. | If absent, many commands prompt or refuse until a vault is configured. |
 | `aiProvider` | `string` | AI backend provider name. | Typically `'gemini'` or `'openai'`; other OpenAI-compatible providers may work through the base URL. | Absent unless set via `palee config set-provider`. |
 | `model` | `string` | LLM model identifier sent to the configured provider. | Provider-specific model name. | Absent unless set via `palee config set-model`. |
 | `baseUrl` | `string` | OpenAI-compatible endpoint URL for the configured provider. | A valid HTTP(S) endpoint. | Absent unless set via `palee config set-base-url`. |
@@ -381,7 +382,7 @@ Validation rules:
 Example invocations:
 
 ```text
-palee session start --topic topic-docker-volumes
+palee session start --topic T-docker-fundamentals
 palee session start --interactive
 palee session list --json
 ```
@@ -540,7 +541,7 @@ Common validation and configuration problems:
 | `Multiple topics match ...` | Topic query is ambiguous. | Narrow the query to a unique topic. |
 | `Error: assess needs at least one pillar score` | No pillar flag was provided. | Add at least one of `--conceptual`, `--practical`, `--debug`, or `--feynman`. |
 | Pillar score out of range | Non-finite or outside `0..1` value. | Pass a finite number between `0` and `1`. |
-| `palee validate` exits non-zero with only warnings | Warnings were treated as failures. | Use `--strict` to acknowledge warnings as failures, or fix the warnings. |
+| `palee validate` exits non-zero with only warnings | Warnings were treated as failures because `--strict` is enabled. | Re-run without `--strict` if warnings should not fail the run, or fix the warnings. |
 | Invalid SM-2 review state | Corrupted ease factor, interval, repetition, or lapse data. | Run `palee validate --fix`, then rerun affected commands. |
 | Config shows old or missing vault path | `PALEE_CONFIG_DIR` changed or config is malformed. | Check the environment variable and inspect `~/.config/palee/config.json` or `%LOCALAPPDATA%\palee\config.json`. |
 
@@ -549,12 +550,12 @@ Exit codes commonly used by these commands:
 | Code | Meaning |
 |---:|---|
 | `2` | Usage error: missing vault, invalid quality, invalid pillar score, ambiguous or missing topic, invalid pattern, or other caller-supplied argument problem. |
-| `3` | Validation warnings treated as failures when `--strict` is enabled. |
+| `3` | Validation failure (errors, or warnings when `--strict` is enabled). |
 | `4` | Lock conflict or concurrent modification, such as an OCC conflict during review or assessment. |
 | `5` | Unexpected exception or infrastructure failure. |
 
 ## Conclusion
-PALee's configuration and CLI option model separates three concerns cleanly:
+PALEE's configuration and CLI option model separates three concerns cleanly:
 
 1. **Per-user configuration**: `PaleeConfig` defines vault location and AI backend settings, resolved from a platform-default per-user path or `PALEE_CONFIG_DIR`.
 2. **Option interfaces**: Each command has a focused TypeScript interface describing its flags, defaults, and intended behavior.
@@ -566,59 +567,3 @@ For safe operation:
 - Never commit `apiKey` into source control.
 - Use `--dry-run` before destructive operations like `adopt --undo`, `roadmap --auto-chain`, `validate --fix`, or `migrate --relabel-ties`.
 - Treat exit code `2` as a user-input problem and exit code `5` as an unexpected failure worth investigating.
-
-## References
-
-- [bin/palee.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L120)
-- [src/cli/config.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L120)
-- [src/types.ts:501-1001](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L501-L1001)
-- [src/cli/config.ts:120-220](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L120-L220)
-- [src/types.ts:560-610](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L560-L610)
-- [src/types.ts:610-760](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L610-L760)
-- [src/cli/adopt.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L60)
-- [bin/palee.ts:120-220](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L120-L220)
-- [src/cli/adopt-undo.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt-undo.ts#L1-L60)
-- [src/types.ts:760-790](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L760-L790)
-- [src/cli/next.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L120)
-- [bin/palee.ts:220-240](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L220-L240)
-- [src/types.ts:790-805](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L790-L805)
-- [src/cli/plan.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/plan.ts#L1-L120)
-- [bin/palee.ts:240-250](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L240-L250)
-- [src/types.ts:805-825](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L805-L825)
-- [src/cli/review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [bin/palee.ts:260-275](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L260-L275)
-- [src/types.ts:825-835](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L825-L835)
-- [src/cli/dashboard.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L120)
-- [bin/palee.ts:330-340](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L330-L340)
-- [src/types.ts:835-845](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L835-L845)
-- [src/cli/progress.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L120)
-- [bin/palee.ts:250-260](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L250-L260)
-- [src/types.ts:845-865](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L845-L865)
-- [src/cli/validate.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L1-L120)
-- [bin/palee.ts:275-290](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L275-L290)
-- [src/types.ts:865-875](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L865-L875)
-- [src/cli/session.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L120)
-- [bin/palee.ts:340-355](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L340-L355)
-- [src/types.ts:875-920](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L875-L920)
-- [src/cli/roadmap.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L1-L120)
-- [bin/palee.ts:290-315](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L290-L315)
-- [src/types.ts:920-965](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L920-L965)
-- [src/cli/assess.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L120)
-- [src/types.ts:965-975](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L965-L975)
-- [src/cli/update.ts:1-84](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update.ts#L1-L84)
-- [bin/palee.ts:355-380](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L355-L380)
-- [src/types.ts:520-560](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L520-L560)
-- [src/cli/migrate.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/migrate.ts#L1-L120)
-- [bin/palee.ts:315-340](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L315-L340)
-- [src/types.ts:520-1001](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L520-L1001)
-- [src/cli/next.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L60)
-- [src/cli/plan.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/plan.ts#L1-L60)
-- [src/cli/review.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L60)
-- [src/cli/dashboard.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L60)
-- [src/cli/progress.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L60)
-- [src/cli/validate.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L1-L60)
-- [src/cli/session.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L60)
-- [src/cli/roadmap.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L1-L60)
-- [src/cli/assess.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L60)
-- [src/cli/update.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update.ts#L1-L40)
-- [src/cli/migrate.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/migrate.ts#L1-L60)

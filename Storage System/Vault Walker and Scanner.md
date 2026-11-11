@@ -1,5 +1,15 @@
 # Vault Walker and Scanner
 
+::: details Referenced Files in This Document
+
+- [vault-walker.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/vault-walker.ts)
+- [scanner.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts)
+- [cache.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/cache.ts)
+- [storage-walker.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-walker.test.ts)
+- [storage-scanner.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-scanner.test.ts)
+
+:::
+
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Project Structure](#project-structure)
@@ -10,7 +20,6 @@
 7. [Performance Considerations](#performance-considerations)
 8. [Troubleshooting Guide](#troubleshooting-guide)
 9. [Conclusion](#conclusion)
-10. [References](#references)
 
 ## Introduction
 This document explains the vault walker and scanner subsystem responsible for efficient directory traversal and file discovery inside an Obsidian-style vault. It covers:
@@ -419,32 +428,3 @@ Memory management guidance:
 The vault walker and scanner form a disciplined boundary between the filesystem and the rest of the PALEE storage pipeline. The walker focuses on safe, predictable discovery of Markdown notes, while the scanner converts those discoveries into stable, diagnostic-rich records suitable for validation and loading. The in-memory cache provides a practical optimization for frequently accessed metadata, bounded by LRU eviction and timestamp/fingerprint-based invalidation.
 
 For enterprise-scale vaults, the most important operational advice is to minimize redundant walks, avoid unnecessary symlink traversal, keep scanner output deterministic, and manage cache lifetime explicitly. Error handling is designed to be resilient: missing files, permission problems, malformed YAML, and filesystem anomalies produce actionable diagnostics rather than abrupt failures.
-
-## References
-
-- [vault-walker.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/vault-walker.ts)
-- [scanner.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts)
-- [cache.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/cache.ts)
-- [storage-walker.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-walker.test.ts)
-- [storage-scanner.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-scanner.test.ts)
-- [vault-walker.ts:1-368](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/vault-walker.ts#L1-L368)
-- [scanner.ts:1-327](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L1-L327)
-- [cache.ts:1-273](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/cache.ts#L1-L273)
-- [storage-walker.test.ts:1-211](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-walker.test.ts#L1-L211)
-- [storage-scanner.test.ts:1-674](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-scanner.test.ts#L1-L674)
-- [vault-walker.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/vault-walker.ts#L1-L120)
-- [vault-walker.ts:120-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/vault-walker.ts#L120-L200)
-- [vault-walker.ts:201-368](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/vault-walker.ts#L201-L368)
-- [scanner.ts:1-80](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L1-L80)
-- [scanner.ts:80-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L80-L200)
-- [scanner.ts:201-327](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L201-L327)
-- [storage-scanner.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-scanner.test.ts#L1-L200)
-- [storage-scanner.test.ts:201-400](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-scanner.test.ts#L201-L400)
-- [cache.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/cache.ts#L1-L120)
-- [cache.ts:120-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/cache.ts#L120-L200)
-- [cache.ts:201-273](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/cache.ts#L201-L273)
-- [cache.ts:120-273](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/cache.ts#L120-L273)
-- [vault-walker.ts:201-240](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/vault-walker.ts#L201-L240)
-- [vault-walker.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/vault-walker.ts#L1-L30)
-- [scanner.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L1-L30)
-- [cache.ts:1-25](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/cache.ts#L1-L25)

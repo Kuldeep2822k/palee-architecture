@@ -7,6 +7,7 @@ export default defineConfig({
   lastUpdated: true,
   cleanUrls: true,
   appearance: 'force-dark',
+  srcExclude: ['README.md'],
 
   markdown: {
     math: true,

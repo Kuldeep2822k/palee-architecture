@@ -393,18 +393,18 @@ The design intentionally makes articulation a strong signal of understanding. If
 ## Conclusion
 The mastery calculation system separates pedagogical competence from retention scheduling:
 
-- **Mastery** is a weighted, normalized combination of four pillars, with Feynman deliberately double-weighted.
+- **Topic mastery** is a weighted, normalized combination of four pillars, with Feynman deliberately double-weighted.
 - **Thresholding** at `0.7` gates prerequisites and defines mastered topics.
 - **Precedence rules** protect against inventing assessment data while still allowing explicit assessments to update mastery.
 - **SM-2** controls when topics are reviewed, using recall quality, repetition, and ease factor.
-- **Application layers** use mastery for recommendation gating, availability diffs, and summary buckets.
+- **Application layers** use topic mastery for recommendation gating, availability diffs, and summary buckets; global mastery is an aggregate reported separately.
 - **Error handling** favors refusal over silent correction when corrupt data could open prerequisite gates.
 
 For users, this means:
 - High mastery opens downstream topics.
 - High SM-2 performance delays future reviews.
 - Low mastery keeps downstream topics gated until their prerequisites reach the threshold; poor recall (low SM-2 quality) is what brings a topic back sooner.
-- A partial assessment invents nothing: unsupplied pillars are filled from stored frontmatter, and only a pillar with no value anywhere counts as 0 in the weighted average.
+- A partial assessment invents nothing: unsupplied pillars are filled from stored frontmatter. If any pillar is absent from both the assessment and stored frontmatter, the topic has no complete mastery data and is skipped by validation and repair rather than treating the missing value as zero.
 - Achieving the `0.7` gate requires demonstrating comprehension beyond the three ordinary pillars.
 
 ## Appendices
@@ -419,20 +419,3 @@ For users, this means:
 | All omitted | null | null | null | null | No assessment data | `0.0` |
 | Just below threshold | 0.6 | 0.5 | 0.7 | 0.4 | `(0.6 + 0.5 + 0.7 + 2 × 0.4) / 5` | `0.64` |
 | Exactly at threshold | 0.7 | 0.6 | 0.5 | 0.5 | `(0.7 + 0.6 + 0.5 + 2 × 0.5) / 5` | `0.70` |
-
-## References
-
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)
-- [0004-four-pillar-pedagogical-mastery.md:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
-- [0021-assessment-surface.md:1-86](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0021-assessment-surface.md#L1-L86)
-- [03-1-sm2-spaced-repetition-algorithm.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L1-L200)
-- [mastery.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L199)
-- [mastery.ts:39-93](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L39-L93)
-- [mastery.ts:156-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L156-L229)
-- [mastery.ts:95-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L95-L229)
-- [mastery.ts:1-70](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L70)
