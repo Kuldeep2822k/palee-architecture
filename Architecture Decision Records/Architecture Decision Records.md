@@ -376,7 +376,6 @@ Readiness gates ensure learners only see topics whose prerequisites are satisfie
 Key decisions include:
 
 - Readiness excludes archived topics.
-- A topic is ready when its own mastery is below the mastery threshold (0.70) — it still needs work — and every prerequisite topic’s mastery is at or above the threshold. A topic at or above the threshold is already mastered and drops off the ready list; a topic with any prerequisite below the threshold is blocked, however low its own mastery is. Exception: when a note's `depends_on_source` is advisory, `areDependenciesSatisfied` returns true immediately, so its prerequisites do not gate it in that case.
 - A topic is ready when its own mastery is below the mastery threshold (0.70) — it still needs work — and every non-advisory prerequisite topic’s mastery is at or above the threshold. A topic at or above the threshold is already mastered and drops off the ready list; a topic with any non-advisory prerequisite below the threshold is blocked, however low its own mastery is. Advisory `toc` and `tie` edges never gate readiness.
 - Global mastery excludes archived topics but includes paused ones.
 - Missing non-advisory dependencies block readiness; missing advisory dependencies do not gate readiness.
