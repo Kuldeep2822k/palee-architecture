@@ -49,6 +49,8 @@ The learning architecture lives across three layers:
 | Engine layer | Pure computation of mastery, prerequisite text, auto-chaining, and hygiene classification | `src/engine/{mastery,tier0-hygiene,auto-chain,prereq-text}.ts` |
 | Application layer | User-facing contracts for scheduling and assessment | `src/application/{get-next-topics,record-assessment}.ts` |
 
+`Assessed` is a derived learning-progress state, not a persisted topic `status`; it means that the four-pillar assessment surface has recorded scores for the topic.
+
 ```mermaid
 graph TB
     Learner["Learner"] --> CLI["CLI Commands"]

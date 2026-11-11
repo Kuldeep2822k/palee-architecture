@@ -37,7 +37,7 @@
 ## Introduction
 This document organizes PALEE’s architectural decision records and planning artifacts into a single, accessible reference. It explains how decisions about spaced repetition, storage, validation, concurrency, identity, roadmap import safety, session memory, readiness contracts, and future phases evolved from planning documents into the current implementation. It also documents the ADR lifecycle defined in the repository’s `agent.md` (with the status vocabulary in `docs/adr/README.md`), guidance for creating new ADRs, and the relationship between past decisions and present architecture.
 
-PALEE is a study tracker CLI built on Node.js. Its engine is deterministic and runs fully offline: it schedules learning with SM-2 spaced repetition and dependency-aware recommendations over an Obsidian vault. AI features are not part of that engine — they sit behind a separate Phase 2 provider boundary, which is the only place network access is allowed, plus the update command's bounded npm child process (ADR-0033). Its codebase is deliberately layered: shared types are the contract; the engine provides pure scheduling and graph logic; the storage layer owns vault filesystem I/O; the application layer implements use cases; the validation layer inspects vault content; the AI provider boundary isolates network access; and the CLI exposes commands.
+PALEE is a study tracker CLI built on Node.js. Its engine is deterministic and runs fully offline: it schedules learning with SM-2 spaced repetition and dependency-aware recommendations over an Obsidian vault. AI features are not part of that engine — they sit behind a separate Phase 2 provider boundary — one of only two places network access is allowed, the other being the bounded `palee update` npm child process (ADR-0033). Its codebase is deliberately layered: shared types are the contract; the engine provides pure scheduling and graph logic; the storage layer owns vault filesystem I/O; the application layer implements use cases; the validation layer inspects vault content; the AI provider boundary isolates network access; and the CLI exposes commands.
 
 The central design philosophy is conservative durability and explicit boundaries: vault notes are canonical, derived views are rebuildable, writes are atomic and conflict-aware, locks protect concurrent writers, and network access is confined to two bounded paths: the AI provider boundary and the `palee update` npm child process. Decisions are recorded as numbered ADRs and constrained by stable invariant IDs so that tests can pin behavior rather than silently drift.
 
@@ -297,6 +297,8 @@ classDiagram
     DependencyEngine --> Mastery : "uses threshold"
 ```
 
+`computeTopicMastery` computes the mastery value for one topic from its four pillars. Global mastery is an aggregate over eligible topics and is documented separately; the class diagram does not imply that the topic-level method performs that aggregate.
+
 Evolution and lessons learned:
 - Declared prerequisites and per-edge blocking policies were refined to distinguish human-authored dependencies from synthesized auto-chain edges.
 - Tie edges and TOC-derived edges became advisory where appropriate, preventing accidental scheduling blocks.
@@ -375,8 +377,9 @@ Key decisions include:
 
 - Readiness excludes archived topics.
 - A topic is ready when its own mastery is below the mastery threshold (0.70) — it still needs work — and every prerequisite topic’s mastery is at or above the threshold. A topic at or above the threshold is already mastered and drops off the ready list; a topic with any prerequisite below the threshold is blocked, however low its own mastery is. Exception: when a note's `depends_on_source` is advisory, `areDependenciesSatisfied` returns true immediately, so its prerequisites do not gate it in that case.
+- A topic is ready when its own mastery is below the mastery threshold (0.70) — it still needs work — and every non-advisory prerequisite topic’s mastery is at or above the threshold. A topic at or above the threshold is already mastered and drops off the ready list; a topic with any non-advisory prerequisite below the threshold is blocked, however low its own mastery is. Advisory `toc` and `tie` edges never gate readiness.
 - Global mastery excludes archived topics but includes paused ones.
-- Missing dependencies block readiness.
+- Missing non-advisory dependencies block readiness; missing advisory dependencies do not gate readiness.
 - The readiness threshold is defined centrally and reused by planning logic.
 
 ```mermaid

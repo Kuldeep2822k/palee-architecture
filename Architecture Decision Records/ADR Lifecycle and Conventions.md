@@ -52,15 +52,16 @@ PALEE’s ADR system has three core components:
 |---|---|---|
 | ADR index | Declares purpose, status vocabulary, and links every active ADR | [docs/adr/README.md:1-62](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/README.md#L1-L62) |
 | ADR record | Records one decision with structured sections | Example: [docs/adr/0001-supermemo-sm2-algorithm.md:1-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L1-L63) |
-| Status metadata | Tracks whether a decision is proposed, accepted, or superseded (an amendment is an annotation on a still-Accepted record, not a status) | Examples in [docs/adr/0005-concurrency-storage-and-schema-migration.md:1-51](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0005-concurrency-storage-and-schema-migration.md#L1-L51) and [docs/adr/0036-bounded-lock-acquisition.md:1-91](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0036-bounded-lock-acquisition.md#L1-L91) |
+| Status metadata | Tracks whether a decision is proposed, accepted, rejected, or superseded (an amendment is an annotation on a still-Accepted record, not a status) | Examples in [docs/adr/0005-concurrency-storage-and-schema-migration.md:1-51](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0005-concurrency-storage-and-schema-migration.md#L1-L51) and [docs/adr/0036-bounded-lock-acquisition.md:1-91](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0036-bounded-lock-acquisition.md#L1-L91) |
 
 ### Status Vocabulary
-The repository defines three statuses (`Proposed`, `Accepted`, `Superseded by ADR-nnnn`):
+The repository defines four statuses (`Proposed`, `Accepted`, `Rejected`, `Superseded by ADR-nnnn`):
 
 | Status | Meaning | How it appears |
 |---|---|---|
 | **Proposed** | A decision is under consideration but not yet adopted. | Appears as the status of ADR-0028, which is Proposed. |
 | **Accepted** | The decision has been approved and should guide implementation. | Appears as the primary status line in ADRs such as ADR-0001 and ADR-0004. |
+| **Rejected** | The proposal was considered and declined before acceptance; it is retained for decision history and does not guide implementation. | Appears as the terminal status of a proposal that was explicitly declined. |
 | **Superseded** | A later ADR replaces the earlier decision. | Recorded as “Superseded by ADR-nnnn”. |
 
 “Amended” is not a status: an amendment is an annotation on a record that remains Accepted. When a later ADR changes part of an earlier decision without replacing it entirely, the earlier record keeps its Accepted status and gains an “Amended by ADR-nnnn” line plus a short scope note (as ADR-0005 does for ADR-0034).
@@ -135,6 +136,7 @@ An ADR evolves through these states:
 ```mermaid
 stateDiagram-v2
     [*] --> Proposed : "Draft created"
+    Proposed --> Rejected : "Declined before acceptance"
     Proposed --> Accepted : "Approved"
     Accepted --> Superseded : "Later ADR replaces entire decision"
 ```

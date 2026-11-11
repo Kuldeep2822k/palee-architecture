@@ -368,7 +368,6 @@ A full configuration may additionally set provider, model, endpoint, and API key
 {
   "vaultPath": "/home/user/notes-vault",
   "aiProvider": "openai",
-  "baseUrl": "https://opencode.ai/zen/v1",
   "baseUrl": "https://api.openai.com",
   "model": "<model-id>",
   "apiKey": "sk-..."

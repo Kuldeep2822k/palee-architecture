@@ -393,18 +393,18 @@ The design intentionally makes articulation a strong signal of understanding. If
 ## Conclusion
 The mastery calculation system separates pedagogical competence from retention scheduling:
 
-- **Mastery** is a weighted, normalized combination of four pillars, with Feynman deliberately double-weighted.
+- **Topic mastery** is a weighted, normalized combination of four pillars, with Feynman deliberately double-weighted.
 - **Thresholding** at `0.7` gates prerequisites and defines mastered topics.
 - **Precedence rules** protect against inventing assessment data while still allowing explicit assessments to update mastery.
 - **SM-2** controls when topics are reviewed, using recall quality, repetition, and ease factor.
-- **Application layers** use mastery for recommendation gating, availability diffs, and summary buckets.
+- **Application layers** use topic mastery for recommendation gating, availability diffs, and summary buckets; global mastery is an aggregate reported separately.
 - **Error handling** favors refusal over silent correction when corrupt data could open prerequisite gates.
 
 For users, this means:
 - High mastery opens downstream topics.
 - High SM-2 performance delays future reviews.
 - Low mastery keeps downstream topics gated until their prerequisites reach the threshold; poor recall (low SM-2 quality) is what brings a topic back sooner.
-- A partial assessment invents nothing: unsupplied pillars are filled from stored frontmatter, and only a pillar with no value anywhere counts as 0 in the weighted average.
+- A partial assessment invents nothing: unsupplied pillars are filled from stored frontmatter. If any pillar is absent from both the assessment and stored frontmatter, the topic has no complete mastery data and is skipped by validation and repair rather than treating the missing value as zero.
 - Achieving the `0.7` gate requires demonstrating comprehension beyond the three ordinary pillars.
 
 ## Appendices
