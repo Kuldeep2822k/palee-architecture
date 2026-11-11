@@ -61,7 +61,7 @@ This section summarizes the primary types and formatter responsibilities.
 | `ValidationSeverity` | Issue classification | Either `error`, which gates success, or `warning`, which does not gate success by default. |
 | `ValidationRule` | Contract implemented by each validation rule | Provides an identifier, description, default severity, optional fixability metadata, and a deterministic `run` function. |
 | `ValidationContext` | Read-only snapshot passed to rules | Includes vault paths, files, topics, notes, sessions, session index, hot memory, read-incomplete signals, and component-level memory errors. |
-| `FormatCounts` | Shared formatter options | Tracks topic count, file count, and strict mode so both formatters can produce consistent summaries. |
+| `FormatCounts` | Shared formatter options | Tracks topic count, file count, and strict mode so `formatJson` can produce the summary fields; `formatHuman` takes only the issue list. |
 | `formatHuman` | Console report generator | Produces plain text with severity blocks, bullet points, file locations, and rule identifiers; no ANSI colors. |
 | `formatJson` | Machine-readable serializer | Produces one-line JSON preserving documented contract keys, legacy locator compatibility, error/warning counts, and strict gating flags. |
 
@@ -184,6 +184,28 @@ Important implementation characteristics:
 - The formatter is synchronous and returns a string.
 
 #### Example Human Reports
+A clean vault produces exactly this pass line:
+
+```text
+✓ Vault validation passed - no errors found
+```
+
+A vault with one error and one warning produces a report using the same literal headers and bullet rendering:
+
+```text
+✗ Found 1 validation error(s):
+
+  • Duplicate topic ID T-example used by 2 notes
+    Files: notes/example-a.md, notes/example-b.md
+    Rule: no-duplicate-topic-id
+
+
+⚠ Found 1 validation warning(s):
+
+  • notes/broken.md: Malformed frontmatter
+    Rule: parse-frontmatter
+```
+
 The test suite validates several scenarios:
 
 | Scenario | Expected Human Output Characteristics |
@@ -234,7 +256,7 @@ Contract guarantees:
 Legacy mapping behavior:
 
 - A small set of historical rule IDs map to legacy `type` values.
-- Rule-specific locator fields such as `id`, `topic`, `files`, and `path` are copied from `details` when present.
+- Rule-specific locator fields are handled per source: `files`, `path`, and `missing` are copied from `issue.details` when present, while `id` and `topic` are copied from `issue.topicId` — `id` only for `no-duplicate-topic-id` and `topic` only for `no-missing-dependency`.
 - Newer fields like `rule_id`, `severity`, and `message` are always included.
 
 #### Example JSON Scenarios
@@ -268,8 +290,10 @@ sequenceDiagram
   alt --fix enabled
     Handler->>Fix: Apply planned repairs
     Fix-->>Handler: Repairs and conflicts
-    Handler->>Vault: Re-collect after repairs
-    Handler->>Rules: Re-run rules
+    opt When --fix produces at least one repair
+      Handler->>Vault: Re-collect after repairs
+      Handler->>Rules: Re-run rules
+    end
   end
   alt JSON mode
     Handler->>Format: formatJson(issues, counts, strict)
@@ -287,7 +311,7 @@ Exit code behavior:
 - Errors always cause a validation exit code.
 - Warnings alone do not fail the run unless `--strict` is enabled.
 - In JSON mode, the handler still sets the same exit code policy, even though the payload itself keeps `valid` errors-only.
-- When `--fix` runs, the handler re-collects and re-rules after repairs so the final report reflects remaining issues.
+- When `--fix` produces at least one repair, the handler re-collects and re-runs the rules after repairs so the final report reflects remaining issues.
 
 Repair reporting:
 
@@ -448,25 +472,3 @@ For maintainers, the most important design boundaries are:
 - Errors gate success; warnings do not, except under strict mode.
 - JSON consumers should rely on documented keys and avoid brittle string parsing.
 - External reporters should integrate through the public formatter functions and preserve the existing contract.
-
-## References
-
-- [validate.ts:1-50](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L1-L50)
-- [format.ts:1-25](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/format.ts#L1-L25)
-- [types.ts:1-25](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts#L1-L25)
-- [validation-format.test.ts:1-25](https://github.com/Kuldeep2822k/cli/blob/main/test/validation-format.test.ts#L1-L25)
-- [types.ts:26-161](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts#L26-L161)
-- [format.ts:26-180](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/format.ts#L26-L180)
-- [validate.ts:420-535](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L420-L535)
-- [format.ts:40-180](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/format.ts#L40-L180)
-- [types.ts:86-161](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts#L86-L161)
-- [types.ts:26-120](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts#L26-L120)
-- [format.ts:40-99](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/format.ts#L40-L99)
-- [validation-format.test.ts:36-122](https://github.com/Kuldeep2822k/cli/blob/main/test/validation-format.test.ts#L36-L122)
-- [format.ts:100-180](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/format.ts#L100-L180)
-- [validation-format.test.ts:124-198](https://github.com/Kuldeep2822k/cli/blob/main/test/validation-format.test.ts#L124-L198)
-- [format.ts:1-180](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/format.ts#L1-L180)
-- [validation-format.test.ts:1-198](https://github.com/Kuldeep2822k/cli/blob/main/test/validation-format.test.ts#L1-L198)
-- [format.ts:1-10](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/format.ts#L1-L10)
-- [validate.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L1-L20)
-- [validation-format.test.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/test/validation-format.test.ts#L1-L20)

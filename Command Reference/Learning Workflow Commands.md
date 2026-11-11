@@ -115,7 +115,7 @@ sequenceDiagram
 ### `next`: Discovering Actionable Topics
 `next` answers “what should I study now?” by combining three signals:
 1. **SM-2 due state**: Topics whose stored `due_at` has elapsed, plus topics that have never been scheduled.
-2. **Prerequisite gating**: Topics whose dependencies are not yet mastered below the required threshold are withheld.
+2. **Prerequisite gating**: Topics whose prerequisites have not yet reached the mastery threshold are withheld.
 3. **Status filtering**: Archived topics are never presented as “next.”
 
 #### Topic discovery pipeline
@@ -387,15 +387,3 @@ The review is recorded and the schedule is updated, but the system warns that th
 - `lapses` counts failed reviews after initial learning.
 - Global averages exclude archived topics.
 - Mastery status is based on a fixed threshold, not a vague scale.
-
-## References
-
-- [next.ts:1-227](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L227)
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [plan.ts:1-273](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/plan.ts#L1-L273)
-- [progress.ts:1-316](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L316)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-- [palee_cli_spec.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/planning/palee_cli_spec.md#L1-L200)

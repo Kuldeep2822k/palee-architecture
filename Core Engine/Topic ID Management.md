@@ -217,8 +217,8 @@ flowchart TD
   Start["Scan note"] --> Parse["Parse frontmatter"]
   Parse --> HasId{"Has palee_id?"}
   HasId -->|"No"| Skip["Not a topic note"]
-  HasId -->|"Yes"| TypeCheck{"Is non-empty string?"}
-  TypeCheck -->|"No"| InvalidId["Usable but invalid for loader"]
+  HasId -->|"Yes"| TypeCheck{"Is non-blank string?"}
+  TypeCheck -->|"No"| InvalidId["Not usable — loader skips the note"]
   TypeCheck -->|"Yes"| Trim["Trimmed ID"]
   Trim --> Load["Load as topic record"]
   InvalidId --> AdoptFlow["Adopt flow may skip or classify by hygiene"]
@@ -323,7 +323,6 @@ classDiagram
 
   EngineApi --> TopicIdPolicy : "delegates"
   ValidTopicIdFormatRule --> TopicIdPolicy : "uses validator"
-  Loader --> Tier0Hygiene : "loads usable IDs"
   AdoptCommand --> TopicIdPolicy : "generates IDs"
   AdoptCommand --> Loader : "reads and writes topics"
 ```
@@ -398,21 +397,3 @@ For safe operation:
 - Rely on validation rules to detect malformed or duplicate IDs.
 - Prefer migration tools to rewrite legacy or inconsistent IDs rather than ad hoc scripts.
 - Remember that ID stability belongs to the author and storage layer; minting is only for newly created topics.
-
-## References
-
-- [topic-id.ts:1-81](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L1-L81)
-- [engine/index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
-- [valid-topic-id-format.ts:1-75](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-id-format.ts#L1-L75)
-- [no-duplicate-topic-id.ts:1-48](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-duplicate-topic-id.ts#L1-L48)
-- [loader.ts:250-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L250-L417)
-- [tier0-hygiene.ts:274-377](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L274-L377)
-- [adopt.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L200)
-- [engine-topic-id.test.ts:1-73](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-topic-id.test.ts#L1-L73)
-- [0015-identity-preservation.md:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0015-identity-preservation.md#L1-L59)
-- [adopt.ts:400-728](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L400-L728)
-- [topic-id.ts:49-81](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L49-L81)
-- [engine-topic-id.test.ts:44-73](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-topic-id.test.ts#L44-L73)
-- [topic-id.ts:1-48](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L1-L48)
-- [0016-frontmatter-fidelity-and-unicode-fold.md:1-60](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0016-frontmatter-fidelity-and-unicode-fold.md#L1-L60)
-- [types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)

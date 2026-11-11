@@ -235,14 +235,14 @@ Processing order, with the owning layer named for each step. This matters becaus
 
 1. **CLI** (`reviewCommand` in `src/cli/review.ts`): validate the quality rating as an integer from 0 to 5.
 2. **CLI**: load the vault’s topics and resolve the target topic with `resolveTopicQuery` (`src/cli/topic-query.ts`), refusing missing or ambiguous matches. Topic resolution is a CLI policy, not something `record-review.ts` does.
-3. **CLI**: fingerprint the loaded note content with `computeFingerprint`, then re-read the note from disk and compare fingerprints — the OCC read-reread check. A mismatch aborts the review with an `ECONFLICT` error before any update is computed or written.
+3. **CLI**: fingerprint the loaded note content with `computeFingerprint`, then re-read the note from disk and compare fingerprints — the OCC read-reread check. A mismatch aborts the review with an `ECONFLICT` error before any update is computed or written, as does a note deleted between load and re-read.
 4. **CLI**: parse the frontmatter from the freshly re-read content.
-5. **Application** (`buildReviewUpdate` in `src/application/record-review.ts`): coerce stored SM-2 fields, preserving literal zeros and refusing garbage.
-6. **Application → Engine**: run `processReview` to transition ease factor, interval, repetition, and lapse counters.
-7. **Application**: compute the next due date from review time and interval.
+5. **Application** (`buildReviewUpdate` in `src/application/record-review.ts`): coerce stored SM-2 fields, preserving literal zeros.
+6. **Application → Engine**: run `processReview` to transition ease factor, interval, repetition, and lapse counters — `processReview`'s precondition block refuses garbage, naming the field and value it rejected (ADR-0021).
+7. **Application → Engine**: compute the next due date with `computeDueDate` from review time and interval.
 8. **Application**: detect whether the review happened before the stored calendar-day due date.
 9. **Application → Engine**: resolve pillar-based mastery using `pillars-first` precedence.
-10. **Application**: carry forward only pillars already present in the note.
+10. **Application → Engine**: carry forward only pillars already present in the note with `carriedPillarScores`.
 11. **Application**: build the frontmatter updates — SM-2 state, mastery, last reviewed and due dates as local date strings — and return them. Nothing has been written yet.
 12. **CLI**: apply the updates to the re-read content and persist with `atomicWrite`, passing the fresh fingerprint so the write itself stays guarded.
 
@@ -350,20 +350,3 @@ Recommended recovery steps:
 
 ## Conclusion
 The PALEE application layer cleanly separates business logic from I/O and CLI concerns. It exposes pure use cases for due-topic discovery, next-topic recommendation, mastery summarization, assessment recording, and review recording. By composing due partitioning, prerequisite gating, SM-2 transitions, and pillar-based mastery, it supports complex workflows while remaining testable and reusable. The CLI retains responsibility for configuration, vault access, atomic writes, output formatting, and exit codes, preserving the architectural boundary defined in ADR-0025.
-
-## References
-
-- [0025-application-layer.md:1-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0025-application-layer.md#L1-L63)
-- [next.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L200)
-- [assess.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L200)
-- [review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [dependency.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L200)
-- [mastery.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L200)
-- [sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-- [types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)
-- [0025-application-layer.md:15-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0025-application-layer.md#L15-L63)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [mastery-summary.ts:1-36](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts#L1-L36)

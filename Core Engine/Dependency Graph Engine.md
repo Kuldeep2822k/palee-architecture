@@ -266,8 +266,6 @@ graph LR
   Validator --> ValidateCommand["Validate Command"]
 ```
 
-[No additional section sources needed here since this diagram summarizes existing integration points already cited above.]
-
 ## Dependency Analysis
 
 ```mermaid
@@ -330,7 +328,7 @@ classDiagram
 
 | Operation | Complexity | Notes |
 |---|---|---|
-| Build edge map | O(D) | D is total dependency references |
+| Build edge map | O(D log k) | D is total dependency references |
 | Tarjan SCCs | O(V + E) | Iterative, stack-safe |
 | Unbounded cycle enumeration | O(V + E + C) per SCC | C is number of elementary cycles; can be exponential |
 | Bounded cycle enumeration | O(V + E + min(C, K)) | K is `maxCycles`; truncation proven via probe budget |
@@ -392,20 +390,3 @@ The dependency graph engine is a focused, stack-safe component that turns topic 
 - Clear integration with scheduling and validation layers.
 
 For large vaults, the recommended pattern is to treat cycle enumeration as potentially expensive, use bounded APIs for user-facing operations, rely on SCC membership for quarantine, and keep readiness checks separate from traversal-heavy cycle discovery.
-
-## References
-
-- [dependency.ts:1-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L1015)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)
-- [dependencies.ts:1-28](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/dependencies.ts#L1-L28)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [no-dependency-cycle.ts:1-74](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-dependency-cycle.ts#L1-L74)
-- [dependency.ts:750-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L750-L1015)
-- [dependency.ts:200-750](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L200-L750)
-- [dependency.ts:200-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L200-L1015)
-- [dependency.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L200)
-- [engine-dependency.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-dependency.test.ts#L1-L200)
-- [engine-dependency.test.ts:200-520](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-dependency.test.ts#L200-L520)
-- [engine-dependency.test.ts:1-520](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-dependency.test.ts#L1-L520)

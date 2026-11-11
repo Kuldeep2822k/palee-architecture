@@ -29,7 +29,6 @@
 8. [Troubleshooting Guide](#troubleshooting-guide)
 9. [Conclusion](#conclusion)
 10. [Appendices](#appendices)
-11. [References](#references)
 
 ## Introduction
 PALEE’s core algorithmic engine is a deterministic, file-system-free learning system composed of five cooperating parts:
@@ -101,10 +100,8 @@ This section summarizes each algorithm’s inputs, outputs, invariants, and role
 ### Auto-Chaining Engine
 - **Purpose:** Infer prerequisite chains from vault structure without filesystem access.
 - **Inputs:** Vault-relative paths, basenames, directory hierarchy, optional repository enumeration, and hygiene classification.
-- **Ordering rules:**
-  - Numeric prefixes first (`01-foundations`).
-  - Phase keywords second (`deep-dive`, `lab`, `exam`).
-  - Remaining names third, with stable case-insensitive then case-sensitive ordering.
+- **Ordering rules (operative, shipped path):** `src/cli/adopt.ts` calls `planAutoChainWithHygiene`, whose Tier-0 comparator ranks: README-class first, then numeric prefixes (`01-foundations`), then phase keywords (`deep-dive`, `lab`, `exam`), then other names (stable case-insensitive then case-sensitive ordering), with homework (`assignment`/`quiz`/`solution`) last.
+  - The bare `planAutoChain` comparator (unfiltered) ranks only three ways: numeric -> phase -> alphabetical.
 - **Hygiene integration:** Uses `classifyNoteForChain` so only eligible backbone or leaf notes participate in planning.
 
 ### Tier-0 Hygiene Classifier
@@ -178,9 +175,9 @@ $$I(n) = \begin{cases} 1 & n = 1 \\ 6 & n = 2 \\ \text{clamp}\big(\text{round}(I
 
 Failure branch ($q < 3$):
 
+- `lapses ← lapses + 1` only if `repetition > 0` (checked against the pre-reset repetition value)
 - `repetition ← 0`
 - `interval_days ← 1`
-- `lapses ← lapses + 1` only if `repetition > 0`
 
 Success branch ($q \ge 3$):
 
@@ -304,11 +301,15 @@ Auto-chaining infers ordered prerequisites from vault layout rather than guessin
 - Explicit separation between inferred and author-authored edges.
 
 #### Lesson Ranking
-Basenames are ranked as follows:
+Basenames are ranked as follows in the operative Tier-0 ordering used by `planAutoChainWithHygiene` (the shipped path via `src/cli/adopt.ts`):
 
-1. Numeric prefix: `01-foundations`, `02-linux/01-processes`.
-2. Phase keyword: `deep-dive`, `lab`, `exam`.
-3. Everything else: stable alphabetical tiebreak.
+1. README-class first.
+2. Numeric prefix: `01-foundations`, `02-linux/01-processes`.
+3. Phase keyword: `deep-dive`, `lab`, `exam`.
+4. Everything else: stable alphabetical tiebreak.
+5. Homework (`assignment`, `quiz`, `solution`) last.
+
+The bare `planAutoChain` comparator (unfiltered) uses only the 3-rank version: numeric -> phase -> alphabetical.
 
 #### Directory Ordering
 Directories are compared segment by segment. Numbered segments dominate unnumbered ones, ancestors sort before descendants, and ties fall back to segment name.
@@ -347,7 +348,7 @@ flowchart TD
 |---|---|---|
 | B1 | Repo-meta basename stems | Excluded |
 | B2 | Locale-suffixed generic docs or structural translation segment | Excluded or demoted to leaf |
-| B3 | Template token in stem or directory segment | Excluded or demoted |
+| B3 | Template token in stem or directory segment | Excluded |
 | B4 | Phase subtree segment | Subtree becomes leaves |
 | B5 | README-class, numeric prefix, or content-doc prefix | Backbone eligible |
 | B7 | Invalid `palee_id` | Demoted to leaf |
@@ -492,39 +493,3 @@ The engine barrel exports:
 | Advisory TOC edges | Enumeration is weaker evidence than numbering or hand-authored dependencies | Learner must understand edge provenance |
 | Tier-0 hygiene by default | Repository furniture caused measured false edges | Scope is stricter than naïve `.md` scanning |
 | Iterative graph algorithms | Avoid call-stack limits on deep curricula | More code than simple recursive DFS |
-
-## References
-
-- [src/engine/index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
-- [src/engine/sm2.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L60)
-- [src/engine/mastery.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L30)
-- [src/engine/dependency.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L30)
-- [src/engine/auto-chain.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L30)
-- [src/engine/tier0-hygiene.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L30)
-- [src/engine/sm2.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L120)
-- [docs/adr/0001-supermemo-sm2-algorithm.md:1-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L1-L63)
-- [docs/03-1-sm2-spaced-repetition-algorithm.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L1-L200)
-- [src/engine/mastery.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L120)
-- [docs/adr/0004-four-pillar-pedagogical-mastery.md:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
-- [docs/03-1-sm2-spaced-repetition-algorithm.md:200-330](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L200-L330)
-- [src/engine/dependency.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L120)
-- [docs/03-2-dependency-graph-engine.md:1-215](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-2-dependency-graph-engine.md#L1-L215)
-- [src/engine/auto-chain.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L120)
-- [docs/adr/0011-tiered-auto-chain.md:1-99](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0011-tiered-auto-chain.md#L1-L99)
-- [src/engine/tier0-hygiene.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L120)
-- [docs/adr/0010-tier0-hygiene-classification.md:1-72](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0010-tier0-hygiene-classification.md#L1-L72)
-- [src/engine/auto-chain.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L40)
-- [src/engine/tier0-hygiene.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L40)
-- [src/engine/dependency.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L40)
-- [src/engine/sm2.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L40)
-- [src/engine/sm2.ts:60-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L60-L200)
-- [docs/03-1-sm2-spaced-repetition-algorithm.md:100-200](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L100-L200)
-- [src/engine/sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-- [docs/03-2-dependency-graph-engine.md:120-215](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-2-dependency-graph-engine.md#L120-L215)
-- [src/engine/dependency.ts:1-80](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L80)
-- [docs/03-2-dependency-graph-engine.md:60-120](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-2-dependency-graph-engine.md#L60-L120)
-- [src/engine/dependency.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L200)
-- [src/engine/auto-chain.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L200)
-- [docs/adr/0010-tier0-hygiene-classification.md:20-72](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0010-tier0-hygiene-classification.md#L20-L72)
-- [src/engine/tier0-hygiene.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L200)
-- [src/engine/mastery.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L40)

@@ -56,7 +56,7 @@ graph TB
   TC --> AC
   TC --> T0
   AC --> T0
-  DG --> TC
+  TC --> DG
 ```
 
 ## Core Components
@@ -435,39 +435,3 @@ For maintainers, the most important invariants are:
 - Merged plans must be globally acyclic.
 - Numbering dominance must preserve numbered-tree ordering.
 - Skipped links must be recorded so authors can repair broken TOCs without breaking adoption.
-
-## References
-
-- [toc-chain.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L1-L40)
-- [auto-chain.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L30)
-- [toc.ts:1-25](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/toc.ts#L1-L25)
-- [toc-chain.ts:41-90](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L41-L90)
-- [toc-chain.ts:566-740](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L566-L740)
-- [toc-chain.ts:950-1130](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L950-L1130)
-- [toc.ts:60-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/toc.ts#L60-L120)
-- [toc.ts:180-262](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/toc.ts#L180-L262)
-- [toc.ts:120-262](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/toc.ts#L120-L262)
-- [toc-chain.ts:950-1293](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L950-L1293)
-- [auto-chain.ts:201-430](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L201-L430)
-- [dependency.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L120)
-- [toc-chain.ts:90-210](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L90-L210)
-- [toc-chain.ts:210-565](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L210-L565)
-- [engine-toc-chain.test.ts:20-120](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-toc-chain.test.ts#L20-L120)
-- [engine-toc-chain.test.ts:496-700](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-toc-chain.test.ts#L496-L700)
-- [toc-chain.ts:740-950](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L740-L950)
-- [engine-toc-chain.test.ts:700-800](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-toc-chain.test.ts#L700-L800)
-- [engine-toc-chain.test.ts:800-950](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-toc-chain.test.ts#L800-L950)
-- [toc-chain.ts:1130-1293](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L1130-L1293)
-- [engine-toc-chain.test.ts:950-1248](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-toc-chain.test.ts#L950-L1248)
-- [toc-chain.ts:566-1293](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L566-L1293)
-- [toc.ts:1-262](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/toc.ts#L1-L262)
-- [auto-chain.ts:1-430](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L430)
-- [engine-toc-chain.test.ts:120-200](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-toc-chain.test.ts#L120-L200)
-- [engine-toc-chain.test.ts:201-495](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-toc-chain.test.ts#L201-L495)
-- [toc.ts:25-60](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/toc.ts#L25-L60)
-- [dependency.ts:120-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L120-L200)
-- [toc-chain.ts:1030-1130](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L1030-L1130)
-- [toc-chain.ts:1230-1293](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/toc-chain.ts#L1230-L1293)
-- [engine-toc-chain.test.ts:900-1043](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-toc-chain.test.ts#L900-L1043)
-- [dependency.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L60)
-- [engine-toc-chain.test.ts:950-1043](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-toc-chain.test.ts#L950-L1043)

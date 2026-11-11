@@ -85,7 +85,7 @@ The application layer exposes `summarizeMastery`, which takes an array of topic 
 | `learning` | Topics with some mastery but below the threshold |
 | `new` | Topics with zero mastery |
 
-The default threshold is `0.7`, matching the engine’s mastery gate.
+The default threshold is `0.70`, matching the engine’s mastery gate.
 
 ## Architecture Overview
 The mastery computation pipeline moves from raw frontmatter through normalization, weighted aggregation, and finally into summary buckets.
@@ -169,21 +169,21 @@ For each mastery value:
 2. If the value is greater than zero and strictly below the threshold, increment `learning`.
 3. If the value is exactly zero, increment `new`.
 
-These predicates are independent, so a single value can satisfy more than one condition. In practice, the implementation counts:
+Each value falls into exactly one bucket, so a single value cannot satisfy more than one condition. In practice, the implementation counts:
 
 - `mastered` when `m >= threshold`.
 - `learning` when `0 < m < threshold`.
 - `new` when `m === 0`.
 
 #### Threshold Handling
-The default threshold is imported from the engine as `MASTERY_THRESHOLD`, which is `0.7`. Callers may pass a custom threshold, which is useful for testing or alternate reporting views.
+The default threshold is imported from the engine as `MASTERY_THRESHOLD`, which is `0.70`. Callers may pass a custom threshold, which is useful for testing or alternate reporting views.
 
 #### Bucket Semantics
 | Value Range | Bucket | Interpretation |
 |---|---|---|
 | Exactly `0` | `new` | No mastery detected |
-| Between `0` and `0.7` | `learning` | Some mastery, not yet mastered |
-| At or above `0.7` | `mastered` | Meets the mastery gate |
+| Between `0` and `0.70` | `learning` | Some mastery, not yet mastered |
+| At or above `0.70` | `mastered` | Meets the mastery gate |
 | Outside `[0, 1]` | Depends on predicate | Normalized earlier; unexpected values are handled upstream |
 
 ```mermaid
@@ -240,9 +240,9 @@ If a topic has:
 
 Then:
 
-- Weighted sum: `0.8 + 0.7 + 0.9 + 2 × 0.85 = 4.2`
-- Mastery: `round(4.2 / 5, 4) = 0.84`
-- Bucket: `mastered` (because `0.84 ≥ 0.7`)
+- Weighted sum: `0.8 + 0.7 + 0.9 + 2 × 0.85 = 4.1`
+- Mastery: `round(4.1 / 5, 4) = 0.82`
+- Bucket: `mastered` (because `0.82 ≥ 0.7`)
 
 #### Partial Assessment Example
 If Feynman is absent:
@@ -258,7 +258,7 @@ If all pillars are absent or zero:
 - `summarizeMastery` classifies it as `new`.
 
 #### Mixed Bucket Example
-Given mastery values `[0, 0.3, 0.69, 0.7, 0.95]` with threshold `0.7`:
+Given mastery values `[0, 0.3, 0.69, 0.7, 0.95]` with threshold `0.70`:
 
 - `0` → `new`
 - `0.3` → `learning`
@@ -369,13 +369,3 @@ The mastery summary computation cleanly separates concerns:
 - **Architectural decisions** ensure that missing pillars are not mistaken for zero scores, and that the Feynman dimension receives its intended emphasis.
 
 Together, these pieces provide reliable mastery metrics, meaningful progress indicators, and predictable behavior for edge cases such as partial assessments, empty assessments, and large topic collections.
-
-## References
-
-- [05-1-topic-and-assessment-schema.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md)
-- [mastery.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts)
-- [mastery-summary.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/mastery-summary.ts)
-- [0004-four-pillar-pedagogical-mastery.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md)
-- [application-mastery-summary.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/application-mastery-summary.test.ts)
-- [types.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts)
-- [0035-validate-fix-partial-pillar-eligibility.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0035-validate-fix-partial-pillar-eligibility.md)

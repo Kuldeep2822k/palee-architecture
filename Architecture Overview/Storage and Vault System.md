@@ -24,7 +24,6 @@
 7. [Performance Considerations](#performance-considerations)
 8. [Troubleshooting Guide](#troubleshooting-guide)
 9. [Conclusion](#conclusion)
-10. [References](#references)
 
 ## Introduction
 This document explains PALEE's storage layer and its integration with an Obsidian vault. It covers how PALEE discovers Markdown notes, parses and updates YAML frontmatter while preserving formatting, performs atomic writes with optimistic concurrency control (OCC), enforces path containment for security, coordinates concurrent access through file locks, and caches parsed data to keep repeated scans efficient.
@@ -71,7 +70,7 @@ graph TB
 | Note scanner | Read notes and report parse outcomes | Stat-first size cap; tolerant read errors; detects unclosed frontmatter blocks |
 | Frontmatter parser | Parse and update YAML frontmatter | CST-based parsing; preserves comments, ordering, unknown keys; preserves BOM and line endings |
 | Topic loader | Normalize and cache topics | Coerces fields; clamps scores; extracts dependencies; separates topic and non-topic caches |
-| File cache | Fast in-memory reads | Unsettled horizon fingerprint check; mtime/size validation; LRU eviction |
+| File cache | Fast in-memory reads | Unsettled horizon fingerprint check; mtime/size validation; least-recently-verified eviction |
 | File lock manager | Cross-process file mutex | Atomic directory acquisition; heartbeat; stale recovery; bounded retries |
 | Atomic writer | Safe durable updates | Temporary file, OCC fingerprint check, lock, permission preservation, rename, directory fsync |
 | Containment guard | Prevent writes outside vault | Canonical prefix resolution; link/junction escape detection; unified refusal error |
@@ -234,11 +233,13 @@ sequenceDiagram
     Writer->>Lock: acquire()
     Lock-->>Writer: acquired
     Writer->>Writer: OCC check based on expectExists / expectedFingerprint
+    Writer->>Writer: reapStaleTempsForTarget(resolvedTarget, tempPath)
+    Writer->>Containment: re-assert containment before opening temp file
+    Containment-->>Writer: resolvedTarget (still contained)
     Writer->>FS: open temp file <target>.tmp.<pid>.<entropy>
+    Writer->>FS: write content to temp file
     Writer->>FS: fchmodSync to match destination permissions
     Writer->>FS: fsyncSync(temp fd)
-    Writer->>Writer: reapStaleTempsForTarget(resolvedTarget, tempPath)
-    Writer->>Containment: re-assert containment before rename
     Writer->>FS: renameSync(temp, target)
     Writer->>FS: best-effort fsyncSync(directory)
     Writer-->>Caller: success
@@ -249,7 +250,7 @@ Design highlights:
 - **Locking:** A per-target lock prevents concurrent writers from racing the OCC check and rename.
 - **Optimistic concurrency control:** If an expected fingerprint is provided, the writer reads the current file and compares its SHA-256 fingerprint. If absent was expected but the file exists, or vice versa, it throws a retryable conflict.
 - **Temporary file strategy:** Content is written to `<target>.tmp.<pid>.<entropy>`, then renamed atomically.
-- **Permission preservation:** The destination's prior mode bits are copied to the temporary file descriptor before writing, preventing accidental widening of sensitive files.
+- **Permission preservation:** The destination's prior mode bits are copied to the temporary file descriptor after writing and before the fsync, preventing accidental widening of sensitive files.
 - **Durability:** Data and metadata are flushed via `fsyncSync` on the temp file, and the containing directory is flushed where the platform allows it.
 - **Windows resilience:** Transient EPERM/EBUSY conditions use exponential backoff with jitter.
 - **Stale temporary cleanup:** Abandoned temp files left by crashed processes are reclaimed under the lock after passing the staleness floor and owner-probe checks.
@@ -379,7 +380,7 @@ Normalization details include:
 - Dates are normalized to strings or null where appropriate.
 
 ### Filesystem Security Measures
-PALAE's security model centers on refusing writes that could escape the vault or corrupt its managed structure.
+PALEE's security model centers on refusing writes that could escape the vault or corrupt its managed structure.
 
 Primary mechanisms:
 - `assertContainedInVault` canonicalizes existing path prefixes and re-attaches missing components so dangling links are not trusted blindly.
@@ -429,7 +430,7 @@ Coupling observations:
 
 ## Performance Considerations
 - **Stat-first scanning:** Both the scanner and loader reject oversized notes before reading, bounding IO and memory usage.
-- **LRU-backed cache:** The file cache caps resident entries and evicts the least recently verified item.
+- **Least-recently-verified cache:** The file cache caps resident entries and evicts the least recently verified item.
 - **Unsettled horizon protection:** Short-lived modifications trigger fingerprint checks instead of trusting coarse mtime.
 - **Negative caching:** Non-topic notes are cached separately so topic lookups remain fast even in large vaults.
 - **CST frontmatter editing:** Updating only changed keys preserves comments and formatting, reducing unnecessary diff noise and downstream churn.
@@ -498,16 +499,4 @@ If the cache serves stale data or grows too large:
 - Prefer injected caches in tests to avoid cross-test contamination.
 
 ## Conclusion
-PALAE's storage layer is built around safety, consistency, and predictable performance. Vault traversal excludes unsafe and irrelevant paths, the scanner tolerates malformed notes without failing the whole scan, and the frontmatter layer preserves user formatting while enabling precise updates. Atomic writes combine containment checks, file locks, OCC fingerprints, temporary files, and durability flushing to ensure that vault data remains consistent even under concurrent or interrupted operations. The lock manager handles stale holders and platform differences, while the file cache and negative cache keep repeated loads efficient. Together, these components provide a secure, observable, and performant foundation for managing PALEE topics inside an Obsidian vault.
-
-## References
-
-- [storage index:1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
-- [vault walker:1-368](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/vault-walker.ts#L1-L368)
-- [note scanner:1-327](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/scanner.ts#L1-L327)
-- [frontmatter parser:1-220](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L220)
-- [atomic writer:1-611](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L611)
-- [file lock manager:1-956](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L1-L956)
-- [file cache:1-273](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/cache.ts#L1-L273)
-- [containment guard:1-185](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts#L1-L185)
-- [topic loader:1-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L417)
+PALEE's storage layer is built around safety, consistency, and predictable performance. Vault traversal excludes unsafe and irrelevant paths, the scanner tolerates malformed notes without failing the whole scan, and the frontmatter layer preserves user formatting while enabling precise updates. Atomic writes combine containment checks, file locks, OCC fingerprints, temporary files, and durability flushing to ensure that vault data remains consistent even under concurrent or interrupted operations. The lock manager handles stale holders and platform differences, while the file cache and negative cache keep repeated loads efficient. Together, these components provide a secure, observable, and performant foundation for managing PALEE topics inside an Obsidian vault.

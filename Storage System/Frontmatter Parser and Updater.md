@@ -1,5 +1,20 @@
 # Frontmatter Parser and Updater
 
+::: details Referenced Files in This Document
+
+- [frontmatter.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts)
+- [types.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts)
+- [loader.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts)
+- [topic-id.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts)
+- [mastery.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts)
+- [valid-palee-schema.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-palee-schema.ts)
+- [valid-topic-status.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-status.ts)
+- [valid-assessment-fields.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts)
+- [valid-review-fields.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-fields.ts)
+- [storage-frontmatter.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-frontmatter.test.ts)
+
+:::
+
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Project Structure](#project-structure)
@@ -11,7 +26,6 @@
 8. [Troubleshooting Guide](#troubleshooting-guide)
 9. [Conclusion](#conclusion)
 10. [Appendices](#appendices)
-11. [References](#references)
 
 ## Introduction
 This document explains the PALEE frontmatter parser and updater subsystem that turns raw Markdown topic files into structured topic data and back again. It covers:
@@ -169,7 +183,7 @@ The stored frontmatter is flat. The higher-level `Topic` interface is reserved f
 | `feynman` | number | Missing means `0.0` after loading | Feynman articulation score |
 | `topic_mastery` | number | Normalized and clamped to `[0.0, 1.0]` | Overall weighted mastery score |
 | `assessed_at` | ISO date or null | Optional | Timestamp of last assessment |
-| `ease_factor` | number | Defaults to `2.5` | SM-2 easiness factor |
+| `ease_factor` | number | Defaults to `2.5` | SM-2 ease factor |
 | `interval_days` | integer | Defaults to `1` | Current review interval in days |
 | `repetition` | integer | Defaults to `0` | Consecutive successful repetitions |
 | `lapses` | integer | Defaults to `0` | Cumulative failed reviews |
@@ -191,7 +205,7 @@ Validation rules operate on raw frontmatter values and expose real vault defects
 |---|---|---|
 | `valid-palee-schema` | `palee_schema` | Managed notes must declare the supported integer schema version |
 | `valid-topic-status` | `status` | Present values must be one of the four lifecycle strings |
-| `valid-assessment-fields` | `conceptual`, `practical`, `debug`, `feynman`, `assessed_at` | Scores must be finite numbers in `[0.0, 1.0]`; `assessed_at` must be null or a valid date |
+| `valid-assessment-fields` | `conceptual`, `practical`, `debug`, `feynman`, `assessed_at` | Scores must be finite numbers in `[0.0, 1.0]`; `assessed_at` must be null, absent, or a valid date |
 | `valid-review-fields` | `ease_factor`, `interval_days`, `repetition`, `lapses`, `last_quality` | Enforces SM-2 engine bounds and integer constraints |
 
 Additional policy sources:
@@ -344,29 +358,3 @@ The schema separates storage-level flat keys from higher-level domain models. Va
 | `parseFrontmatter(content)` | Markdown string | `FrontmatterResult` | Returns null frontmatter for missing or malformed YAML |
 | `updateFrontmatter(content, updates, removals)` | Markdown string, key-value map, optional removal list | Rewritten Markdown string | Throws on malformed existing frontmatter |
 | `computeFingerprint(content)` | String | SHA-256 hex string | Used for caching and concurrency checks |
-
-## References
-
-- [frontmatter.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts)
-- [types.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts)
-- [loader.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts)
-- [topic-id.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts)
-- [mastery.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts)
-- [valid-palee-schema.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-palee-schema.ts)
-- [valid-topic-status.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-status.ts)
-- [valid-assessment-fields.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts)
-- [valid-review-fields.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-fields.ts)
-- [storage-frontmatter.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-frontmatter.test.ts)
-- [frontmatter.ts:1-220](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L220)
-- [types.ts:444-493](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L444-L493)
-- [loader.ts:350-417](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L350-L417)
-- [frontmatter.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L120)
-- [storage-frontmatter.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/storage-frontmatter.test.ts#L1-L200)
-- [frontmatter.ts:120-220](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L120-L220)
-- [types.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L120)
-- [valid-palee-schema.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-palee-schema.ts#L1-L79)
-- [valid-topic-status.ts:1-62](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-status.ts#L1-L62)
-- [valid-assessment-fields.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L1-L79)
-- [valid-review-fields.ts:1-166](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-fields.ts#L1-L166)
-- [topic-id.ts:1-81](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/topic-id.ts#L1-L81)
-- [mastery.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L200)

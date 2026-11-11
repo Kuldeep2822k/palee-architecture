@@ -103,9 +103,9 @@ flowchart LR
   Hygiene["Hygiene Plan<br/>Numbered Tree"] --> Merge["Merge with TOC Tier"]
   TOC["TOC Enumeration<br/>README/SUMMARY"] --> Decision{"In Numbered Tree?"}
   Decision -->|Yes| Drop["Drop TOC Edge<br/>Numbering Wins"]
+  Drop --> Dropped(["Terminal outcome: no TOC edge written"])
   Decision -->|No| PlanToc["Plan TOC Chain<br/>Deduplicate / Group / Resort"]
   PlanToc --> Replace["Replace Inferred Predecessor<br/>Where Chainable"]
-  Merge --> Merge
   Replace --> Merge
   Merge --> Final["Final Depends-On Edges"]
 ```
@@ -137,14 +137,36 @@ sequenceDiagram
 ## Detailed Component Analysis
 
 ### Numbered-Tree Chaining and Lesson Ordering
-The core planner groups notes by immediate parent directory and orders them deterministically:
+The core planner (`planAutoChain`) groups notes by immediate parent directory and orders them deterministically. Directory ordering and within-directory file ordering are separate comparisons:
+
+Directory ordering (`compareDirs` / `dirSortKey`):
 
 - Directories are compared segment by segment.
-- Numeric prefixes come first and sort by number.
-- Phase keywords follow a fixed pedagogical order.
+- Each directory segment is ordered by numeric prefix, then by segment name only.
+
+Within-directory file ordering (`compareLessonOrder` / `lessonRank`):
+
+- Numeric-prefixed files come first and sort by number.
+- Phase keywords (`deep-dive`, `lab`, `exam`) rank files via `lessonRank`, in that fixed pedagogical order.
 - Remaining basenames sort alphabetically.
+
+Base-plan linking — the following two bullets describe the pre-hygiene base plan produced by raw `planAutoChain` only, not the shipped adopt path:
+
 - Each note points to the previous note in its group.
 - The first note of each non-first group bridges to the last note of the previous group.
+
+#### Tier-0 hygiene stage (shipped adopt path)
+
+The shipped adopt path does not use the raw base plan directly. `planAutoChainWithHygiene` first classifies every note with `classifyNoteForChain` from `tier0-hygiene.ts`, then refines the base plan:
+
+- Excluded notes get no edge at all and appear nowhere in the plan.
+- Leaves attach to the nearest preceding backbone note: a leaf's predecessor is that backbone note, and a leaf never gates or becomes the predecessor spine for later notes.
+- A backbone note's predecessor is the previous backbone note, subject to the cross-group bridge rule below.
+- The cross-group bridge uses the previous group's last non-homework lesson, and is refused when `dirTransitionJustified` fails — unnumbered sibling directories therefore start their own chain instead of inheriting a bridge edge.
+- The vault-root group is hoisted to the front of the plan.
+- Within each directory, notes are re-sorted by `compareLessonOrderTier0` (see the homework-placement row below).
+
+Per-rule counters (B6): `HygieneChainPlan.counts.byReason` is a `Tier0RuleCounts` value — `Record<Tier0SkipReason, number>` — holding the totals the CLI prints verbatim on the dry-run and confirmation screens. The five `Tier0SkipReason` values are `repo-meta`, `translation`, `template`, `phase-subtree`, and `invalid-palee-id`.
 
 ```mermaid
 flowchart TD
@@ -165,7 +187,7 @@ Key implementation details:
 | Year rejection | `2024-recap` is not lesson 2024 |
 | Phase keywords | Fixed order: deep-dive, lab, exam |
 | Alphabetical fallback | Flagged through `hasUnnumbered` and detailed per-note reporting |
-| Homework placement | Assignment, quiz, and solution are placed last within a directory |
+| Homework placement | Homework-last is a property of the Tier-0 comparator only: in `compareLessonOrderTier0`, assignment, quiz, and solution are placed last within a directory. In the shipped `compareLessonOrder` used by `planAutoChain`, homework names are rank 2 and sort alphabetically with the other unranked files. |
 
 ### Wikilink Parsing and Text-Based Prerequisite Detection
 Wikilink parsing is fs-free and focused on extracting targets from text. It supports:
@@ -389,6 +411,7 @@ Outcome:
 The components have clear boundaries:
 
 - `auto-chain.ts` owns chain planning, lesson ranking, and wikilink parsing at the engine level.
+- `auto-chain.ts` imports `classifyNoteForChain` from `tier0-hygiene.ts`: the hygiene planner (`planAutoChainWithHygiene`) classifies every note through it before refining the base plan.
 - `prereq-text.ts` owns prerequisites section scanning and reference resolution contracts.
 - `wikilink.ts` owns vault-safe resolution and roadmap chaining.
 - `pattern-matcher.ts` provides glob pattern compilation and matching used by CLI filters, not directly by auto-chaining but relevant to how notes are selected before chaining.
@@ -396,6 +419,7 @@ The components have clear boundaries:
 ```mermaid
 graph LR
   AutoChain["auto-chain.ts"] --> PrereqText["prereq-text.ts"]
+  AutoChain --> Tier0Hygiene["tier0-hygiene.ts"]
   AutoChain --> Wikilink["wikilink.ts"]
   PatternMatcher["pattern-matcher.ts"] -. "CLI filtering" .- AutoChain
 ```
@@ -410,8 +434,8 @@ Coupling observations:
 ## Performance Considerations
 The auto-chaining system emphasizes predictable, bounded performance:
 
-- Wikilink parsing uses bracket-balance tables to avoid quadratic rescans on pathological content.
-- The scan is linear in document size.
+- Wikilink parsing in `extractWikilinks` runs a global regex over the text; for each match it slices the prefix and compares `lastIndexOf('[[)` against `lastIndexOf(']]')` to reject a match nested inside an unclosed `[[` — there is no bracket-balance table.
+- Because each match rescans its prefix, the worst case is quadratic in document size on link-dense text; on ordinary notes, where matches are sparse, the scan behaves linearly.
 - Basename matching avoids unnecessary filesystem calls when possible.
 - Canonical vault root computation can be hoisted for bulk roadmap resolution.
 - Glob patterns intended for validation are separated from matching to prevent catastrophic backtracking on repeated `.test()` calls.
@@ -438,26 +462,3 @@ The auto-chaining system is designed around trust signals:
 - Pure alphabetical ordering is not trusted for gating.
 
 Its parsing rules favor safety over completeness. Hedged prerequisites, ambiguous names, unsafe paths, and invalid graphs are rejected rather than guessed. This makes auto-discovery reliable for automated workflows while keeping learners from being silently locked out by weak signals.
-
-## References
-
-- [auto-chain.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L200)
-- [prereq-text.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L120)
-- [wikilink.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L1-L120)
-- [0011-tiered-auto-chain.md:1-99](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0011-tiered-auto-chain.md#L1-L99)
-- [0012-declared-prerequisites.md:1-82](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0012-declared-prerequisites.md#L1-L82)
-- [engine-auto-chain.test.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-auto-chain.test.ts#L1-L60)
-- [engine-prereq-text.test.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-prereq-text.test.ts#L1-L40)
-- [cli-adopt-autochain.test.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-autochain.test.ts#L1-L60)
-- [auto-chain.ts:201-400](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L201-L400)
-- [prereq-text.ts:201-317](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L201-L317)
-- [wikilink.ts:201-510](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L201-L510)
-- [auto-chain.ts:201-575](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L201-L575)
-- [prereq-text.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L200)
-- [engine-auto-chain.test.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-auto-chain.test.ts#L1-L120)
-- [engine-prereq-text.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-prereq-text.test.ts#L1-L200)
-- [wikilink.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/wikilink.ts#L1-L200)
-- [cli-adopt-autochain.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-adopt-autochain.test.ts#L1-L200)
-- [engine-auto-chain.test.ts:60-140](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-auto-chain.test.ts#L60-L140)
-- [engine-auto-chain.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-auto-chain.test.ts#L1-L200)
-- [pattern-matcher.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/pattern-matcher.ts#L1-L120)

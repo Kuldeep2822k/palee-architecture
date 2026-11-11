@@ -144,7 +144,7 @@ The validation pipeline has three phases:
 
 1. **Collection phase**: The CLI resolves the vault path, loads configuration, calls `collectVault`, and captures the full snapshot.
 2. **Validation phase**: `runRules` executes every rule in `VALIDATION_RULES` against the snapshot. Findings are accumulated in deterministic order.
-3. **Repair and reporting phase**: If `--fix` is enabled, the CLI plans repairs based on rule metadata, applies them, re-collects from fresh disk state, re-validates, formats output, and sets the exit code according to error count and strict mode.
+3. **Repair and reporting phase**: If `--fix` is enabled, the CLI plans repairs based on rule metadata and applies them; when `--fix` produces at least one repair, the handler re-collects and re-runs the rules from fresh disk state, then formats output and sets the exit code according to error count and strict mode.
 
 ```mermaid
 sequenceDiagram
@@ -164,8 +164,10 @@ sequenceDiagram
   alt --fix enabled
     CLI->>Planner: planRepairs + applyFixes
     Planner-->>CLI: repairs[], conflicts[]
-    CLI->>Collector: collectVault(vaultPath) again
-    CLI->>Runner: runRules(context', VALIDATION_RULES) again
+    opt When --fix produces at least one repair
+      CLI->>Collector: collectVault(vaultPath) again
+      CLI->>Runner: runRules(context', VALIDATION_RULES) again
+    end
   end
   CLI->>Formatter: formatHuman or formatJson
   Formatter-->>CLI: report string
@@ -366,9 +368,13 @@ graph LR
   ValidMastery["rules/valid-topic-mastery.ts"] --> MasteryEngine["engine/mastery.ts"]
   ValidReviewFields["rules/valid-review-fields.ts"] --> DiagnosticValue
   ValidReviewDates["rules/valid-review-dates.ts"] --> ReviewDates["rules/review-dates.ts"]
+  ValidReviewDates --> DiagnosticValue
   ValidSessionSchema["rules/valid-session-schema.ts"] --> AssessedAt
+  ValidSessionSchema --> DiagnosticValue
+  ValidAssessment --> DiagnosticValue
   NoSessionUnknown["rules/no-session-unknown-topic.ts"] --> ValidSessionSchema
   ValidHotMemory["rules/valid-hot-memory.ts"] --> StorageMemory["storage/memory"]
+  ValidHotMemory --> DiagnosticValue
   SafePaths["rules/safe-vault-paths.ts"] --> Types
 ```
 
@@ -502,32 +508,3 @@ Tests should cover:
 - Treat missing data according to the adopt-default policy rather than assuming absence is corruption.
 - Reserve `error` severity for canonical-data corruption or write-boundary risks.
 - Use `warning` for provisional snapshots, self-healing projections, and data-quality gaps.
-
-## References
-
-- [0008-validation-framework-decisions.md:1-93](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0008-validation-framework-decisions.md#L1-L93)
-- [index.ts:1-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L1-L130)
-- [validate.ts:1-535](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L1-L535)
-- [collect-vault.ts:1-147](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts#L1-L147)
-- [run-rules.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts#L1-L60)
-- [format.ts:1-180](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/format.ts#L1-L180)
-- [managed-note.ts:1-87](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/managed-note.ts#L1-L87)
-- [types.ts:1-161](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts#L1-L161)
-- [parse-frontmatter.ts:1-78](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/parse-frontmatter.ts#L1-L78)
-- [valid-palee-schema.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-palee-schema.ts#L1-L79)
-- [valid-managed-note-kind.ts:1-189](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-managed-note-kind.ts#L1-L189)
-- [valid-topic-id-format.ts:1-75](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-id-format.ts#L1-L75)
-- [valid-topic-status.ts:1-62](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-status.ts#L1-L62)
-- [no-duplicate-topic-id.ts:1-48](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-duplicate-topic-id.ts#L1-L48)
-- [valid-dependency-list.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-dependency-list.ts#L1-L200)
-- [no-missing-dependency.ts:1-77](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-missing-dependency.ts#L1-L77)
-- [no-dependency-cycle.ts:1-74](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-dependency-cycle.ts#L1-L74)
-- [valid-assessment-fields.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L1-L79)
-- [valid-topic-mastery.ts:1-183](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-mastery.ts#L1-L183)
-- [valid-review-fields.ts:1-166](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-fields.ts#L1-L166)
-- [valid-review-dates.ts:1-115](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-dates.ts#L1-L115)
-- [valid-session-schema.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-session-schema.ts#L1-L200)
-- [no-session-unknown-topic.ts:1-85](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-session-unknown-topic.ts#L1-L85)
-- [valid-session-index.ts:1-87](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-session-index.ts#L1-L87)
-- [valid-hot-memory.ts:1-150](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-hot-memory.ts#L1-L150)
-- [safe-vault-paths.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/safe-vault-paths.ts#L1-L134)

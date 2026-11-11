@@ -49,8 +49,6 @@ graph TB
   Scheduler["Next-topic / plan<br/>due partition + sorting"]
 
   Types --> Loader
-  Loader --> Engine
-  Validator --> Loader
   Engine --> Application
   Application --> Scheduler
 ```
@@ -64,7 +62,7 @@ The `Review` interface defines the canonical SM-2 scheduling state attached to a
 |---|---|---|---|
 | `interval_days` | `number` | Current scheduled interval in days until the next review. | Must be finite and at least 1. The engine caps computed intervals at 36,500 days (about 100 years). |
 | `repetition` | `number` | Number of consecutive successful reviews since the last lapse. | Must be a non-negative integer. Resets to 0 after a failed review. |
-| `ease_factor` | `number` | SM-2 easiness multiplier controlling future interval growth. | Minimum 1.3; initial default 2.5. Rounded to four decimal places. |
+| `ease_factor` | `number` | SM-2 ease factor controlling future interval growth. | Minimum 1.3; initial default 2.5. Rounded to four decimal places. |
 | `lapses` | `number` | Cumulative count of failed reviews after the item was previously learned. | Non-negative integer. Increments only when `repetition > 0`. |
 | `last_quality` | `number \| null` | Quality rating submitted during the last review session. | Integer 0–5, or `null` when no review has been recorded. |
 | `last_reviewed_at` | `string \| null` | Timestamp of the last completed review. | ISO 8601 string or `null`. Written as a local date-only string by the application layer. |
@@ -104,7 +102,7 @@ classDiagram
 The SM-2 engine implements the core state transition and scheduling logic.
 
 #### Quality Rating Scale
-Quality ratings map to specific easiness-factor deltas:
+Quality ratings map to specific ease factor deltas:
 
 | Quality | Meaning | Ease Factor Delta | Interval Effect |
 |---|---|---:|---|
@@ -155,11 +153,11 @@ flowchart TD
   SetSix --> EaseFactor
   FailBranch --> EaseFactor
   EaseFactor["Compute delta from quality<br/>Add delta to ease_factor<br/>Round to 4 decimals<br/>Clamp ease_factor to ≥ 1.3"]
-  EaseFactor --> ComputeDue["Advance local calendar days<br/>from reviewedAt by interval_days"]
-  ComputeDue --> CapCheck{"interval > 36,500 days?"}
+  EaseFactor --> CapCheck{"interval > 36,500 days?"}
   CapCheck -->|Yes| Cap["Cap interval at 36,500 days"]
-  CapCheck -->|No| ReturnState["Return updated Review fields"]
-  Cap --> ReturnState
+  CapCheck -->|No| ComputeDue["Advance local calendar days<br/>from reviewedAt by interval_days"]
+  Cap --> ComputeDue
+  ComputeDue --> ReturnState["Return updated Review fields"]
 ```
 
 ### Record Review Use Case
@@ -213,8 +211,6 @@ graph LR
   Plan["Plan Command<br/>due list + blocked topics"]
 
   Frontmatter --> Loader
-  Loader --> SM2
-  Validator --> Loader
   SM2 --> ReviewUseCase
   ReviewUseCase --> NextTopics
   NextTopics --> Plan
@@ -294,7 +290,7 @@ Initial state:
 After a successful review with quality 4:
 - `repetition = 1`
 - `interval_days = 1`
-- `ease_factor` increases slightly
+- `ease_factor` unchanged at 2.5 (quality 4 has a delta of 0)
 - `lapses = 0`
 - `last_quality = 4`
 - `due_at = today + 1 local day`
@@ -395,11 +391,8 @@ graph TD
   Types --> SM2
   Types --> RecordReview
   Types --> DueTopics
-  Loader --> SM2
-  Validator --> Loader
   SM2 --> RecordReview
   DueTopics --> GetNextTopics
-  RecordReview --> GetNextTopics
 ```
 
 ## Performance Considerations
@@ -468,26 +461,3 @@ The practical implications are clear:
 - Due dates are local calendar days, making scheduling robust around DST and user expectations.
 - Next-topic discovery treats never-reviewed and overdue items as actionable, subject to prerequisite gates.
 - Validation and recovery tools protect vault integrity when human-authored or legacy frontmatter deviates from the SM-2 contract.
-
-## References
-
-- [types.ts:28-60](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L28-L60)
-- [loader.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L200)
-- [valid-review-fields.ts:1-166](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-fields.ts#L1-L166)
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-- [record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [types.ts:120-170](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L120-L170)
-- [sm2.ts:25-199](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L25-L199)
-- [sm2.ts:201-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L201-L306)
-- [record-review.ts:26-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L26-L116)
-- [sm2.ts:100-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L100-L200)
-- [valid-review-fields.ts:20-166](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-fields.ts#L20-L166)
-- [sm2.ts:90-199](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L90-L199)
-- [engine-sm2.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L1-L200)
-- [engine-sm2.test.ts:201-400](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L201-L400)
-- [sm2.ts:220-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L220-L306)
-- [get-next-topics.ts:100-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L100-L199)
-- [sm2.ts:120-199](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L120-L199)
-- [sm2.ts:15-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L15-L40)

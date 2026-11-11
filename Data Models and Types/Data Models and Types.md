@@ -39,6 +39,8 @@ This document describes PALEE’s data model and type system as implemented in t
 
 The models are defined at the top of the shared type module, then normalized during storage loading and enforced by validation rules and engine functions.
 
+> **Phase-2 reservation caveat:** The `Topic`, `Assessment`, and `Review` interfaces in `src/types.ts` are not the canonical runtime models. Their JSDoc reserves them for the Phase-2 AI module assessment schema ("Not the runtime shape"). The runtime contract is the flat frontmatter stored on disk, normalized by the loader into `TopicNode` and `LoadedTopic`. The sections below describe the `Topic` / `Assessment` / `Review` interfaces as documented schema contracts, but runtime code works with the flat keys and the normalized loader shapes.
+
 ## Project Structure
 The relevant data-model surface is split across a few layers:
 
@@ -64,19 +66,16 @@ graph TB
   ReviewApp["Review builder<br/>src/application/record-review.ts"]
   Rules["Validation rules<br/>src/validation/rules/*"]
 
-  Types --> Mastery
-  Types --> Sm2
+  Sm2 --> Types
   Loader --> Types
   Loader --> Frontmatter
-  Loader --> Mastery
-  Loader --> Sm2
   Assess --> Mastery
   Assess --> Types
   ReviewApp --> Sm2
   ReviewApp --> Mastery
   ReviewApp --> Types
   Rules --> Types
-  Rules --> Loader
+  Rules -.->|type-only: LoadedTopic| Loader
   Sessions --> Types
 ```
 
@@ -97,6 +96,8 @@ The domain-level topic model is represented by `Topic`. It is not the on-disk sh
 | `depends_on` | string array, optional | Canonical prerequisite topic IDs. |
 | `assessment` | `Assessment` | Four-pillar pedagogical breakdown. |
 | `review` | `Review` | Spaced repetition scheduling metadata. |
+
+Note on the labels above: the `Topic` interface's own comments in `src/types.ts` predate the runtime convention — they describe `dependencies` as the prerequisite array and `depends_on` as its alias. The runtime convention, used by the loader and the engine, is the reverse: `depends_on` is canonical and `dependencies` is the legacy alias, as labelled in the table.
 
 #### Lifecycle States
 The canonical `Topic.status` values are:
@@ -216,11 +217,11 @@ The `Review` model represents SuperMemo-2 spaced repetition state.
 |---|---|---:|---|
 | `interval_days` | number, finite, integer, ≥ 1 | 1 | Days until next review. |
 | `repetition` | number, finite, integer, ≥ 0 | 0 | Consecutive successful repetitions. |
-| `ease_factor` | number, finite, ≥ 1.3 | 2.5 | Easiness factor controlling interval scaling. |
+| `ease_factor` | number, finite, ≥ 1.3 | 2.5 | Ease factor controlling interval scaling. |
 | `lapses` | number, finite, integer, ≥ 0 | 0 | Cumulative count of failed reviews (quality 0–2). Increments only when the topic had prior repetitions (`repetition > 0`); a failure before the first successful repetition is not a lapse. |
 | `last_quality` | integer 0–5 or null | null | Quality rating from the most recent review. |
 | `last_reviewed_at` | ISO date string or null | null | Date of the last completed review. |
-| `due_at` | ISO date string, date object, or null | null | Next due date for review. |
+| `due_at` | ISO date string or null | null | Next due date for review. (The `Date` variant exists only on `TopicNode.due_at`, not on `Review.due_at`.) |
 
 #### SM-2 Transition Rules
 When a review quality is recorded:
@@ -309,30 +310,29 @@ Canonical session notes must satisfy:
 - For completed sessions, `ended_at` must not precede `started_at`.
 
 #### Example Valid Session Records
-Session records live as Markdown notes under `.palee/sessions/`, and the filename stem must equal the `session_id`. A completed session (`.palee/sessions/S-20260820T100000-aaaa.md`) has both start and end timestamps and status `completed`:
+Session records live as Markdown notes under `.palee/sessions/`, and the filename stem must equal the `session_id`. A completed session (`.palee/sessions/S-20260820T100000-a1b2c3d4.md`) has both start and end timestamps and status `completed`:
 
 ```yaml
 ---
 palee_schema: 1
-session_id: S-20260820T100000-aaaa
+session_id: S-20260820T100000-a1b2c3d4
 topic_id: T-valid
 status: completed
 started_at: "2026-08-20T10:00:00Z"
 ended_at: "2026-08-20T10:30:00Z"
-duration_minutes: 30
 ---
 ```
 
-A draft session (`.palee/sessions/DRAFT-S-45min.md`) has a start timestamp, a null end timestamp, and status `draft`:
+A draft session (`.palee/sessions/DRAFT-S-12345678.md`) has a start timestamp, a null end timestamp, and status `draft`:
 
 ```yaml
 ---
 palee_schema: 1
-session_id: DRAFT-S-45min
-topic_id: T-45min
-started_at: "2026-08-20T10:00:00.000Z"
-ended_at: null
+session_id: DRAFT-S-12345678
+topic_id: T-draft
 status: draft
+started_at: "2026-08-20T11:00:00Z"
+ended_at: null
 ---
 ```
 
@@ -351,7 +351,7 @@ The configuration model is represented by `PaleeConfig`. It is read from a platf
 
 Configuration loading is tolerant: missing files return empty defaults, and malformed JSON logs a warning and falls back to defaults. Only recognized string properties are retained.
 
-The `apiKey` is stored as plaintext inside `config.json` — it is not encrypted — but the file itself is protected. The config file lives at `~/.config/palee/config.json` on POSIX or `%LOCALAPPDATA%/palee/config.json` on Windows (overridable with `PALEE_CONFIG_DIR`). On POSIX it is written `0600` inside a `0700` directory, the mode being set on a temporary file before the atomic rename into place. Windows ignores those file modes, so the `set-api-key` command instead refuses to store a key when the config directory resolves outside the user's profile roots (`%USERPROFILE%`, `%LOCALAPPDATA%`), where the inherited ACL cannot be trusted; `PALEE_ALLOW_INSECURE_CONFIG_DIR=1` overrides that refusal for a directory the user has secured by other means. The `PALEE_API_KEY` environment variable avoids storing the key at all, and `palee config show` never prints the stored value.
+The `apiKey` is stored as plaintext inside `config.json` — it is not encrypted — but the file itself is protected. The config file lives at `~/.config/palee/config.json` on POSIX or `%LOCALAPPDATA%/palee/config.json` on Windows (overridable with `PALEE_CONFIG_DIR`). On POSIX the file is written `0600`, the mode being set on a temporary file before the atomic rename into place; the surrounding directory is created with mode `0700` only when `saveConfig` creates it — if the directory already exists, its mode is left unchanged. Windows ignores those file modes, so the `set-api-key` command instead refuses to store a key when the config directory resolves outside the user's profile roots (`%USERPROFILE%`, `%LOCALAPPDATA%`), where the inherited ACL cannot be trusted; setting `PALEE_ALLOW_INSECURE_CONFIG_DIR` to any non-empty value (for example `1`) overrides that refusal for a directory the user has secured by other means. The `PALEE_API_KEY` environment variable avoids storing the key at all, and `palee config show` never prints the stored value.
 
 #### Example Valid Configuration
 A minimal configuration may only set `vaultPath`:
@@ -384,9 +384,11 @@ Every managed note carries a `palee_schema` version field. The currently support
 So a schema bump, when one eventually happens, has a defined path: raise `SUPPORTED_SCHEMA_VERSION`, teach `migrate --fix` the upgrade, and let validation flag every note that has not been migrated yet.
 
 ## Architecture Overview
-All canonical data models are declared in a single module, `src/types.ts`. `Topic` is the aggregate: it composes one `Assessment` and one `Review`, and carries the topic's identity (`palee_schema`, `palee_id`), lifecycle state (`status`, `difficulty`), and prerequisite edges (`depends_on`, with `dependencies` as a legacy alias). Sessions exist in two parallel families with deliberately identical field shapes: the in-memory `Session` union (`CompletedSession` / `DraftSession`) used while a session is running, and the persisted `SessionRecord` union (`CompletedSessionRecord` / `DraftSessionRecord`) stored as frontmatter under `.palee/sessions/`. `PaleeConfig` stands apart from the vault models — it describes application settings, not learning data.
+All canonical data models are declared in a single module, `src/types.ts`. `Topic` is the aggregate: it composes one `Assessment` and one `Review`, and carries the topic's identity (`palee_schema`, `palee_id`), lifecycle state (`status`, `difficulty`), and prerequisite edges (`depends_on`, with `dependencies` as a legacy alias). Sessions exist in two parallel families with deliberately identical field shapes: the in-memory `Session` union (`CompletedSession` / `DraftSession`), which is likewise Phase-2-reserved and not used by the runtime, and the persisted `SessionRecord` union (`CompletedSessionRecord` / `DraftSessionRecord`) stored as frontmatter under `.palee/sessions/`. `PaleeConfig` stands apart from the vault models — it describes application settings, not learning data.
 
-Nothing outside `src/types.ts` owns a model definition. The storage loader converts flat on-disk frontmatter into these shapes (see Detailed Component Analysis), the engines compute over them, and the validation rules inspect raw frontmatter against the same contracts. The class diagram below shows the field-level layout; the companion pages in this section (Topic Entity, Assessment Model, Review Model, Session Types and Lifecycle, Configuration and CLI Option Types) document each model individually.
+> **Caveat:** `Topic` (with its nested `Assessment` and `Review`) and the in-memory `Session` union are Phase-2-reserved schemas, not the runtime shapes — see the caveat in the Introduction. The runtime contracts are flat frontmatter normalized into `TopicNode` / `LoadedTopic`, and `SessionRecord` for sessions.
+
+No other module owns a *domain* model definition; loader/read shapes (`LoadedSession`, `LoadedTopic`) live with their loaders — for example, `src/storage/sessions.ts` defines `MemoryReadError`, `LoadedSession`, and `SessionIndexRead`, and `src/storage/memory.ts` defines `HotMemoryRead`. The storage loader converts flat on-disk frontmatter into these shapes (see Detailed Component Analysis), the engines compute over them, and the validation rules inspect raw frontmatter against the same contracts. The class diagram below shows the field-level layout; the companion pages in this section (Topic Entity, Assessment Model, Review Model, Session Types and Lifecycle, Configuration and CLI Option Types) document each model individually.
 
 ```mermaid
 classDiagram
@@ -395,7 +397,7 @@ classDiagram
         +number practical
         +number debug
         +number feynman
-        +string assessed_at
+        +string|null assessed_at
     }
 
     class Review {
@@ -403,9 +405,9 @@ classDiagram
         +number repetition
         +number ease_factor
         +number lapses
-        +number last_quality
-        +string last_reviewed_at
-        +string due_at
+        +number|null last_quality
+        +string|null last_reviewed_at
+        +string|null due_at
     }
 
     class Topic {
@@ -457,11 +459,11 @@ classDiagram
     }
 
     class PaleeConfig {
-        +string vaultPath
-        +string aiProvider
-        +string model
-        +string baseUrl
-        +string apiKey
+        +string? vaultPath
+        +string? aiProvider
+        +string? model
+        +string? baseUrl
+        +string? apiKey
     }
 
     Topic --> Assessment : "has"
@@ -570,23 +572,19 @@ graph LR
   RulesAssess["src/validation/rules/valid-assessment-fields.ts"]
   RulesReview["src/validation/rules/valid-review-fields.ts"]
   RulesSession["src/validation/rules/valid-session-schema.ts"]
+  ValTypes["src/validation/types.ts"]
 
-  Types --> Mastery
-  Types --> Sm2
+  Sm2 --> Types
   Loader --> Types
   Loader --> Frontmatter
-  Loader --> Mastery
-  Loader --> Sm2
   Assess --> Mastery
   Assess --> Types
   ReviewApp --> Sm2
   ReviewApp --> Mastery
   ReviewApp --> Types
-  RulesAssess --> Types
-  RulesReview --> Types
-  RulesSession --> Types
-  RulesAssess --> Loader
-  RulesReview --> Loader
+  RulesAssess --> ValTypes
+  RulesReview --> ValTypes
+  RulesSession --> ValTypes
   RulesSession --> Sessions
 ```
 
@@ -633,35 +631,3 @@ The type system separates:
 - Engine logic that computes mastery and scheduling transitions.
 
 Schema evolution is signaled by `palee_schema`, while migration behavior is exposed through `MigrateOptions`. Runtime safety comes from loader coercion and clamping, while compile-time safety comes from TypeScript interfaces, discriminated unions, literal enum types, and narrow validation-rule contracts.
-
-## References
-
-- [src/types.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L120)
-- [src/engine/mastery.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L120)
-- [src/engine/sm2.ts:1-80](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L80)
-- [src/storage/loader.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L120)
-- [src/storage/frontmatter.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L60)
-- [src/storage/sessions.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L60)
-- [src/application/record-assessment.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L40)
-- [src/application/record-review.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L40)
-- [src/validation/rules/valid-assessment-fields.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L1-L30)
-- [src/validation/rules/valid-review-fields.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-fields.ts#L1-L40)
-- [src/types.ts:540-660](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L540-L660)
-- [src/storage/loader.ts:120-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L120-L200)
-- [src/types.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L60)
-- [src/application/record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [src/validation/rules/valid-assessment-fields.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L1-L79)
-- [src/types.ts:30-60](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L30-L60)
-- [src/engine/sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-- [src/application/record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [src/validation/rules/valid-review-fields.ts:1-166](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-review-fields.ts#L1-L166)
-- [src/types.ts:120-280](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L120-L280)
-- [src/storage/sessions.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L200)
-- [src/validation/rules/valid-session-schema.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-session-schema.ts#L1-L200)
-- [src/types.ts:280-420](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L280-L420)
-- [src/cli/config.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L200)
-- [src/storage/loader.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L200)
-- [src/storage/frontmatter.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L120)
-- [src/engine/mastery.ts:120-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L120-L229)
-- [src/types.ts:1-420](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L420)
-- [src/engine/mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)

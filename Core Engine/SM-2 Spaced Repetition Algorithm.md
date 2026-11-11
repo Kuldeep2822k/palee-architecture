@@ -65,7 +65,7 @@ The SM-2 module exposes several focused pieces:
 | `roundHalfUp(value, decimals)` | Rounds floating-point values using positive decimal half-up rounding | Used to stabilize EF precision at four decimal places |
 | `processReview(current, quality)` | Main state transition function | Validates inputs, updates repetition, interval, lapses, ease factor, and last quality |
 | `formatLocalDateOnly(date)` | Formats a JavaScript `Date` as a local `YYYY-MM-DD` string | Zero-pads month and day |
-| `computeDueDate(fromDate, days)` | Advances a local calendar day baseline by an interval | Accepts a `Date` or a strict `YYYY-MM-DD` string; refuses out-of-range day counts |
+| `computeDueDate(fromDate, days)` | Advances a local calendar day baseline by an interval | Accepts a `Date` or a strict `YYYY-MM-DD` string; refuses out-of-range day counts. Any other string falls through to `new Date(string)`, so ISO datetime strings are also accepted; because such a string is parsed as an instant, west of UTC its local calendar day can be the one before the stamped date and the result can land a day early. |
 | `MAX_INTERVAL_DAYS` | Scheduling policy cap | Fixed at 36,500 days (100 years) |
 
 The public API surface exported by the module includes all of these functions plus the interval ceiling constant.
@@ -214,7 +214,7 @@ flowchart TD
 ### Date Scheduling and DST Safety
 Due dates are calculated by advancing calendar days locally:
 
-- Accepts a `Date` object or a strict `YYYY-MM-DD` string.
+- Accepts a `Date` object or a strict `YYYY-MM-DD` string. Any other string falls through to `new Date(string)`, so ISO datetime strings are also accepted; because such a string is parsed as an instant, west of UTC its local calendar day can be the one before the stamped date and the result can land a day early.
 - Uses local timezone arithmetic via `setDate`, avoiding UTC millisecond drift across Daylight Saving Time boundaries.
 - Serializes dates as `YYYY-MM-DD` strings.
 - Refuses day counts that would exceed the representable calendar range.
@@ -299,7 +299,8 @@ For large-scale scheduling operations across many topics:
 | `Invalid interval_days: must be a finite number >= 1` | Stored interval is non-numeric, negative, zero, `NaN`, or `Infinity` | Repair frontmatter or run validation repair |
 | `Invalid repetition: must be a non-negative integer` | Stored repetition is fractional, negative, or non-numeric | Repair frontmatter or run validation repair |
 | `Invalid lapses: must be a non-negative integer` | Stored lapses is fractional, negative, or non-numeric | Repair frontmatter or run validation repair |
-| `Invalid lapses: must be an integer >= 0 and <= ...` | Lapses is at or above the safe-integer limit and would overflow on increment | Reset or repair lapses in the affected topic |
+| `Invalid lapses: must be an integer >= 0 and <= Number.MAX_SAFE_INTEGER` | Stored lapses value is above the safe-integer ceiling; this is a validation failure on the stored value itself, before any increment | Reset or repair lapses in the affected topic |
+| `Invalid lapses: must be an integer >= 0 and <= Number.MAX_SAFE_INTEGER - 1` | Stored lapses is exactly at the safe-integer ceiling and a lapse increment (quality < 3 on a previously learned topic) would overflow; the at-ceiling value itself is valid on a successful review, which does not increment lapses | Reset or repair lapses in the affected topic |
 | `Invalid interval_days: computed non-finite value` | Interval multiplied by EF overflowed | Repair corrupt interval history |
 | `Invalid ease_factor: computed non-finite value` | EF rounding scaled an extremely large value to infinity | Repair corrupt EF history |
 | `Invalid days: advancing the due date... leaves the representable calendar range` | Caller passed an excessively large day count to `computeDueDate` | Use normal SM-2 output instead of arbitrary day counts |
@@ -343,24 +344,3 @@ Recommended test categories for algorithmic correctness:
 8. **End-to-end simulation**: Repeatedly applying `processReview` and verifying that `due_at` remains a valid calendar string.
 
 These patterns are already covered extensively in the SM-2 unit tests.
-
-## References
-
-- [sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-- [03-1-sm2-spaced-repetition-algorithm.md:1-330](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L1-L330)
-- [0001-supermemo-sm2-algorithm.md:1-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L1-L63)
-- [engine-sm2.test.ts:1-442](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L1-L442)
-- [sm2.ts:19-70](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L19-L70)
-- [sm2.ts:160-177](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L160-L177)
-- [03-1-sm2-spaced-repetition-algorithm.md:44-65](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L44-L65)
-- [0001-supermemo-sm2-algorithm.md:14-29](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L14-L29)
-- [sm2.ts:71-177](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L71-L177)
-- [sm2.ts:179-210](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L179-L210)
-- [sm2.ts:71-210](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L71-L210)
-- [03-1-sm2-spaced-repetition-algorithm.md:67-123](https://github.com/Kuldeep2822k/cli/blob/main/docs/03-1-sm2-spaced-repetition-algorithm.md#L67-L123)
-- [engine-sm2.test.ts:247-289](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L247-L289)
-- [sm2.ts:212-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L212-L306)
-- [engine-sm2.test.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L1-L120)
-- [engine-sm2.test.ts:201-246](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L201-L246)
-- [engine-sm2.test.ts:401-442](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L401-L442)
-- [engine-sm2.test.ts:291-399](https://github.com/Kuldeep2822k/cli/blob/main/test/engine-sm2.test.ts#L291-L399)

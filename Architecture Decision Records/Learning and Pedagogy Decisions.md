@@ -31,7 +31,7 @@
 9. [Conclusion](#conclusion)
 
 ## Introduction
-PAL EE is a learning-focused tool that turns Markdown-based lessons into a prerequisite-aware, spaced-repetition study system. Its pedagogical design is built around four decisions:
+PALEE is a learning-focused tool that turns Markdown-based lessons into a prerequisite-aware, spaced-repetition study system. Its pedagogical design is built around four decisions:
 
 - **Four-pillar assessment**: mastery is not one score; it combines conceptual understanding, practical application, debugging ability, and Feynman articulation.
 - **Evidence-based gating**: only explicit or structurally justified prerequisite claims may lock a topic behind another.
@@ -45,9 +45,11 @@ The learning architecture lives across three layers:
 
 | Layer | Responsibility | Key files |
 |---|---|---|
-| Decision records | Why PAL EE treats mastery, prerequisites, chaining, and readiness the way it does | ADRs 0004, 0009, 0010, 0011, 0012, 0013, 0020, 0021 |
+| Decision records | Why PALEE treats mastery, prerequisites, chaining, and readiness the way it does | ADRs 0004, 0009, 0010, 0011, 0012, 0013, 0020, 0021 |
 | Engine layer | Pure computation of mastery, prerequisite text, auto-chaining, and hygiene classification | `src/engine/{mastery,tier0-hygiene,auto-chain,prereq-text}.ts` |
 | Application layer | User-facing contracts for scheduling and assessment | `src/application/{get-next-topics,record-assessment}.ts` |
+
+`Assessed` is a derived learning-progress state, not a persisted topic `status`; it means that the four-pillar assessment surface has recorded scores for the topic.
 
 ```mermaid
 graph TB
@@ -64,7 +66,7 @@ graph TB
 ```
 
 ## Core Components
-PAL EE’s learning model has five interconnected pillars:
+PALEE’s learning model has five interconnected pillars:
 
 1. **Four-pillar mastery**: Conceptual, Practical, Debug, and Feynman combine into a weighted `topic_mastery`.
 2. **Gating model**: Only learner-authored, numbered-tree-justified, or declared-prerequisite edges may block study.
@@ -78,14 +80,13 @@ flowchart TD
     Mastery --> Threshold{"≥ 0.70?"}
     Threshold -->|Yes| Ready["Prerequisite satisfied"]
     Threshold -->|No| Blocked["Downstream topics blocked"]
-    Source["Prerequisite Source"] --> Policy["Blocking Policy"]
-    Policy -->|block| Blocked
-    Policy -->|warn| Advisory["Shown but not blocking"]
-    Policy -->|hide| Hidden["Ranks and cycle-checks only"]
+    Source["Prerequisite Source<br/>(per-note depends_on_source, ADR-0009)"] --> Policy["Per-Note Gating Model"]
+    Policy -->|gating| Blocked
+    Policy -->|advisory: toc, tie| Advisory["Shown but not blocking"]
 ```
 
 ## Architecture Overview
-At a high level, PAL EE separates three concerns that must not drift:
+At a high level, PALEE separates three concerns that must not drift:
 
 - **Learning measurement**: pillar scores and their weighted combination.
 - **Dependency policy**: which edges are gates versus advice.
@@ -116,7 +117,7 @@ sequenceDiagram
 ## Detailed Component Analysis
 
 ### Four-Pillar Pedagogical Mastery
-PAL EE rejects a single recall score because engineering mastery includes theoretical comprehension, practical execution, troubleshooting, and clear explanation. The implementation computes:
+PALEE rejects a single recall score because engineering mastery includes theoretical comprehension, practical execution, troubleshooting, and clear explanation. The implementation computes:
 
 `topic_mastery = round((conceptual + practical + debug + 2 × feynman) / 5, 4)`
 
@@ -216,12 +217,14 @@ Important composition rules:
 
 ```mermaid
 flowchart LR
-    Numbered["Numbered Tree"] --> Merge["Merge"]
-    TOC["TOC Enumeration"] --> Filter{"Already in numbered tree?"}
-    Filter -->|Yes| Drop["Drop — numbering wins"]
-    Filter -->|No| Chainable{"Chainable candidate?"}
-    Chainable -->|No| Drop
-    Chainable -->|Yes| Replace["Replace numbered predecessor<br/>Label as toc"]
+    Numbered["Numbered Tree"] --> Compose["Compose Tiered Chain"]
+    TOC["TOC Enumeration"] --> Compose
+    Compose --> Covered{"Note covered by TOC enumeration?"}
+    Covered -->|No| KeepNumbered["Keep numbered predecessor<br/>Numbering wins for uncovered notes"]
+    Covered -->|Yes| Head{"Chain head with justified numbered edge?"}
+    Head -->|Yes, and keeping it closes no cycle| KeepNumbered
+    Head -->|No, or keeping it would close a cycle| Replace["Replace numbered predecessor<br/>(including structure-justified edges)<br/>Label as toc"]
+    KeepNumbered --> Merge["Merge"]
     Replace --> Merge
 ```
 
@@ -249,10 +252,10 @@ flowchart TD
     Resolve -->|No| Count["Count missing or ambiguous"]
 ```
 
-### Per-Edge Blocking Policy and OR-Groups
-The current v0.6.x model stamps one `depends_on_source` label per note. That works for a homogeneous list but breaks when sources mix: a hand-edited prerequisite on an advisory-labelled note becomes silently advisory, and enumerated and declared text can land on the same note with conflicting policies.
+### Per-Edge Blocking Policy and OR-Groups — Proposed (ADR-0013, not implemented)
+The live model is the per-note model of ADR-0009: the current v0.6.x model stamps one `depends_on_source` label per note, and that label — gating, or advisory for `toc`/`tie` — decides the behaviour of the note's whole list. That works for a homogeneous list but breaks when sources mix: a hand-edited prerequisite on an advisory-labelled note becomes silently advisory, and enumerated and declared text can land on the same note with conflicting policies.
 
-ADR-0013 specifies per-edge policy:
+ADR-0013, which is Proposed and not implemented, specifies a future per-edge policy:
 
 | Policy | Behaviour |
 |---|---|
@@ -279,10 +282,11 @@ stateDiagram-v2
     [*] --> New : "Adopted"
     New --> Due : "SM-2 says due"
     Due --> Studying : "Available if prerequisites met"
-    Studying --> Due : "Review recorded"
+    Studying --> Due : "Review recorded (SM-2 only)"
     Due --> Waiting : "Prerequisite unmet"
     Waiting --> Due : "Prerequisite mastered"
-    Studying --> Mastered : "topic_mastery ≥ 0.70"
+    Studying --> Assessed : "Assessed (palee assess)"
+    Assessed --> Mastered : "topic_mastery ≥ 0.70"
     Mastered --> Due : "SM-2 interval expires"
 ```
 
@@ -305,7 +309,7 @@ graph TB
 ```
 
 ## Performance Considerations
-PAL EE’s learning decisions trade computational work for correctness:
+PALEE’s learning decisions trade computational work for correctness:
 
 - **Hygiene classification is pure and fs-free**: it operates on vault-relative paths and constants, avoiding filesystem coupling during batch filtering.
 - **Auto-chaining uses linear scans and precomputed bracket-balance tables** to avoid pathological README rescans.
@@ -326,7 +330,7 @@ PAL EE’s learning decisions trade computational work for correctness:
 | A prerequisites section declares nothing | Heading mismatch, fenced markup, task list, negation, reversal, or disjunction | Ensure the heading matches exactly and the item is an unambiguous link |
 
 ## Conclusion
-PAL EE’s pedagogical architecture is designed to keep learning evidence-based:
+PALEE’s pedagogical architecture is designed to keep learning evidence-based:
 
 - Mastery measures four cognitive competencies, with Feynman articulation double-weighted to discourage superficial memorization.
 - Only learner-authored, numbered-tree-justified, or declared-prerequisite edges may lock a topic behind another.
@@ -336,20 +340,3 @@ PAL EE’s pedagogical architecture is designed to keep learning evidence-based:
 - SM-2 schedules timing; prerequisite gates decide permission.
 
 Together, these decisions make spaced repetition useful for long-term retention while preserving prerequisite relationships that reflect real learning dependencies rather than filesystem artifacts.
-
-## References
-
-- [ADR-0004: Four-Pillar Pedagogical Assessment Model:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
-- [ADR-0009: The Gating Model — What May Lock a Note:1-85](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0009-gating-model-depends-on-source.md#L1-L85)
-- [ADR-0020: Readiness and Scheduling Contracts:1-68](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0020-readiness-and-scheduling-contracts.md#L1-L68)
-- [Mastery Engine:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L200)
-- [Next Topics Use Case:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [Record Assessment Use Case:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [ADR-0013: Per-Edge Blocking Policy and OR-Groups:1-75](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0013-per-edge-blocking-policy.md#L1-L75)
-- [ADR-0021: The Assessment Surface:1-86](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0021-assessment-surface.md#L1-L86)
-- [ADR-0010: Tier-0 Hygiene Classification for Batch Adoption:1-72](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0010-tier0-hygiene-classification.md#L1-L72)
-- [Tier-0 Hygiene Predicates:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts#L1-L200)
-- [ADR-0011: Tiered Auto-Chain — strict | full:1-99](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0011-tiered-auto-chain.md#L1-L99)
-- [Auto-Chain Engine:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/auto-chain.ts#L1-L200)
-- [ADR-0012: Declared Prerequisites — Reading a Note's Own Text:1-82](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0012-declared-prerequisites.md#L1-L82)
-- [Declared Prerequisites Scanner:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/prereq-text.ts#L1-L200)

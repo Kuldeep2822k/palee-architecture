@@ -361,10 +361,12 @@ The storage plan maps closely to several concrete modules:
 | Concrete-syntax frontmatter update | `src/storage/frontmatter.ts` |
 | Atomic temp-file + rename write | `src/storage/atomic-write.ts` |
 | Exclusive lock with heartbeat and stale recovery | `src/storage/lock.ts` |
-| Session drafts and confirmed sessions | `src/storage/sessions.ts` |
+| Session reads (single-read loader: `loadSessions`, `LoadedSession`) | `src/storage/sessions.ts` |
+| Session writes, drafts, and hot memory (`writeSessionNote`, `writeDraftCheckpoint`, `updateHotMemory`, `recoverDraft`) | `src/storage/memory.ts` |
 | Roadmap import formats | `src/storage/roadmap-parser.ts` |
 | Vault scanning and safe traversal | Storage scanner and related modules |
-| Caching and fingerprint freshness | Storage cache and source-cap layers |
+| Caching and fingerprint freshness | `src/storage/cache.ts` (`FileCache`, `UNSETTLED_HORIZON` 2,000 ms, SHA-256 re-verification) |
+| Note-size cap (separate size guard) | `src/storage/source-cap.ts` (`MAX_NOTE_SOURCE_BYTES`, `noteExceedsReadCap`) |
 
 The strongest design-to-code relationship here is atomicity: the plan forbids truncation fallbacks, requires temporary-file replacement, and demands conflict detection; the implementation must enforce those constraints in every mutation path.
 
@@ -375,7 +377,7 @@ The CLI specification defines commands that should exist independently of AI. Th
 |---|---|---|
 | `palee plan` | `src/cli/plan.ts` | Generates study sessions using engine recommendations. |
 | `palee next` | `src/cli/next.ts` | Recommends the next action. |
-| `palee progress` | Related dashboard or analytics command | Reports mastery and status. |
+| `palee progress` | `src/cli/progress.ts` | Reports mastery and status. |
 | `palee roadmap --from <file>` | `src/cli/roadmap.ts` | Imports and validates a user-provided roadmap. |
 | `palee adopt` | `src/cli/adopt.ts` | Adds PALEE frontmatter to notes. |
 | `palee review` | `src/cli/review.ts` | Records SM-2 review results. |
@@ -389,16 +391,16 @@ The entry points connect the CLI layer to the application and engine layers. `bi
 
 ```mermaid
 graph LR
-    Bin["bin/palee.ts"] --> Index["src/index.ts"]
-    Index --> CliAdopt["src/cli/adopt.ts"]
-    Index --> CliNext["src/cli/next.ts"]
-    Index --> CliPlan["src/cli/plan.ts"]
-    Index --> CliReview["src/cli/review.ts"]
-    Index --> CliSession["src/cli/session.ts"]
-    Index --> CliConfig["src/cli/config.ts"]
-    Index --> CliRoadmap["src/cli/roadmap.ts"]
-    Index --> CliValidate["src/cli/validate.ts"]
-    Index --> CliAssess["src/cli/assess.ts"]
+    Bin["bin/palee.ts"] --> CliAdopt["src/cli/adopt.ts"]
+    Bin --> CliNext["src/cli/next.ts"]
+    Bin --> CliPlan["src/cli/plan.ts"]
+    Bin --> CliReview["src/cli/review.ts"]
+    Bin --> CliSession["src/cli/session.ts"]
+    Bin --> CliConfig["src/cli/config.ts"]
+    Bin --> CliRoadmap["src/cli/roadmap.ts"]
+    Bin --> CliValidate["src/cli/validate.ts"]
+    Bin --> CliAssess["src/cli/assess.ts"]
+    Index["src/index.ts<br/>Library surface: ./types, ./engine, ./storage, ./validation<br/>(not on the executable path)"]
 ```
 
 ### Memory-to-Storage Flow
@@ -409,9 +411,10 @@ flowchart TD
     Hot["Load hot.md"] --> Draft["Write DRAFT-S checkpoint"]
     Draft --> Confirm{"Learner confirms session?"}
     Confirm -->|Yes| Canonical["Write canonical S- session"]
-    Confirm -->|No| Recover["Resume, save, discard, or ignore"]
+    Confirm -->|No| DraftRemains["Draft checkpoint remains on disk"]
     Canonical --> Index["Regenerate index.md"]
     Index --> HotView["Regenerate hot.md"]
+    Startup["Next startup: leftover draft found"] --> Recover["Resume, save, discard, or ignore"]
     Recover --> Hot
 ```
 
@@ -445,41 +448,40 @@ The AI module design explicitly separates read-only context access from mutation
 
 ```mermaid
 classDiagram
-    class CLICommand {
-        +start()
-        +end()
+    class OpenAICompatibleProvider {
+        +complete(request) ChatReply
     }
 
-    class AISessionManager {
-        +initializeProvider()
-        +loadContext()
-        +executeToolCall(call)
-        +proposeMutation(proposal)
-        +confirmMutation(user)
+    class ChatRequest {
+        +ChatTurn[] messages
+        +boolean? expectJson
+        +number? temperature
+        +number? maxTokens
     }
 
-    class ProviderBoundary {
-        +normalizeEndpoint()
-        +sendRequest(context)
-        +parseResponse()
+    class ChatReply {
+        +string text
+        +unknown? json
+        +UsageCounts? usage
     }
 
-    class EngineTools {
-        +getTopic(id)
-        +getHotMemory()
-        +getSession(id)
+    class ProviderSettings {
+        +string baseUrl
+        +string model
+        +string? apiKey
+        +KeySource keySource
+        +string? providerName
     }
 
-    class MutationAPI {
-        +recordAssessment(data)
-        +recordReview(data)
-        +saveSession(data)
+    class Transport {
+        <<function>>
+        +call(url, init) Promise~Response~
     }
 
-    CLICommand --> AISessionManager : "uses"
-    AISessionManager --> ProviderBoundary : "calls"
-    AISessionManager --> EngineTools : "read-only"
-    AISessionManager --> MutationAPI : "confirmed mutations only"
+    OpenAICompatibleProvider --> ChatRequest : "accepts"
+    OpenAICompatibleProvider --> ChatReply : "returns"
+    OpenAICompatibleProvider --> ProviderSettings : "resolved by resolveProviderSettings"
+    OpenAICompatibleProvider --> Transport : "sends through"
 ```
 
 ## Dependency Analysis
@@ -561,42 +563,3 @@ PALEE’s planning documents form a coherent contract surface:
 - **Phase 2 gaps** track where design intent has not yet reached production.
 
 The strongest signal for development priority is not feature visibility, but invariant coverage and data safety. When a new design touches storage, scheduling, AI, or session continuity, it should be traced back to its invariant, mapped to the relevant planning artifact, and verified against both tests and the Phase 2 gap list.
-
-## References
-
-- [README.md](https://github.com/Kuldeep2822k/cli/blob/main/README.md)
-- [docs/01-0-overview.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/01-0-overview.md)
-- [docs/08-0-planning-and-design-documents.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/08-0-planning-and-design-documents.md)
-- [planning/invariants.md:1-76](https://github.com/Kuldeep2822k/cli/blob/main/planning/invariants.md#L1-L76)
-- [src/index.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/index.ts)
-- [test/planning-invariant-ids.test.ts](https://github.com/Kuldeep2822k/cli/blob/main/test/planning-invariant-ids.test.ts)
-- [docs/08-1-phase-1-specification-and-invariants.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/08-1-phase-1-specification-and-invariants.md)
-- [docs/08-2-future-ai-module-and-phase-2-design.md](https://github.com/Kuldeep2822k/cli/blob/main/docs/08-2-future-ai-module-and-phase-2-design.md)
-- [planning/memory_design.md:1-118](https://github.com/Kuldeep2822k/cli/blob/main/planning/memory_design.md#L1-L118)
-- [planning/storage_design.md:1-111](https://github.com/Kuldeep2822k/cli/blob/main/planning/storage_design.md#L1-L111)
-- [planning/palee_cli_spec.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/planning/palee_cli_spec.md#L1-L200)
-- [planning/roadmap_design.md:1-99](https://github.com/Kuldeep2822k/cli/blob/main/planning/roadmap_design.md#L1-L99)
-- [planning/example_workflows.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/planning/example_workflows.md#L1-L200)
-- [planning/ai_module_design.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/planning/ai_module_design.md#L1-L200)
-- [src/ai/provider.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/ai/provider.ts)
-- [planning/PHASE_2_GAPS.md:1-200](https://github.com/Kuldeep2822k/cli/blob/main/planning/PHASE_2_GAPS.md#L1-L200)
-- [src/application/record-assessment.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts)
-- [src/application/record-review.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts)
-- [src/application/get-next-topics.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts)
-- [src/engine/sm2.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts)
-- [src/engine/tier0-hygiene.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/tier0-hygiene.ts)
-- [src/storage/frontmatter.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts)
-- [src/storage/atomic-write.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts)
-- [src/storage/lock.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts)
-- [src/storage/sessions.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts)
-- [src/storage/roadmap-parser.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/roadmap-parser.ts)
-- [bin/palee.ts](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts)
-- [src/cli/adopt.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts)
-- [src/cli/next.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts)
-- [src/cli/plan.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/plan.ts)
-- [src/cli/review.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts)
-- [src/cli/session.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts)
-- [src/cli/config.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts)
-- [src/cli/roadmap.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts)
-- [src/cli/validate.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts)
-- [src/cli/assess.ts](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts)
