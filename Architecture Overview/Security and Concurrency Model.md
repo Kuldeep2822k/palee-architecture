@@ -91,11 +91,11 @@ sequenceDiagram
     Writer->>Guard: "Resolve and contain destination"
     Guard-->>Writer: "Canonical vault path"
     Writer->>Locker: "Acquire per-target lock"
-    Locker->>Disk: "Create quarantine directory"
+    Locker->>Disk: "mkdirSync lockdir"
     Locker-->>Writer: "Lock held"
     Writer->>Disk: "Read current state and compute fingerprint"
     Writer->>Writer: "Compare expectedFingerprint (OCC)"
-    Writer->>Disk: "Write temp file, fsync, chmod"
+    Writer->>Disk: "Write temp file, chmod, fsync"
     Writer->>Disk: "Rename temp over destination"
     Writer->>Disk: "Best-effort directory fsync"
     Writer-->>App: "Success or retryable conflict"
@@ -139,7 +139,7 @@ OCC protects against lost updates when another process modifies a file between t
 Implementation highlights:
 
 - Each atomic write carries an optional `expectedFingerprint`.
-- After acquiring the lock, PALEE reads the current destination and recomputes its SHA-256 frontmatter fingerprint.
+- After acquiring the lock, PALEE reads the current destination and recomputes the SHA-256 fingerprint of the full file content.
 - If the caller expects the file to exist but the fingerprint differs, PALEE throws a retryable conflict.
 - First-creation writes use `expectExists: false`; if the destination appeared while waiting for the lock, this is also a conflict.
 - Overwrite writes require a fingerprint; omitting it when existence is asserted is a caller bug and becomes a conflict.
@@ -171,7 +171,7 @@ Conflict resolution strategy:
 - Batch operations tolerate partial failures while still preserving atomicity per note.
 
 ### Cross-Process Locking
-PALee uses an atomic directory-based lock scheme instead of native OS file locks, keeping the implementation portable and free of native addons.
+PALEE uses an atomic directory-based lock scheme instead of native OS file locks, keeping the implementation portable and free of native addons.
 
 Key mechanisms:
 
@@ -239,13 +239,13 @@ flowchart TD
     Enter(["atomicWrite Entry"]) --> Contain["Assert containment"]
     Contain --> Lock["Acquire lock"]
     Lock --> Occ["OCC check"]
-    Occ --> Temp["Create temp file"]
+    Occ --> Cleanup["Reclaim stale temps for target"]
+    Cleanup --> Temp["Create temp file"]
     Temp --> Chmod["Copy destination mode to temp fd"]
     Chmod --> Fsync["fsyncSync temp fd"]
     Fsync --> Rename["renameSync over destination"]
     Rename --> DirFlush["Best-effort directory fsync"]
-    DirFlush --> Cleanup["Reclaim stale temps for target"]
-    Cleanup --> Exit(["Exit"])
+    DirFlush --> Exit(["Exit"])
 ```
 
 Temporary-file safety:
@@ -294,7 +294,7 @@ Security rules:
 - Windows config-directory placement checks location rather than full ACLs, with a documented override.
 
 ### Thread Safety, Process Isolation, and Credential Management
-PALee's concurrency model emphasizes process isolation rather than relying on a single global in-memory mutex:
+PALEE's concurrency model emphasizes process isolation rather than relying on a single global in-memory mutex:
 
 - Cross-process coordination uses filesystem locks and OCC, not Node.js process-local async queues.
 - Lock descriptors include PID and hostname to support liveness detection and stale recovery.
@@ -317,7 +317,6 @@ graph LR
     AtomicWrite --> Types["types.ts<br/>NodeError"]
     LockModule --> Containment
     LockModule --> Types
-    SourceCap["source-cap.ts"] --> Types
 ```
 
 Coupling observations:
@@ -331,7 +330,7 @@ Coupling observations:
 ## Performance Considerations
 Security controls add deliberate overhead, but they are bounded and targeted:
 
-- Containment performs canonical path resolution once per write attempt.
+- Containment is asserted at entry and re-asserted immediately before the temp file is opened.
 - Lock acquisition is synchronous and uses `Atomics.wait` to avoid CPU spinning.
 - OCC adds one extra read of the target file under the lock.
 - Atomic writes create temporary files and perform `fsyncSync`, improving durability at the cost of additional I/O.
@@ -432,7 +431,7 @@ These costs are tradeoffs for correctness, durability, and resistance to malicio
 - Ensure the provider returns bounded responses.
 
 ## Conclusion
-PALee's security and concurrency model is built around strict containment, bounded resources, process-safe locking, optimistic concurrency control, and atomic durability. Vault writes cannot escape the canonical vault root, oversized inputs are refused early, simultaneous modifications are detected and retried safely, and crashes leave consistent data rather than partial files. Network access is isolated to a carefully constrained AI provider boundary, and credentials are handled outside argv and with restricted file modes. Together, these layers make PALEE resilient against accidental corruption, hostile vault layouts, denial-of-service inputs, and concurrent editing by humans and machines.
+PALEE's security and concurrency model is built around strict containment, bounded resources, process-safe locking, optimistic concurrency control, and atomic durability. Vault writes cannot escape the canonical vault root, oversized inputs are refused early, simultaneous modifications are detected and retried safely, and crashes leave consistent data rather than partial files. Network access is isolated to a carefully constrained AI provider boundary, and credentials are handled outside argv and with restricted file modes. Together, these layers make PALEE resilient against accidental corruption, hostile vault layouts, denial-of-service inputs, and concurrent editing by humans and machines.
 
 ## References
 

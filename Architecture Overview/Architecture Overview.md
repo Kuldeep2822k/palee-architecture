@@ -182,7 +182,7 @@ sequenceDiagram
 ### Application Layer
 The application layer encapsulates business workflows that combine storage reads and engine computations without touching Commander or process globals. The primary example is next-topic selection:
 
-- It loads topics through storage.
+- Receives topics already loaded by the CLI via storage; it performs no I/O itself.
 - It partitions due and never-reviewed candidates.
 - It applies the prerequisite gate using the engine.
 - It returns actionable topics and explains blocked topics.
@@ -276,13 +276,13 @@ flowchart TD
 
     Vault --> Walker
     Walker --> Scanner
-    Scanner --> Loader
+    Walker --> Loader
     Loader --> Frontmatter
     Loader --> Cache
     AtomicWrite --> Frontmatter
     AtomicWrite --> Lock
     AtomicWrite --> Containment
-    Memory --> Sessions
+    Sessions --> Memory
 ```
 
 ### Validation Layer
@@ -299,7 +299,7 @@ flowchart TD
         Parse["parse-frontmatter, read-failure"]
         Kind["valid-managed-note-kind"]
         Schema["valid-palee-schema"]
-        Identity["valid-topic-id-format, no-duplicate-topic-id"]
+        Identity["valid-topic-id-format, valid-topic-status, no-duplicate-topic-id"]
         Graph["valid-dependency-list, no-missing-dependency, no-dependency-cycle"]
         Assessment["valid-assessment-fields, valid-topic-mastery"]
         Review["valid-review-fields, valid-review-dates"]
@@ -323,10 +323,10 @@ flowchart TD
 ## Dependency Analysis
 The dependency direction is intentionally restrictive:
 
-- CLI depends on application, validation, shared types, and configuration helpers.
+- CLI depends on application, validation, shared types, and configuration helpers, plus the storage error guards and the AI ProviderError type, used only by the exit-code mapper.
 - Application depends on engine and storage.
 - Validation depends on storage reads and shared types.
-- Engine depends only on shared types and pure algorithm modules.
+- Engine depends primarily on shared types and pure algorithm modules, with one named boundary exception: `src/engine/sm2.ts` imports `formatDiagnosticValue` from `../validation/rules/diagnostic-value` (engine -> validation).
 - Storage depends on Node.js filesystem APIs and shared types.
 - No layer imports its caller.
 
@@ -363,7 +363,7 @@ The security model centers on three boundaries:
 
 1. **Vault containment**: Write destinations must resolve inside the configured vault root. Escape attempts raise a dedicated containment error (`ECONTAINMENT`) rather than a retryable conflict. Containment is its own error category, but not its own exit code: the exit-code mapper (`exitCodeFor` in `src/cli/exit-codes.ts`) classifies a containment refusal as a validation failure, so it exits with code `3`.
 2. **Credential handling**: API keys are stored securely on POSIX (`0600`) and refused outside safe profile roots on Windows unless explicitly overridden. Keys are never printed.
-3. **Network boundary**: Only `config test-connection` reaches a provider endpoint directly. Other commands delegate update checks to npm and do not open network sockets themselves.
+3. **Network boundary**: Only `config test-connection` reaches a provider endpoint directly. Only the update path (`update.ts` and `update-check.ts`, which spawn npm) delegates update checks to npm; other commands do not open network sockets themselves.
 
 ```mermaid
 flowchart TD
@@ -415,7 +415,7 @@ The validation framework is an auditable pipeline:
 3. **Classification**: Each finding has severity and fixability information.
 4. **Formatting**: Human and JSON formatters support both interactive users and automation.
 
-The canonical rule catalog includes parse/read failures, managed-note kind, schema version, identity, dependency shape, missing dependencies, cycles, assessment fields, mastery consistency, review fields, review dates, session schema, unknown session references, session index, hot memory, and safe vault paths.
+The canonical rule catalog includes parse/read failures, managed-note kind, schema version, identity, topic status, dependency shape, missing dependencies, cycles, assessment fields, mastery consistency, review fields, review dates, session schema, unknown session references, session index, hot memory, and safe vault paths.
 
 ## Data Flow from User Input to Storage
 A typical write flow, such as recording a review, moves through the following stages:
@@ -456,7 +456,7 @@ PALEE is a Node.js application written in TypeScript:
 | CLI Framework | Commander | Declarative command registration and option parsing |
 | YAML Parsing | YAML | Reads and writes YAML frontmatter used by Obsidian notes |
 | Persistence | Markdown + YAML frontmatter | Vault-first design keeps data human-readable and portable |
-| Test Runner | Node test runner with TSX | Fast unit, integration, and e2e testing without extra runtime dependencies |
+| Test Runner | Node test runner with TSX | Fast unit, integration, and e2e testing with no test-framework dependency beyond the tsx loader (devDependency) |
 
 ## Deployment Topology and Infrastructure Requirements
 PALEE is deployed as a local CLI tool installed through npm. The topology is simple because it does not run a server.
