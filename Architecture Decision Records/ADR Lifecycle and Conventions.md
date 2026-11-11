@@ -52,17 +52,19 @@ PALEE’s ADR system has three core components:
 |---|---|---|
 | ADR index | Declares purpose, status vocabulary, and links every active ADR | [docs/adr/README.md:1-62](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/README.md#L1-L62) |
 | ADR record | Records one decision with structured sections | Example: [docs/adr/0001-supermemo-sm2-algorithm.md:1-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L1-L63) |
-| Status metadata | Tracks whether a decision is proposed, accepted, amended, or superseded | Examples in [docs/adr/0005-concurrency-storage-and-schema-migration.md:1-51](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0005-concurrency-storage-and-schema-migration.md#L1-L51) and [docs/adr/0036-bounded-lock-acquisition.md:1-91](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0036-bounded-lock-acquisition.md#L1-L91) |
+| Status metadata | Tracks whether a decision is proposed, accepted, rejected, or superseded (an amendment is an annotation on a still-Accepted record, not a status) | Examples in [docs/adr/0005-concurrency-storage-and-schema-migration.md:1-51](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0005-concurrency-storage-and-schema-migration.md#L1-L51) and [docs/adr/0036-bounded-lock-acquisition.md:1-91](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0036-bounded-lock-acquisition.md#L1-L91) |
 
 ### Status Vocabulary
-The repository defines four relevant states:
+The repository defines four statuses (`Proposed`, `Accepted`, `Rejected`, `Superseded by ADR-nnnn`):
 
 | Status | Meaning | How it appears |
 |---|---|---|
-| **Proposed** | A decision is under consideration but not yet adopted. | Not present in the analyzed sample ADRs; allowed by the status vocabulary rule. |
+| **Proposed** | A decision is under consideration but not yet adopted. | Appears as the status of ADR-0028, which is Proposed. |
 | **Accepted** | The decision has been approved and should guide implementation. | Appears as the primary status line in ADRs such as ADR-0001 and ADR-0004. |
-| **Amended** | A later ADR changes part of an earlier decision without replacing it entirely. | Recorded as an “Amended by ADR-nnnn” line plus a short scope note. |
+| **Rejected** | The proposal was considered and declined before acceptance; it is retained for decision history and does not guide implementation. | Appears as the terminal status of a proposal that was explicitly declined. |
 | **Superseded** | A later ADR replaces the earlier decision. | Recorded as “Superseded by ADR-nnnn”. |
+
+“Amended” is not a status: an amendment is an annotation on a record that remains Accepted. When a later ADR changes part of an earlier decision without replacing it entirely, the earlier record keeps its Accepted status and gains an “Amended by ADR-nnnn” line plus a short scope note (as ADR-0005 does for ADR-0034).
 
 The index explicitly allows both `Superseded by ADR-nnnn` and `Amended by ADR-nnnn`, making amendment the preferred mechanism when only part of a decision changes.
 
@@ -71,11 +73,11 @@ Each ADR should use consistent Title Case page titles and headings, and should k
 
 | Section | Purpose |
 |---|---|
-| **Status** | States whether the decision is Proposed, Accepted, Amended, or Superseded, including the effective date where applicable. |
+| **Status** | States whether the decision is Proposed, Accepted, or Superseded, including the effective date where applicable (amendments appear here as an “Amended by ADR-nnnn” annotation line on a still-Accepted record). |
 | **Context** | Explains the problem, constraints, environment, and motivations that led to the decision. |
 | **Decision** | States what was chosen and why, ideally linking to implementation where appropriate. |
 | **Consequences** | Describes positive outcomes, tradeoffs, costs, risks, and operational implications. |
-| **Alternatives Considered** | Lists rejected options and explains why they were not selected. |
+| **Alternatives Considered** | Lists rejected options and explains why they were not selected. (Customary in existing ADRs, but not one of the template sections named in `docs/adr/README.md`, which names only Status, Context, Decision, and Consequences.) |
 
 Existing ADRs demonstrate this structure:
 
@@ -134,12 +136,12 @@ An ADR evolves through these states:
 ```mermaid
 stateDiagram-v2
     [*] --> Proposed : "Draft created"
+    Proposed --> Rejected : "Declined before acceptance"
     Proposed --> Accepted : "Approved"
-    Accepted --> Amended : "Later ADR changes part of decision"
     Accepted --> Superseded : "Later ADR replaces entire decision"
-    Proposed --> Superseded : "Rejected before acceptance"
-    Amended --> Superseded : "Later ADR replaces full decision"
 ```
+
+An amendment is not a lifecycle state: a later ADR that changes only part of a decision adds an “Amended by ADR-nnnn” annotation line to the earlier record, which stays in the Accepted state.
 
 #### Proposed
 A Proposed ADR is a candidate decision. It should clearly separate context from decision and avoid implying implementation has already occurred.
@@ -147,8 +149,8 @@ A Proposed ADR is a candidate decision. It should clearly separate context from 
 #### Accepted
 An Accepted ADR is the authoritative record for that decision until it is amended or superseded. Implementation, testing, and documentation should reference it.
 
-#### Amended
-An amendment does not rewrite the original decision wholesale. Instead, it adds an amendment line and a short note describing the affected scope. The original record remains readable history.
+#### Amended (annotation, not a status)
+An amendment is not a lifecycle state. It does not rewrite the original decision wholesale or change its Accepted status. Instead, it adds an amendment line and a short note describing the affected scope. The original record remains readable history.
 
 Example evidence:
 
@@ -279,7 +281,8 @@ A reviewer should check:
 As PALEE evolves:
 
 - Do not silently edit an Accepted ADR to change its decision.
-- Create a new ADR and amend or supersede the older one.
+- Permitted edits to an Accepted ADR are limited to typo and link fixes, Status changes, and the amendment notes `docs/adr/README.md` requires (such as an `Amended by ADR-nnnn` line).
+- Create a new ADR and amend or supersede the older one; a changed decision must also update the affected entries in `planning/invariants.md` to match.
 - Keep historical ADRs readable even when they no longer reflect current behavior.
 - Update the index whenever a new ADR is added.
 - Ensure implementation and tests remain consistent with the current accepted ADR.
@@ -392,33 +395,3 @@ For contributors, the most important practices are:
 - Align implementation and tests with the current accepted ADR.
 
 For maintainers, ADRs serve as the project’s architectural memory. They should be reviewed carefully, updated deliberately, and treated as evidence when code, tests, or user-facing behavior evolve.
-
-## References
-
-- [README.md:1-62](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/README.md#L1-L62)
-- [README.md:11-24](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/README.md#L11-L24)
-- [0005-concurrency-storage-and-schema-migration.md:11-14](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0005-concurrency-storage-and-schema-migration.md#L11-L14)
-- [0001-supermemo-sm2-algorithm.md:1-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L1-L63)
-- [0004-four-pillar-pedagogical-mastery.md:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
-- [0005-concurrency-storage-and-schema-migration.md:1-51](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0005-concurrency-storage-and-schema-migration.md#L1-L51)
-- [README.md:11-62](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/README.md#L11-L62)
-- [0001-supermemo-sm2-algorithm.md:5-8](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L5-L8)
-- [0004-four-pillar-pedagogical-mastery.md:5-8](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L5-L8)
-- [0036-bounded-lock-acquisition.md:3-6](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0036-bounded-lock-acquisition.md#L3-L6)
-- [0001-supermemo-sm2-algorithm.md:10-20](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L10-L20)
-- [0004-four-pillar-pedagogical-mastery.md:10-16](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L10-L16)
-- [0005-concurrency-storage-and-schema-migration.md:16-24](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0005-concurrency-storage-and-schema-migration.md#L16-L24)
-- [0001-supermemo-sm2-algorithm.md:22-43](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L22-L43)
-- [0004-four-pillar-pedagogical-mastery.md:18-34](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L18-L34)
-- [0005-concurrency-storage-and-schema-migration.md:26-43](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0005-concurrency-storage-and-schema-migration.md#L26-L43)
-- [0001-supermemo-sm2-algorithm.md:45-56](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L45-L56)
-- [0004-four-pillar-pedagogical-mastery.md:36-45](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L36-L45)
-- [0005-concurrency-storage-and-schema-migration.md:45-51](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0005-concurrency-storage-and-schema-migration.md#L45-L51)
-- [0001-supermemo-sm2-algorithm.md:58-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L58-L63)
-- [0004-four-pillar-pedagogical-mastery.md:47-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L47-L59)
-- [0005-concurrency-storage-and-schema-migration.md:47-51](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0005-concurrency-storage-and-schema-migration.md#L47-L51)
-- [README.md:1-6](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/README.md#L1-L6)
-- [agent.md:1-92](https://github.com/Kuldeep2822k/cli/blob/main/agent.md#L1-L92)
-- [0036-bounded-lock-acquisition.md:1-91](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0036-bounded-lock-acquisition.md#L1-L91)
-- [0001-supermemo-sm2-algorithm.md:22-26](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L22-L26)
-- [0004-four-pillar-pedagogical-mastery.md:18-24](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L18-L24)

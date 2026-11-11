@@ -187,7 +187,6 @@ classDiagram
   }
 
   CliEntry --> UpdateHandler : "dispatches"
-  UpdateHandler --> ApplicationUseCases : "calls pure use case"
   UpdateHandler --> ExitClassifier : "maps errors"
 ```
 
@@ -354,18 +353,3 @@ PALEE's application layer and CLI boundary are defined by disciplined separation
 - Network access is confined to the AI provider except for a narrowly bounded npm child process whose argv, working directory, platform decision, caching, and suppression rules are explicitly designed and tested.
 
 These decisions create clean interfaces between users and core functionality while maintaining security, scriptability, and testability.
-
-## References
-
-- [bin/palee.ts:1-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L389)
-- [src/cli/update.ts:1-84](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update.ts#L1-L84)
-- [test/palee-cli.ts:1-104](https://github.com/Kuldeep2822k/cli/blob/main/test/palee-cli.ts#L1-L104)
-- [test/cli-spawn-timeouts.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-spawn-timeouts.test.ts#L1-L200)
-- [docs/adr/0025-application-layer.md:1-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0025-application-layer.md#L1-L63)
-- [src/cli/exit-codes.ts:1-65](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts#L1-L65)
-- [src/cli/update-check.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update-check.ts#L1-L200)
-- [bin/palee.ts:201-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L201-L389)
-- [docs/adr/0024-exit-codes-and-error-contract.md:1-75](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0024-exit-codes-and-error-contract.md#L1-L75)
-- [docs/adr/0029-test-cli-launch-policy.md:1-97](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0029-test-cli-launch-policy.md#L1-L97)
-- [docs/adr/0032-direct-spawn-bounding.md:1-79](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0032-direct-spawn-bounding.md#L1-L79)
-- [docs/adr/0033-update-command-and-npm-child-process-boundary.md:1-145](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0033-update-command-and-npm-child-process-boundary.md#L1-L145)

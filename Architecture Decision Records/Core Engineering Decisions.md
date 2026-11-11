@@ -63,7 +63,6 @@ graph TB
     Cache["File Cache<br/>src/storage/cache.ts"]
   end
 
-  SM2 --> Index
   FM --> Index
   Lock --> Index
   AW --> Index
@@ -113,8 +112,8 @@ sequenceDiagram
   Writer->>Cont: Assert destination inside vault
   Writer->>Lock: Acquire per-note lock
   Lock->>FS: mkdir / heartbeat / quarantine
-  Writer->>FS: Reclaim stale temps for this target
   Writer->>FS: Read expected fingerprint (OCC)
+  Writer->>FS: Reclaim stale temps for this target
   Writer->>FS: Write temp file, fchmod, fsync
   Writer->>FS: Rename temp over destination
   Writer->>FS: Best-effort directory fsync
@@ -224,7 +223,7 @@ Trade-offs:
 | `missing` | File does not exist | Caller decides whether to rebuild or treat as absent |
 | `no-frontmatter` | Absent or empty fences | Tolerated by some flows |
 | `corrupt` | Delimiters present but YAML failed | Rebuilt by session start |
-| `schema-invalid` | Present but not supported version | Rebuilt; tolerant fields remain available for inspection |
+| `schema-invalid` | `palee_schema` absent or not exactly 1 | Rebuilt; tolerant fields remain available for inspection |
 
 Only `palee_schema: 1` is accepted as supported. Unknown versions are treated as invalid, not silently consumed.
 
@@ -329,7 +328,7 @@ A typical concurrent review illustrates the full chain:
 2. The loader reads the topic through the cache, applying unsettled-horizon fingerprint validation and negative caching for non-topic files.
 3. SM-2 computes the new review state, subject to field validation and interval/ease-factor bounds.
 4. The CLI re-reads the fresh file content just before writing to close the recall-window race.
-5. `atomicWrite` asserts containment, acquires the lock, reclaims stale temporary files, verifies the SHA-256 fingerprint, writes to a unique temp file, preserves mode, flushes, renames, and best-effort flushes the directory.
+5. `atomicWrite` asserts containment, acquires the lock, verifies the SHA-256 fingerprint (OCC), then reclaims stale temporary files, writes to a unique temp file, preserves mode, flushes, renames, and best-effort flushes the directory.
 6. If another process modified the file, the operation returns an `ECONFLICT`; the CLI can surface exit code 4 or retry according to caller policy.
 7. Sessions and hot memory are persisted under `.palee`, with hot memory reconstructed from confirmed sessions when its schema is unsupported or corrupt.
 
@@ -392,7 +391,7 @@ PALEE balances consistency against practical performance in several places:
 Recommended practices:
 - Avoid rapid edit-save loops on the same note without allowing OCC retries.
 - Keep generated or exported files out of the vault or accept that they are scanned.
-- Treat `ECONFLICT` as retryable; treat containment errors as terminal configuration issues.
+- Treat `ECONFLICT` as retryable; treat containment errors as terminal validation failures (exit 3).
 - Do not assume hot memory is authoritative when its schema is invalid.
 
 ## Troubleshooting Guide
@@ -412,23 +411,3 @@ Common failure modes and their meanings:
 PALEE’s storage architecture chooses strong local consistency over maximum throughput. SM-2 provides deterministic scheduling without external dependencies. Concrete syntax tree frontmatter editing preserves user-authored Markdown. Atomic writes with optimistic concurrency control and cross-process locking protect against partial writes, lost updates, and crashes. Vault containment prevents accidental or malicious escape. Hot memory is a clearly bounded derived view. Caching accelerates scans while preserving correctness on platforms with coarse timestamps. Bounded lock acquisition replaces a busy-spin hazard with a measurable, diagnosable conflict.
 
 Together, these decisions enable concurrent access to Obsidian vaults while keeping the vault itself the single source of truth. The main ongoing trade-off is latency under contention: users editing or syncing the same notes concurrently may see retryable conflicts, but the system avoids silent corruption and indefinite hangs.
-
-## References
-
-- [README.md:1-314](https://github.com/Kuldeep2822k/cli/blob/main/README.md#L1-L314)
-- [index.ts:1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
-- [sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-- [frontmatter.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L200)
-- [lock.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/lock.ts#L1-L200)
-- [atomic-write.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/atomic-write.ts#L1-L200)
-- [containment.ts:1-185](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/containment.ts#L1-L185)
-- [memory.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/memory.ts#L1-L200)
-- [cache.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/cache.ts#L1-L200)
-- [0001-supermemo-sm2-algorithm.md:1-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L1-L63)
-- [0003-concrete-syntax-tree-yaml-frontmatter.md:1-51](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0003-concrete-syntax-tree-yaml-frontmatter.md#L1-L51)
-- [0002-atomic-file-locking-and-occ.md:1-56](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0002-atomic-file-locking-and-occ.md#L1-L56)
-- [0006-phase-1-concurrency-resilience-and-storage-isolation.md:1-87](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0006-phase-1-concurrency-resilience-and-storage-isolation.md#L1-L87)
-- [0007-hot-memory-read-state-contract.md:1-54](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0007-hot-memory-read-state-contract.md#L1-L54)
-- [0014-atomic-write-durability-and-containment.md:1-79](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0014-atomic-write-durability-and-containment.md#L1-L79)
-- [0018-read-path-caching-and-locking.md:1-78](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0018-read-path-caching-and-locking.md#L1-L78)
-- [0036-bounded-lock-acquisition.md:1-91](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0036-bounded-lock-acquisition.md#L1-L91)

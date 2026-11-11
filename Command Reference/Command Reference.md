@@ -71,7 +71,7 @@ Before reviewing individual commands, it helps to understand the shared behavior
 | Configuration directory | Controlled by `PALEE_CONFIG_DIR`; otherwise defaults to `%LOCALAPPDATA%/palee` on Windows or `~/.config/palee` elsewhere. All commands share this file unless isolated explicitly. |
 | Vault path | Required by most commands; set through `palee config set-vault`. Missing or unreadable vaults produce usage errors. |
 | JSON output | Enabled by `--json` when a command declares that flag, or by setting `PALEE_JSON=1` / `true`. Some human-only commands deliberately ignore `PALEE_JSON` for their initial vault refusal messages. |
-| Global environment variables | `PALEE_CONFIG_DIR`, `PALEE_NO_UPDATE_CHECK`, and `PALEE_DEBUG` are documented globally and used across commands. |
+| Global environment variables | Global help documents only `PALEE_CONFIG_DIR` and `PALEE_NO_UPDATE_CHECK`. `PALEE_DEBUG` is not documented in global help; it only enables raw stack traces on the fatal-error path. |
 | Update notification | After a successful command, the CLI may print one informational notice about a newer published version to stderr, subject to time and piping rules. |
 | Fatal errors | Unhandled exceptions and uncaught rejections are caught once and emitted consistently, either as JSON (`{ status, code, error }`) or plain text. |
 
@@ -244,10 +244,10 @@ Recognized headings include variations such as “Prerequisites”, “Prerequis
 palee adopt "Docker Fundamentals.md"
 palee adopt . --all --difficulty beginner
 palee adopt MODULES/01 --include '*.md' --exclude '*template*' --tag 'lab'
-palee adopt --auto-chain --chain-tier strict
-palee adopt --dry-run --verbose
-palee adopt --undo --dry-run
-palee adopt --undo --drop-title
+palee adopt --all --auto-chain --chain-tier strict
+palee adopt --all --dry-run --verbose
+palee adopt --all --undo --dry-run
+palee adopt --all --undo --drop-title
 ```
 
 **Output formats**
@@ -366,6 +366,7 @@ palee progress [options]
 
 **Topic resolution**
 - Exact match or substring match is supported.
+- Title substrings also resolve as queries, not only full `T-...` topic IDs.
 - Missing topic produces usage error.
 - Ambiguous match lists candidates and requires a more specific query.
 
@@ -376,7 +377,7 @@ palee progress [options]
 **Examples**
 ```sh
 palee progress
-palee progress --topic topic-linear-algebra
+palee progress --topic T-linear-algebra
 palee progress --topic "Recursion" --json
 ```
 
@@ -409,9 +410,9 @@ palee review <topic> <quality>
 
 **Examples**
 ```sh
-palee review topic-calculus 5
+palee review T-calculus 5
 palee review "Advanced Docker" 3
-palee review topic-calculus 2 --force
+palee review T-calculus 2 --force
 ```
 
 **Exit codes**
@@ -450,15 +451,15 @@ palee assess <topic> [--conceptual N] [--practical N] [--debug N] [--feynman N] 
 - Values outside the range are rejected rather than silently clamped.
 
 **Mastery effects**
-- Mastery is recomputed directly from the provided pillars.
+- Mastery is recomputed from the provided pillars merged over the topic's stored pillar values.
 - Lowering mastery below the threshold can hide previously available dependents.
 - If only ordinary pillars are provided and they cannot reach the threshold, the handler explains how `--feynman` affects the gate.
 
 **Examples**
 ```sh
-palee assess topic-docker --conceptual 0.8 --practical 0.9
+palee assess T-docker --conceptual 0.8 --practical 0.9
 palee assess "Networking Basics" --debug 0.7 --dry-run
-palee assess topic-mastery-lowering --conceptual 0.1 --practical 0.1 --debug 0.1 --feynman 0.1 --force
+palee assess T-mastery-lowering --conceptual 0.1 --practical 0.1 --debug 0.1 --feynman 0.1 --force
 ```
 
 **Exit codes**
@@ -544,7 +545,7 @@ palee roadmap --from roadmap.yml --auto-chain --yes
 - `5`: Unexpected runtime exception.
 
 ### `migrate`
-Migrate PALEE schema and prerequisite labels to the current version.
+Upgrade notes missing `palee_schema` to schema v1 (`--fix`) and relabel dependency-source ties (`--relabel-ties` / `--include-unlabeled-ties`); it does not rename topic IDs or migrate config files. See [Maintenance and System Commands](/Command%20Reference/Maintenance%20and%20System%20Commands) for the full coverage.
 
 **Syntax**
 ```
@@ -607,7 +608,7 @@ palee session <action> [options]
 
 **Examples**
 ```sh
-palee session start --topic topic-docker-networking
+palee session start --topic T-docker-networking
 palee session draft --interactive
 palee session list
 palee session end
@@ -756,7 +757,7 @@ fi
 palee plan --json > plan.json
 
 # Record daily review in automation
-palee review topic-docker-fundamentals 4
+palee review T-docker-fundamentals 4
 
 # Show dashboard metrics
 palee dashboard --json > dashboard.json
@@ -785,47 +786,3 @@ The PALEE CLI provides a consistent, exit-code-aware interface for managing a ma
 - Prefer `--dry-run` for destructive or wide-scoping operations.
 - Use `--json` for programmatic consumption and rely on `process.exitCode` for CI decisions.
 - Treat exit code `2` as user-fixable input/configuration problems, `4` as retryable concurrency problems, and `5` as unexpected failures requiring logs.
-
-## References
-
-- [package.json:1-20](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L1-L20)
-- [bin/palee.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L30)
-- [bin/palee.ts:31-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L31-L389)
-- [src/cli/exit-codes.ts:1-65](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts#L1-L65)
-- [src/cli/onboarding.ts:1-164](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/onboarding.ts#L1-L164)
-- [bin/palee.ts:1-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L1-L389)
-- [src/cli/program-name.ts:1-91](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/program-name.ts#L1-L91)
-- [src/cli/config.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L60)
-- [bin/palee.ts:31-100](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L31-L100)
-- [bin/palee.ts:280-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L280-L389)
-- [src/cli/config.ts:1-120](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L120)
-- [src/cli/onboarding.ts:80-164](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/onboarding.ts#L80-L164)
-- [bin/palee.ts:201-330](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L201-L330)
-- [bin/palee.ts:330-389](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L330-L389)
-- [src/cli/onboarding.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/onboarding.ts#L1-L79)
-- [src/cli/vault-echo.ts:1-138](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/vault-echo.ts#L1-L138)
-- [bin/palee.ts:40-100](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L40-L100)
-- [bin/palee.ts:70-85](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L70-L85)
-- [src/cli/config.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L200)
-- [bin/palee.ts:85-199](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L85-L199)
-- [src/cli/adopt.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/adopt.ts#L1-L200)
-- [bin/palee.ts:199-209](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L199-L209)
-- [src/cli/next.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L200)
-- [bin/palee.ts:209-216](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L209-L216)
-- [src/cli/plan.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/plan.ts#L1-L200)
-- [bin/palee.ts:216-224](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L216-L224)
-- [src/cli/progress.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/progress.ts#L1-L200)
-- [bin/palee.ts:224-232](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L224-L232)
-- [src/cli/review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [bin/palee.ts:232-242](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L232-L242)
-- [src/cli/assess.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/assess.ts#L1-L200)
-- [bin/palee.ts:242-250](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L242-L250)
-- [src/cli/validate.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/validate.ts#L1-L200)
-- [bin/palee.ts:201-216](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L201-L216)
-- [src/cli/roadmap.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/roadmap.ts#L1-L200)
-- [bin/palee.ts:216-232](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L216-L232)
-- [src/cli/migrate.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/migrate.ts#L1-L200)
-- [src/cli/session.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/session.ts#L1-L200)
-- [src/cli/dashboard.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/dashboard.ts#L1-L200)
-- [bin/palee.ts:250-330](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts#L250-L330)
-- [src/cli/update.ts:1-84](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/update.ts#L1-L84)

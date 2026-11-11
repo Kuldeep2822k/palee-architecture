@@ -44,7 +44,7 @@ The review feature spans four layers:
 | CLI layer | Parses arguments, resolves topics, formats output, maps errors to exit codes | `src/cli/review.ts` |
 | Application use case | Pure review update computation, early-review detection, mastery resolution | `src/application/record-review.ts` |
 | Engine layer | SM-2 algorithm, date formatting, mastery calculation, pillar normalization | `src/engine/sm2.ts`, `src/engine/mastery.ts` |
-| Storage layer | Topic loading, frontmatter parsing/writing, atomic writes, session/memory persistence | `src/storage/*`, especially `sessions.ts` for session continuity |
+| Storage layer | Topic loading, frontmatter parsing/writing, atomic writes | `src/storage/*` |
 
 ```mermaid
 graph TB
@@ -54,7 +54,6 @@ graph TB
   UseCase --> Mastery["Mastery engine<br/>src/engine/mastery.ts"]
   CLI --> Storage["Vault storage<br/>atomic write + frontmatter"]
   Storage --> Note["Topic note frontmatter"]
-  SessionLayer["Session memory<br/>src/storage/sessions.ts"] -. "session continuity" .-> CLI
 ```
 
 ## Core Components
@@ -65,8 +64,7 @@ This section summarizes the components that implement the review workflow and th
 | `reviewCommand` | CLI entry point for spaced-repetition reviews | Topic query string, quality string, optional `force` flag | Console feedback, updated note file, exit code | Invalid quality or missing/ambiguous topic exits with usage error; OCC conflict exits with lock code; unexpected exceptions map through `exitCodeFor` |
 | `buildReviewUpdate` | Pure application-layer review computation | Parsed frontmatter, numeric quality, review timestamp | Updated frontmatter fields, SM-2 state, due date, early-review flags | Throws on invalid stored SM-2 state or malformed field types |
 | `processReview` | Canonical SM-2 transition | Current SM-2 fields, integer quality 0–5 | New `ease_factor`, `interval_days`, `repetition`, `lapses`, `last_quality` | Throws when quality or any stored field violates its precondition |
-| `computeTopicMastery` / `resolveTopicMastery` | Four-pillar mastery computation | Conceptual, practical, debug, Feynman scores; existing mastery; precedence mode | Normalized mastery value between 0.0 and 1.0 | Normalizes and clamps input; returns 0 when no meaningful pillars are present |
-| Session loader | Reads canonical sessions, drafts, index, and hot memory | Vault path | `LoadedSession[]`, session index read, hot-memory classification | Read failures are reported rather than silently dropped |
+| `computeTopicMastery` / `resolveTopicMastery` | Four-pillar mastery computation | Conceptual, practical, debug, Feynman scores; existing mastery; precedence mode | Normalized mastery value between 0.0 and 1.0 | Normalizes and clamps input; when any stored pillar is > 0, `topic_mastery` is recomputed from the pillars; otherwise the existing stored value is carried forward unchanged (returning 0 only when there is no existing value either) |
 
 ## Architecture Overview
 The review process is layered so that I/O, validation, scheduling math, and user feedback stay separable.
@@ -158,8 +156,8 @@ flowchart TD
 Important contract decisions:
 
 - Absent pillar keys are never minted as zero. This avoids marking a note “assessed but zero” when no assessment was recorded.
-- Existing pillar values are normalized and preserved byte-identically when present.
-- `topic_mastery` is recomputed even though review quality alone does not raise it.
+- Existing pillar values are carried forward after normalization (clamp to [0, 1], round to 4 decimals, coerce numeric strings); absent pillar keys are never written.
+- When any stored pillar is > 0, `topic_mastery` is recomputed from the pillars; otherwise the existing stored value is carried forward unchanged. Review quality alone does not raise it.
 - Early-review detection compares calendar days, not UTC instants, so same-day reviews remain non-early.
 
 ```mermaid
@@ -170,7 +168,7 @@ flowchart TD
   DueDate --> CarryPillars["carriedPillarScores(frontmatter)"]
   CarryPillars --> Mastery["resolveTopicMastery(pillars, existing, pillars-first)"]
   Mastery --> Assemble["Assemble updates:<br/>SM-2 fields, topic_mastery,<br/>last_reviewed_at, due_at"]
-  Assemble --> CheckEarly{"Carried due_at earlier than review?"}
+  Assemble --> CheckEarly{"Review day before carried due_at?"}
   CheckEarly -->|Yes| MarkEarly["Mark early=true"]
   CheckEarly -->|No| NoEarly["early=false"]
   MarkEarly --> Return(["Return ReviewOutcome"])
@@ -244,23 +242,7 @@ flowchart TD
 ```
 
 ### Session Continuity and Draft Recovery
-The review command updates a topic note directly, while session data lives separately under `.palee/sessions/`. Session continuity is important for tracking study sessions independently of individual topic reviews.
-
-- `.palee/hot.md` is derived working memory.
-- `.palee/sessions/` holds canonical confirmed sessions and draft checkpoints.
-- The session loader reads both confirmed and draft sessions, classifies parse/read outcomes, and supports rebuilds.
-- ADR-0019 specifies that a half-finished recovery must remain replayable: draft retirement happens after rebuild, timestamps are clamped, unsupported schemas are refused, unreadable sessions are counted rather than silently dropped, and rebuilds do not delete canonical history.
-
-```mermaid
-stateDiagram-v2
-  [*] --> ActiveSession
-  ActiveSession --> DraftCheckpoint : "session start / checkpoint"
-  DraftCheckpoint --> ActiveSession : "draft continues"
-  DraftCheckpoint --> CompletedSession : "session end"
-  ActiveSession --> CompletedSession : "session end"
-  CompletedSession --> RebuiltHot : "index rebuild"
-  RebuiltHot --> ActiveSession : "new session start"
-```
+Sessions are not part of the review workflow — `review` imports nothing from `src/storage/sessions.ts` and never reads sessions, drafts, or `hot.md`. See the Session Management page for session continuity and draft recovery.
 
 ### Batch Review Capability
 The repository exposes one review operation per invocation: a single topic query and a single quality rating. There is no dedicated batch review subcommand in the reviewed source files.
@@ -278,7 +260,7 @@ The design favors explicit, auditable interactions per topic rather than hidden 
 #### Example 1: First review of a newly adopted topic
 - The learner runs `palee review T-example 5`.
 - The system validates quality, resolves the topic, loads its frontmatter, and computes the first successful SM-2 step.
-- Output includes a new repetition count, a one-day interval, the next due date, and the resulting mastery score.
+- Output includes a new repetition count, a one-day interval, and the next due date. (No mastery value is displayed; mastery is written to frontmatter but not printed by `review`.)
 - If the note has no pillar assessments, review does not mint pillar keys; mastery remains derived from absent pillars.
 
 #### Example 2: Early review
@@ -364,7 +346,7 @@ Recommended practices:
   - `lapses` must be a non-negative integer within safe bounds.
 - Pillar scores are normalized to `[0.0, 1.0]`.
 - Absent pillar keys are not written as zero.
-- `topic_mastery` is recomputed using the four-pillar formula.
+- When any stored pillar is > 0, `topic_mastery` is recomputed from the pillars; otherwise the existing stored value is carried forward unchanged.
 
 ### Recovery Procedures
 1. **Repair corrupted SM-2 state**: run the validation fixer referenced by the error message.
@@ -374,28 +356,3 @@ Recommended practices:
 
 ## Conclusion
 PALEE’s interactive review workflow is deliberately focused: it turns a self-reported recall rating into durable scheduling state and a refreshed mastery score without inventing assessment data. The four-pillar model ensures that true mastery requires conceptual, practical, debugging, and articulation competence, with Feynman’s double weight emphasizing clear explanation. The review command protects learners through strict validation, OCC-safe writes, explicit error messages, and early-review warnings. Session continuity and atomic storage keep the broader learning progression reliable, while the assessment surface remains the proper place to adjust mastery-driven prerequisite gating.
-
-## References
-
-- [src/cli/review.ts:1-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L141)
-- [src/application/record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [src/engine/sm2.ts:1-306](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L306)
-- [src/engine/mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [src/storage/sessions.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/sessions.ts#L1-L200)
-- [src/cli/review.ts:20-141](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L20-L141)
-- [src/application/record-review.ts:68-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L68-L116)
-- [src/engine/sm2.ts:95-245](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L95-L245)
-- [src/engine/mastery.ts:145-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L145-L229)
-- [test/cli-review-early.test.ts:1-150](https://github.com/Kuldeep2822k/cli/blob/main/test/cli-review-early.test.ts#L1-L150)
-- [src/application/record-review.ts:39-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L39-L116)
-- [test/application-record-review.test.ts:1-83](https://github.com/Kuldeep2822k/cli/blob/main/test/application-record-review.test.ts#L1-L83)
-- [docs/adr/0001-supermemo-sm2-algorithm.md:1-63](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0001-supermemo-sm2-algorithm.md#L1-L63)
-- [src/engine/mastery.ts:1-144](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L144)
-- [docs/adr/0004-four-pillar-pedagogical-mastery.md:1-59](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L59)
-- [docs/adr/0021-assessment-surface.md:1-86](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0021-assessment-surface.md#L1-L86)
-- [docs/adr/0019-session-memory-lifecycle.md:1-71](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0019-session-memory-lifecycle.md#L1-L71)
-- [docs/adr/0007-hot-memory-read-state-contract.md:1-54](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0007-hot-memory-read-state-contract.md#L1-L54)
-- [src/cli/review.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/review.ts#L1-L20)
-- [src/application/record-review.ts:1-38](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L38)
-- [src/engine/sm2.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L20)
-- [src/engine/mastery.ts:1-20](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L20)

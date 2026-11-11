@@ -66,7 +66,6 @@ graph TB
     Loader --> ValidationFields
     Loader --> ValidationMastery
     RecordAssessment --> Engine
-    RecordAssessment --> Frontmatter
     ExampleNote --> Frontmatter
 ```
 
@@ -135,11 +134,11 @@ classDiagram
         +number palee_schema
         +string palee_id
         +string topic
-        +string track
-        +string status
+        +string? track
+        +'not_started'|'learning'|'paused'|'archived' status
         +Difficulty difficulty
-        +string[] dependencies
-        +string[] depends_on
+        +string[]? dependencies
+        +string[]? depends_on
         +Assessment assessment
         +Review review
     }
@@ -435,35 +434,3 @@ Key coupling observations:
 
 ## Conclusion
 The Assessment model is a deliberate bridge between pedagogical theory and machine-readable vault state. Its typed `Assessment` interface defines the Phase-2 AI assessment contract, while flat frontmatter keys and loader normalization form the persistent runtime contract. The four pillars capture conceptual, practical, debugging, and articulation skills, with Feynman double-weighted to emphasize true comprehension. Mastery is computed deterministically, gated at 0.70, and validated both at the field-shape level and at the derived-data level. Correct usage preserves the distinction between absent pillars and zero scores, refuses corrupt stored values, and keeps `assessed_at` as assessment metadata rather than a mastery driver.
-
-## References
-
-- [types.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L40)
-- [mastery.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L40)
-- [frontmatter.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L1-L40)
-- [loader.ts:1-40](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L40)
-- [valid-assessment-fields.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L1-L30)
-- [valid-topic-mastery.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-mastery.ts#L1-L30)
-- [record-assessment.ts:1-30](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L30)
-- [0004-four-pillar-pedagogical-mastery.md:1-20](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L1-L20)
-- [0021-assessment-surface.md:1-20](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0021-assessment-surface.md#L1-L20)
-- [05-1-topic-and-assessment-schema.md:1-20](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md#L1-L20)
-- [Docker Fundamentals.md:1-20](https://github.com/Kuldeep2822k/cli/blob/main/examples/Docker%20Fundamentals.md#L1-L20)
-- [05-1-topic-and-assessment-schema.md:100-140](https://github.com/Kuldeep2822k/cli/blob/main/docs/05-1-topic-and-assessment-schema.md#L100-L140)
-- [record-assessment.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L60)
-- [mastery.ts:100-160](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L100-L160)
-- [frontmatter.ts:120-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/frontmatter.ts#L120-L200)
-- [0004-four-pillar-pedagogical-mastery.md:10-30](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L10-L30)
-- [types.ts:120-170](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L120-L170)
-- [0004-four-pillar-pedagogical-mastery.md:20-40](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0004-four-pillar-pedagogical-mastery.md#L20-L40)
-- [record-assessment.ts:80-110](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L80-L110)
-- [valid-assessment-fields.ts:1-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L1-L79)
-- [valid-topic-mastery.ts:1-183](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-mastery.ts#L1-L183)
-- [record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [0021-assessment-surface.md:20-60](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0021-assessment-surface.md#L20-L60)
-- [record-assessment.ts:80-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L80-L134)
-- [valid-assessment-fields.ts:30-79](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-assessment-fields.ts#L30-L79)
-- [valid-topic-mastery.ts:60-140](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-topic-mastery.ts#L60-L140)
-- [record-assessment.ts:20-50](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L20-L50)
-- [0021-assessment-surface.md:40-80](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0021-assessment-surface.md#L40-L80)
-- [0035-validate-fix-partial-pillar-eligibility.md:1-53](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0035-validate-fix-partial-pillar-eligibility.md#L1-L53)

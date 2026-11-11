@@ -373,31 +373,3 @@ Remember:
 
 ## Conclusion
 The PALEE validation rule execution engine is deliberately lean. It collects a single, consistent snapshot of vault state, executes pure rules in registration order, concatenates findings without short-circuiting, and converts unexpected exceptions into structured error findings. The `ValidationRule` and `ValidationContext` contracts define a clear boundary: rules inspect read-only data and return structured findings, while the runner, collector, and formatter handle orchestration, isolation, and presentation. Following the best practices above keeps rules deterministic, testable, and compatible with the broader PALEE validation and fix workflows.
-
-## References
-
-- [index.ts:1-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L1-L130)
-- [collect-vault.ts:1-147](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts#L1-L147)
-- [run-rules.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts#L1-L60)
-- [format.ts:1-180](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/format.ts#L1-L180)
-- [managed-note.ts:1-87](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/managed-note.ts#L1-L87)
-- [parse-frontmatter.ts:1-78](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/parse-frontmatter.ts#L1-L78)
-- [no-duplicate-topic-id.ts:1-48](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-duplicate-topic-id.ts#L1-L48)
-- [valid-hot-memory.ts:1-150](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-hot-memory.ts#L1-L150)
-- [types.ts:1-161](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts#L1-L161)
-- [collect-vault.ts:37-147](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts#L37-L147)
-- [run-rules.ts:20-56](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts#L20-L56)
-- [format.ts:40-180](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/format.ts#L40-L180)
-- [validation-framework.test.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/test/validation-framework.test.ts#L1-L200)
-- [types.ts:107-161](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts#L107-L161)
-- [types.ts:43-161](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/types.ts#L43-L161)
-- [collect-vault.ts:14-23](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/collect-vault.ts#L14-L23)
-- [run-rules.ts:12-15](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts#L12-L15)
-- [format.ts:11-12](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/format.ts#L11-L12)
-- [index.ts:20-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L20-L130)
-- [run-rules.ts:28-56](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts#L28-L56)
-- [validation-framework.test.ts:130-200](https://github.com/Kuldeep2822k/cli/blob/main/test/validation-framework.test.ts#L130-L200)
-- [parse-frontmatter.ts:10-78](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/parse-frontmatter.ts#L10-L78)
-- [no-duplicate-topic-id.ts:10-48](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/no-duplicate-topic-id.ts#L10-L48)
-- [valid-hot-memory.ts:10-150](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/rules/valid-hot-memory.ts#L10-L150)
-- [format.ts:11-180](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/format.ts#L11-L180)

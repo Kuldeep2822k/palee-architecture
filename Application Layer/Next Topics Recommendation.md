@@ -62,7 +62,7 @@ graph TB
 ### Application Use Case: `getNextTopics`
 The application use case is the central decision point for next-topic recommendations. It:
 
-1. Builds a prerequisite-block map using `findPrerequisiteBlocked`.
+1. Builds a prerequisite-block map using `findPrerequisiteBlocked` — gate verdicts, cycle quarantine included, are computed here, before partitioning, and applied at step 5.
 2. Converts loaded topics into normalized recommendation objects.
 3. Partitions them into never-reviewed and elapsed-review candidates.
 4. Sorts candidates with never-reviewed first, then oldest due date.
@@ -190,17 +190,15 @@ The next topics recommendation architecture follows a layered pipeline:
 graph LR
     Vault["Vault files"] --> Loader["Storage loader"]
     Loader --> Normalized["Loaded topics"]
-    Normalized --> Partitioner["Due partitioning"]
-    Partitioner --> Gater["Prerequisite gate"]
-    Gater --> Quarantine["Cycle quarantine"]
-    Quarantine --> Candidates["Actionable candidates"]
+    Normalized --> Gater["Prerequisite gate<br/>(includes cycle quarantine)"]
+    Gater --> Partitioner["Due partitioning"]
+    Partitioner --> Candidates["Actionable candidates"]
     Candidates --> Output["CLI output / JSON"]
 ```
 
 - **Vault and loader**: Provide topic metadata, mastery, repetition, due dates, status, and dependencies.
+- **Gater**: Enforces prerequisite mastery and existence. Its verdicts — cycle quarantine included — are computed before partitioning and applied to the partitioned, sorted candidates, so the component graph (gate first) and the use-case sequence (gate applied last) describe the same run.
 - **Partitioner**: Separates never-reviewed topics from elapsed reviews.
-- **Gater**: Enforces prerequisite mastery and existence.
-- **Quarantine**: Removes undefined learning order caused by cycles.
 - **Output**: Exposes actionable recommendations and blocked explanations.
 
 ## Detailed Component Analysis
@@ -219,8 +217,10 @@ Advisory edges are excluded from the gate because they represent listing order o
 ```mermaid
 flowchart TD
     Enter["Evaluate prerequisite gate for topic"] --> CheckArchived{"Status is archived?"}
-    CheckArchived -->|Yes| NotReady["Not ready"]
-    CheckArchived -->|No| CheckAdvisory{"Advisory edge?"}
+    CheckArchived -->|Yes| DueTopics["Flows to dueTopics<br/>(filtered only at CLI output in next.ts)"]
+    CheckArchived -->|No| CheckOwnMastery{"Own topic_mastery >= threshold?"}
+    CheckOwnMastery -->|Yes| Ready["Ready"]
+    CheckOwnMastery -->|No| CheckAdvisory{"Advisory edge?"}
     CheckAdvisory -->|Yes| Ready["Ready"]
     CheckAdvisory -->|No| CheckMissing{"All prerequisites present?"}
     CheckMissing -->|No| NotReady
@@ -372,15 +372,3 @@ The next topics recommendation function implements a disciplined, graph-aware le
 - Human-readable feedback that explains why a topic is blocked.
 
 For future personalization, the system is well positioned to extend scoring strategies without changing the prerequisite contract. Potential enhancements include difficulty-weighted ordering, multi-step path expansion, adaptive pacing, and cached graph queries — provided they preserve the existing readiness and blocking invariants.
-
-## References
-
-- [next.ts:1-227](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/next.ts#L1-L227)
-- [get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [dependency.ts:1-1015](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L1015)
-- [mastery.ts:1-229](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L229)
-- [dependencies.ts:1-28](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/dependencies.ts#L1-L28)
-- [types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)
-- [application-next-prerequisite-gate.test.ts:1-157](https://github.com/Kuldeep2822k/cli/blob/main/test/application-next-prerequisite-gate.test.ts#L1-L157)
-- [application-get-next-topics.test.ts:1-77](https://github.com/Kuldeep2822k/cli/blob/main/test/application-get-next-topics.test.ts#L1-L77)

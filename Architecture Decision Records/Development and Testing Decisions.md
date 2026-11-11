@@ -289,16 +289,3 @@ If a number has a source of truth, quote it exactly. If there is no source of tr
 
 ## Conclusion
 PALEE’s development and testing decisions are unified by a single concern: evidence must prove something that can fail. Tests must be falsifiable, CI must prove the installed package, and documentation must distinguish current claims from labeled history. These standards make the repository easier to review, maintain, and extend because they turn ambiguity into explicit, auditable contracts rather than relying on ceremony, green suites, or unstated assumptions.
-
-## References
-
-- [ADR-0026: Test Discipline — Falsifiability Over Ceremony:1-79](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0026-test-discipline.md#L1-L79)
-- [ADR-0029: Test-Time CLI Launch Policy:1-97](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0029-test-cli-launch-policy.md#L1-L97)
-- [ADR-0030: Installed-Artifact CI Evidence:1-66](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0030-installed-artifact-ci-evidence.md#L1-L66)
-- [ADR-0031: Documentation Truth — Current-State Docs, Labeled History:1-67](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0031-documentation-truth.md#L1-L67)
-- [Smoke Script for Installed Artifacts:1-87](https://github.com/Kuldeep2822k/cli/blob/main/scripts/smoke-installed.js#L1-L87)
-- [CI Workflow Matrix Parity Test:1-187](https://github.com/Kuldeep2822k/cli/blob/main/test/ci-workflow-matrix.test.ts#L1-L187)
-- [ADR-0026: Test Discipline — Falsifiability Over Ceremony:10-79](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0026-test-discipline.md#L10-L79)
-- [ADR-0026: Test Discipline — Falsifiability Over Ceremony:10-40](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0026-test-discipline.md#L10-L40)
-- [ADR-0026: Test Discipline — Falsifiability Over Ceremony:25-40](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0026-test-discipline.md#L25-L40)
-- [ADR-0026: Test Discipline — Falsifiability Over Ceremony:40-50](https://github.com/Kuldeep2822k/cli/blob/main/docs/adr/0026-test-discipline.md#L40-L50)

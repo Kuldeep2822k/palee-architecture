@@ -34,7 +34,6 @@
 7. [Performance Considerations](#performance-considerations)
 8. [Troubleshooting Guide](#troubleshooting-guide)
 9. [Conclusion](#conclusion)
-10. [References](#references)
 
 ## Introduction
 PALEE is a layered TypeScript application that turns a markdown-based knowledge base into a spaced-repetition, prerequisite-aware learning system. Its architecture is intentionally strict: the CLI layer talks to the application layer, which orchestrates pure domain logic in the engine and storage layers, while the validation layer independently audits vault state. The design goal is clear separation of concerns, stable public APIs, testability without global state, and predictable error handling.
@@ -388,25 +387,3 @@ Common architectural troubleshooting scenarios:
 
 ## Conclusion
 PALEE’s layered architecture follows the dependency direction described above (no layer imports CLI, and the application layer imports no I/O): CLI orchestrates user interaction, the application layer owns pure use cases, the engine implements domain algorithms, the storage layer manages I/O and persistence, and the validation layer audits state deterministically. Barrel exports provide clean public surfaces, shared types stabilize cross-layer contracts, and the separation of concerns enables isolated unit tests, mockable interfaces, and predictable behavior. This structure makes PALEE maintainable as it grows: new commands add CLI handlers, new domain logic belongs in the engine, new persistence needs belong in storage, and new integrity checks belong in validation.
-
-## References
-
-- [package.json:1-85](https://github.com/Kuldeep2822k/cli/blob/main/package.json#L1-L85)
-- [src/index.ts:1-27](https://github.com/Kuldeep2822k/cli/blob/main/src/index.ts#L1-L27)
-- [src/types.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/types.ts#L1-L200)
-- [src/cli/program-name.ts:1-91](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/program-name.ts#L1-L91)
-- [src/application/get-next-topics.ts:1-199](https://github.com/Kuldeep2822k/cli/blob/main/src/application/get-next-topics.ts#L1-L199)
-- [src/engine/index.ts:1-126](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/index.ts#L1-L126)
-- [src/storage/index.ts:1-142](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/index.ts#L1-L142)
-- [src/validation/index.ts:1-130](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/index.ts#L1-L130)
-- [src/cli/config.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/config.ts#L1-L200)
-- [src/cli/exit-codes.ts:1-65](https://github.com/Kuldeep2822k/cli/blob/main/src/cli/exit-codes.ts#L1-L65)
-- [src/application/due-topics.ts:1-58](https://github.com/Kuldeep2822k/cli/blob/main/src/application/due-topics.ts#L1-L58)
-- [src/application/record-assessment.ts:1-134](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-assessment.ts#L1-L134)
-- [src/application/record-review.ts:1-116](https://github.com/Kuldeep2822k/cli/blob/main/src/application/record-review.ts#L1-L116)
-- [src/engine/sm2.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/sm2.ts#L1-L200)
-- [src/engine/mastery.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/mastery.ts#L1-L200)
-- [src/engine/dependency.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/engine/dependency.ts#L1-L200)
-- [src/storage/loader.ts:1-200](https://github.com/Kuldeep2822k/cli/blob/main/src/storage/loader.ts#L1-L200)
-- [src/validation/run-rules.ts:1-60](https://github.com/Kuldeep2822k/cli/blob/main/src/validation/run-rules.ts#L1-L60)
-- [bin/palee.ts](https://github.com/Kuldeep2822k/cli/blob/main/bin/palee.ts)
